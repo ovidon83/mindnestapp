@@ -1,7 +1,7 @@
 import { AIResponse, ThoughtAnalysis, JournalReflection, TagSuggestion, BacklogGeneration } from '../types';
 import { MultiTopicResult } from '../store';
 
-const OPENAI_API_KEY = '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';
+const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
 class AIService {
   private static async callOpenAI(prompt: string, systemPrompt?: string): Promise<any> {
