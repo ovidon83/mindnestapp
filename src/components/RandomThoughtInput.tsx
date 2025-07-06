@@ -7,7 +7,7 @@ interface RandomThoughtInputProps {
   onCategoryRoute?: (category: string) => void;
 }
 
-export const RandomThoughtInput: React.FC<RandomThoughtInputProps> = ({ onCategoryRoute }) => {
+export const RandomThoughtInput: React.FC<RandomThoughtInputProps> = ({ onCategoryRoute: _ }) => {
   const [thought, setThought] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const { addRandomThought, addTodo, addNote, addIdea, addProject, addJournalEntry, createMultipleItems } = useMindnestStore();

@@ -5,6 +5,10 @@ const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
 class AIService {
   private static async callOpenAI(prompt: string, systemPrompt?: string): Promise<any> {
+    if (!OPENAI_API_KEY) {
+      throw new Error('OpenAI API key not configured. Please set VITE_OPENAI_API_KEY environment variable.');
+    }
+    
     try {
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { X, Plus, Search, Grid, List, Edit3, Trash2, Tag } from 'lucide-react';
 import { useMindnestStore } from '../store';
-import { RichTextEditor } from './RichTextEditor';
 
 export const NoteEditor: React.FC = () => {
   const [selectedNote, setSelectedNote] = useState<string | null>(null);
@@ -106,10 +105,11 @@ export const NoteEditor: React.FC = () => {
           />
           
                      <div className="flex-1 min-h-[400px]">
-            <RichTextEditor
-              content={newNoteContent || (selectedNoteData?.content || '')}
-              onChange={(content) => setNewNoteContent(content)}
+            <textarea
+              value={newNoteContent || (selectedNoteData?.content || '')}
+              onChange={(e) => setNewNoteContent(e.target.value)}
               placeholder="Start writing your note..."
+              className="w-full h-full min-h-[400px] p-4 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 focus:bg-white placeholder-gray-500 text-base leading-relaxed resize-none"
             />
           </div>
         </div>

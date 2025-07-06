@@ -120,7 +120,7 @@ interface MindnestStore {
 
 export const useMindnestStore = create<MindnestStore>()(
   persist(
-    (set, get) => ({
+    (set, _get) => ({
       // Random Thoughts
       randomThoughts: [],
       addRandomThought: (thought) => set((state) => ({
