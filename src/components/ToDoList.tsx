@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import type { TodoItem } from '../types';
 import { 
   CheckSquare, Plus, Trash2, CheckCircle2, Circle, Calendar, 
-  ChevronRight, ChevronDown, FileText, Edit3, Save, X 
+  ChevronRight, ChevronDown, FileText, Edit3 
 } from 'lucide-react';
 import { useMindnestStore } from '../store';
 
@@ -31,11 +31,12 @@ const isOverdue = (date: Date | string | undefined) => {
   return d < today && !isToday(d);
 };
 
-const priorityColors = {
-  low: 'bg-green-50 text-green-700',
-  medium: 'bg-yellow-50 text-yellow-700',
-  high: 'bg-red-50 text-red-700',
-};
+// Priority colors (unused but kept for future use)
+// const priorityColors = {
+//   low: 'bg-green-50 text-green-700',
+//   medium: 'bg-yellow-50 text-yellow-700',
+//   high: 'bg-red-50 text-red-700',
+// };
 
 // Helper: extract tags from #hashtags in a string
 function extractTags(text: string): string[] {

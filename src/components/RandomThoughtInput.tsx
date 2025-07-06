@@ -3,7 +3,11 @@ import { Sparkles, CheckSquare, Lightbulb, FileText, BookOpen, Heart } from 'luc
 import { useMindnestStore } from '../store';
 import { AIService } from '../services/ai';
 
-export const RandomThoughtInput: React.FC = () => {
+interface RandomThoughtInputProps {
+  onCategoryRoute?: (category: string) => void;
+}
+
+export const RandomThoughtInput: React.FC<RandomThoughtInputProps> = ({ onCategoryRoute }) => {
   const [thought, setThought] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const { addRandomThought, addTodo, addNote, addIdea, addProject, addJournalEntry, createMultipleItems } = useMindnestStore();

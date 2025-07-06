@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
-import { Calendar, Heart, Smile, Meh, Frown, Play, Pause, RotateCcw, BookOpen, Timer } from 'lucide-react';
+import { Heart, Smile, Meh, Frown, Play, Pause, RotateCcw, BookOpen, Timer } from 'lucide-react';
 import { useMindnestStore } from '../store';
 
 type Mood = 'great' | 'good' | 'okay' | 'bad' | 'terrible';
@@ -394,7 +394,7 @@ export const JournalView: React.FC = () => {
                   How are you feeling?
                 </h3>
                 <div className="flex justify-center gap-3 sm:gap-4">
-                  {Object.entries(moodIcons).map(([mood, { icon: Icon, color, bg, border }]) => (
+                  {Object.entries(moodIcons).map(([mood, { icon: Icon, color, bg }]) => (
                     <button
                       key={mood}
                       type="button"

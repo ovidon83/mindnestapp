@@ -13,14 +13,14 @@ import {
 } from 'lucide-react';
 import { useMindnestStore } from '../store';
 
-// Helper function to format dates
-const formatDate = (date: Date) => {
-  return date.toLocaleDateString('en-US', { 
-    weekday: 'short', 
-    month: 'short', 
-    day: 'numeric' 
-  });
-};
+// Helper function to format dates (unused but kept for future use)
+// const formatDate = (date: Date) => {
+//   return date.toLocaleDateString('en-US', { 
+//     weekday: 'short', 
+//     month: 'short', 
+//     day: 'numeric' 
+//   });
+// };
 
 const isToday = (date: Date) => {
   const today = new Date();
