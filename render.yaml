@@ -3,9 +3,7 @@ services:
     name: mindnest-app
     env: node
     buildCommand: npm install && npm run build
-    startCommand: npm run start
+    startCommand: npx serve -s dist -l $PORT
     envVars:
       - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10000 
+        value: production 
