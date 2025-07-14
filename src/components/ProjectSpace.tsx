@@ -22,14 +22,17 @@ import { useMindnestStore } from '../store';
 //   });
 // };
 
-const isToday = (date: Date) => {
-  const today = new Date();
-  return date.toDateString() === today.toDateString();
+const isToday = (date: Date | string | undefined) => {
+  if (!date) return false;
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return d.toDateString() === new Date().toDateString();
 };
 
-const isOverdue = (date: Date) => {
+const isOverdue = (date: Date | string | undefined) => {
+  if (!date) return false;
+  const d = typeof date === 'string' ? new Date(date) : date;
   const today = new Date();
-  return date < today && !isToday(date);
+  return d < today && d.toDateString() !== today.toDateString();
 };
 
 const statusColors = {
