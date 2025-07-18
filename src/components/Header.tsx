@@ -1,34 +1,29 @@
-import { useState } from 'react';
+import React from 'react';
 import { 
   Search, 
   Settings,
-  Lightbulb,
-  BookOpen,
-  StickyNote,
-  CheckSquare,
-  Zap,
-  Briefcase
+  Bell
 } from 'lucide-react';
-import { AppSection } from '../types';
 
-interface HeaderProps {
-  currentSection: AppSection;
-  setCurrentSection: (section: AppSection) => void;
+export interface HeaderProps {
+  currentSection: string;
+  setCurrentSection: (section: string) => void;
   focusMode: boolean;
   setFocusMode: (focus: boolean) => void;
-  setShowSearchModal: (show: boolean) => void;
+  setShowSearchModal: () => void;
 }
 
-export function Header({ currentSection, setCurrentSection, focusMode, setFocusMode, setShowSearchModal }: HeaderProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-
+export const Header: React.FC<HeaderProps> = ({ 
+  currentSection,
+  setCurrentSection,
+  focusMode,
+  setFocusMode,
+  setShowSearchModal,
+}) => {
   const tabs = [
-    { id: 'thoughts' as AppSection, label: 'Thoughts', icon: Lightbulb },
-    { id: 'journal' as AppSection, label: 'Journal', icon: BookOpen },
-    { id: 'notes' as AppSection, label: 'Notes', icon: StickyNote },
-    { id: 'todos' as AppSection, label: 'To-Do', icon: CheckSquare },
-    { id: 'ideas' as AppSection, label: 'Ideas', icon: Zap },
-    { id: 'projects' as AppSection, label: 'Projects', icon: Briefcase }
+    { id: 'thoughts', label: 'Thoughts', icon: '🧠' },
+    { id: 'journal', label: 'Journal', icon: '📝' },
+    { id: 'todos', label: 'To-Do', icon: '✅' },
   ];
 
   if (focusMode) {
@@ -45,83 +40,71 @@ export function Header({ currentSection, setCurrentSection, focusMode, setFocusM
   }
 
   return (
-    <div className="bg-white border-b border-gray-100">
-      <div className="max-w-7xl mx-auto px-6">
+    <header className="bg-white border-b border-gray-200 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo - Clean & Minimal */}
+          {/* Logo and Title */}
           <div className="flex items-center">
-            <h1 className="text-xl font-semibold text-gray-900 tracking-tight">
-              Mindnest
-            </h1>
+            <div className="flex-shrink-0">
+              <h1 className="text-xl font-semibold text-gray-900 tracking-tight">
+                GenieNotes
+              </h1>
+            </div>
           </div>
 
-          {/* Navigation - Clean Tab Design */}
-          <div className="hidden md:flex items-center space-x-1">
-            {tabs.map(({ id, label, icon: Icon }) => (
+          {/* Navigation Tabs */}
+          <nav className="hidden md:flex space-x-1">
+            {tabs.map((tab) => (
               <button
-                key={id}
-                onClick={() => setCurrentSection(id)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  currentSection === id
-                    ? 'bg-gray-900 text-white'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                key={tab.id}
+                onClick={() => setCurrentSection(tab.id)}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  currentSection === tab.id
+                    ? 'bg-gray-100 text-gray-900'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                 }`}
               >
-                <Icon className="w-4 h-4" />
-                <span>{label}</span>
+                <span className="mr-2">{tab.icon}</span>
+                {tab.label}
               </button>
             ))}
-          </div>
+          </nav>
 
-          {/* Right Actions - Minimal */}
+          {/* Right side actions */}
           <div className="flex items-center space-x-4">
-            <div className="relative hidden lg:block">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-64 pl-10 pr-4 py-2 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 focus:bg-white placeholder-gray-500 text-sm transition-all duration-200"
-              />
-            </div>
-
-            <button 
-              onClick={() => setShowSearchModal(true)}
-              className="lg:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200"
+            <button
+              onClick={setShowSearchModal}
+              className="p-2 text-gray-400 hover:text-gray-500 transition-colors"
             >
-              <Search className="w-4 h-4" />
+              <Search size={20} />
             </button>
-
-            <button 
-              onClick={() => setFocusMode(true)}
-              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200"
-            >
-              <Settings className="w-4 h-4" />
+            <button className="p-2 text-gray-400 hover:text-gray-500 transition-colors">             <Bell size={20} />
+            </button>
+            <button className="p-2 text-gray-400 hover:text-gray-500 transition-colors">         <Settings size={20} />
             </button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
-        <div className="md:hidden border-t border-gray-100 py-2">
-          <div className="flex items-center space-x-1 overflow-x-auto">
-            {tabs.map(({ id, label, icon: Icon }) => (
+        <div className="md:hidden">
+          <div className="flex space-x-1 overflow-x-auto pb-2">
+            {tabs.map((tab) => (
               <button
-                key={id}
-                onClick={() => setCurrentSection(id)}
-                className={`flex items-center space-x-1 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all duration-200 ${
-                  currentSection === id
-                    ? 'bg-gray-900 text-white'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                key={tab.id}
+                onClick={() => setCurrentSection(tab.id)}
+                className={`flex-shrink-0 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  currentSection === tab.id
+                    ? 'bg-gray-100 text-gray-900'
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                 }`}
               >
-                <Icon className="w-4 h-4" />
-                <span>{label}</span>
+                <span className="mr-1">{tab.icon}</span>
+                {tab.label}
               </button>
             ))}
           </div>
         </div>
       </div>
-    </div>
+    </header>
   );
-} 
+}; 

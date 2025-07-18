@@ -23,7 +23,7 @@ class AIService {
             { role: 'user', content: prompt }
           ],
           temperature: 0.7,
-          max_tokens: 1000,
+          max_tokens: 1500,
         }),
       });
 
@@ -201,28 +201,33 @@ Generate 6-10 realistic project tasks that would help bring this idea to life. I
 
   static async categorizeThought(content: string): Promise<AIResponse> {
     try {
-      const systemPrompt = `You are an AI assistant that categorizes thoughts and automatically routes them to the appropriate section. Analyze the given thought and return a JSON response with the following structure:
+      const systemPrompt = `You are an AI assistant that analyzes and categorizes personal thoughts. Analyze the given thought and return a JSON response with the following structure:
 {
-  "category": "idea|task|note|journal|random_thought",
-  "confidence": 0.0-1.0,
-  "extractedData": {
-    "title": "extracted title if applicable",
-    "description": "enhanced description",
-    "priority": "low|medium|high (for tasks)",
-    "dueDate": "YYYY-MM-DD (for tasks, if mentioned)",
-    "location": "location if mentioned (for tasks)",
-    "links": ["relevant links or resources"],
-    "suggestedActions": ["action 1", "action 2"]
-  }
+  "category": "task|emotion|idea|reminder|reflection",
+  "label": "work|personal|health|family|finance|creative|learning",
+  "priority": "low|medium|high",
+  "dueDate": "YYYY-MM-DD" (if applicable, null otherwise),
+  "linkedThoughts": ["related thought 1", "related thought 2"],
+  "insights": "brief AI insight about this thought",
+  "mood": "great|good|okay|bad|terrible" (if emotional content),
+  "tags": ["tag1", "tag2", "tag3"]
 }
 
-For tasks, extract important details like location, due dates, and suggest helpful resources like Google Maps, calendar links, etc.
-For ideas, extract business potential and market insights.
-For journal entries, focus on emotional and personal reflection.
-For notes, organize information clearly.
-For random thoughts, preserve the original thought with minimal processing.`;
+Guidelines:
+- "task": actionable items, to-dos, appointments
+- "emotion": feelings, moods, emotional states
+- "idea": creative thoughts, concepts, possibilities
+- "reminder": things to remember, follow-ups
+- "reflection": self-reflection, insights, observations
 
-      const prompt = `Please categorize and enhance this thought: "${content}"`;
+Priority levels:
+- "high": urgent, time-sensitive, important
+- "medium": moderate importance, can wait
+- "low": nice to have, no rush
+
+Only include dueDate if there's a clear deadline or time sensitivity.`;
+
+      const prompt = `Please categorize and analyze this thought: "${content}"`;
       
       const result = await this.callOpenAI(prompt, systemPrompt);
       const parsed = JSON.parse(result);
@@ -235,68 +240,168 @@ For random thoughts, preserve the original thought with minimal processing.`;
   }
 
   static async analyzeMultipleTopics(content: string): Promise<MultiTopicResult> {
-    const prompt = `Analyze the following text and extract any tasks, notes, ideas, projects, or journal entries. 
-    Return a JSON object with the following structure:
-    {
-      "tasks": [{"content": "task description", "priority": "low|medium|high", "tags": ["tag1"]}],
-      "notes": [{"title": "note title", "content": "note content", "tags": ["tag1"]}],
-      "ideas": [{"title": "idea title", "description": "description", "category": "app|business|feature|product|service|other", "status": "concept", "potential": "low|medium|high", "tags": ["tag1"]}],
-      "projects": [{"name": "project name", "description": "description", "status": "idea", "tags": ["tag1"]}],
-      "journalEntries": [{"content": "journal content", "mood": "great|good|okay|bad|terrible"}]
-    }
-    
-    Guidelines:
-    - Extract actionable items as tasks
-    - Extract informational content as notes
-    - Extract creative concepts as ideas
-    - Extract multi-step goals as projects
-    - Extract personal reflections as journal entries
-    - Only include items that are clearly identifiable
-    - Use relevant tags for categorization
-    - Return empty arrays for categories not found
-    
-    Text to analyze: "${content}"`;
-
     try {
-      const response = await fetch('/api/ai/analyze', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ prompt }),
-      });
+      const systemPrompt = `You are an AI assistant that analyzes text and extracts multiple types of content. Return a JSON object with the following structure:
 
-      if (!response.ok) {
-        throw new Error('Failed to analyze content');
-      }
+{
+  "tasks": [
+    {
+      "content": "task description",
+      "priority": "low|medium|high",
+      "dueDate": "YYYY-MM-DD (if mentioned)",
+      "tags": ["tag1", "tag2"],
+      "timeEstimate": "estimated time",
+      "energyLevel": "low|medium|high"
+    }
+  ],
+  "notes": [
+    {
+      "title": "note title",
+      "content": "note content",
+      "tags": ["tag1", "tag2"]
+    }
+  ],
+  "ideas": [
+    {
+      "title": "idea title",
+      "description": "description",
+      "category": "app|business|feature|product|service|other",
+      "status": "concept",
+      "potential": "low|medium|high",
+      "tags": ["tag1", "tag2"],
+      "marketSize": "market size description",
+      "targetAudience": "target audience description"
+    }
+  ],
+  "projects": [
+    {
+      "name": "project name",
+      "description": "description",
+      "status": "idea",
+      "tags": ["tag1", "tag2"],
+      "timeline": "estimated timeline",
+      "resources": ["resource1", "resource2"]
+    }
+  ],
+  "journalEntries": [
+    {
+      "content": "journal content",
+      "mood": "great|good|okay|bad|terrible",
+      "tags": ["tag1", "tag2"]
+    }
+  ]
+}
 
-      const result = await response.json();
+Extract all relevant content types from the text. Be thorough and creative in identifying different types of content.`;
+
+      const prompt = `Please analyze this text and extract all relevant content: "${content}"`;
       
-      // Parse the AI response and ensure it matches our expected structure
-      const parsed = JSON.parse(result.content);
+      const result = await this.callOpenAI(prompt, systemPrompt);
+      const parsed = JSON.parse(result);
       
-      return {
-        tasks: parsed.tasks || [],
-        notes: parsed.notes || [],
-        ideas: parsed.ideas || [],
-        projects: parsed.projects || [],
-        journalEntries: parsed.journalEntries || [],
-      };
+      return parsed;
     } catch (error) {
       console.error('Error analyzing multiple topics:', error);
-      
-      // Fallback: create a simple note if AI analysis fails
       return {
         tasks: [],
-        notes: [{
-          title: 'Captured Thought',
-          content: content,
-          tags: ['unprocessed'],
-        }],
+        notes: [],
         ideas: [],
         projects: [],
-        journalEntries: [],
+        journalEntries: []
       };
+    }
+  }
+
+  static async generateTodayView(thoughts: any[], todos: any[], ideas: any[], projects: any[]): Promise<AIResponse> {
+    try {
+      const systemPrompt = `You are an AI assistant that creates a personalized "Today" view. Analyze the user's thoughts, tasks, ideas, and projects to suggest what should be focused on today. Return a JSON response with the following structure:
+
+{
+  "focusAreas": [
+    {
+      "title": "focus area title",
+      "description": "why this matters today",
+      "priority": "low|medium|high",
+      "items": ["item1", "item2"],
+      "estimatedTime": "time estimate"
+    }
+  ],
+  "suggestedTasks": [
+    {
+      "content": "task description",
+      "priority": "low|medium|high",
+      "reason": "why this should be done today",
+      "energyLevel": "low|medium|high"
+    }
+  ],
+  "insights": [
+    "insight about patterns or opportunities"
+  ],
+  "mood": "great|good|okay|bad|terrible",
+  "energyLevel": "low|medium|high",
+  "recommendations": [
+    "personalized recommendation"
+  ]
+}
+
+Consider:
+- Urgent tasks and deadlines
+- Energy levels and mood patterns
+- Progress on ongoing projects
+- New ideas that need attention
+- Personal well-being and balance`;
+
+      const context = `
+Thoughts: ${thoughts.map(t => t.content).join(', ')}
+Tasks: ${todos.map(t => t.content).join(', ')}
+Ideas: ${ideas.map(i => i.title).join(', ')}
+Projects: ${projects.map(p => p.name).join(', ')}
+      `;
+
+      const prompt = `Please create a personalized Today view based on this context: ${context}`;
+      
+      const result = await this.callOpenAI(prompt, systemPrompt);
+      const parsed = JSON.parse(result);
+      
+      return { success: true, data: parsed };
+    } catch (error) {
+      console.error('Error generating today view:', error);
+      return { success: false, error: 'Failed to generate today view' };
+    }
+  }
+
+  static async enhanceThoughtWithContext(thought: any, allThoughts: any[]): Promise<AIResponse> {
+    try {
+      const systemPrompt = `You are an AI assistant that enhances thoughts with context and connections. Analyze a thought in relation to other thoughts and return enhanced insights. Return a JSON response with the following structure:
+
+{
+  "enhancedThought": {
+    "connections": ["related thought 1", "related thought 2"],
+    "patterns": ["pattern 1", "pattern 2"],
+    "insights": ["insight 1", "insight 2"],
+    "suggestedActions": ["action 1", "action 2"],
+    "priority": "low|medium|high",
+    "category": "refined category"
+  },
+  "recommendations": [
+    "recommendation based on patterns"
+  ]
+}`;
+
+      const context = `
+Current thought: ${thought.content}
+Other thoughts: ${allThoughts.filter(t => t.id !== thought.id).map(t => t.content).join(', ')}
+      `;
+
+      const prompt = `Please enhance this thought with context: ${context}`;
+      
+      const result = await this.callOpenAI(prompt, systemPrompt);
+      const parsed = JSON.parse(result);
+      
+      return { success: true, data: parsed };
+    } catch (error) {
+      console.error('Error enhancing thought with context:', error);
+      return { success: false, error: 'Failed to enhance thought' };
     }
   }
 }

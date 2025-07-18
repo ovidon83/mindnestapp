@@ -1,6 +1,120 @@
-import React, { useState } from 'react';
-import { X, Plus, Search, Grid, List, Edit3, Trash2, Tag } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { X, Plus, Search, Grid, List, Edit3, Trash2, Bold, Italic, Underline, List as ListIcon, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 import { useMindnestStore } from '../store';
+
+// Simple rich text editor component
+const RichTextEditor: React.FC<{
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  className?: string;
+}> = ({ value, onChange, placeholder = 'Start writing...', className = '' }) => {
+  const [isFocused, setIsFocused] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    onChange(e.target.value);
+  };
+
+  const handleFocus = () => {
+    setIsFocused(true);
+    if (textareaRef.current) {
+      // Force cursor to end of text
+      const textarea = textareaRef.current;
+      textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+    }
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+  };
+
+  return (
+    <div className={`border border-gray-200 rounded-lg overflow-hidden ${className}`}>
+      {/* Toolbar */}
+      <div className="flex items-center gap-1 p-2 bg-gray-50 border-b border-gray-200">
+        <button
+          type="button"
+          onClick={() => document.execCommand('bold', false)}
+          className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded transition-colors"
+          title="Bold"
+        >
+          <Bold size={16} />
+        </button>
+        <button
+          type="button"
+          onClick={() => document.execCommand('italic', false)}
+          className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded transition-colors"
+          title="Italic"
+        >
+          <Italic size={16} />
+        </button>
+        <button
+          type="button"
+          onClick={() => document.execCommand('underline', false)}
+          className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded transition-colors"
+          title="Underline"
+        >
+          <Underline size={16} />
+        </button>
+        <div className="w-px h-4 bg-gray-300 mx-1" />
+        <button
+          type="button"
+          onClick={() => document.execCommand('insertUnorderedList', false)}
+          className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded transition-colors"
+          title="Bullet List"
+        >
+          <ListIcon size={16} />
+        </button>
+        <div className="w-px h-4 bg-gray-300 mx-1" />
+        <button
+          type="button"
+          onClick={() => document.execCommand('justifyLeft', false)}
+          className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded transition-colors"
+          title="Align Left"
+        >
+          <AlignLeft size={16} />
+        </button>
+        <button
+          type="button"
+          onClick={() => document.execCommand('justifyCenter', false)}
+          className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded transition-colors"
+          title="Align Center"
+        >
+          <AlignCenter size={16} />
+        </button>
+        <button
+          type="button"
+          onClick={() => document.execCommand('justifyRight', false)}
+          className="p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded transition-colors"
+          title="Align Right"
+        >
+          <AlignRight size={16} />
+        </button>
+      </div>
+      
+      {/* Editor */}
+      <textarea
+        ref={textareaRef}
+        value={value}
+        onChange={handleInput}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        placeholder={placeholder}
+        className={`w-full p-4 min-h-[400px] focus:outline-none resize-none ${
+          isFocused ? 'bg-white' : 'bg-gray-50'
+        }`}
+        style={{
+          direction: 'ltr',
+          textAlign: 'left',
+          fontFamily: 'inherit',
+          fontSize: 'inherit',
+          lineHeight: '1.6',
+        }}
+      />
+    </div>
+  );
+};
 
 export const NoteEditor: React.FC = () => {
   const [selectedNote, setSelectedNote] = useState<string | null>(null);
@@ -12,6 +126,34 @@ export const NoteEditor: React.FC = () => {
   const [newNoteTags, setNewNoteTags] = useState('');
   
   const { notes, addNote, updateNote, deleteNote } = useMindnestStore();
+  
+  const editorRef = useRef<HTMLDivElement>(null);
+
+  // Force text direction and cursor position
+  useEffect(() => {
+    if (editorRef.current) {
+      const editor = editorRef.current;
+      editor.setAttribute('dir', 'ltr');
+      editor.style.direction = 'ltr';
+      editor.style.unicodeBidi = 'normal';
+      editor.style.textAlign = 'left';
+      
+      // Force cursor to end of text
+      const range = document.createRange();
+      const selection = window.getSelection();
+      range.selectNodeContents(editor);
+      range.collapse(false);
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+    }
+  }, [showEditor, selectedNote]);
+
+  const handleKeyPress = (e: React.KeyboardEvent, action: () => void) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      action();
+    }
+  };
 
   const filteredNotes = notes.filter(note =>
     note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -56,7 +198,15 @@ export const NoteEditor: React.FC = () => {
               setNewNoteContent('');
               setNewNoteTags('');
             }}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            onKeyPress={(e) => handleKeyPress(e, () => {
+              setShowEditor(false);
+              setSelectedNote(null);
+              setNewNoteTitle('');
+              setNewNoteContent('');
+              setNewNoteTags('');
+            })}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300"
+            aria-label="Close editor"
           >
             <X size={20} />
           </button>
@@ -79,8 +229,22 @@ export const NoteEditor: React.FC = () => {
               setNewNoteContent('');
               setNewNoteTags('');
             } : handleCreateNote}
+            onKeyPress={(e) => handleKeyPress(e, selectedNote ? () => {
+              if (selectedNoteData) {
+                handleUpdateNote(selectedNoteData.id, {
+                  title: newNoteTitle || selectedNoteData.title,
+                  content: newNoteContent || selectedNoteData.content,
+                  tags: newNoteTags ? newNoteTags.split(',').map(tag => tag.trim()).filter(tag => tag) : selectedNoteData.tags
+                });
+              }
+              setSelectedNote(null);
+              setNewNoteTitle('');
+              setNewNoteContent('');
+              setNewNoteTags('');
+            } : handleCreateNote)}
             disabled={!newNoteTitle.trim() && !selectedNote}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-300"
+            aria-label={selectedNote ? 'Update note' : 'Create note'}
           >
             {selectedNote ? 'Update' : 'Create'}
           </button>
@@ -94,6 +258,7 @@ export const NoteEditor: React.FC = () => {
             value={newNoteTitle || (selectedNoteData?.title || '')}
             onChange={(e) => setNewNoteTitle(e.target.value)}
             className="w-full text-xl font-medium bg-transparent border-0 focus:outline-none placeholder-gray-500 p-2"
+            aria-label="Note title"
           />
           
           <input
@@ -102,14 +267,16 @@ export const NoteEditor: React.FC = () => {
             value={newNoteTags || (selectedNoteData?.tags.join(', ') || '')}
             onChange={(e) => setNewNoteTags(e.target.value)}
             className="w-full text-sm bg-gray-50 border-0 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-200 placeholder-gray-500"
+            aria-label="Note tags"
           />
           
-                     <div className="flex-1 min-h-[400px]">
-            <textarea
+          <div className="flex-1 min-h-[400px]">
+            <RichTextEditor
               value={newNoteContent || (selectedNoteData?.content || '')}
-              onChange={(e) => setNewNoteContent(e.target.value)}
+              onChange={setNewNoteContent}
               placeholder="Start writing your note..."
-              className="w-full h-full min-h-[400px] p-4 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 focus:bg-white placeholder-gray-500 text-base leading-relaxed resize-none"
+              className="h-full bg-white rounded-lg border border-gray-200 focus:outline-none"
+              aria-label="Note content"
             />
           </div>
         </div>
@@ -136,7 +303,9 @@ export const NoteEditor: React.FC = () => {
           
           <button
             onClick={() => setShowEditor(true)}
-            className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-xl hover:from-green-600 hover:to-blue-600 transition-all duration-200 flex items-center justify-center gap-2 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 min-h-[48px] touch-manipulation"
+            onKeyPress={(e) => handleKeyPress(e, () => setShowEditor(true))}
+            className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-xl hover:from-green-600 hover:to-blue-600 transition-all duration-200 flex items-center justify-center gap-2 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 min-h-[48px] touch-manipulation focus:outline-none focus:ring-2 focus:ring-blue-300"
+            aria-label="Create new note"
           >
             <Plus size={18} />
             <span>New Note</span>
@@ -153,24 +322,29 @@ export const NoteEditor: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 focus:bg-white placeholder-gray-500 text-sm"
+              aria-label="Search notes"
             />
           </div>
           
           <div className="flex bg-gray-100 rounded-xl p-1">
             <button
               onClick={() => setViewMode('grid')}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              onKeyPress={(e) => handleKeyPress(e, () => setViewMode('grid'))}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300 ${
                 viewMode === 'grid' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'
               }`}
+              aria-label="Grid view"
             >
               <Grid size={16} />
               <span className="hidden sm:inline">Grid</span>
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              onKeyPress={(e) => handleKeyPress(e, () => setViewMode('list'))}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300 ${
                 viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'
               }`}
+              aria-label="List view"
             >
               <List size={16} />
               <span className="hidden sm:inline">List</span>
@@ -196,79 +370,110 @@ export const NoteEditor: React.FC = () => {
             {!searchQuery && (
               <button
                 onClick={() => setShowEditor(true)}
-                className="px-6 py-3 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-xl hover:from-green-600 hover:to-blue-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium"
+                onKeyPress={(e) => handleKeyPress(e, () => setShowEditor(true))}
+                className="px-6 py-3 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-xl hover:from-green-600 hover:to-blue-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium focus:outline-none focus:ring-2 focus:ring-blue-300"
+                aria-label="Create your first note"
               >
-                Create Your First Note
+                Create Note
               </button>
             )}
           </div>
         ) : (
-          <div className={
-            viewMode === 'grid' 
-              ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6' 
-              : 'space-y-4'
+          <div className={viewMode === 'grid' 
+            ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' 
+            : 'space-y-4'
           }>
             {filteredNotes.map((note) => (
               <div
                 key={note.id}
-                className={`group bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 hover:shadow-lg transition-all duration-200 cursor-pointer ${
-                  viewMode === 'list' ? 'flex items-start gap-4' : ''
+                onClick={() => setSelectedNote(note.id)}
+                onKeyPress={(e) => handleKeyPress(e, () => setSelectedNote(note.id))}
+                className={`bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-all duration-200 cursor-pointer border border-transparent hover:border-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 ${
+                  viewMode === 'list' ? 'flex items-center gap-4' : ''
                 }`}
-                onClick={() => {
-                  setSelectedNote(note.id);
-                  setNewNoteTitle(note.title);
-                  setNewNoteContent(note.content);
-                  setNewNoteTags(note.tags.join(', '));
-                }}
+                role="button"
+                tabIndex={0}
+                aria-label={`Note: ${note.title}`}
               >
-                <div className={viewMode === 'list' ? 'flex-1' : ''}>
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="font-medium text-gray-900 text-base sm:text-lg leading-tight flex-1 pr-2">
-                      {note.title}
-                    </h3>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteNote(note.id);
-                      }}
-                      className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-600 transition-all duration-200"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                  
-                  <div 
-                    className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-3"
-                    dangerouslySetInnerHTML={{ __html: note.content || 'No content yet...' }}
-                  />
-                  
-                  {note.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 sm:gap-2 mb-3">
-                      {note.tags.slice(0, 3).map((tag, index) => (
-                        <span
-                          key={index}
-                          className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium"
-                        >
-                          <Tag size={10} />
-                          {tag}
-                        </span>
-                      ))}
-                      {note.tags.length > 3 && (
-                        <span className="text-xs text-gray-500 px-2 py-1">
-                          +{note.tags.length - 3} more
-                        </span>
-                      )}
+                {viewMode === 'list' ? (
+                  <>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-gray-900 text-lg truncate">{note.title}</h3>
+                      <p className="text-gray-600 text-sm mt-1 line-clamp-2" 
+                         dangerouslySetInnerHTML={{ __html: note.content.replace(/<[^>]*>/g, '').substring(0, 100) + '...' }} />
                     </div>
-                  )}
-                  
-                  <div className="text-xs text-gray-500">
-                    {new Date(note.updatedAt).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric'
-                    })}
-                  </div>
-                </div>
+                    <div className="flex items-center gap-2">
+                      {note.tags.length > 0 && (
+                        <div className="flex gap-1">
+                          {note.tags.slice(0, 2).map((tag) => (
+                            <span key={tag} className="px-2 py-1 bg-white text-gray-600 rounded-full text-xs">
+                              {tag}
+                            </span>
+                          ))}
+                          {note.tags.length > 2 && (
+                            <span className="text-xs text-gray-500">+{note.tags.length - 2}</span>
+                          )}
+                        </div>
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteNote(note.id);
+                        }}
+                        onKeyPress={(e) => {
+                          e.stopPropagation();
+                          handleKeyPress(e, () => deleteNote(note.id));
+                        }}
+                        className="p-2 text-gray-400 hover:text-red-600 transition-colors focus:outline-none focus:ring-2 focus:ring-red-300 rounded"
+                        aria-label="Delete note"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-start justify-between mb-4">
+                      <h3 className="font-medium text-gray-900 text-lg leading-tight flex-1 pr-2">
+                        {note.title}
+                      </h3>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteNote(note.id);
+                        }}
+                        onKeyPress={(e) => {
+                          e.stopPropagation();
+                          handleKeyPress(e, () => deleteNote(note.id));
+                        }}
+                        className="p-1 text-gray-400 hover:text-red-600 transition-colors focus:outline-none focus:ring-2 focus:ring-red-300 rounded"
+                        aria-label="Delete note"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                    
+                    <div 
+                      className="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-4"
+                      dangerouslySetInnerHTML={{ __html: note.content.replace(/<[^>]*>/g, '').substring(0, 150) + '...' }}
+                    />
+                    
+                    {note.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {note.tags.slice(0, 3).map((tag) => (
+                          <span key={tag} className="px-2 py-1 bg-white text-gray-600 rounded-full text-xs">
+                            {tag}
+                          </span>
+                        ))}
+                        {note.tags.length > 3 && (
+                          <span className="text-xs text-gray-500 px-2 py-1">
+                            +{note.tags.length - 3}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             ))}
           </div>

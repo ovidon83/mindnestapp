@@ -1,6 +1,22 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+export interface Thought {
+  id: string;
+  content: string;
+  timestamp: Date;
+  type: 'random' | 'journal' | 'note' | 'todo' | 'project' | 'idea';
+  tags?: string[];
+  metadata?: Record<string, any>;
+  aiEnhanced?: boolean;
+  category?: string;
+  priority?: 'low' | 'medium' | 'high';
+  dueDate?: Date;
+  mood?: 'great' | 'good' | 'okay' | 'bad' | 'terrible';
+  potential?: 'low' | 'medium' | 'high';
+  status?: string;
+}
+
 export interface RandomThought {
   id: string;
   content: string;
@@ -77,6 +93,12 @@ export interface MultiTopicResult {
 }
 
 interface MindnestStore {
+  // Unified Thoughts
+  thoughts: Thought[];
+  addThought: (thought: Omit<Thought, 'id' | 'timestamp'>) => void;
+  updateThought: (id: string, updates: Partial<Thought>) => void;
+  deleteThought: (id: string) => void;
+  
   // Random Thoughts
   randomThoughts: RandomThought[];
   addRandomThought: (thought: Omit<RandomThought, 'id' | 'createdAt'>) => void;
@@ -121,6 +143,27 @@ interface MindnestStore {
 export const useMindnestStore = create<MindnestStore>()(
   persist(
     (set, _get) => ({
+      // Unified Thoughts
+      thoughts: [],
+      addThought: (thought) => set((state) => ({
+        thoughts: [
+          {
+            ...thought,
+            id: crypto.randomUUID(),
+            timestamp: new Date(),
+          },
+          ...state.thoughts,
+        ],
+      })),
+      updateThought: (id, updates) => set((state) => ({
+        thoughts: state.thoughts.map((thought) =>
+          thought.id === id ? { ...thought, ...updates } : thought
+        ),
+      })),
+      deleteThought: (id) => set((state) => ({
+        thoughts: state.thoughts.filter((thought) => thought.id !== id),
+      })),
+      
       // Random Thoughts
       randomThoughts: [],
       addRandomThought: (thought) => set((state) => ({
@@ -323,6 +366,7 @@ export const useMindnestStore = create<MindnestStore>()(
     {
       name: "mindnest-storage",
       partialize: (state) => ({
+        thoughts: state.thoughts,
         randomThoughts: state.randomThoughts,
         journalEntries: state.journalEntries,
         notes: state.notes,

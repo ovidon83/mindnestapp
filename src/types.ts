@@ -75,7 +75,7 @@ export interface AIResponse<T = any> {
   error?: string;
 }
 
-export type AppSection = 'thoughts' | 'journal' | 'notes' | 'todos' | 'projects' | 'ideas';
+export type AppSection = 'dashboard' | 'thoughts' | 'journal' | 'todos' | 'ideas' | 'canvas';
 
 export interface AppState {
   currentSection: AppSection;
