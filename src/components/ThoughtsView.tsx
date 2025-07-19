@@ -40,8 +40,25 @@ export const ThoughtsView: React.FC = () => {
   const [showNudges, setShowNudges] = useState(true);
   const [aiAvailable, setAiAvailable] = useState(true);
   
-  const { addThought } = useMindnestStore();
-  const [processedThoughts, setProcessedThoughts] = useState<ProcessedThought[]>([]);
+  const { thoughts, addThought, updateThought, deleteThought } = useMindnestStore();
+
+  // Convert thoughts from store to ProcessedThought format for display
+  const processedThoughts: ProcessedThought[] = thoughts
+    .filter(thought => thought.type === 'random')
+    .map(thought => ({
+      id: thought.id,
+      originalContent: thought.content,
+      category: thought.metadata?.category || 'reflection',
+      label: thought.metadata?.label || 'personal',
+      priority: thought.metadata?.priority || 'medium',
+      dueDate: thought.metadata?.dueDate ? new Date(thought.metadata.dueDate) : undefined,
+      linkedThoughts: thought.metadata?.linkedThoughts || [],
+      status: thought.metadata?.status || 'new',
+      createdAt: thought.timestamp,
+      aiInsights: thought.metadata?.aiInsights,
+      mood: thought.metadata?.mood,
+      tags: thought.tags || [],
+    }));
 
   // Process thoughts with AI categorization
   const processThought = async (content: string) => {
@@ -56,42 +73,26 @@ export const ThoughtsView: React.FC = () => {
         setAiAvailable(true);
         const categorization = result.data as any;
         
-        const processedThought: ProcessedThought = {
-          id: crypto.randomUUID(),
-          originalContent: content,
-          category: categorization.category || 'idea',
-          label: categorization.label || 'personal',
-          priority: categorization.priority || 'medium',
-          dueDate: categorization.dueDate ? new Date(categorization.dueDate) : undefined,
-          linkedThoughts: categorization.linkedThoughts || [],
-          status: 'new',
-          createdAt: new Date(),
-          aiInsights: categorization.insights,
-          mood: categorization.mood,
-          tags: categorization.tags || [],
-        };
-        
-        setProcessedThoughts(prev => [processedThought, ...prev]);
-        
-        // Also add to main store
+        // Add to main store with all the categorization data
         addThought({
           content,
           type: 'random',
-          tags: processedThought.tags,
+          tags: categorization.tags || [],
           metadata: {
-            category: processedThought.category,
-            label: processedThought.label,
-            priority: processedThought.priority,
-            dueDate: processedThought.dueDate,
-            aiInsights: processedThought.aiInsights,
-            mood: processedThought.mood,
+            category: categorization.category || 'idea',
+            label: categorization.label || 'personal',
+            priority: categorization.priority || 'medium',
+            dueDate: categorization.dueDate ? new Date(categorization.dueDate) : undefined,
+            linkedThoughts: categorization.linkedThoughts || [],
+            status: 'new',
+            aiInsights: categorization.insights,
+            mood: categorization.mood,
           },
         });
       } else {
         // AI service failed, use fallback
         setAiAvailable(false);
         const fallbackThought = createFallbackThought(content);
-        setProcessedThoughts(prev => [fallbackThought, ...prev]);
         
         addThought({
           content,
@@ -101,7 +102,11 @@ export const ThoughtsView: React.FC = () => {
             category: fallbackThought.category,
             label: fallbackThought.label,
             priority: fallbackThought.priority,
+            dueDate: fallbackThought.dueDate,
+            linkedThoughts: fallbackThought.linkedThoughts,
+            status: fallbackThought.status,
             aiInsights: fallbackThought.aiInsights,
+            mood: fallbackThought.mood,
           },
         });
       }
@@ -110,7 +115,6 @@ export const ThoughtsView: React.FC = () => {
       // AI service not available, use fallback
       setAiAvailable(false);
       const fallbackThought = createFallbackThought(content);
-      setProcessedThoughts(prev => [fallbackThought, ...prev]);
       
       addThought({
         content,
@@ -120,13 +124,26 @@ export const ThoughtsView: React.FC = () => {
           category: fallbackThought.category,
           label: fallbackThought.label,
           priority: fallbackThought.priority,
+          dueDate: fallbackThought.dueDate,
+          linkedThoughts: fallbackThought.linkedThoughts,
+          status: fallbackThought.status,
           aiInsights: fallbackThought.aiInsights,
+          mood: fallbackThought.mood,
         },
       });
     } finally {
       setIsProcessing(false);
       setNewThought('');
     }
+  };
+
+  // Update thought status
+  const updateThoughtStatus = (thoughtId: string, status: 'new' | 'reviewed' | 'acted' | 'archived') => {
+    updateThought(thoughtId, {
+      metadata: {
+        status,
+      },
+    });
   };
 
   // Simple fallback categorization when AI is not available
@@ -483,27 +500,24 @@ export const ThoughtsView: React.FC = () => {
                 </div>
                 
                 <div className="flex items-center space-x-2 ml-4">
-                  <button
-                    onClick={() => {
-                      const updatedThought = { ...thought, status: 'reviewed' as const };
-                      setProcessedThoughts(prev => 
-                        prev.map(t => t.id === thought.id ? updatedThought : t)
-                      );
-                    }}
-                    className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-                    title="Mark as reviewed"
-                  >
-                    <CheckCircle size={16} />
-                  </button>
-                  <button
-                    onClick={() => {
-                      setProcessedThoughts(prev => prev.filter(t => t.id !== thought.id));
-                    }}
-                    className="p-2 text-gray-400 hover:text-red-600 transition-colors"
-                    title="Delete thought"
-                  >
-                    ×
-                  </button>
+                                      <button
+                      onClick={() => {
+                        updateThoughtStatus(thought.id, 'reviewed');
+                      }}
+                      className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                      title="Mark as reviewed"
+                    >
+                      <CheckCircle size={16} />
+                    </button>
+                    <button
+                      onClick={() => {
+                        deleteThought(thought.id);
+                      }}
+                      className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                      title="Delete thought"
+                    >
+                      ×
+                    </button>
                 </div>
               </div>
             </div>

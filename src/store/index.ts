@@ -54,6 +54,7 @@ export interface TodoItem {
   tags?: string[];
   notes?: string;
   parentId?: string;
+  order?: number;
 }
 
 export interface Idea {
