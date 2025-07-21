@@ -3,8 +3,9 @@ import { Header } from './components/Header';
 import { JournalView } from './components/JournalView';
 import { ToDoList } from './components/ToDoList';
 import { ThoughtsView } from './components/ThoughtsView';
+import { DashboardView } from './components/DashboardView';
 
-type TabType = 'thoughts' | 'journal' | 'todos';
+type TabType = 'thoughts' | 'journal' | 'todos' | 'dashboard';
 
 function App() {
   const [currentSection, setCurrentSection] = useState<TabType>('thoughts');
@@ -17,6 +18,8 @@ function App() {
         return <JournalView />;
       case 'todos':
         return <ToDoList />;
+      case 'dashboard':
+        return <DashboardView />;
       default:
         return <ThoughtsView />;
     }
@@ -30,6 +33,7 @@ function App() {
         focusMode={false}
         setFocusMode={() => {}}
         setShowSearchModal={() => {}}
+        extraTabs={[{ id: 'dashboard', label: 'Dashboard' }]}
       />
       <div className="transition-all duration-300">
         {renderContent()}

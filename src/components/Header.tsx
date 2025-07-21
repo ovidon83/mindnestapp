@@ -11,6 +11,7 @@ export interface HeaderProps {
   focusMode: boolean;
   setFocusMode: (focus: boolean) => void;
   setShowSearchModal: () => void;
+  extraTabs?: Array<{ id: string; label: string; icon?: string }>;
 }
 
 export const Header: React.FC<HeaderProps> = ({ 
@@ -19,11 +20,13 @@ export const Header: React.FC<HeaderProps> = ({
   focusMode,
   setFocusMode,
   setShowSearchModal,
+  extraTabs = [],
 }) => {
   const tabs = [
     { id: 'thoughts', label: 'Thoughts', icon: '🧠' },
     { id: 'journal', label: 'Journal', icon: '📝' },
     { id: 'todos', label: 'To-Do', icon: '✅' },
+    ...extraTabs,
   ];
 
   if (focusMode) {

@@ -843,17 +843,48 @@ export const JournalView: React.FC = () => {
               </div>
 
               {/* AI Insight */}
-              {aiInsight && (
-                <div className="mb-6 bg-gradient-to-r from-purple-50 to-amber-50 border-2 border-purple-200 rounded-xl p-6">
-                  <div className="flex items-start space-x-3">
-                    <Sparkles size={20} className="text-purple-600 mt-1" />
-                    <div>
-                      <h4 className="font-semibold text-purple-900 mb-2">Gentle Reflection</h4>
-                      <p className="text-purple-800 leading-relaxed">{aiInsight}</p>
+              {aiInsight && (() => {
+                let insightText = aiInsight;
+                let suggestions: string[] = [];
+                try {
+                  const parsed = typeof aiInsight === 'string' ? JSON.parse(aiInsight) : aiInsight;
+                  if (parsed && typeof parsed === 'object') {
+                    if (parsed.reflection) insightText = parsed.reflection;
+                    if (Array.isArray(parsed.suggestions)) suggestions = parsed.suggestions;
+                  }
+                } catch {}
+                return (
+                  <div className="mb-6 bg-gradient-to-r from-purple-50 to-amber-50 border-2 border-purple-200 rounded-xl p-6">
+                    <div className="flex items-start space-x-3 mb-2">
+                      <Sparkles size={20} className="text-purple-600 mt-1" />
+                      <div>
+                        <h4 className="font-semibold text-purple-900 mb-2">Gentle Reflection</h4>
+                        <p className="text-purple-800 leading-relaxed">{insightText}</p>
+                      </div>
                     </div>
+                    <div className="text-xs text-gray-600 mt-2">
+                      <strong>What are these insights?</strong> These reflections are crafted by your personal coach to help you gain clarity, self-awareness, and actionable next steps. You can turn suggestions into tasks or goals below.
+                    </div>
+                    {/* Convert suggestions to tasks/goals if present */}
+                    {suggestions.length > 0 && (
+                      <div className="mt-4">
+                        <h5 className="font-semibold text-gray-800 mb-2 text-sm">Turn suggestions into tasks or goals:</h5>
+                        <div className="flex flex-wrap gap-2">
+                          {suggestions.map((suggestion, idx) => (
+                            <button
+                              key={idx}
+                              className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs hover:bg-amber-200 border border-amber-200 transition"
+                              onClick={() => {/* TODO: implement add to tasks/goals */}}
+                            >
+                              + {suggestion}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* Action Buttons */}
               <div className="flex items-center space-x-4">

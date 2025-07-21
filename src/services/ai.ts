@@ -62,12 +62,14 @@ class AIService {
 
   static async analyzeThought(content: string): Promise<AIResponse<ThoughtAnalysis>> {
     try {
-      const systemPrompt = `You are an AI assistant that analyzes personal thoughts and provides insights. Return a JSON response with the following structure:
+      const systemPrompt = `You are a personal coach (spiritual/mental/life coach) helping the user grow. Analyze the user's thought, speak directly to them with warmth and encouragement, and provide a JSON response with the following structure:
 {
   "category": "idea|memory|goal|reflection|question|insight",
-  "insight": "detailed analysis of the thought",
+  "insight": "personal, coach-like analysis of the thought, with encouragement and clarity",
+  "nextSteps": ["actionable next step 1", "actionable next step 2"],
   "relatedThoughts": ["related thought 1", "related thought 2", "related thought 3"]
-}`;
+}
+Always suggest next steps that can be converted to tasks, projects, or ideas. Use a direct, supportive tone.`;
 
       const prompt = `Please analyze this thought and provide insights: "${content}"`;
       
@@ -83,12 +85,13 @@ class AIService {
 
   static async reflectOnDay(content: string): Promise<AIResponse<JournalReflection>> {
     try {
-      const systemPrompt = `You are an AI assistant that provides thoughtful reflections on journal entries. Return a JSON response with the following structure:
+      const systemPrompt = `You are a personal coach (spiritual/mental/life coach) helping the user reflect and grow. Read the user's journal entry, speak directly to them with warmth and encouragement, and provide a JSON response with the following structure:
 {
-  "reflection": "thoughtful analysis of the day's entry",
+  "reflection": "personal, coach-like analysis of the day's entry, with encouragement and clarity",
   "patterns": ["pattern 1", "pattern 2", "pattern 3"],
-  "suggestions": ["suggestion 1", "suggestion 2", "suggestion 3"]
-}`;
+  "suggestions": ["actionable suggestion 1", "actionable suggestion 2", "actionable suggestion 3"]
+}
+Always suggest actionable next steps that can be converted to tasks, goals, or journal prompts. Use a direct, supportive tone.`;
 
       const prompt = `Please reflect on this journal entry: "${content}"`;
       

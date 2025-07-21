@@ -39,6 +39,8 @@ export const ThoughtsView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showNudges, setShowNudges] = useState(true);
   const [aiAvailable, setAiAvailable] = useState(true);
+  const [aiNextSteps, setAiNextSteps] = useState<string[]>([]);
+  const [lastProcessedThought, setLastProcessedThought] = useState<string>('');
   
   const { thoughts, addThought, updateThought, deleteThought } = useMindnestStore();
 
@@ -63,37 +65,37 @@ export const ThoughtsView: React.FC = () => {
   // Process thoughts with AI categorization
   const processThought = async (content: string) => {
     if (!content.trim()) return;
-    
     setIsProcessing(true);
+    setLastProcessedThought(content);
+    setAiNextSteps([]);
     try {
       // Use AI to categorize and enhance the thought
-      const result = await AIService.categorizeThought(content);
-      
+      const result = await AIService.analyzeThought(content);
       if (result.success && result.data) {
         setAiAvailable(true);
-        const categorization = result.data as any;
-        
+        const aiData = result.data as any;
+        setAiNextSteps(Array.isArray(aiData.nextSteps) ? aiData.nextSteps : []);
         // Add to main store with all the categorization data
         addThought({
           content,
           type: 'random',
-          tags: categorization.tags || [],
+          tags: aiData.tags || [],
           metadata: {
-            category: categorization.category || 'idea',
-            label: categorization.label || 'personal',
-            priority: categorization.priority || 'medium',
-            dueDate: categorization.dueDate ? new Date(categorization.dueDate) : undefined,
-            linkedThoughts: categorization.linkedThoughts || [],
+            category: aiData.category || 'idea',
+            label: aiData.label || 'personal',
+            priority: aiData.priority || 'medium',
+            dueDate: aiData.dueDate ? new Date(aiData.dueDate) : undefined,
+            linkedThoughts: aiData.linkedThoughts || [],
             status: 'new',
-            aiInsights: categorization.insights,
-            mood: categorization.mood,
+            aiInsights: aiData.insight,
+            mood: aiData.mood,
           },
         });
       } else {
         // AI service failed, use fallback
         setAiAvailable(false);
+        setAiNextSteps([]);
         const fallbackThought = createFallbackThought(content);
-        
         addThought({
           content,
           type: 'random',
@@ -112,10 +114,9 @@ export const ThoughtsView: React.FC = () => {
       }
     } catch (error) {
       console.error('Error processing thought:', error);
-      // AI service not available, use fallback
       setAiAvailable(false);
+      setAiNextSteps([]);
       const fallbackThought = createFallbackThought(content);
-      
       addThought({
         content,
         type: 'random',
@@ -244,11 +245,19 @@ export const ThoughtsView: React.FC = () => {
     // Apply view-specific filters
     switch (currentView) {
       case 'today':
-        return filtered.filter(thought => 
-          thought.status === 'new' || 
+        return filtered.filter(thought =>
+          thought.status === 'new' ||
           (thought.dueDate && new Date(thought.dueDate).toDateString() === new Date().toDateString()) ||
-          thought.priority === 'high'
-        );
+          thought.priority === 'high' ||
+          thought.tags.some(tag => ['today', 'urgent'].includes(tag.toLowerCase()))
+        ).sort((a, b) => {
+          // Group actionable (task, reminder) first, then by priority
+          const aAction = a.category === 'task' || a.category === 'reminder';
+          const bAction = b.category === 'task' || b.category === 'reminder';
+          if (aAction !== bAction) return aAction ? -1 : 1;
+          const priorityOrder = { high: 0, medium: 1, low: 2 };
+          return (priorityOrder[a.priority] ?? 3) - (priorityOrder[b.priority] ?? 3);
+        });
       case 'inbox':
         return filtered.filter(thought => thought.status === 'new');
       case 'ideas':
@@ -427,6 +436,30 @@ export const ThoughtsView: React.FC = () => {
             >
               ×
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* After processing a new thought, show AI next steps if available */}
+      {aiNextSteps.length > 0 && lastProcessedThought && (
+        <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4 mb-6">
+          <div className="flex items-start space-x-3">
+            <Sparkles size={20} className="text-green-600 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="font-medium text-green-900 mb-1">Coach's Suggestions for Your Thought</h3>
+              <p className="text-green-800 mb-2">Here are some next steps you can take based on your thought:</p>
+              <div className="flex flex-wrap gap-2">
+                {aiNextSteps.map((step, idx) => (
+                  <button
+                    key={idx}
+                    className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs hover:bg-blue-200 border border-blue-200 transition"
+                    onClick={() => {/* TODO: implement add to tasks/projects/ideas */}}
+                  >
+                    + {step}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       )}
