@@ -15,7 +15,9 @@ import {
   GripVertical,
   Save,
   X,
-  List
+  FolderOpen,
+  BarChart3,
+  Zap
 } from 'lucide-react';
 import {
   DndContext,
@@ -68,6 +70,34 @@ const removeTagsFromText = (text: string): string => {
   return text.replace(/#\w+/g, '').trim();
 };
 
+// Auto-save hook
+const useAutoSave = (value: string, saveFunction: (value: string) => void, delay: number = 1000) => {
+  const [isSaving, setIsSaving] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout>();
+
+  useEffect(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    if (value.trim()) {
+      timeoutRef.current = setTimeout(() => {
+        setIsSaving(true);
+        saveFunction(value);
+        setTimeout(() => setIsSaving(false), 500);
+      }, delay);
+    }
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [value, saveFunction, delay]);
+
+  return isSaving;
+};
+
 // Sortable Todo Item Component
 interface SortableTodoItemProps {
   todo: any;
@@ -95,7 +125,7 @@ const SortableTodoItem: React.FC<SortableTodoItemProps> = ({
   const [showNotes, setShowNotes] = useState(false);
   const [showSubTasks, setShowSubTasks] = useState(false);
   const [newSubTask, setNewSubTask] = useState('');
-  const [newNote, setNewNote] = useState('');
+  const [newNote, setNewNote] = useState(todo.notes || '');
   const [isAddingSubTask, setIsAddingSubTask] = useState(false);
   const [isAddingNote, setIsAddingNote] = useState(false);
   
@@ -116,6 +146,11 @@ const SortableTodoItem: React.FC<SortableTodoItemProps> = ({
     transform: CSS.Transform.toString(transform),
     transition,
   };
+
+  // Auto-save notes
+  const isSavingNotes = useAutoSave(newNote, (value) => {
+    onUpdate(todo.id, { notes: value });
+  }, 1500);
 
   useEffect(() => {
     if (isEditing && editInputRef.current) {
@@ -154,20 +189,12 @@ const SortableTodoItem: React.FC<SortableTodoItemProps> = ({
     }
   };
 
-  const handleAddNote = () => {
-    if (newNote.trim()) {
-      onUpdate(todo.id, { notes: newNote });
-      setNewNote('');
-      setIsAddingNote(false);
-    }
-  };
-
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'bg-red-100 text-red-700';
-      case 'medium': return 'bg-yellow-100 text-yellow-700';
-      case 'low': return 'bg-green-100 text-green-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'high': return 'bg-red-100 text-red-700 border-red-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+      case 'low': return 'bg-green-100 text-green-700 border-green-200';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
 
@@ -184,274 +211,280 @@ const SortableTodoItem: React.FC<SortableTodoItemProps> = ({
   const totalSubTasks = todo.children?.length || 0;
   const progressPercentage = totalSubTasks > 0 ? (completedSubTasks / totalSubTasks) * 100 : 0;
 
+  // Determine if this is a "project" (has sub-tasks)
+  const isProject = totalSubTasks > 0;
+
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow ${
-        isDragging ? 'opacity-50' : ''
-      } ${level > 0 ? 'ml-6 border-l-2 border-l-blue-200' : ''}`}
+      className={`bg-white rounded-xl shadow-sm border-2 border-gray-200 hover:shadow-lg transition-all duration-300 ${
+        isDragging ? 'opacity-50 scale-95' : ''
+      } ${level > 0 ? 'ml-8 border-l-4 border-l-blue-300' : ''} ${
+        isProject ? 'border-blue-200 bg-blue-50/30' : ''
+      }`}
     >
-      <div className="flex items-start space-x-3">
-        {/* Drag Handle */}
-        <div
-          {...attributes}
-          {...listeners}
-          className="flex-shrink-0 mt-1 cursor-grab active:cursor-grabbing"
-        >
-          <GripVertical size={16} className="text-gray-400" />
-        </div>
-
-        {/* Checkbox */}
-        <button
-          onClick={() => onToggle(todo.id)}
-          className="flex-shrink-0 mt-1"
-        >
-          {todo.completed ? (
-            <CheckCircle2 size={20} className="text-green-600" />
-          ) : (
-            <CheckSquare size={20} className="text-gray-400 hover:text-green-600 transition-colors" />
-          )}
-        </button>
-        
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          {isEditing ? (
-            <div className="flex items-center space-x-2">
-              <input
-                ref={editInputRef}
-                type="text"
-                value={editContent}
-                onChange={(e) => setEditContent(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleSaveEdit();
-                  if (e.key === 'Escape') handleCancelEdit();
-                }}
-                className="flex-1 px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <button
-                onClick={handleSaveEdit}
-                className="p-1 text-green-600 hover:text-green-800"
-              >
-                <Save size={16} />
-              </button>
-              <button
-                onClick={handleCancelEdit}
-                className="p-1 text-gray-600 hover:text-gray-800"
-              >
-                <X size={16} />
-              </button>
-            </div>
-          ) : (
-            <p className={`text-gray-900 ${todo.completed ? 'line-through text-gray-500' : ''}`}>
-              {todo.content}
-            </p>
-          )}
-          
-          {/* Metadata */}
-          <div className="flex items-center space-x-2 mt-2">
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(todo.priority)}`}>
-              {getPriorityIcon(todo.priority)} {todo.priority}
-            </span>
-            
-            {todo.dueDate && (
-              <span className="flex items-center space-x-1 text-xs text-gray-500">
-                <Calendar size={12} />
-                <span>{formatDate(todo.dueDate)}</span>
-              </span>
-            )}
-            
-            {todo.tags && todo.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {todo.tags.map((tag: string, index: number) => (
-                  <span
-                    key={index}
-                    className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {/* Sub-tasks progress */}
-            {totalSubTasks > 0 && (
-              <span className="flex items-center space-x-1 text-xs text-gray-500">
-                <List size={12} />
-                <span>{completedSubTasks}/{totalSubTasks}</span>
-              </span>
-            )}
+      <div className="p-6">
+        <div className="flex items-start space-x-4">
+          {/* Drag Handle */}
+          <div
+            {...attributes}
+            {...listeners}
+            className="flex-shrink-0 mt-2 cursor-grab active:cursor-grabbing"
+          >
+            <GripVertical size={16} className="text-gray-400" />
           </div>
 
-          {/* Progress bar for sub-tasks */}
-          {totalSubTasks > 0 && (
-            <div className="mt-2">
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${progressPercentage}%` }}
-                />
-              </div>
+          {/* Project Icon */}
+          {isProject && (
+            <div className="flex-shrink-0 mt-2">
+              <FolderOpen size={20} className="text-blue-600" />
             </div>
           )}
 
-          {/* Notes Section */}
-          {todo.notes && (
-            <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center space-x-2 mb-2">
-                  <FileText size={14} className="text-blue-600" />
-                  <span className="text-sm font-medium text-blue-900">Notes</span>
-                </div>
+          {/* Checkbox */}
+          <button
+            onClick={() => onToggle(todo.id)}
+            className="flex-shrink-0 mt-2"
+          >
+            {todo.completed ? (
+              <CheckCircle2 size={24} className="text-green-600" />
+            ) : (
+              <CheckSquare size={24} className="text-gray-400 hover:text-green-600 transition-colors" />
+            )}
+          </button>
+          
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            {isEditing ? (
+              <div className="flex items-center space-x-2 mb-3">
+                <input
+                  ref={editInputRef}
+                  type="text"
+                  value={editContent}
+                  onChange={(e) => setEditContent(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSaveEdit();
+                    if (e.key === 'Escape') handleCancelEdit();
+                  }}
+                  className="flex-1 px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400 text-lg font-medium"
+                />
                 <button
-                  onClick={() => setShowNotes(!showNotes)}
-                  className="text-blue-600 hover:text-blue-800"
+                  onClick={handleSaveEdit}
+                  className="p-2 text-green-600 hover:text-green-800 transition-colors"
                 >
-                  {showNotes ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                  <Save size={16} />
+                </button>
+                <button
+                  onClick={handleCancelEdit}
+                  className="p-2 text-gray-600 hover:text-gray-800 transition-colors"
+                >
+                  <X size={16} />
                 </button>
               </div>
-              {showNotes && (
-                <p className="text-sm text-blue-800 whitespace-pre-wrap">{todo.notes}</p>
-              )}
-            </div>
-          )}
-
-          {/* Sub-tasks Section */}
-          {todo.children && todo.children.length > 0 && (
-            <div className="mt-3">
-              <button
-                onClick={() => setShowSubTasks(!showSubTasks)}
-                className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-900"
-              >
-                {showSubTasks ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                <span>Sub-tasks ({completedSubTasks}/{totalSubTasks})</span>
-              </button>
+            ) : (
+              <div className="mb-3">
+                <h3 className={`text-lg font-semibold ${todo.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                  {todo.content}
+                </h3>
+                {isProject && (
+                  <p className="text-sm text-blue-600 font-medium mt-1">
+                    Project • {completedSubTasks}/{totalSubTasks} tasks completed
+                  </p>
+                )}
+              </div>
+            )}
+            
+            {/* Metadata */}
+            <div className="flex items-center flex-wrap gap-2 mb-4">
+              <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getPriorityColor(todo.priority)}`}>
+                {getPriorityIcon(todo.priority)} {todo.priority}
+              </span>
               
-              {showSubTasks && (
-                <div className="mt-2 space-y-2">
-                  {todo.children.map((child: any) => (
-                    <div key={child.id} className="flex items-center space-x-2 pl-4">
-                      <button
-                        onClick={() => onToggleSubTodo(todo.id, child.id)}
-                        className="flex-shrink-0"
-                      >
-                        {child.completed ? (
-                          <CheckCircle2 size={16} className="text-green-600" />
-                        ) : (
-                          <CheckSquare size={16} className="text-gray-400 hover:text-green-600" />
-                        )}
-                      </button>
-                      <span className={`text-sm ${child.completed ? 'line-through text-gray-500' : 'text-gray-700'}`}>
-                        {child.content}
-                      </span>
-                      <button
-                        onClick={() => onDeleteSubTodo(todo.id, child.id)}
-                        className="text-gray-400 hover:text-red-600"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    </div>
+              {todo.dueDate && (
+                <span className="flex items-center space-x-1 text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                  <Calendar size={14} />
+                  <span>{formatDate(todo.dueDate)}</span>
+                </span>
+              )}
+              
+              {todo.tags && todo.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {todo.tags.map((tag: string, index: number) => (
+                    <span
+                      key={index}
+                      className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium"
+                    >
+                      #{tag}
+                    </span>
                   ))}
                 </div>
               )}
-            </div>
-          )}
 
-          {/* Add Sub-task */}
-          {isAddingSubTask ? (
-            <div className="mt-3 flex items-center space-x-2">
-              <input
-                ref={subTaskInputRef}
-                type="text"
-                value={newSubTask}
-                onChange={(e) => setNewSubTask(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleAddSubTask();
-                  if (e.key === 'Escape') setIsAddingSubTask(false);
-                }}
-                placeholder="Add sub-task..."
-                className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <button
-                onClick={handleAddSubTask}
-                className="p-1 text-green-600 hover:text-green-800"
-              >
-                <Save size={14} />
-              </button>
-              <button
-                onClick={() => setIsAddingSubTask(false)}
-                className="p-1 text-gray-600 hover:text-gray-800"
-              >
-                <X size={14} />
-              </button>
-            </div>
-          ) : (
-            <div className="mt-3 flex items-center space-x-4">
-              <button
-                onClick={() => setIsAddingSubTask(true)}
-                className="flex items-center space-x-1 text-xs text-blue-600 hover:text-blue-800"
-              >
-                <Plus size={12} />
-                <span>Add sub-task</span>
-              </button>
-              
-              {!todo.notes && (
-                <button
-                  onClick={() => setIsAddingNote(true)}
-                  className="flex items-center space-x-1 text-xs text-blue-600 hover:text-blue-800"
-                >
-                  <FileText size={12} />
-                  <span>Add note</span>
-                </button>
+              {/* Progress indicator for projects */}
+              {isProject && (
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <BarChart3 size={14} />
+                  <span>{Math.round(progressPercentage)}% complete</span>
+                </div>
               )}
             </div>
-          )}
 
-          {/* Add Note */}
-          {isAddingNote && (
-            <div className="mt-3">
-              <textarea
-                ref={noteInputRef}
-                value={newNote}
-                onChange={(e) => setNewNote(e.target.value)}
-                placeholder="Add notes about this task..."
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                rows={3}
-              />
-              <div className="mt-2 flex items-center space-x-2">
+            {/* Progress bar for projects */}
+            {isProject && (
+              <div className="mb-4">
+                <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                  <div
+                    className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-500 ease-out"
+                    style={{ width: `${progressPercentage}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Notes Section */}
+            {(todo.notes || isAddingNote) && (
+              <div className="mb-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-200">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center space-x-2">
+                    <FileText size={16} className="text-blue-600" />
+                    <span className="text-sm font-semibold text-blue-900">Notes</span>
+                    {isSavingNotes && (
+                      <span className="text-xs text-blue-600 animate-pulse">Saving...</span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setShowNotes(!showNotes)}
+                    className="text-blue-600 hover:text-blue-800 transition-colors"
+                  >
+                    {showNotes ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                  </button>
+                </div>
+                
+                {isAddingNote ? (
+                  <textarea
+                    ref={noteInputRef}
+                    value={newNote}
+                    onChange={(e) => setNewNote(e.target.value)}
+                    placeholder="Add notes about this task..."
+                    className="w-full px-3 py-2 text-sm border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400 resize-none"
+                    rows={3}
+                  />
+                ) : showNotes && (
+                  <p className="text-sm text-blue-800 whitespace-pre-wrap leading-relaxed">{todo.notes}</p>
+                )}
+              </div>
+            )}
+
+            {/* Sub-tasks Section */}
+            {todo.children && todo.children.length > 0 && (
+              <div className="mb-4">
                 <button
-                  onClick={handleAddNote}
-                  className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+                  onClick={() => setShowSubTasks(!showSubTasks)}
+                  className="flex items-center space-x-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
                 >
-                  Save Note
+                  {showSubTasks ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                  <span>Sub-tasks ({completedSubTasks}/{totalSubTasks})</span>
+                </button>
+                
+                {showSubTasks && (
+                  <div className="mt-3 space-y-2 pl-4">
+                    {todo.children.map((child: any) => (
+                      <div key={child.id} className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:shadow-sm transition-shadow">
+                        <button
+                          onClick={() => onToggleSubTodo(todo.id, child.id)}
+                          className="flex-shrink-0"
+                        >
+                          {child.completed ? (
+                            <CheckCircle2 size={18} className="text-green-600" />
+                          ) : (
+                            <CheckSquare size={18} className="text-gray-400 hover:text-green-600 transition-colors" />
+                          )}
+                        </button>
+                        <span className={`flex-1 text-sm ${child.completed ? 'line-through text-gray-500' : 'text-gray-700'}`}>
+                          {child.content}
+                        </span>
+                        <button
+                          onClick={() => onDeleteSubTodo(todo.id, child.id)}
+                          className="text-gray-400 hover:text-red-600 transition-colors p-1"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Add Sub-task */}
+            {isAddingSubTask ? (
+              <div className="mb-4 flex items-center space-x-2 p-3 bg-gray-50 rounded-lg">
+                <input
+                  ref={subTaskInputRef}
+                  type="text"
+                  value={newSubTask}
+                  onChange={(e) => setNewSubTask(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleAddSubTask();
+                    if (e.key === 'Escape') setIsAddingSubTask(false);
+                  }}
+                  placeholder="Add sub-task..."
+                  className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400"
+                />
+                <button
+                  onClick={handleAddSubTask}
+                  className="p-2 text-green-600 hover:text-green-800 transition-colors"
+                >
+                  <Save size={16} />
                 </button>
                 <button
-                  onClick={() => setIsAddingNote(false)}
-                  className="px-3 py-1 text-xs bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                  onClick={() => setIsAddingSubTask(false)}
+                  className="p-2 text-gray-600 hover:text-gray-800 transition-colors"
                 >
-                  Cancel
+                  <X size={16} />
                 </button>
               </div>
-            </div>
-          )}
-        </div>
-        
-        {/* Actions */}
-        <div className="flex items-center space-x-1">
-          <button
-            onClick={handleEdit}
-            className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-            title="Edit task"
-          >
-            <Edit3 size={16} />
-          </button>
-          <button
-            onClick={() => onDelete(todo.id)}
-            className="p-1 text-gray-400 hover:text-red-600 transition-colors"
-            title="Delete task"
-          >
-            <Trash2 size={16} />
-          </button>
+            ) : (
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => setIsAddingSubTask(true)}
+                  className="flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-800 transition-colors font-medium"
+                >
+                  <Plus size={16} />
+                  <span>Add sub-task</span>
+                </button>
+                
+                {!todo.notes && (
+                  <button
+                    onClick={() => setIsAddingNote(true)}
+                    className="flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-800 transition-colors font-medium"
+                  >
+                    <FileText size={16} />
+                    <span>Add notes</span>
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+          
+          {/* Actions */}
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={handleEdit}
+              className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+              title="Edit task"
+            >
+              <Edit3 size={18} />
+            </button>
+            <button
+              onClick={() => onDelete(todo.id)}
+              className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+              title="Delete task"
+            >
+              <Trash2 size={18} />
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -460,7 +493,7 @@ const SortableTodoItem: React.FC<SortableTodoItemProps> = ({
 
 export const ToDoList: React.FC = () => {
   const [newTodo, setNewTodo] = useState('');
-  const [view, setView] = useState<'all' | 'today'>('all');
+  const [view, setView] = useState<'all' | 'today' | 'projects'>('all');
   const [filterPriority, setFilterPriority] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -477,6 +510,7 @@ export const ToDoList: React.FC = () => {
   // Filter todos based on view, priority, and search
   const filteredTodos = todos.filter(todo => {
     if (view === 'today' && !isToday(todo.dueDate)) return false;
+    if (view === 'projects' && (!todo.children || todo.children.length === 0)) return false;
     if (filterPriority !== 'all' && todo.priority !== filterPriority) return false;
     if (searchQuery && !todo.content.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     return true;
@@ -516,11 +550,8 @@ export const ToDoList: React.FC = () => {
       const oldIndex = incompleteTodos.findIndex(todo => todo.id === active.id);
       const newIndex = incompleteTodos.findIndex(todo => todo.id === over?.id);
       
-      // Reorder the todos array
       const newTodos = arrayMove(incompleteTodos, oldIndex, newIndex);
       
-      // Update the store with the new order
-      // Note: This is a simplified approach. In a real app, you might want to add an 'order' field to todos
       newTodos.forEach((todo, index) => {
         updateTodo(todo.id, { order: index });
       });
@@ -545,212 +576,235 @@ export const ToDoList: React.FC = () => {
     }
   };
 
-
+  // Calculate statistics
+  const totalTasks = todos.length;
+  const completedTasks = todos.filter(t => t.completed).length;
+  const projects = todos.filter(t => t.children && t.children.length > 0);
+  const totalSubTasks = todos.reduce((total, todo) => total + (todo.children?.length || 0), 0);
+  const completedSubTasks = todos.reduce((total, todo) => 
+    total + (todo.children?.filter((child: any) => child.completed).length || 0), 0);
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">To-Do List</h1>
-        <p className="text-gray-600">Organize your tasks with drag & drop, notes, and sub-tasks</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      <div className="max-w-6xl mx-auto p-6">
+        {/* Header */}
+        <div className="mb-8 text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Task Manager</h1>
+          <p className="text-gray-600 font-medium">Organize your work into clear, manageable projects</p>
+        </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <div className="flex items-center space-x-3">
-            <Target size={20} className="text-blue-600" />
-            <div>
-              <p className="text-sm text-gray-600">Total Tasks</p>
-              <p className="text-2xl font-bold text-gray-900">{todos.length}</p>
+        {/* Enhanced Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-blue-200 p-6">
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-blue-100 rounded-xl">
+                <Target size={24} className="text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 font-medium">Total Tasks</p>
+                <p className="text-3xl font-bold text-gray-900">{totalTasks}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-green-200 p-6">
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-green-100 rounded-xl">
+                <CheckCircle2 size={24} className="text-green-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 font-medium">Completed</p>
+                <p className="text-3xl font-bold text-gray-900">{completedTasks}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-200 p-6">
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-purple-100 rounded-xl">
+                <FolderOpen size={24} className="text-purple-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 font-medium">Projects</p>
+                <p className="text-3xl font-bold text-gray-900">{projects.length}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-orange-200 p-6">
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-orange-100 rounded-xl">
+                <BarChart3 size={24} className="text-orange-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 font-medium">Sub-tasks</p>
+                <p className="text-3xl font-bold text-gray-900">{completedSubTasks}/{totalSubTasks}</p>
+              </div>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <div className="flex items-center space-x-3">
-            <CheckCircle2 size={20} className="text-green-600" />
+
+        {/* Add New Todo */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-blue-200 p-8 mb-8">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <p className="text-sm text-gray-600">Completed</p>
-              <p className="text-2xl font-bold text-gray-900">{todos.filter(t => t.completed).length}</p>
+              <label htmlFor="new-todo" className="block text-lg font-medium text-gray-700 mb-3">
+                Create a new task or project
+              </label>
+              <div className="flex space-x-3">
+                <input
+                  id="new-todo"
+                  type="text"
+                  value={newTodo}
+                  onChange={(e) => setNewTodo(e.target.value)}
+                  placeholder="What needs to be done? Use #tags for organization"
+                  className="flex-1 px-6 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-400 text-lg"
+                  disabled={isSubmitting}
+                />
+                <button
+                  type="submit"
+                  disabled={!newTodo.trim() || isSubmitting}
+                  className="px-8 py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center space-x-2 font-medium shadow-lg hover:shadow-xl"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <span>Adding...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus size={20} />
+                      <span>Add Task</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        {/* Enhanced Filters */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
+          <div className="flex flex-wrap gap-3">
+            {[
+              { id: 'all', label: 'All Tasks', icon: Target },
+              { id: 'today', label: 'Due Today', icon: Clock },
+              { id: 'projects', label: 'Projects', icon: FolderOpen }
+            ].map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => setView(id as any)}
+                className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+                  view === id
+                    ? 'bg-blue-100 text-blue-700 shadow-md border-2 border-blue-300'
+                    : 'bg-white/80 text-gray-600 hover:text-gray-800 hover:bg-white border-2 border-transparent'
+                }`}
+              >
+                <Icon size={18} />
+                <span>{label}</span>
+              </button>
+            ))}
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            <select
+              value={filterPriority}
+              onChange={(e) => setFilterPriority(e.target.value)}
+              className="px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-400 text-sm font-medium"
+            >
+              <option value="all">All Priorities</option>
+              <option value="high">High Priority</option>
+              <option value="medium">Medium Priority</option>
+              <option value="low">Low Priority</option>
+            </select>
+            
+            <div className="relative">
+              <Search size={18} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search tasks..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-12 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-400 text-sm font-medium"
+              />
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <div className="flex items-center space-x-3">
-            <Clock size={20} className="text-yellow-600" />
+
+        {/* Todo Lists */}
+        <div className="space-y-8">
+          {/* Incomplete Todos */}
+          {incompleteTodos.length > 0 && (
             <div>
-              <p className="text-sm text-gray-600">Due Today</p>
-              <p className="text-2xl font-bold text-gray-900">{todos.filter(t => isToday(t.dueDate)).length}</p>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center space-x-3">
+                <Zap size={28} className="text-blue-600" />
+                <span>Active Tasks</span>
+              </h2>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={incompleteTodos.map(todo => todo.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-4">
+                    {incompleteTodos.map((todo) => (
+                      <SortableTodoItem
+                        key={todo.id}
+                        todo={todo}
+                        onToggle={toggleTodo}
+                        onDelete={deleteTodo}
+                        onUpdate={updateTodo}
+                        onAddSubTodo={addSubTodo}
+                        onToggleSubTodo={handleToggleSubTodo}
+                        onDeleteSubTodo={handleDeleteSubTodo}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
             </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <div className="flex items-center space-x-3">
-            <List size={20} className="text-purple-600" />
+          )}
+
+          {/* Completed Todos */}
+          {completedTodos.length > 0 && (
             <div>
-              <p className="text-sm text-gray-600">Sub-tasks</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {todos.reduce((total, todo) => total + (todo.children?.length || 0), 0)}
+              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center space-x-3">
+                <CheckCircle2 size={28} className="text-green-600" />
+                <span>Completed</span>
+              </h2>
+              <div className="space-y-4">
+                {completedTodos.map((todo) => (
+                  <SortableTodoItem
+                    key={todo.id}
+                    todo={todo}
+                    onToggle={toggleTodo}
+                    onDelete={deleteTodo}
+                    onUpdate={updateTodo}
+                    onAddSubTodo={addSubTodo}
+                    onToggleSubTodo={handleToggleSubTodo}
+                    onDeleteSubTodo={handleDeleteSubTodo}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {filteredTodos.length === 0 && (
+            <div className="text-center py-16 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-blue-200">
+              <Target size={64} className="mx-auto text-blue-400 mb-6" />
+              <h3 className="text-xl font-medium text-gray-800 mb-3">No tasks found</h3>
+              <p className="text-gray-600">
+                {view === 'today' ? 'No tasks due today' : 
+                 view === 'projects' ? 'No projects yet' : 
+                 'Add your first task above'}
               </p>
             </div>
-          </div>
+          )}
         </div>
-      </div>
-
-      {/* Add New Todo */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="new-todo" className="block text-sm font-medium text-gray-700 mb-2">
-              Add a new task
-            </label>
-            <div className="flex space-x-2">
-              <input
-                id="new-todo"
-                type="text"
-                value={newTodo}
-                onChange={(e) => setNewTodo(e.target.value)}
-                placeholder="What needs to be done? Use #tags for organization"
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                disabled={isSubmitting}
-              />
-              <button
-                type="submit"
-                disabled={!newTodo.trim() || isSubmitting}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Adding...</span>
-                  </>
-                ) : (
-                  <>
-                    <Plus size={16} />
-                    <span>Add</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div className="flex space-x-2">
-          <button
-            onClick={() => setView('all')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              view === 'all'
-                ? 'bg-blue-100 text-blue-700'
-                : 'bg-gray-100 text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            All Tasks
-          </button>
-          <button
-            onClick={() => setView('today')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              view === 'today'
-                ? 'bg-blue-100 text-blue-700'
-                : 'bg-gray-100 text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            Due Today
-          </button>
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <select
-            value={filterPriority}
-            onChange={(e) => setFilterPriority(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-          >
-            <option value="all">All Priorities</option>
-            <option value="high">High Priority</option>
-            <option value="medium">Medium Priority</option>
-            <option value="low">Low Priority</option>
-          </select>
-          
-          <div className="relative">
-            <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search tasks..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Todo Lists */}
-      <div className="space-y-6">
-        {/* Incomplete Todos */}
-        {incompleteTodos.length > 0 && (
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">To Do</h2>
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={incompleteTodos.map(todo => todo.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                <div className="space-y-2">
-                  {incompleteTodos.map((todo) => (
-                    <SortableTodoItem
-                      key={todo.id}
-                      todo={todo}
-                      onToggle={toggleTodo}
-                      onDelete={deleteTodo}
-                      onUpdate={updateTodo}
-                      onAddSubTodo={addSubTodo}
-                      onToggleSubTodo={handleToggleSubTodo}
-                      onDeleteSubTodo={handleDeleteSubTodo}
-                    />
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
-          </div>
-        )}
-
-        {/* Completed Todos */}
-        {completedTodos.length > 0 && (
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Completed</h2>
-            <div className="space-y-2">
-              {completedTodos.map((todo) => (
-                <SortableTodoItem
-                  key={todo.id}
-                  todo={todo}
-                  onToggle={toggleTodo}
-                  onDelete={deleteTodo}
-                  onUpdate={updateTodo}
-                  onAddSubTodo={addSubTodo}
-                  onToggleSubTodo={handleToggleSubTodo}
-                  onDeleteSubTodo={handleDeleteSubTodo}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Empty State */}
-        {filteredTodos.length === 0 && (
-          <div className="text-center py-12">
-            <CheckSquare size={48} className="mx-auto text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks found</h3>
-            <p className="text-gray-600">
-              {view === 'today' ? 'No tasks due today' : 'Add your first task above'}
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );
