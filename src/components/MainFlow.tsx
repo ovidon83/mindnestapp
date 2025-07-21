@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { useMindnestStore } from '../store';
 import { AIService } from '../services/ai';
-import { Sparkles, Inbox, Lightbulb, Heart, Calendar, CheckCircle, Trash2, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Sparkles, Inbox, Lightbulb, Heart, Calendar, CheckCircle, Trash2 } from 'lucide-react';
 
 // Section types for the main flow
 const SECTIONS = ['today', 'act', 'reflect', 'create', 'inbox', 'categories', 'cleanup'] as const;
 type SectionType = typeof SECTIONS[number];
-
-type ThoughtCategory = 'task' | 'emotion' | 'idea' | 'reminder' | 'reflection';
 
 export const MainFlow: React.FC = () => {
   const [section, setSection] = useState<SectionType>('today');
