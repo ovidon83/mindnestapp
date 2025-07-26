@@ -306,8 +306,9 @@ export const CanvasTab: React.FC = () => {
       const textarea = document.querySelector(`[data-sticker-id="${newSticker.id}"]`) as HTMLTextAreaElement;
       if (textarea) {
         textarea.focus();
+        textarea.select();
       }
-    }, 100);
+    }, 150);
   };
 
   // Update sticker content
@@ -326,6 +327,7 @@ export const CanvasTab: React.FC = () => {
   // Handle sticker drag start
   const handleStickerDragStart = (e: React.MouseEvent, stickerId: string) => {
     e.preventDefault();
+    e.stopPropagation();
     setIsDragging(true);
     setSelectedSticker(stickerId);
     
@@ -341,6 +343,7 @@ export const CanvasTab: React.FC = () => {
   // Handle mouse move for dragging
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (isDragging && selectedSticker) {
+      e.preventDefault();
       setStickers(prev => prev.map(sticker => 
         sticker.id === selectedSticker 
           ? { 
@@ -671,16 +674,17 @@ export const CanvasTab: React.FC = () => {
               }}
             >
               <div 
-                className="flex items-center justify-between p-2 border-b border-gray-300 cursor-move"
+                className="flex items-center justify-between p-2 border-b border-gray-300 cursor-move select-none"
                 onMouseDown={(e) => handleStickerDragStart(e, sticker.id)}
               >
                 <Move size={12} className="text-gray-500" />
                 <button
                   onClick={(e) => {
+                    e.preventDefault();
                     e.stopPropagation();
                     deleteSticker(sticker.id);
                   }}
-                  className="text-gray-500 hover:text-red-600 transition-colors"
+                  className="text-gray-500 hover:text-red-600 transition-colors p-1"
                 >
                   <X size={12} />
                 </button>
@@ -690,8 +694,22 @@ export const CanvasTab: React.FC = () => {
                   data-sticker-id={sticker.id}
                   value={sticker.content}
                   onChange={(e) => updateStickerContent(sticker.id, e.target.value)}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onFocus={() => setSelectedSticker(sticker.id)}
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    setSelectedSticker(sticker.id);
+                  }}
+                  onFocus={(e) => {
+                    e.target.select();
+                    setSelectedSticker(sticker.id);
+                  }}
+                  onBlur={() => {
+                    // Don't clear selection immediately to allow for clicking other elements
+                    setTimeout(() => {
+                      if (!isDragging) {
+                        setSelectedSticker(null);
+                      }
+                    }, 100);
+                  }}
                   className="w-full p-2 bg-transparent border-0 resize-none focus:outline-none text-sm"
                   placeholder="Write your note..."
                   style={{ height: `${sticker.height - 40}px` }}
