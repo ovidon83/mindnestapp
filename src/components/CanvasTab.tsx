@@ -373,6 +373,11 @@ export const CanvasTab: React.FC = () => {
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
+  // Handle sticker click to select
+  const handleStickerClick = (stickerId: string) => {
+    setSelectedSticker(stickerId);
+  };
+
 
 
   // Handle image paste
@@ -679,6 +684,7 @@ export const CanvasTab: React.FC = () => {
                 width: sticker.width,
                 height: sticker.height,
               }}
+              onClick={() => handleStickerClick(sticker.id)}
             >
               {/* Drag Handle */}
               <div 
@@ -714,6 +720,9 @@ export const CanvasTab: React.FC = () => {
                   }}
                   onFocus={() => {
                     setSelectedSticker(sticker.id);
+                  }}
+                  onBlur={() => {
+                    // Keep selection active
                   }}
                   className="w-full p-3 bg-transparent border-0 resize-none focus:outline-none text-sm leading-relaxed"
                   placeholder="Write your note..."
