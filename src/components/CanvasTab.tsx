@@ -373,25 +373,7 @@ export const CanvasTab: React.FC = () => {
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
-  // Handle textarea click to prevent drag
-  const handleTextareaClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-  };
 
-  // Handle textarea focus
-  const handleTextareaFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {
-    e.target.select();
-    setSelectedSticker(e.target.dataset.stickerId || null);
-  };
-
-  // Handle textarea blur with delay
-  const handleTextareaBlur = () => {
-    setTimeout(() => {
-      if (!isDragging) {
-        setSelectedSticker(null);
-      }
-    }, 200);
-  };
 
   // Handle image paste
   const handleImagePaste = useCallback((e: ClipboardEvent) => {
@@ -678,6 +660,11 @@ export const CanvasTab: React.FC = () => {
           }`}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setSelectedSticker(null);
+            }
+          }}
         >
           {/* Stickers */}
           {stickers.map((sticker) => (
@@ -721,9 +708,13 @@ export const CanvasTab: React.FC = () => {
                   data-sticker-id={sticker.id}
                   value={sticker.content}
                   onChange={(e) => updateStickerContent(sticker.id, e.target.value)}
-                  onClick={handleTextareaClick}
-                  onFocus={handleTextareaFocus}
-                  onBlur={handleTextareaBlur}
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    setSelectedSticker(sticker.id);
+                  }}
+                  onFocus={() => {
+                    setSelectedSticker(sticker.id);
+                  }}
                   className="w-full p-3 bg-transparent border-0 resize-none focus:outline-none text-sm leading-relaxed"
                   placeholder="Write your note..."
                   style={{ 
