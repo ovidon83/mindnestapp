@@ -19,7 +19,8 @@ import {
   Palette,
   Move,
   Plus,
-  X
+  X,
+  CornerDownRight
 } from 'lucide-react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -290,15 +291,23 @@ export const CanvasTab: React.FC = () => {
   const addSticker = () => {
     const newSticker: Sticker = {
       id: `sticker-${Date.now()}`,
-      content: 'New note...',
+      content: '',
       x: Math.random() * 200 + 50,
       y: Math.random() * 200 + 50,
       color: STICKER_COLORS[Math.floor(Math.random() * STICKER_COLORS.length)],
-      width: 150,
-      height: 100,
+      width: 200,
+      height: 120,
     };
     setStickers(prev => [...prev, newSticker]);
     setSelectedSticker(newSticker.id);
+    
+    // Focus the textarea after a short delay to ensure it's rendered
+    setTimeout(() => {
+      const textarea = document.querySelector(`[data-sticker-id="${newSticker.id}"]`) as HTMLTextAreaElement;
+      if (textarea) {
+        textarea.focus();
+      }
+    }, 100);
   };
 
   // Update sticker content
@@ -651,7 +660,7 @@ export const CanvasTab: React.FC = () => {
           {stickers.map((sticker) => (
             <div
               key={sticker.id}
-              className={`absolute border-2 rounded-lg shadow-lg cursor-move ${
+              className={`absolute border-2 rounded-lg shadow-lg ${
                 sticker.color
               } ${selectedSticker === sticker.id ? 'ring-2 ring-blue-500' : ''}`}
               style={{
@@ -660,23 +669,43 @@ export const CanvasTab: React.FC = () => {
                 width: sticker.width,
                 height: sticker.height,
               }}
-              onMouseDown={(e) => handleStickerDragStart(e, sticker.id)}
             >
-              <div className="flex items-center justify-between p-2 border-b border-gray-300">
+              <div 
+                className="flex items-center justify-between p-2 border-b border-gray-300 cursor-move"
+                onMouseDown={(e) => handleStickerDragStart(e, sticker.id)}
+              >
                 <Move size={12} className="text-gray-500" />
                 <button
-                  onClick={() => deleteSticker(sticker.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteSticker(sticker.id);
+                  }}
                   className="text-gray-500 hover:text-red-600 transition-colors"
                 >
                   <X size={12} />
                 </button>
               </div>
-              <textarea
-                value={sticker.content}
-                onChange={(e) => updateStickerContent(sticker.id, e.target.value)}
-                className="w-full h-full p-2 bg-transparent border-0 resize-none focus:outline-none text-sm"
-                placeholder="Write your note..."
-              />
+              <div className="relative flex-1">
+                <textarea
+                  data-sticker-id={sticker.id}
+                  value={sticker.content}
+                  onChange={(e) => updateStickerContent(sticker.id, e.target.value)}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onFocus={() => setSelectedSticker(sticker.id)}
+                  className="w-full p-2 bg-transparent border-0 resize-none focus:outline-none text-sm"
+                  placeholder="Write your note..."
+                  style={{ height: `${sticker.height - 40}px` }}
+                />
+                <div 
+                  className="absolute bottom-1 right-1 cursor-se-resize text-gray-400 hover:text-gray-600"
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    // TODO: Add resize functionality
+                  }}
+                >
+                  <CornerDownRight size={12} />
+                </div>
+              </div>
             </div>
           ))}
 
