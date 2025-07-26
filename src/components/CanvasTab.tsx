@@ -295,8 +295,8 @@ export const CanvasTab: React.FC = () => {
       x: Math.random() * 200 + 50,
       y: Math.random() * 200 + 50,
       color: STICKER_COLORS[Math.floor(Math.random() * STICKER_COLORS.length)],
-      width: 200,
-      height: 120,
+      width: 250,
+      height: 150,
     };
     setStickers(prev => [...prev, newSticker]);
     setSelectedSticker(newSticker.id);
@@ -308,7 +308,7 @@ export const CanvasTab: React.FC = () => {
         textarea.focus();
         textarea.select();
       }
-    }, 150);
+    }, 200);
   };
 
   // Update sticker content
@@ -372,6 +372,26 @@ export const CanvasTab: React.FC = () => {
       };
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
+
+  // Handle textarea click to prevent drag
+  const handleTextareaClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
+  // Handle textarea focus
+  const handleTextareaFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+    e.target.select();
+    setSelectedSticker(e.target.dataset.stickerId || null);
+  };
+
+  // Handle textarea blur with delay
+  const handleTextareaBlur = () => {
+    setTimeout(() => {
+      if (!isDragging) {
+        setSelectedSticker(null);
+      }
+    }, 200);
+  };
 
   // Handle image paste
   const handleImagePaste = useCallback((e: ClipboardEvent) => {
@@ -673,53 +693,53 @@ export const CanvasTab: React.FC = () => {
                 height: sticker.height,
               }}
             >
+              {/* Drag Handle */}
               <div 
-                className="flex items-center justify-between p-2 border-b border-gray-300 cursor-move select-none"
+                className="flex items-center justify-between p-2 border-b border-gray-300 cursor-move select-none bg-gray-50"
                 onMouseDown={(e) => handleStickerDragStart(e, sticker.id)}
               >
-                <Move size={12} className="text-gray-500" />
+                <div className="flex items-center gap-1">
+                  <Move size={12} className="text-gray-500" />
+                  <span className="text-xs text-gray-500">Drag to move</span>
+                </div>
                 <button
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     deleteSticker(sticker.id);
                   }}
-                  className="text-gray-500 hover:text-red-600 transition-colors p-1"
+                  className="text-gray-500 hover:text-red-600 transition-colors p-1 rounded"
+                  title="Delete note"
                 >
                   <X size={12} />
                 </button>
               </div>
+              
+              {/* Text Area */}
               <div className="relative flex-1">
                 <textarea
                   data-sticker-id={sticker.id}
                   value={sticker.content}
                   onChange={(e) => updateStickerContent(sticker.id, e.target.value)}
-                  onMouseDown={(e) => {
-                    e.stopPropagation();
-                    setSelectedSticker(sticker.id);
-                  }}
-                  onFocus={(e) => {
-                    e.target.select();
-                    setSelectedSticker(sticker.id);
-                  }}
-                  onBlur={() => {
-                    // Don't clear selection immediately to allow for clicking other elements
-                    setTimeout(() => {
-                      if (!isDragging) {
-                        setSelectedSticker(null);
-                      }
-                    }, 100);
-                  }}
-                  className="w-full p-2 bg-transparent border-0 resize-none focus:outline-none text-sm"
+                  onClick={handleTextareaClick}
+                  onFocus={handleTextareaFocus}
+                  onBlur={handleTextareaBlur}
+                  className="w-full p-3 bg-transparent border-0 resize-none focus:outline-none text-sm leading-relaxed"
                   placeholder="Write your note..."
-                  style={{ height: `${sticker.height - 40}px` }}
+                  style={{ 
+                    height: `${sticker.height - 50}px`,
+                    minHeight: '60px'
+                  }}
                 />
+                
+                {/* Resize Handle */}
                 <div 
-                  className="absolute bottom-1 right-1 cursor-se-resize text-gray-400 hover:text-gray-600"
+                  className="absolute bottom-1 right-1 cursor-se-resize text-gray-400 hover:text-gray-600 p-1"
                   onMouseDown={(e) => {
                     e.stopPropagation();
                     // TODO: Add resize functionality
                   }}
+                  title="Resize note"
                 >
                   <CornerDownRight size={12} />
                 </div>
