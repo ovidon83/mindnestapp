@@ -23,6 +23,7 @@ export interface RandomThought {
   createdAt: Date;
   category?: string;
   aiInsight?: string;
+  tags?: string[];
 }
 
 export interface JournalEntry {

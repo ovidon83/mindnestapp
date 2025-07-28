@@ -206,29 +206,40 @@ Generate 6-10 realistic project tasks that would help bring this idea to life. I
     try {
       const systemPrompt = `You are an AI assistant that analyzes and categorizes personal thoughts. Analyze the given thought and return a JSON response with the following structure:
 {
-  "category": "task|emotion|idea|reminder|reflection",
-  "label": "work|personal|health|family|finance|creative|learning",
-  "priority": "low|medium|high",
-  "dueDate": "YYYY-MM-DD" (if applicable, null otherwise),
-  "linkedThoughts": ["related thought 1", "related thought 2"],
-  "insights": "brief AI insight about this thought",
-  "mood": "great|good|okay|bad|terrible" (if emotional content),
-  "tags": ["tag1", "tag2", "tag3"]
+  "category": "task|idea|note|journal|project",
+  "confidence": 0.0-1.0,
+  "extractedData": {
+    "title": "extracted or suggested title",
+    "description": "enhanced description of the thought",
+    "priority": "low|medium|high",
+    "dueDate": "YYYY-MM-DD" (if applicable, null otherwise),
+    "tags": ["tag1", "tag2", "tag3"],
+    "mood": "great|good|okay|bad|terrible" (if emotional content),
+    "category": "work|personal|health|family|finance|creative|learning",
+    "potential": "low|medium|high" (for ideas),
+    "status": "concept|planning|in-progress|completed",
+    "suggestedActions": ["action 1", "action 2"],
+    "timeEstimate": "estimated time",
+    "energyLevel": "low|medium|high",
+    "context": "additional context or notes"
+  }
 }
 
 Guidelines:
-- "task": actionable items, to-dos, appointments
-- "emotion": feelings, moods, emotional states
-- "idea": creative thoughts, concepts, possibilities
-- "reminder": things to remember, follow-ups
-- "reflection": self-reflection, insights, observations
+- "task": actionable items, to-dos, appointments, things that need to be done
+- "idea": creative thoughts, concepts, possibilities, innovations
+- "note": information to remember, facts, observations
+- "journal": personal reflections, feelings, daily experiences
+- "project": larger initiatives that may have multiple tasks
 
 Priority levels:
 - "high": urgent, time-sensitive, important
 - "medium": moderate importance, can wait
 - "low": nice to have, no rush
 
-Only include dueDate if there's a clear deadline or time sensitivity.`;
+Tags should be relevant keywords that help categorize and find the content later.
+Only include dueDate if there's a clear deadline or time sensitivity.
+Be generous with tag suggestions - include relevant categories, contexts, and keywords.`;
 
       const prompt = `Please categorize and analyze this thought: "${content}"`;
       

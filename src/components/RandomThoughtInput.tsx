@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Brain,
   Lightbulb,
@@ -13,6 +13,18 @@ import {
   Star,
   ArrowRight,
   X,
+  Hash,
+  Plus,
+  Tag,
+  Clock,
+  CheckSquare,
+  Trash2,
+  Edit3,
+  Save,
+  ChevronDown,
+  ChevronRight,
+  BarChart3,
+  FolderOpen,
 } from 'lucide-react';
 import { useMindnestStore } from '../store';
 import { AIService } from '../services/ai';
@@ -44,11 +56,201 @@ interface CategorizationResult {
   };
 }
 
+// Helper function to extract tags from text
+const extractTags = (text: string): string[] => {
+  const tagRegex = /#(\w+)/g;
+  const matches = text.match(tagRegex);
+  return matches ? matches.map(tag => tag.slice(1)) : [];
+};
+
+// Helper function to remove tags from text
+const removeTagsFromText = (text: string): string => {
+  return text.replace(/#\w+/g, '').trim();
+};
+
+// Helper function to format dates
+const formatDate = (date: Date | string | undefined) => {
+  if (!date) return '';
+  const d = typeof date === 'string' ? new Date(Date.parse(date)) : date;
+  return d.toLocaleDateString('en-US', { 
+    weekday: 'short', 
+    month: 'short', 
+    day: 'numeric' 
+  });
+};
+
+// Helper function to check if a date is today
+const isToday = (date: Date | string | undefined) => {
+  if (!date) return false;
+  const d = typeof date === 'string' ? new Date(Date.parse(date)) : date;
+  return d.toDateString() === new Date().toDateString();
+};
+
+// Quick Todo Item Component
+interface QuickTodoItemProps {
+  todo: any;
+  onToggle: (id: string) => void;
+  onDelete: (id: string) => void;
+  onUpdate: (id: string, updates: any) => void;
+}
+
+const QuickTodoItem: React.FC<QuickTodoItemProps> = ({
+  todo,
+  onToggle,
+  onDelete,
+  onUpdate,
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(todo.content);
+  const editInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isEditing && editInputRef.current) {
+      editInputRef.current.focus();
+      editInputRef.current.select();
+    }
+  }, [isEditing]);
+
+  const handleEdit = () => {
+    setIsEditing(true);
+    setEditContent(todo.content);
+  };
+
+  const handleSaveEdit = () => {
+    if (editContent.trim()) {
+      onUpdate(todo.id, { content: editContent });
+      setIsEditing(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditContent(todo.content);
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'bg-red-100 text-red-700 border-red-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+      case 'low': return 'bg-green-100 text-green-700 border-green-200';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
+    }
+  };
+
+  const getPriorityIcon = (priority: string) => {
+    switch (priority) {
+      case 'high': return '🔴';
+      case 'medium': return '🟡';
+      case 'low': return '🟢';
+      default: return '⚪';
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
+      <div className="flex items-start space-x-3">
+        <button
+          onClick={() => onToggle(todo.id)}
+          className="flex-shrink-0 mt-1"
+        >
+          {todo.completed ? (
+            <CheckCircle size={20} className="text-green-600" />
+          ) : (
+            <CheckSquare size={20} className="text-gray-400 hover:text-green-600 transition-colors" />
+          )}
+        </button>
+        
+        <div className="flex-1 min-w-0">
+          {isEditing ? (
+            <div className="flex items-center space-x-2">
+              <input
+                ref={editInputRef}
+                type="text"
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSaveEdit();
+                  if (e.key === 'Escape') handleCancelEdit();
+                }}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400 text-sm"
+              />
+              <button
+                onClick={handleSaveEdit}
+                className="p-1 text-green-600 hover:text-green-800 transition-colors"
+              >
+                <Save size={14} />
+              </button>
+              <button
+                onClick={handleCancelEdit}
+                className="p-1 text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          ) : (
+            <div>
+              <h4 className={`text-sm font-medium ${todo.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                {todo.content}
+              </h4>
+              
+              <div className="flex items-center flex-wrap gap-2 mt-2">
+                <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getPriorityColor(todo.priority)}`}>
+                  {getPriorityIcon(todo.priority)} {todo.priority}
+                </span>
+                
+                {todo.dueDate && (
+                  <span className="flex items-center space-x-1 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                    <Calendar size={12} />
+                    <span>{formatDate(todo.dueDate)}</span>
+                  </span>
+                )}
+                
+                {todo.tags && todo.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {todo.tags.map((tag: string, index: number) => (
+                      <span
+                        key={index}
+                        className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+        
+        <div className="flex items-center space-x-1">
+          <button
+            onClick={handleEdit}
+            className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+            title="Edit task"
+          >
+            <Edit3 size={14} />
+          </button>
+          <button
+            onClick={() => onDelete(todo.id)}
+            className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+            title="Delete task"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const RandomThoughtInput: React.FC = () => {
   const [content, setContent] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [categorizationResult, setCategorizationResult] = useState<CategorizationResult | null>(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [showQuickTodos, setShowQuickTodos] = useState(false);
+  const [newTodo, setNewTodo] = useState('');
+  const [isAddingTodo, setIsAddingTodo] = useState(false);
   
   const { 
     addThought, 
@@ -57,8 +259,16 @@ export const RandomThoughtInput: React.FC = () => {
     addIdea, 
     addNote, 
     addJournalEntry, 
-    addProject 
+    addProject,
+    todos,
+    toggleTodo,
+    deleteTodo,
+    updateTodo
   } = useMindnestStore();
+
+  // Get today's todos and recent todos
+  const todayTodos = todos.filter(todo => isToday(todo.dueDate) && !todo.completed);
+  const recentTodos = todos.filter(todo => !todo.completed).slice(0, 5);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,22 +279,42 @@ export const RandomThoughtInput: React.FC = () => {
     setShowPreview(false);
 
     try {
+      // Extract tags from content
+      const extractedTags = extractTags(content);
+      const cleanContent = removeTagsFromText(content);
+
       // Use AI to categorize and enhance the thought
-      const result = await AIService.categorizeThought(content);
+      const result = await AIService.categorizeThought(cleanContent);
       
       if (result.success && result.data) {
         const categorization = result.data as CategorizationResult;
+        
+        // Merge extracted tags with AI suggested tags
+        const allTags = Array.from(new Set([
+          ...extractedTags,
+          ...(categorization.extractedData.tags || [])
+        ]));
+        
+        categorization.extractedData.tags = allTags;
         setCategorizationResult(categorization);
         setShowPreview(true);
       } else {
-        // Fallback: add as random thought
-        addRandomThought({ content: content.trim() });
+        // Fallback: add as random thought with extracted tags
+        addRandomThought({ 
+          content: cleanContent,
+          tags: extractedTags
+        });
         setContent('');
       }
     } catch (error) {
       console.error('Error categorizing thought:', error);
-      // Fallback: add as random thought
-      addRandomThought({ content: content.trim() });
+      // Fallback: add as random thought with extracted tags
+      const extractedTags = extractTags(content);
+      const cleanContent = removeTagsFromText(content);
+      addRandomThought({ 
+        content: cleanContent,
+        tags: extractedTags
+      });
       setContent('');
     } finally {
       setIsProcessing(false);
@@ -95,7 +325,7 @@ export const RandomThoughtInput: React.FC = () => {
     if (!categorizationResult) return;
 
     const { category, extractedData } = categorizationResult;
-    const enhancedContent = extractedData.description || content;
+    const enhancedContent = extractedData.description || removeTagsFromText(content);
 
     // Add to unified thoughts
     addThought({
@@ -169,6 +399,7 @@ export const RandomThoughtInput: React.FC = () => {
           content: enhancedContent,
           category: category,
           aiInsight: extractedData.context,
+          tags: extractedData.tags || [],
         });
     }
 
@@ -178,10 +409,38 @@ export const RandomThoughtInput: React.FC = () => {
   };
 
   const handleSkipCategorization = () => {
-    addRandomThought({ content: content.trim() });
+    const extractedTags = extractTags(content);
+    const cleanContent = removeTagsFromText(content);
+    addRandomThought({ 
+      content: cleanContent,
+      tags: extractedTags
+    });
     setContent('');
     setCategorizationResult(null);
     setShowPreview(false);
+  };
+
+  const handleAddQuickTodo = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTodo.trim() || isAddingTodo) return;
+    
+    setIsAddingTodo(true);
+    try {
+      const extractedTags = extractTags(newTodo);
+      const cleanContent = removeTagsFromText(newTodo);
+      
+      addTodo({
+        content: cleanContent,
+        completed: false,
+        priority: 'medium',
+        tags: extractedTags,
+        dueDate: new Date(), // Set as today's task
+      });
+      
+      setNewTodo('');
+    } finally {
+      setIsAddingTodo(false);
+    }
   };
 
   const getCategoryIcon = (category: string) => {
@@ -223,8 +482,8 @@ export const RandomThoughtInput: React.FC = () => {
             <Brain size={20} className="text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-medium text-gray-900">Capture Your Thoughts</h2>
-            <p className="text-sm text-gray-600">AI will automatically categorize and enhance your thoughts</p>
+            <h2 className="text-xl font-medium text-gray-900">What's on your mind?</h2>
+            <p className="text-sm text-gray-600">Share thoughts, tasks, ideas, or use #tags for organization</p>
           </div>
         </div>
 
@@ -233,7 +492,7 @@ export const RandomThoughtInput: React.FC = () => {
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="What's on your mind? Share any thought, task, idea, or reflection..."
+              placeholder="What's on your mind? Use #tags like #today, #todo, #soccer, etc. to help organize your thoughts..."
               className="w-full h-32 p-4 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-300 focus:bg-white placeholder-gray-500 resize-none text-lg"
               disabled={isProcessing}
             />
@@ -253,6 +512,148 @@ export const RandomThoughtInput: React.FC = () => {
             </div>
           </div>
         </form>
+
+        {/* Quick Actions */}
+        <div className="mt-6 pt-6 border-t border-gray-200">
+          <h3 className="text-sm font-medium text-gray-900 mb-3">Quick Actions</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <button
+              onClick={() => setContent(prev => prev + '\n\n💡 Idea: ')}
+              className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg hover:bg-yellow-100 transition-colors text-left"
+            >
+              <Lightbulb size={16} className="text-yellow-600 mb-1" />
+              <span className="text-xs font-medium text-gray-900">New Idea</span>
+            </button>
+            
+            <button
+              onClick={() => setContent(prev => prev + '\n\n✅ Task: ')}
+              className="p-3 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors text-left"
+            >
+              <CheckCircle size={16} className="text-green-600 mb-1" />
+              <span className="text-xs font-medium text-gray-900">Add Task</span>
+            </button>
+            
+            <button
+              onClick={() => setContent(prev => prev + '\n\n📝 Note: ')}
+              className="p-3 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors text-left"
+            >
+              <FileText size={16} className="text-blue-600 mb-1" />
+              <span className="text-xs font-medium text-gray-900">Quick Note</span>
+            </button>
+            
+            <button
+              onClick={() => setContent(prev => prev + '\n\n🎯 Project: ')}
+              className="p-3 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors text-left"
+            >
+              <Target size={16} className="text-indigo-600 mb-1" />
+              <span className="text-xs font-medium text-gray-900">New Project</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Quick Todo Section */}
+        <div className="mt-6 pt-6 border-t border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <CheckSquare size={20} className="text-green-600" />
+              <h3 className="text-lg font-medium text-gray-900">Quick Tasks</h3>
+              {todayTodos.length > 0 && (
+                <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                  {todayTodos.length} today
+                </span>
+              )}
+            </div>
+            <button
+              onClick={() => setShowQuickTodos(!showQuickTodos)}
+              className="text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              {showQuickTodos ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+            </button>
+          </div>
+
+          {showQuickTodos && (
+            <div className="space-y-4">
+              {/* Add Quick Todo */}
+              <form onSubmit={handleAddQuickTodo} className="flex space-x-3">
+                <input
+                  type="text"
+                  value={newTodo}
+                  onChange={(e) => setNewTodo(e.target.value)}
+                  placeholder="Add a quick task... (use #tags for organization)"
+                  className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400"
+                  disabled={isAddingTodo}
+                />
+                <button
+                  type="submit"
+                  disabled={!newTodo.trim() || isAddingTodo}
+                  className="px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
+                >
+                  {isAddingTodo ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      <span>Adding...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus size={16} />
+                      <span>Add</span>
+                    </>
+                  )}
+                </button>
+              </form>
+
+              {/* Today's Todos */}
+              {todayTodos.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+                    <Clock size={16} className="text-green-600" />
+                    Today's Tasks
+                  </h4>
+                  <div className="space-y-3">
+                    {todayTodos.map((todo) => (
+                      <QuickTodoItem
+                        key={todo.id}
+                        todo={todo}
+                        onToggle={toggleTodo}
+                        onDelete={deleteTodo}
+                        onUpdate={updateTodo}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Recent Todos */}
+              {recentTodos.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+                    <BarChart3 size={16} className="text-blue-600" />
+                    Recent Tasks
+                  </h4>
+                  <div className="space-y-3">
+                    {recentTodos.slice(0, 3).map((todo) => (
+                      <QuickTodoItem
+                        key={todo.id}
+                        todo={todo}
+                        onToggle={toggleTodo}
+                        onDelete={deleteTodo}
+                        onUpdate={updateTodo}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Empty State */}
+              {todayTodos.length === 0 && recentTodos.length === 0 && (
+                <div className="text-center py-8 bg-gray-50 rounded-lg">
+                  <CheckSquare size={32} className="mx-auto text-gray-400 mb-3" />
+                  <p className="text-gray-600 text-sm">No tasks yet. Add your first task above!</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* AI Categorization Preview */}
         {showPreview && categorizationResult && (
@@ -291,7 +692,7 @@ export const RandomThoughtInput: React.FC = () => {
                 
                 <div>
                   <h4 className="font-medium text-gray-900">Enhanced Content</h4>
-                  <p className="text-sm text-gray-700">{categorizationResult.extractedData.description || content}</p>
+                  <p className="text-sm text-gray-700">{categorizationResult.extractedData.description || removeTagsFromText(content)}</p>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
@@ -325,10 +726,11 @@ export const RandomThoughtInput: React.FC = () => {
 
                 {categorizationResult.extractedData.tags && categorizationResult.extractedData.tags.length > 0 && (
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Suggested Tags</h4>
+                    <h4 className="font-medium text-gray-900 mb-2">Tags</h4>
                     <div className="flex flex-wrap gap-2">
                       {categorizationResult.extractedData.tags.map((tag, index) => (
-                        <span key={index} className="px-2 py-1 bg-gray-200 text-gray-700 rounded-full text-xs">
+                        <span key={index} className="px-2 py-1 bg-gray-200 text-gray-700 rounded-full text-xs flex items-center gap-1">
+                          <Hash size={10} />
                           {tag}
                         </span>
                       ))}
@@ -369,44 +771,6 @@ export const RandomThoughtInput: React.FC = () => {
             </div>
           </div>
         )}
-
-        {/* Quick Actions */}
-        <div className="mt-6 pt-6 border-t border-gray-200">
-          <h3 className="text-sm font-medium text-gray-900 mb-3">Quick Actions</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <button
-              onClick={() => setContent(prev => prev + '\n\n💡 Idea: ')}
-              className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg hover:bg-yellow-100 transition-colors text-left"
-            >
-              <Lightbulb size={16} className="text-yellow-600 mb-1" />
-              <span className="text-xs font-medium text-gray-900">New Idea</span>
-            </button>
-            
-            <button
-              onClick={() => setContent(prev => prev + '\n\n✅ Task: ')}
-              className="p-3 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors text-left"
-            >
-              <CheckCircle size={16} className="text-green-600 mb-1" />
-              <span className="text-xs font-medium text-gray-900">Add Task</span>
-            </button>
-            
-            <button
-              onClick={() => setContent(prev => prev + '\n\n📝 Note: ')}
-              className="p-3 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors text-left"
-            >
-              <FileText size={16} className="text-blue-600 mb-1" />
-              <span className="text-xs font-medium text-gray-900">Quick Note</span>
-            </button>
-            
-            <button
-              onClick={() => setContent(prev => prev + '\n\n🎯 Project: ')}
-              className="p-3 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors text-left"
-            >
-              <Target size={16} className="text-indigo-600 mb-1" />
-              <span className="text-xs font-medium text-gray-900">New Project</span>
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );
