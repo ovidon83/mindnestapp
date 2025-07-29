@@ -41,8 +41,7 @@ export const DashboardView: React.FC = () => {
     thoughts, 
     todos, 
     ideas, 
-    projects, 
-    journalEntries
+    projects
   } = useMindnestStore();
 
   // Get today's data
