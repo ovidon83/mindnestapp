@@ -15,7 +15,6 @@ import {
   X,
   Hash,
   Plus,
-  Tag,
   Clock,
   CheckSquare,
   Trash2,
@@ -24,7 +23,6 @@ import {
   ChevronDown,
   ChevronRight,
   BarChart3,
-  FolderOpen,
 } from 'lucide-react';
 import { useMindnestStore } from '../store';
 import { AIService } from '../services/ai';

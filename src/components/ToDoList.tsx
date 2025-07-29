@@ -19,14 +19,10 @@ import {
   BarChart3,
   Zap,
   Hash,
-  Filter,
-  Star,
   ArrowUp,
   ArrowDown,
   CalendarDays,
-  ListTodo,
-  CheckCircle,
-  Circle
+  ListTodo
 } from 'lucide-react';
 import {
   DndContext,
@@ -124,7 +120,6 @@ interface SortableTodoItemProps {
   onToggleSubTodo: (parentId: string, childId: string) => void;
   onDeleteSubTodo: (parentId: string, childId: string) => void;
   level?: number;
-  view?: string;
 }
 
 const SortableTodoItem: React.FC<SortableTodoItemProps> = ({
@@ -135,8 +130,7 @@ const SortableTodoItem: React.FC<SortableTodoItemProps> = ({
   onAddSubTodo,
   onToggleSubTodo,
   onDeleteSubTodo,
-  level = 0,
-  view = 'all'
+  level = 0
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(todo.content);
@@ -643,9 +637,7 @@ export const ToDoList: React.FC = () => {
   const todayTasks = todos.filter(t => isToday(t.dueDate) && !t.completed).length;
   const overdueTasks = todos.filter(t => isOverdue(t.dueDate) && !t.completed).length;
   const projects = todos.filter(t => t.children && t.children.length > 0);
-  const totalSubTasks = todos.reduce((total, todo) => total + (todo.children?.length || 0), 0);
-  const completedSubTasks = todos.reduce((total, todo) => 
-    total + (todo.children?.filter((child: any) => child.completed).length || 0), 0);
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
@@ -854,7 +846,6 @@ export const ToDoList: React.FC = () => {
                         onAddSubTodo={addSubTodo}
                         onToggleSubTodo={handleToggleSubTodo}
                         onDeleteSubTodo={handleDeleteSubTodo}
-                        view={view}
                       />
                     ))}
                   </div>
@@ -880,10 +871,9 @@ export const ToDoList: React.FC = () => {
                     onDelete={deleteTodo}
                     onUpdate={updateTodo}
                     onAddSubTodo={addSubTodo}
-                    onToggleSubTodo={handleToggleSubTodo}
-                    onDeleteSubTodo={handleDeleteSubTodo}
-                    view={view}
-                  />
+                                          onToggleSubTodo={handleToggleSubTodo}
+                      onDeleteSubTodo={handleDeleteSubTodo}
+                    />
                 ))}
               </div>
             </div>

@@ -2,15 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { 
   Calendar, 
   CheckCircle2, 
-  Clock, 
   Target, 
   Lightbulb, 
-  FileText, 
   BookOpen, 
   FolderOpen,
   Zap,
   TrendingUp,
-  BarChart3,
   Hash,
   Plus,
   ArrowRight,
@@ -34,16 +31,7 @@ const isOverdue = (date: Date | string | undefined) => {
   return d < new Date() && !isToday(d);
 };
 
-// Helper function to format dates
-const formatDate = (date: Date | string | undefined) => {
-  if (!date) return '';
-  const d = typeof date === 'string' ? new Date(Date.parse(date)) : date;
-  return d.toLocaleDateString('en-US', { 
-    weekday: 'short', 
-    month: 'short', 
-    day: 'numeric' 
-  });
-};
+
 
 export const DashboardView: React.FC = () => {
   const [todayInsights, setTodayInsights] = useState<any>(null);
@@ -54,15 +42,13 @@ export const DashboardView: React.FC = () => {
     todos, 
     ideas, 
     projects, 
-    journalEntries,
-    randomThoughts 
+    journalEntries
   } = useMindnestStore();
 
   // Get today's data
   const todayTodos = todos.filter(todo => isToday(todo.dueDate) && !todo.completed);
   const overdueTodos = todos.filter(todo => isOverdue(todo.dueDate) && !todo.completed);
   const todayThoughts = thoughts.filter(thought => isToday(thought.timestamp));
-  const todayJournalEntries = journalEntries.filter(entry => isToday(entry.date));
   const recentIdeas = ideas.slice(0, 3);
   const activeProjects = projects.filter(project => project.status !== 'completed').slice(0, 3);
 
