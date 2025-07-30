@@ -120,12 +120,15 @@ export const UnpackView: React.FC = () => {
               onChange={(e) => setBrainDumpText(e.target.value)}
               placeholder={`Type anything on your mind — we'll sort it for you.
 
-Examples:
-Need to call the dentist
-Idea: what if we had an app that...
-Feeling overwhelmed with work
-Buy groceries for dinner
-Remember to #low_energy tag easy tasks`}
+You can write in paragraphs or separate lines:
+
+"I need to call the dentist and buy groceries. Also had this idea for an app that helps people organize their thoughts. Feeling a bit overwhelmed with work today but excited about the new project. Don't forget to email Sarah about the meeting #urgent"
+
+Or line by line:
+- Call dentist
+- Buy groceries  
+- Email Sarah #urgent
+- App idea: thought organization tool`}
               className="w-full h-64 p-4 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-300 focus:bg-white placeholder-gray-500 resize-none text-lg"
               disabled={isProcessing}
             />
