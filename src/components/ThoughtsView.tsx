@@ -73,6 +73,8 @@ export const ThoughtsView: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showCompleted, setShowCompleted] = useState(true);
+  const [justAdded, setJustAdded] = useState<string | null>(null);
+  const [showQuickActions, setShowQuickActions] = useState<string | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const { 
@@ -159,6 +161,16 @@ export const ThoughtsView: React.FC = () => {
       };
       addRandomThought(quickThought);
       setCurrentThought('');
+      
+      // Show immediate feedback and quick actions
+      setJustAdded(cleanThought);
+      setShowQuickActions('random');
+      
+      // Auto-clear the notification after 8 seconds
+      setTimeout(() => {
+        setJustAdded(null);
+        setShowQuickActions(null);
+      }, 8000);
 
       // Then enhance with AI in background
       try {
@@ -180,6 +192,9 @@ export const ThoughtsView: React.FC = () => {
           };
           
           addThought(enhancedThought);
+          
+          // Update the quick actions to show the AI-enhanced category
+          setShowQuickActions(extractedData.category || category);
         }
       } catch (error) {
         console.error('AI enhancement failed:', error);
@@ -211,6 +226,61 @@ export const ThoughtsView: React.FC = () => {
       });
     }
     // Random thoughts don't have completion state
+  };
+
+  // ADHD-focused quick action handlers
+  const handleDoNow = () => {
+    if (justAdded && showQuickActions) {
+      // Find the most recent thought and mark as high priority + today
+      const recentThought = allThoughts.find(t => t.content === justAdded);
+      if (recentThought && recentThought.source === 'thoughts') {
+        updateThought(recentThought.id, {
+          metadata: {
+            ...(recentThought as any).metadata,
+            priority: 'high',
+            energyLevel: selectedEnergy || 'medium',
+            dueDate: new Date(),
+            status: 'today'
+          }
+        });
+      }
+      setJustAdded(null);
+      setShowQuickActions(null);
+    }
+  };
+
+  const handleDoLater = () => {
+    if (justAdded && showQuickActions) {
+      const recentThought = allThoughts.find(t => t.content === justAdded);
+      if (recentThought && recentThought.source === 'thoughts') {
+        updateThought(recentThought.id, {
+          metadata: {
+            ...(recentThought as any).metadata,
+            priority: 'medium',
+            status: 'later'
+          }
+        });
+      }
+      setJustAdded(null);
+      setShowQuickActions(null);
+    }
+  };
+
+  const handleJustInfo = () => {
+    if (justAdded && showQuickActions) {
+      const recentThought = allThoughts.find(t => t.content === justAdded);
+      if (recentThought && recentThought.source === 'thoughts') {
+        updateThought(recentThought.id, {
+          metadata: {
+            ...(recentThought as any).metadata,
+            priority: 'low',
+            status: 'reference'
+          }
+        });
+      }
+      setJustAdded(null);
+      setShowQuickActions(null);
+    }
   };
 
   const formatTimeAgo = (timestamp: Date | string) => {
@@ -380,6 +450,160 @@ export const ThoughtsView: React.FC = () => {
             })}
           </div>
         </div>
+
+        {/* ADHD-Focused Quick Actions - Immediate Feedback */}
+        {justAdded && showQuickActions && (
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-2xl shadow-lg p-6 mb-8 animate-pulse">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                <CheckCircle2 size={16} className="text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Thought Captured! 🎉</h3>
+                <p className="text-sm text-gray-600">"{justAdded.slice(0, 60)}{justAdded.length > 60 ? '...' : ''}"</p>
+              </div>
+              <button 
+                onClick={() => { setJustAdded(null); setShowQuickActions(null); }}
+                className="ml-auto p-1 text-gray-400 hover:text-gray-600"
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="mb-4">
+              <p className="text-sm text-gray-700 mb-3">
+                <strong>What's next?</strong> Choose how you want to handle this thought:
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <button
+                  onClick={handleDoNow}
+                  className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition-colors group"
+                >
+                  <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Zap size={16} className="text-white" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-medium text-red-700">Do Now</p>
+                    <p className="text-xs text-red-600">High energy task for today</p>
+                  </div>
+                </button>
+                
+                <button
+                  onClick={handleDoLater}
+                  className="flex items-center gap-3 p-4 bg-yellow-50 border border-yellow-200 rounded-xl hover:bg-yellow-100 transition-colors group"
+                >
+                  <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Clock size={16} className="text-white" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-medium text-yellow-700">Do Later</p>
+                    <p className="text-xs text-yellow-600">Schedule for when ready</p>
+                  </div>
+                </button>
+                
+                <button
+                  onClick={handleJustInfo}
+                  className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-xl hover:bg-blue-100 transition-colors group"
+                >
+                  <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Brain size={16} className="text-white" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-medium text-blue-700">Just Info</p>
+                    <p className="text-xs text-blue-600">Store as reference</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+            
+            <div className="text-xs text-gray-500 flex items-center gap-2">
+              <Sparkles size={12} />
+              <span>AI is analyzing this in the background to suggest better organization</span>
+            </div>
+          </div>
+        )}
+
+        {/* Today's Focus - ADHD Priority View */}
+        {(() => {
+          const todayThoughts = allThoughts.filter(t => 
+            (t as any).metadata?.status === 'today' || 
+            (t as any).metadata?.priority === 'high' ||
+            ((t as any).metadata?.dueDate && new Date((t as any).metadata.dueDate).toDateString() === new Date().toDateString())
+          );
+          const quickWins = allThoughts.filter(t => 
+            t.energyLevel === 'low' && 
+            !t.completed && 
+            (t as any).metadata?.status !== 'reference'
+          ).slice(0, 3);
+          
+          if (todayThoughts.length > 0 || quickWins.length > 0) {
+            return (
+              <div className="bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-2xl shadow-lg p-6 mb-8">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center">
+                    <Target size={20} className="text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-medium text-gray-900">Today's Focus</h2>
+                    <p className="text-sm text-gray-600">Start here - your priority thoughts for today</p>
+                  </div>
+                </div>
+                
+                {todayThoughts.length > 0 && (
+                  <div className="mb-4">
+                    <h3 className="text-sm font-semibold text-orange-700 mb-2">🎯 Priority Actions</h3>
+                    <div className="space-y-2">
+                      {todayThoughts.slice(0, 3).map((thought) => (
+                        <div key={thought.id} className="bg-white/80 rounded-lg p-3 border border-orange-200">
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm text-gray-800 font-medium">{thought.content}</p>
+                            <button
+                              onClick={() => toggleThoughtComplete(thought)}
+                              className="ml-2 p-1"
+                            >
+                              {thought.completed ? (
+                                <CheckCircle2 size={16} className="text-green-600" />
+                              ) : (
+                                <Circle size={16} className="text-gray-400 hover:text-green-500" />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {quickWins.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-green-700 mb-2">⚡ Quick Wins (Low Energy)</h3>
+                    <div className="space-y-2">
+                      {quickWins.map((thought) => (
+                        <div key={thought.id} className="bg-white/80 rounded-lg p-3 border border-green-200">
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm text-gray-800">{thought.content}</p>
+                            <button
+                              onClick={() => toggleThoughtComplete(thought)}
+                              className="ml-2 p-1"
+                            >
+                              {thought.completed ? (
+                                <CheckCircle2 size={16} className="text-green-600" />
+                              ) : (
+                                <Circle size={16} className="text-gray-400 hover:text-green-500" />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          }
+          return null;
+        })()}
 
         {/* View Controls */}
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200 p-6 mb-8">
