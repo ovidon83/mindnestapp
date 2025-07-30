@@ -29,15 +29,61 @@ interface ADHDStore {
   getNowTask: () => Task | null;
   getLaterTasks: () => Task[];
   getActiveTasks: () => Task[];
+  getAllEntries: () => Entry[];
 }
 
-// Brain dump parsing logic
-const parseLine = (line: string, index: number): ParsedItem => {
-  const trimmed = line.trim();
+// Enhanced brain dump parsing logic that handles paragraphs and multiple items
+const parseText = (text: string): ParsedItem[] => {
+  const items: ParsedItem[] = [];
+  let itemIndex = 0;
+  
+  // First, try to split by clear delimiters
+  const lines = text.split('\n').filter(line => line.trim());
+  
+  if (lines.length > 1) {
+    // Multiple lines - treat each as separate item
+    lines.forEach(line => {
+      const item = parseSingleItem(line.trim(), itemIndex++);
+      if (item.content) {
+        items.push(item);
+      }
+    });
+  } else {
+    // Single block of text - try to extract multiple items
+    const textBlock = text.trim();
+    
+    // Look for sentence boundaries that might indicate separate items
+    const sentences = textBlock.split(/[.!?]+/).filter(s => s.trim());
+    
+    if (sentences.length > 1) {
+      // Multiple sentences - analyze each
+      sentences.forEach(sentence => {
+        const trimmed = sentence.trim();
+        if (trimmed.length > 10) { // Only process substantial sentences
+          const item = parseSingleItem(trimmed, itemIndex++);
+          if (item.content) {
+            items.push(item);
+          }
+        }
+      });
+    } else {
+      // Single sentence/thought
+      const item = parseSingleItem(textBlock, itemIndex++);
+      if (item.content) {
+        items.push(item);
+      }
+    }
+  }
+  
+  return items.length > 0 ? items : [parseSingleItem(text.trim(), 0)];
+};
+
+const parseSingleItem = (text: string, index: number): ParsedItem => {
+  const trimmed = text.trim();
   if (!trimmed) {
     return {
       id: `temp-${index}`,
-      content: trimmed,
+      content: '',
       type: 'thought',
       tags: [],
       confidence: 0
@@ -55,38 +101,49 @@ const parseLine = (line: string, index: number): ParsedItem => {
   
   const lowerContent = contentWithoutTags.toLowerCase();
   
-  // Detect tasks
+  // Detect tasks - enhanced patterns
   const taskIndicators = [
     'need to', 'must', 'should', 'don\'t forget', 'remember to',
     'have to', 'got to', 'buy', 'call', 'email', 'schedule',
-    'book', 'pay', 'submit', 'finish', 'complete', 'review'
+    'book', 'pay', 'submit', 'finish', 'complete', 'review',
+    'pick up', 'drop off', 'sign up', 'cancel', 'order',
+    'make appointment', 'follow up', 'check on', 'respond to'
   ];
   
-  const startsWithVerb = /^(call|email|buy|pay|book|schedule|finish|complete|review|submit|send|update|create|delete|install|setup|configure|test|fix|debug|deploy)/i.test(trimmed);
+  const startsWithVerb = /^(call|email|buy|pay|book|schedule|finish|complete|review|submit|send|update|create|delete|install|setup|configure|test|fix|debug|deploy|pick|drop|sign|cancel|order|make|follow|check|respond)/i.test(trimmed);
+  const hasTaskStructure = /^(i need to|i should|i have to|i must|todo:)/i.test(trimmed);
   
-  if (taskIndicators.some(indicator => lowerContent.includes(indicator)) || startsWithVerb) {
+  if (taskIndicators.some(indicator => lowerContent.includes(indicator)) || startsWithVerb || hasTaskStructure) {
     type = 'task';
     confidence = 0.8;
   }
   
-  // Detect ideas
-  if (lowerContent.includes('idea:') || 
-      lowerContent.includes('would be cool if') ||
-      lowerContent.includes('what if') ||
-      lowerContent.includes('maybe we could') ||
-      lowerContent.includes('idea for')) {
+  // Detect ideas - enhanced patterns
+  const ideaIndicators = [
+    'idea:', 'would be cool if', 'what if', 'maybe we could', 'idea for',
+    'thinking about', 'concept:', 'feature idea', 'product idea',
+    'business idea', 'app idea', 'website idea', 'innovation',
+    'brainstorming', 'creative idea'
+  ];
+  
+  if (ideaIndicators.some(indicator => lowerContent.includes(indicator))) {
     type = 'idea';
     confidence = 0.85;
   }
   
-  // Detect journal entries (emotional content)
+  // Detect journal entries (emotional content) - enhanced patterns
   const emotionalWords = [
     'feel', 'feeling', 'overwhelmed', 'excited', 'worried', 'anxious',
     'happy', 'sad', 'frustrated', 'stressed', 'tired', 'energized',
-    'can\'t', 'struggling', 'amazing', 'terrible', 'love', 'hate'
+    'can\'t', 'struggling', 'amazing', 'terrible', 'love', 'hate',
+    'emotional', 'mood', 'today i', 'yesterday i', 'grateful',
+    'annoyed', 'confused', 'disappointed', 'proud', 'embarrassed',
+    'nervous', 'confident', 'insecure', 'motivated', 'demotivated'
   ];
   
-  if (emotionalWords.some(word => lowerContent.includes(word))) {
+  const hasPersonalTone = /^(i feel|i am|i was|today i|yesterday i|i\'m|i can\'t|i don\'t|i think i)/i.test(trimmed);
+  
+  if (emotionalWords.some(word => lowerContent.includes(word)) || hasPersonalTone) {
     type = 'journal';
     confidence = 0.75;
   }
@@ -194,8 +251,7 @@ export const useADHDStore = create<ADHDStore>()(
       
       // Brain dump processing
       processBrainDump: (text) => {
-        const lines = text.split('\n').filter(line => line.trim());
-        return lines.map((line, index) => parseLine(line, index));
+        return parseText(text);
       },
       
       confirmParsedItems: (items) => {
@@ -277,6 +333,11 @@ export const useADHDStore = create<ADHDStore>()(
           if (task.snoozedUntil && task.snoozedUntil > new Date()) return false;
           return true;
         });
+      },
+      
+      getAllEntries: () => {
+        const { entries } = get();
+        return entries.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       },
     }),
     {

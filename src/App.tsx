@@ -7,7 +7,7 @@ import { UnpackView } from './components/UnpackView';
 import { AppView } from './types';
 
 function App() {
-  const [activeView, setActiveView] = useState<AppView>('now');
+  const [activeView, setActiveView] = useState<AppView>('unpack');
 
   const views = [
     { 
