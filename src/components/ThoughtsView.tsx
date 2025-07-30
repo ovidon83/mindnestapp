@@ -11,15 +11,11 @@ import {
   Calendar,
   Trash2,
   RotateCcw,
-  Filter,
   Search,
   Sparkles,
-  ArrowRight,
-  Hash,
   Circle,
   CheckCircle2,
   Clock,
-  Palette,
   Grid3x3,
   List,
   Eye,
@@ -234,7 +230,6 @@ export const ThoughtsView: React.FC = () => {
     
     const categoryConfig = THOUGHT_CATEGORIES[categoryKey] || THOUGHT_CATEGORIES.random;
     const energyConfig = ENERGY_LEVELS[energyKey];
-    const IconComponent = categoryConfig.icon;
     const EnergyIcon = energyConfig.icon;
 
     return (
