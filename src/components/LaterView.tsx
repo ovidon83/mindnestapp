@@ -1,0 +1,355 @@
+import React, { useState } from 'react';
+import { Archive, ArrowRight, Edit2, Trash2, Circle, CheckCircle, Search, Tag } from 'lucide-react';
+import { useADHDStore } from '../store/adhd-store';
+import { Task } from '../types';
+
+export const LaterView: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTag, setSelectedTag] = useState<string>('');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState('');
+  
+  const { 
+    getLaterTasks, 
+    updateTask, 
+    deleteTask, 
+    completeTask 
+  } = useADHDStore();
+  
+  const laterTasks = getLaterTasks();
+  
+  // Get all unique tags for filtering
+  const allTags = Array.from(new Set(
+    laterTasks.flatMap(task => task.tags)
+  )).sort();
+  
+  // Get all unique project tags
+  const projectTags = allTags.filter(tag => tag.startsWith('project_'));
+  
+  // Filter tasks
+  const filteredTasks = laterTasks.filter(task => {
+    const matchesSearch = !searchQuery || 
+      task.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      task.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    const matchesTag = !selectedTag || task.tags.includes(selectedTag);
+    
+    return matchesSearch && matchesTag;
+  });
+  
+  // Group by project if project tags exist
+  const groupedTasks = projectTags.length > 0 ? 
+    projectTags.reduce((groups, projectTag) => {
+      groups[projectTag] = filteredTasks.filter(task => task.tags.includes(projectTag));
+      return groups;
+    }, {} as Record<string, Task[]>) : {};
+  
+  const ungroupedTasks = filteredTasks.filter(task => 
+    !task.tags.some(tag => tag.startsWith('project_'))
+  );
+  
+  const handleMoveToToday = (task: Task) => {
+    const newTags = [...task.tags.filter(tag => tag !== 'later'), 'today'];
+    updateTask(task.id, { tags: newTags });
+  };
+  
+  const handleEdit = (task: Task) => {
+    setEditingId(task.id);
+    setEditContent(task.content);
+  };
+  
+  const handleSaveEdit = () => {
+    if (editingId && editContent.trim()) {
+      updateTask(editingId, { content: editContent.trim() });
+      setEditingId(null);
+      setEditContent('');
+    }
+  };
+  
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditContent('');
+  };
+  
+  const handleDelete = (taskId: string) => {
+    if (confirm('Are you sure you want to delete this task?')) {
+      deleteTask(taskId);
+    }
+  };
+  
+  const TaskCard: React.FC<{ task: Task }> = ({ task }) => (
+    <div className="bg-white/80 rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all group">
+      {editingId === task.id ? (
+        <div className="space-y-3">
+          <textarea
+            value={editContent}
+            onChange={(e) => setEditContent(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+            rows={2}
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={handleSaveEdit}
+              className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors"
+            >
+              Save
+            </button>
+            <button
+              onClick={handleCancelEdit}
+              className="px-3 py-1 text-gray-600 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start gap-3 flex-1">
+            <button
+              onClick={() => completeTask(task.id)}
+              className="mt-1 p-1 hover:bg-gray-100 rounded transition-colors"
+            >
+              {task.completedAt ? (
+                <CheckCircle size={18} className="text-green-600" />
+              ) : (
+                <Circle size={18} className="text-gray-400 hover:text-green-500" />
+              )}
+            </button>
+            
+            <div className="flex-1">
+              <p className={`text-gray-800 leading-relaxed ${
+                task.completedAt ? 'line-through opacity-60' : ''
+              }`}>
+                {task.content}
+              </p>
+              
+              {task.tags.length > 0 && (
+                <div className="flex gap-1 flex-wrap mt-2">
+                  {task.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className={`px-2 py-1 rounded text-xs ${
+                        tag.startsWith('project_') 
+                          ? 'bg-blue-100 text-blue-700'
+                          : 'bg-gray-100 text-gray-600'
+                      }`}
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+              
+              <div className="text-xs text-gray-500 mt-2">
+                Added {new Date(task.createdAt).toLocaleDateString()}
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+              onClick={() => handleMoveToToday(task)}
+              className="p-1 text-orange-600 hover:bg-orange-50 rounded transition-colors"
+              title="Move to Today"
+            >
+              <ArrowRight size={16} />
+            </button>
+            <button
+              onClick={() => handleEdit(task)}
+              className="p-1 text-gray-400 hover:bg-gray-100 rounded transition-colors"
+              title="Edit"
+            >
+              <Edit2 size={16} />
+            </button>
+            <button
+              onClick={() => handleDelete(task.id)}
+              className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+              title="Delete"
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+  
+  const ProjectGroup: React.FC<{ projectTag: string; tasks: Task[] }> = ({ projectTag, tasks }) => {
+    const projectName = projectTag.replace('project_', '').replace(/_/g, ' ');
+    
+    return (
+      <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+            <Tag className="text-white" size={16} />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-blue-900 capitalize">
+              {projectName}
+            </h3>
+            <p className="text-sm text-blue-700">
+              {tasks.length} task{tasks.length !== 1 ? 's' : ''}
+            </p>
+          </div>
+        </div>
+        
+        <div className="space-y-3">
+          {tasks.map((task) => (
+            <TaskCard key={task.id} task={task} />
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 p-4">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-3">
+            <Archive className="text-slate-600" size={36} />
+            Later Backlog
+          </h1>
+          <p className="text-gray-600 font-medium">
+            Your safe space for ideas and tasks. No pressure, just storage.
+          </p>
+        </div>
+
+        {/* Stats */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200 p-6 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div>
+              <div className="text-2xl font-bold text-slate-600">{laterTasks.length}</div>
+              <div className="text-sm text-gray-600">Total Tasks</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-blue-600">{projectTags.length}</div>
+              <div className="text-sm text-gray-600">Projects</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-green-600">
+                {laterTasks.filter(t => t.completedAt).length}
+              </div>
+              <div className="text-sm text-gray-600">Completed</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-gray-600">{allTags.length}</div>
+              <div className="text-sm text-gray-600">Unique Tags</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200 p-6 mb-8">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search tasks or tags..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
+            
+            <select
+              value={selectedTag}
+              onChange={(e) => setSelectedTag(e.target.value)}
+              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent min-w-48"
+            >
+              <option value="">All Tags</option>
+              {allTags.map(tag => (
+                <option key={tag} value={tag}>
+                  #{tag} ({laterTasks.filter(t => t.tags.includes(tag)).length})
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {filteredTasks.length === 0 ? (
+          /* Empty state */
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200 p-8 text-center">
+            <div className="text-6xl mb-4">📥</div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              {laterTasks.length === 0 ? "Your backlog is empty!" : "No matching tasks"}
+            </h2>
+            <p className="text-gray-600 mb-6">
+              {laterTasks.length === 0 
+                ? "Tasks you add in Unpack that aren't for today will appear here."
+                : "Try adjusting your search or filter to find what you're looking for."
+              }
+            </p>
+            
+            {laterTasks.length === 0 && (
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <p className="text-blue-800 text-sm">
+                  💡 Pro tip: Use tags like #project_name to organize related tasks together.
+                </p>
+              </div>
+            )}
+          </div>
+        ) : (
+          /* Task lists */
+          <div className="space-y-6">
+            {/* Project groups */}
+            {Object.entries(groupedTasks).map(([projectTag, tasks]) => (
+              <ProjectGroup key={projectTag} projectTag={projectTag} tasks={tasks} />
+            ))}
+            
+            {/* Ungrouped tasks */}
+            {ungroupedTasks.length > 0 && (
+              <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200 p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 bg-gray-500 rounded-lg flex items-center justify-center">
+                    <Archive className="text-white" size={16} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">Other Tasks</h3>
+                    <p className="text-sm text-gray-600">
+                      {ungroupedTasks.length} task{ungroupedTasks.length !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  {ungroupedTasks.map((task) => (
+                    <TaskCard key={task.id} task={task} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Organization Tips */}
+        <div className="mt-8 bg-white/60 backdrop-blur-sm rounded-xl border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
+            🏷️ Organization Tips
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <strong className="text-gray-900">Project Tags:</strong>
+              <ul className="mt-1 space-y-1 text-gray-600">
+                <li>• Use #project_website for website tasks</li>
+                <li>• Use #project_app for app development</li>
+                <li>• Projects auto-group in this view</li>
+              </ul>
+            </div>
+            <div>
+              <strong className="text-gray-900">Action Tags:</strong>
+              <ul className="mt-1 space-y-1 text-gray-600">
+                <li>• Move to Today with the → button</li>
+                <li>• Edit content directly in-place</li>
+                <li>• Delete tasks you no longer need</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

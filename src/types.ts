@@ -1,3 +1,35 @@
+// Core data models for the ADHD-focused app
+export interface Task {
+  id: string;
+  content: string;
+  tags: string[];
+  createdAt: Date;
+  startedAt?: Date;
+  completedAt?: Date;
+  snoozedUntil?: Date;
+}
+
+export interface Entry {
+  id: string;
+  content: string;
+  type: 'idea' | 'thought' | 'journal';
+  tags?: string[];
+  createdAt: Date;
+}
+
+// App navigation types
+export type AppView = 'now' | 'today' | 'later' | 'unpack';
+
+// Parsing result from brain dump
+export interface ParsedItem {
+  id: string;
+  content: string;
+  type: 'task' | 'idea' | 'thought' | 'journal';
+  tags: string[];
+  confidence: number; // How confident the parser is about the classification
+}
+
+// Legacy types (keeping for backward compatibility during transition)
 export interface Thought {
   id: string;
   content: string;
@@ -114,4 +146,4 @@ export interface BacklogGeneration {
     priority: 'low' | 'medium' | 'high';
     dueDate?: Date;
   }>;
-} 
+}
