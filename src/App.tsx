@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Sun, Archive, Brain, Target } from 'lucide-react';
+import { Sun, Archive, Brain, Target, CheckSquare } from 'lucide-react';
 import { NowView } from './components/NowView';
 import { TodayView } from './components/TodayView';
 import { LaterView } from './components/LaterView';
 import { UnpackView } from './components/UnpackView';
+import { ToDoView } from './components/ToDoView';
 import { AppView } from './types';
 
 function App() {
@@ -25,6 +26,13 @@ function App() {
       description: 'Plan your day'
     },
     { 
+      key: 'todos' as AppView, 
+      label: 'To-Do', 
+      icon: CheckSquare, 
+      color: 'blue',
+      description: 'Manage all tasks'
+    },
+    { 
       key: 'later' as AppView, 
       label: 'Later', 
       icon: Archive, 
@@ -44,6 +52,7 @@ function App() {
     switch (activeView) {
       case 'now': return <NowView />;
       case 'today': return <TodayView />;
+      case 'todos': return <ToDoView />;
       case 'later': return <LaterView />;
       case 'unpack': return <UnpackView />;
       default: return <NowView />;

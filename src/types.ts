@@ -18,7 +18,7 @@ export interface Entry {
 }
 
 // App navigation types
-export type AppView = 'now' | 'today' | 'later' | 'unpack';
+export type AppView = 'now' | 'today' | 'later' | 'unpack' | 'todos';
 
 // Parsing result from brain dump
 export interface ParsedItem {
