@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { CheckSquare, Circle, CheckCircle, Edit2, Trash2, Plus, Search, Filter, SortAsc, Calendar, Clock, User, Flag } from 'lucide-react';
+import { CheckSquare, Circle, CheckCircle, Edit2, Trash2, Plus, Search, Calendar, Clock, Flag } from 'lucide-react';
 import { useMindnestStore } from '../store';
-import { Thought, TodoItem } from '../types';
 
 export const ToDoView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,9 +24,7 @@ export const ToDoView: React.FC = () => {
 
   // Get AI-tagged tasks from thoughts
   const aiTaggedTasks = thoughts.filter(thought => 
-    thought.type === 'todo' || 
-    thought.type === 'task' || 
-    thought.metadata?.category === 'task'
+    thought.type === 'todo'
   );
 
   // Get regular todos
@@ -75,7 +72,9 @@ export const ToDoView: React.FC = () => {
         if (!b.dueDate) return -1;
         return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
       case 'created':
-        return new Date(b.timestamp || b.createdAt).getTime() - new Date(a.timestamp || a.createdAt).getTime();
+        const aDate = a.source === 'thought' ? a.timestamp : (a as any).createdAt;
+        const bDate = b.source === 'thought' ? b.timestamp : (b as any).createdAt;
+        return new Date(bDate).getTime() - new Date(aDate).getTime();
       default:
         return 0;
     }
@@ -267,7 +266,7 @@ export const ToDoView: React.FC = () => {
               
               <div className="text-xs text-gray-500 mt-2">
                 <Clock size={12} className="inline mr-1" />
-                {new Date(task.timestamp || task.createdAt).toLocaleDateString()}
+                {new Date(task.source === 'thought' ? task.timestamp : (task as any).createdAt).toLocaleDateString()}
               </div>
             </div>
           </div>
