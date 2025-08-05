@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { CheckSquare, Circle, CheckCircle, Edit2, Trash2, Plus, Search, Calendar, Clock, Hash, ChevronDown, ChevronRight } from 'lucide-react';
 import { useMindnestStore } from '../store';
 
@@ -32,6 +32,7 @@ export const ToDoView: React.FC = () => {
   const [newTaskContent, setNewTaskContent] = useState('');
   const [selectedTag, setSelectedTag] = useState<string>('');
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
+  const editTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { 
     thoughts, 
@@ -122,6 +123,17 @@ export const ToDoView: React.FC = () => {
     setEditingId(task.id);
     setEditContent(task.content);
   };
+
+  // Focus and set cursor to end when editing starts
+  useEffect(() => {
+    if (editingId && editTextareaRef.current) {
+      const textarea = editTextareaRef.current;
+      textarea.focus();
+      // Set cursor to the end of the text
+      const length = textarea.value.length;
+      textarea.setSelectionRange(length, length);
+    }
+  }, [editingId]);
 
   const handleSaveEdit = () => {
     if (!editingId || !editContent.trim()) return;
@@ -237,12 +249,11 @@ export const ToDoView: React.FC = () => {
       {editingId === task.id ? (
         <div className="space-y-2">
           <textarea
-            key={`editing-${task.id}`}
+            ref={editTextareaRef}
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
             rows={2}
-            autoFocus
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
