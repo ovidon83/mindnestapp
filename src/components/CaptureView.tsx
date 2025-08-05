@@ -3,7 +3,7 @@ import { Brain, Sparkles, Check, X, Edit2, Plus, Lightbulb, Target, Zap, Clock }
 import { useMindnestStore } from '../store';
 import { ParsedItem } from '../types';
 
-export const UnpackView: React.FC = () => {
+export const CaptureView: React.FC = () => {
   const [brainDumpText, setBrainDumpText] = useState('');
   const [parsedItems, setParsedItems] = useState<ParsedItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -184,10 +184,10 @@ export const UnpackView: React.FC = () => {
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-3">
             <Brain className="text-purple-600" size={36} />
-            Brain Dump
+            Capture
           </h1>
           <p className="text-gray-600 font-medium">
-            Dump everything on your mind — one thought per line, we'll organize it all
+            Quick capture anything on your mind — we'll organize it instantly
           </p>
         </div>
 

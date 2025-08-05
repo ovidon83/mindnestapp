@@ -1,61 +1,70 @@
 import { useState } from 'react';
-import { Sun, Archive, Brain, Target, CheckSquare } from 'lucide-react';
-import { NowView } from './components/NowView';
-import { TodayView } from './components/TodayView';
-import { LaterView } from './components/LaterView';
-import { UnpackView } from './components/UnpackView';
+import { Brain, CheckSquare, BookOpen, Lightbulb, MessageCircle, BarChart3 } from 'lucide-react';
+import { CaptureView } from './components/CaptureView';
 import { ToDoView } from './components/ToDoView';
+import { JournalView } from './components/JournalView';
+import { IdeasView } from './components/IdeasView';
+import { ThoughtsView } from './components/ThoughtsView';
+import { AnalyticsView } from './components/AnalyticsView';
 import { AppView } from './types';
 
 function App() {
-  const [activeView, setActiveView] = useState<AppView>('unpack');
+  const [activeView, setActiveView] = useState<AppView>('capture');
 
   const views = [
     { 
-      key: 'unpack' as AppView, 
-      label: 'Brain Dump', 
+      key: 'capture' as AppView, 
+      label: 'Capture', 
       icon: Brain, 
       color: 'purple',
-      description: 'Capture & organize your thoughts'
-    },
-    { 
-      key: 'today' as AppView, 
-      label: 'Today', 
-      icon: Sun, 
-      color: 'orange',
-      description: 'Plan your day'
+      description: 'Quick capture & organize'
     },
     { 
       key: 'todos' as AppView, 
       label: 'To-Do', 
       icon: CheckSquare, 
       color: 'blue',
-      description: 'Manage all tasks'
+      description: 'Tasks by urgency'
     },
     { 
-      key: 'later' as AppView, 
-      label: 'Later', 
-      icon: Archive, 
-      color: 'slate',
-      description: 'Safe backlog storage'
+      key: 'journal' as AppView, 
+      label: 'Journal', 
+      icon: BookOpen, 
+      color: 'green',
+      description: 'Daily reflections'
     },
     { 
-      key: 'now' as AppView, 
-      label: 'Focus', 
-      icon: Target, 
+      key: 'ideas' as AppView, 
+      label: 'Ideas', 
+      icon: Lightbulb, 
+      color: 'yellow',
+      description: 'Spark & develop'
+    },
+    { 
+      key: 'thoughts' as AppView, 
+      label: 'Thoughts', 
+      icon: MessageCircle, 
       color: 'indigo',
-      description: 'Deep work mode'
+      description: 'Random musings'
+    },
+    { 
+      key: 'analytics' as AppView, 
+      label: 'Analytics', 
+      icon: BarChart3, 
+      color: 'rose',
+      description: 'Insights & trends'
     },
   ];
 
   const renderView = () => {
     switch (activeView) {
-      case 'now': return <NowView />;
-      case 'today': return <TodayView />;
+      case 'capture': return <CaptureView />;
       case 'todos': return <ToDoView />;
-      case 'later': return <LaterView />;
-      case 'unpack': return <UnpackView />;
-      default: return <NowView />;
+      case 'journal': return <JournalView />;
+      case 'ideas': return <IdeasView />;
+      case 'thoughts': return <ThoughtsView />;
+      case 'analytics': return <AnalyticsView />;
+      default: return <CaptureView />;
     }
   };
 
