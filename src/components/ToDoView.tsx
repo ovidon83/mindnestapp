@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckSquare, Circle, CheckCircle, Edit2, Trash2, Search, Clock, Zap, Calendar, ArrowRight } from 'lucide-react';
+import { CheckSquare, Circle, CheckCircle, Edit2, Trash2, Search, Clock, Zap, Calendar, ArrowRight, MoreVertical, ArrowUpRight } from 'lucide-react';
 import { useMindnestStore } from '../store';
 import { TodoItem } from '../store';
 
@@ -102,96 +102,178 @@ export const ToDoView: React.FC = () => {
     deleteTodo(taskId);
   };
 
-  const TaskCard: React.FC<{ task: TodoItem }> = ({ task }) => (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all group">
-      {editingId === task.id ? (
-        <div className="space-y-3">
-          <input
-            key={task.id}
-            defaultValue={task.content}
-            onChange={(e) => setEditContent(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            autoFocus
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                handleSaveEdit();
-              }
-              if (e.key === 'Escape') {
-                handleCancelEdit();
-              }
-            }}
-          />
-          <div className="flex gap-2">
-            <button
-              onClick={handleSaveEdit}
-              className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors"
-            >
-              Save
-            </button>
-            <button
-              onClick={handleCancelEdit}
-              className="px-3 py-1 text-gray-600 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
+  const handleChangeUrgency = (taskId: string, newUrgency: UrgencyLevel) => {
+    const task = todos.find(t => t.id === taskId);
+    if (!task) return;
+
+    // Remove old urgency tags and add new ones
+    let newTags = (task.tags || []).filter(tag => 
+      !['urgent', 'today', 'this_week', 'week'].includes(tag)
+    );
+
+    // Add new urgency tag
+    if (newUrgency === 'urgent') {
+      newTags.push('urgent');
+    } else if (newUrgency === 'today') {
+      newTags.push('today');
+    } else if (newUrgency === 'this_week') {
+      newTags.push('this_week');
+    }
+    // 'later' doesn't need a specific tag
+
+    // Update priority based on urgency
+    const newPriority = newUrgency === 'urgent' ? 'high' : 
+                       newUrgency === 'today' ? 'medium' : 'low';
+
+    updateTodo(taskId, { 
+      tags: newTags,
+      priority: newPriority
+    });
+  };
+
+  const TaskCard: React.FC<{ task: TodoItem }> = ({ task }) => {
+    const [showUrgencyMenu, setShowUrgencyMenu] = useState(false);
+    
+    const getCurrentUrgency = (): UrgencyLevel => {
+      if (task.tags?.includes('urgent') || task.priority === 'high') return 'urgent';
+      if (task.tags?.includes('today')) return 'today';
+      if (task.tags?.includes('this_week') || task.tags?.includes('week')) return 'this_week';
+      return 'later';
+    };
+
+    const currentUrgency = getCurrentUrgency();
+    
+    return (
+      <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all group relative">
+        {editingId === task.id ? (
+          <div className="space-y-3">
+            <input
+              key={task.id}
+              defaultValue={task.content}
+              onChange={(e) => setEditContent(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSaveEdit();
+                }
+                if (e.key === 'Escape') {
+                  handleCancelEdit();
+                }
+              }}
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={handleSaveEdit}
+                className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors"
+              >
+                Save
+              </button>
+              <button
+                onClick={handleCancelEdit}
+                className="px-3 py-1 text-gray-600 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
-        </div>
-      ) : (
-        <div className="flex items-start gap-3">
-          <button
-            onClick={() => toggleTodo(task.id)}
-            className="mt-1 flex-shrink-0"
-          >
-            {task.completed ? (
-              <CheckCircle size={20} className="text-green-600" />
-            ) : (
-              <Circle size={20} className="text-gray-400 hover:text-gray-600" />
-            )}
-          </button>
-          
-          <div className="flex-1 min-w-0">
-            <p className={`text-gray-900 ${task.completed ? 'line-through opacity-60' : ''}`}>
-              {task.content}
-            </p>
+        ) : (
+          <div className="flex items-start gap-3">
+            <button
+              onClick={() => toggleTodo(task.id)}
+              className="mt-1 flex-shrink-0"
+            >
+              {task.completed ? (
+                <CheckCircle size={20} className="text-green-600" />
+              ) : (
+                <Circle size={20} className="text-gray-400 hover:text-gray-600" />
+              )}
+            </button>
             
-            {task.tags && task.tags.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-1">
-                {task.tags.slice(0, 3).map((tag, index) => (
-                  <span
-                    key={index}
-                    className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-                {task.tags.length > 3 && (
-                  <span className="text-xs text-gray-500">+{task.tags.length - 3} more</span>
+            <div className="flex-1 min-w-0">
+              <p className={`text-gray-900 ${task.completed ? 'line-through opacity-60' : ''}`}>
+                {task.content}
+              </p>
+              
+              {task.tags && task.tags.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {task.tags.slice(0, 3).map((tag, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                  {task.tags.length > 3 && (
+                    <span className="text-xs text-gray-500">+{task.tags.length - 3} more</span>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              {/* Urgency Change Button */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowUrgencyMenu(!showUrgencyMenu)}
+                  className="p-1 text-gray-400 hover:bg-gray-100 rounded transition-colors"
+                  title="Change urgency"
+                >
+                  <ArrowUpRight size={16} />
+                </button>
+                
+                {showUrgencyMenu && (
+                  <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-10 min-w-32">
+                    {urgencyLevels.map(({ key, label, icon: Icon, color }) => (
+                      <button
+                        key={key}
+                        onClick={() => {
+                          handleChangeUrgency(task.id, key);
+                          setShowUrgencyMenu(false);
+                        }}
+                        className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 ${
+                          currentUrgency === key ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
+                        }`}
+                      >
+                        <Icon size={14} />
+                        <span>{label}</span>
+                        {currentUrgency === key && <span className="ml-auto text-blue-600">✓</span>}
+                      </button>
+                    ))}
+                  </div>
                 )}
               </div>
-            )}
+              
+              <button
+                onClick={() => handleEdit(task)}
+                className="p-1 text-gray-400 hover:bg-gray-100 rounded transition-colors"
+                title="Edit"
+              >
+                <Edit2 size={16} />
+              </button>
+              <button
+                onClick={() => handleDelete(task.id)}
+                className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                title="Delete"
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
           </div>
-          
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button
-              onClick={() => handleEdit(task)}
-              className="p-1 text-gray-400 hover:bg-gray-100 rounded transition-colors"
-              title="Edit"
-            >
-              <Edit2 size={16} />
-            </button>
-            <button
-              onClick={() => handleDelete(task.id)}
-              className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-              title="Delete"
-            >
-              <Trash2 size={16} />
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+        )}
+        
+        {/* Click outside to close menu */}
+        {showUrgencyMenu && (
+          <div 
+            className="fixed inset-0 z-5" 
+            onClick={() => setShowUrgencyMenu(false)}
+          />
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
