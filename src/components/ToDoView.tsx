@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { CheckSquare, Circle, CheckCircle, Edit2, Trash2, Plus, Search, Calendar, Clock, Hash, ChevronDown, ChevronRight } from 'lucide-react';
 import { useMindnestStore } from '../store';
 
