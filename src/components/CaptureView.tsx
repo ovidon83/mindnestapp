@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Brain, Sparkles, Check, X, Edit2, Plus, Lightbulb, Target, Zap, Clock } from 'lucide-react';
+import { Brain, Sparkles, Check, X, Edit2, Plus, Lightbulb, Target, Zap, Clock, Calendar } from 'lucide-react';
 import { useMindnestStore } from '../store';
 import { ParsedItem } from '../types';
 
@@ -134,6 +134,14 @@ export const CaptureView: React.FC = () => {
       )
     );
   };
+
+  const handleChangeUrgency = (id: string, newUrgency: string) => {
+    setParsedItems(items =>
+      items.map(item =>
+        item.id === id ? { ...item, urgency: newUrgency } : item
+      )
+    );
+  };
   
   const handleConfirm = () => {
     const validItems = parsedItems.filter(item => item.content.trim());
@@ -206,6 +214,13 @@ export const CaptureView: React.FC = () => {
     }
     return null;
   };
+
+  const urgencyOptions = [
+    { value: '', label: 'No urgency', color: 'gray' },
+    { value: 'urgent', label: 'Urgent', color: 'red', icon: Zap },
+    { value: 'today', label: 'Today', color: 'orange', icon: Clock },
+    { value: 'this_week', label: 'This Week', color: 'blue', icon: Calendar },
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 p-4">
@@ -389,18 +404,35 @@ Examples:
                               </div>
                             )}
                             
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs text-gray-600">Type:</span>
-                              <select
-                                value={item.type}
-                                onChange={(e) => handleChangeType(item.id, e.target.value as any)}
-                                className="text-xs border border-gray-300 rounded px-2 py-1 bg-white"
-                              >
-                                <option value="task">✅ Task</option>
-                                <option value="idea">💡 Idea</option>
-                                <option value="thought">💭 Thought</option>
-                                <option value="journal">📓 Journal</option>
-                              </select>
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-600">Type:</span>
+                                <select
+                                  value={item.type}
+                                  onChange={(e) => handleChangeType(item.id, e.target.value as any)}
+                                  className="text-xs border border-gray-300 rounded px-2 py-1 bg-white"
+                                >
+                                  <option value="task">✅ Task</option>
+                                  <option value="idea">💡 Idea</option>
+                                  <option value="thought">💭 Thought</option>
+                                  <option value="journal">📓 Journal</option>
+                                </select>
+                              </div>
+                              
+                              {item.type === 'task' && (
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-gray-600">Urgency:</span>
+                                  <select
+                                    value={item.urgency || ''}
+                                    onChange={(e) => handleChangeUrgency(item.id, e.target.value)}
+                                    className="text-xs border border-gray-300 rounded px-2 py-1 bg-white"
+                                  >
+                                    {urgencyOptions.map(({ value, label }) => (
+                                      <option key={value} value={value}>{label}</option>
+                                    ))}
+                                  </select>
+                                </div>
+                              )}
                             </div>
                           </>
                         )}
