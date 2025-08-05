@@ -231,16 +231,18 @@ export const ToDoView: React.FC = () => {
   };
 
   const TaskCard: React.FC<{ task: GroupedTask }> = ({ task }) => (
-    <div className={`bg-white rounded-lg border border-gray-200 p-3 hover:shadow-md transition-all group ${
+    <div className={`bg-white rounded-lg border border-gray-200 p-2 hover:shadow-md transition-all group ${
       task.completed ? 'opacity-60' : ''
     }`}>
       {editingId === task.id ? (
         <div className="space-y-2">
           <textarea
+            key={`editing-${task.id}`}
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
             rows={2}
+            autoFocus
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -268,80 +270,80 @@ export const ToDoView: React.FC = () => {
         </div>
       ) : (
         <div className="flex items-start justify-between gap-2">
-          <div className="flex items-start gap-2 flex-1">
-            <button
-              onClick={() => handleToggleComplete(task)}
-              className="mt-0.5 p-1 hover:bg-gray-100 rounded transition-colors"
-            >
-              {task.completed ? (
-                <CheckCircle size={16} className="text-green-600" />
-              ) : (
-                <Circle size={16} className="text-gray-400 hover:text-green-500" />
-              )}
-            </button>
-            
-            <div className="flex-1">
-              <p className={`text-gray-800 leading-relaxed text-sm ${
-                task.completed ? 'line-through opacity-60' : ''
-              }`}>
-                {task.content}
-              </p>
-              
-              <div className="flex items-center gap-2 mt-2 flex-wrap">
-                {/* Priority */}
-                <span className={`px-2 py-0.5 rounded-full border text-xs ${getPriorityColor(task.priority)}`}>
-                  {task.priority}
-                </span>
-                
-                {/* Source */}
-                <span className={`px-2 py-0.5 rounded-full text-xs ${
-                  task.source === 'thought' 
-                    ? 'bg-purple-100 text-purple-700' 
-                    : 'bg-blue-100 text-blue-700'
-                }`}>
-                  {task.source === 'thought' ? 'AI' : 'Manual'}
-                </span>
-                
-                {/* Due date */}
-                {task.dueDate && (
-                  <div className="flex items-center gap-1 text-xs text-gray-500">
-                    <Calendar size={10} />
-                    <span>{new Date(task.dueDate).toLocaleDateString()}</span>
-                  </div>
+                      <div className="flex items-start gap-1.5 flex-1">
+              <button
+                onClick={() => handleToggleComplete(task)}
+                className="mt-0.5 p-0.5 hover:bg-gray-100 rounded transition-colors"
+              >
+                {task.completed ? (
+                  <CheckCircle size={14} className="text-green-600" />
+                ) : (
+                  <Circle size={14} className="text-gray-400 hover:text-green-500" />
                 )}
-                
-                {/* Status selector */}
-                <select
-                  value={task.status}
-                  onChange={(e) => handleStatusChange(task, e.target.value as TaskStatus)}
-                  className={`text-xs px-2 py-0.5 rounded border ${getStatusColor(task.status)} cursor-pointer`}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <option value="To Do">To Do</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Blocked">Blocked</option>
-                  <option value="Done">Done</option>
-                </select>
-              </div>
+              </button>
               
-              <div className="text-xs text-gray-500 mt-1">
-                <Clock size={10} className="inline mr-1" />
-                {new Date(task.timestamp).toLocaleDateString()}
+              <div className="flex-1">
+                <p className={`text-gray-800 leading-relaxed text-sm ${
+                  task.completed ? 'line-through opacity-60' : ''
+                }`}>
+                  {task.content}
+                </p>
+                
+                <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                  {/* Priority */}
+                  <span className={`px-1.5 py-0.5 rounded-full border text-xs ${getPriorityColor(task.priority)}`}>
+                    {task.priority}
+                  </span>
+                  
+                  {/* Source */}
+                  <span className={`px-1.5 py-0.5 rounded-full text-xs ${
+                    task.source === 'thought' 
+                      ? 'bg-purple-100 text-purple-700' 
+                      : 'bg-blue-100 text-blue-700'
+                  }`}>
+                    {task.source === 'thought' ? 'AI' : 'Manual'}
+                  </span>
+                  
+                  {/* Due date */}
+                  {task.dueDate && (
+                    <div className="flex items-center gap-0.5 text-xs text-gray-500">
+                      <Calendar size={10} />
+                      <span>{new Date(task.dueDate).toLocaleDateString()}</span>
+                    </div>
+                  )}
+                  
+                  {/* Status selector */}
+                  <select
+                    value={task.status}
+                    onChange={(e) => handleStatusChange(task, e.target.value as TaskStatus)}
+                    className={`text-xs px-1.5 py-0.5 rounded border ${getStatusColor(task.status)} cursor-pointer`}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <option value="To Do">To Do</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Blocked">Blocked</option>
+                    <option value="Done">Done</option>
+                  </select>
+                </div>
+                
+                <div className="text-xs text-gray-500 mt-1">
+                  <Clock size={10} className="inline mr-1" />
+                  {new Date(task.timestamp).toLocaleDateString()}
+                </div>
               </div>
             </div>
-          </div>
           
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               onClick={() => handleEdit(task)}
-              className="p-1 text-gray-400 hover:bg-gray-100 rounded transition-colors"
+              className="p-0.5 text-gray-400 hover:bg-gray-100 rounded transition-colors"
               title="Edit"
             >
               <Edit2 size={12} />
             </button>
             <button
               onClick={() => handleDelete(task)}
-              className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+              className="p-0.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
               title="Delete"
             >
               <Trash2 size={12} />
@@ -353,14 +355,14 @@ export const ToDoView: React.FC = () => {
   );
 
   const StatusColumn: React.FC<{ status: TaskStatus; tasks: GroupedTask[] }> = ({ status, tasks }) => (
-    <div className={`rounded-lg border-2 border-dashed p-3 min-h-32 ${getStatusColor(status)}`}>
-      <h4 className="font-medium text-sm mb-3 text-gray-700 flex items-center gap-1">
+    <div className={`rounded-lg border-2 border-dashed p-2 min-h-24 ${getStatusColor(status)}`}>
+      <h4 className="font-medium text-sm mb-2 text-gray-700 flex items-center gap-1">
         {status}
         <span className="bg-gray-600 text-white text-xs rounded-full px-1.5 py-0.5">
           {tasks.length}
         </span>
       </h4>
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         {tasks.map((task) => (
           <TaskCard key={task.id} task={task} />
         ))}

@@ -1,43 +1,58 @@
 import React from 'react';
 import { Sun, Zap, Coffee, Battery, CheckCircle, Circle, Clock, Target } from 'lucide-react';
-import { useADHDStore } from '../store/adhd-store';
-import { Task } from '../types';
+import { useMindnestStore } from '../store';
+import { TodoItem } from '../store';
 
 export const TodayView: React.FC = () => {
   const { 
-    getTodayTasks, 
-    completeTask, 
-    snoozeTask, 
-    updateTask 
-  } = useADHDStore();
+    todos, 
+    toggleTodo, 
+    updateTodo
+  } = useMindnestStore();
   
-  const todayTasks = getTodayTasks();
+  // Filter for today's tasks
+  const today = new Date().toDateString();
+  const todayTasks = todos.filter(todo => {
+    if (todo.completed) return false;
+    
+    return (
+      todo.tags?.includes('today') ||
+      todo.tags?.includes('urgent') ||
+      (todo.dueDate && new Date(todo.dueDate).toDateString() === today) ||
+      (todo.createdAt.toDateString() === today && !todo.tags?.includes('later'))
+    );
+  });
   
   // Group tasks by energy level
   const groupedTasks = {
-    high_energy: todayTasks.filter(task => task.tags.includes('high_energy')),
-    creative: todayTasks.filter(task => task.tags.includes('creative')),
-    admin: todayTasks.filter(task => task.tags.includes('admin')),
-    low_energy: todayTasks.filter(task => task.tags.includes('low_energy')),
+    high_energy: todayTasks.filter(task => task.tags?.includes('high_energy')),
+    creative: todayTasks.filter(task => task.tags?.includes('creative')),
+    admin: todayTasks.filter(task => task.tags?.includes('admin')),
+    low_energy: todayTasks.filter(task => task.tags?.includes('low_energy')),
     other: todayTasks.filter(task => 
-      !task.tags.some(tag => ['high_energy', 'creative', 'admin', 'low_energy'].includes(tag))
+      !task.tags || !task.tags.some(tag => ['high_energy', 'creative', 'admin', 'low_energy'].includes(tag))
     )
   };
   
   const handleComplete = (taskId: string) => {
-    completeTask(taskId);
+    toggleTodo(taskId);
   };
   
-  const handleSendToNow = (task: Task) => {
-    const newTags = [...task.tags.filter(tag => tag !== 'later'), 'now'];
-    updateTask(task.id, { tags: newTags });
+  const handleSendToNow = (task: TodoItem) => {
+    const newTags = [...(task.tags || []).filter(tag => tag !== 'later'), 'now'];
+    updateTodo(task.id, { tags: newTags });
   };
   
   const handleSnooze = (taskId: string) => {
-    snoozeTask(taskId, 60);
+    // For simplicity, we'll just move it to later
+    const task = todayTasks.find(t => t.id === taskId);
+    if (task) {
+      const newTags = [...(task.tags || []).filter(tag => tag !== 'today'), 'later'];
+      updateTodo(taskId, { tags: newTags });
+    }
   };
   
-  const TaskCard: React.FC<{ task: Task }> = ({ task }) => (
+  const TaskCard: React.FC<{ task: TodoItem }> = ({ task }) => (
     <div className="bg-white/80 rounded-lg border border-gray-200 p-4 hover:shadow-md transition-all group">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3 flex-1">
@@ -45,7 +60,7 @@ export const TodayView: React.FC = () => {
             onClick={() => handleComplete(task.id)}
             className="mt-1 p-1 hover:bg-gray-100 rounded transition-colors"
           >
-            {task.completedAt ? (
+            {task.completed ? (
               <CheckCircle size={20} className="text-green-600" />
             ) : (
               <Circle size={20} className="text-gray-400 hover:text-green-500" />
@@ -54,14 +69,14 @@ export const TodayView: React.FC = () => {
           
           <div className="flex-1">
             <p className={`text-gray-800 font-medium leading-relaxed ${
-              task.completedAt ? 'line-through opacity-60' : ''
+              task.completed ? 'line-through opacity-60' : ''
             }`}>
               {task.content}
             </p>
             
-            {task.tags.length > 0 && (
+            {task.tags && task.tags.length > 0 && (
               <div className="flex gap-1 flex-wrap mt-2">
-                {task.tags.map((tag, index) => (
+                {task.tags.map((tag: string, index: number) => (
                   <span
                     key={index}
                     className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs"
@@ -102,7 +117,7 @@ export const TodayView: React.FC = () => {
   const EnergyGroup: React.FC<{ 
     title: string; 
     icon: React.ReactNode; 
-    tasks: Task[]; 
+    tasks: TodoItem[]; 
     color: string;
     description: string;
   }> = ({ title, icon, tasks, color, description }) => {
@@ -155,19 +170,19 @@ export const TodayView: React.FC = () => {
             </div>
             <div>
               <div className="text-2xl font-bold text-green-600">
-                {todayTasks.filter(t => t.completedAt).length}
+                {todayTasks.filter(t => t.completed).length}
               </div>
               <div className="text-sm text-gray-600">Completed</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-indigo-600">
-                {todayTasks.filter(t => t.tags.includes('now')).length}
+                {todayTasks.filter(t => t.tags?.includes('now')).length}
               </div>
               <div className="text-sm text-gray-600">Ready Now</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-yellow-600">
-                {Math.round((todayTasks.filter(t => t.completedAt).length / Math.max(todayTasks.length, 1)) * 100)}%
+                {Math.round((todayTasks.filter(t => t.completed).length / Math.max(todayTasks.length, 1)) * 100)}%
               </div>
               <div className="text-sm text-gray-600">Progress</div>
             </div>
