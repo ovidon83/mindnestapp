@@ -16,12 +16,42 @@ export const CaptureView: React.FC = () => {
     if (!brainDumpText.trim()) return;
     
     setIsProcessing(true);
-    // Split by line breaks and filter out empty lines
-    const lines = brainDumpText.split(/\n+/).filter(line => line.trim());
     
-    const items: ParsedItem[] = lines.map(line => {
+    // Smart parsing for multiple formats
+    let items: string[] = [];
+    
+    // First, try splitting by line breaks
+    if (brainDumpText.includes('\n')) {
+      items = brainDumpText.split(/\n+/).filter(line => line.trim());
+    }
+    // Then try comma separation for paragraph format
+    else if (brainDumpText.includes(',')) {
+      items = brainDumpText.split(/,(?=\s*[A-Z]|\s*\d|\s*[-•*])/).filter(item => item.trim());
+    }
+    // Try bullet points or numbered lists
+    else if (brainDumpText.match(/[-•*]\s|^\d+\.\s/m)) {
+      items = brainDumpText.split(/(?=[-•*]\s|\d+\.\s)/).filter(item => item.trim());
+    }
+    // Try period separation for sentences (but be careful with abbreviations)
+    else if (brainDumpText.includes('.') && brainDumpText.split('.').length > 2) {
+      items = brainDumpText.split(/\.\s+(?=[A-Z])/).map(item => item.endsWith('.') ? item : item + '.').filter(item => item.trim());
+    }
+    // Fallback: try comma separation without strict formatting
+    else if (brainDumpText.includes(',')) {
+      items = brainDumpText.split(',').filter(item => item.trim());
+    }
+    // Last resort: treat as single item
+    else {
+      items = [brainDumpText.trim()];
+    }
+    
+    const parsedItems: ParsedItem[] = items.map(itemText => {
       const id = `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      const content = line.trim();
+      const content = itemText.trim()
+        .replace(/^[-•*]\s*/, '') // Remove bullet points
+        .replace(/^\d+\.\s*/, '') // Remove numbers
+        .replace(/^,\s*/, '') // Remove leading commas
+        .trim();
       
       // Smart categorization based on content patterns
       let type: 'task' | 'idea' | 'thought' | 'journal' = 'thought';
@@ -68,7 +98,7 @@ export const CaptureView: React.FC = () => {
     });
     
     setTimeout(() => {
-      setParsedItems(items);
+      setParsedItems(parsedItems);
       setIsProcessing(false);
     }, 500);
   };
@@ -209,17 +239,22 @@ export const CaptureView: React.FC = () => {
             <textarea
               value={brainDumpText}
               onChange={(e) => setBrainDumpText(e.target.value)}
-              placeholder={`Type anything on your mind — we'll sort it for you.
+              placeholder={`Dump everything here - any format works...
 
-You can write in paragraphs or separate lines:
-
-"I need to call the dentist and buy groceries. Also had this idea for an app that helps people organize their thoughts. Feeling a bit overwhelmed with work today but excited about the new project. Don't forget to email Sarah about the meeting #urgent"
-
-Or line by line:
-- Call dentist
-- Buy groceries  
-- Email Sarah #urgent
-- App idea: thought organization tool`}
+Examples:
+• Line by line:
+  Buy groceries today
+  Call mom tomorrow
+  
+• Comma separated:
+  Get internet, Review project, Finish MVP, Build plan
+  
+• Bullet points:
+  - Fix bugs
+  - Write docs  
+  - Deploy app
+  
+• Mixed format - we'll figure it out!`}
               className="w-full h-64 p-4 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-300 focus:bg-white placeholder-gray-500 resize-none text-lg"
               disabled={isProcessing}
             />
