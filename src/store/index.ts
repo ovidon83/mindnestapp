@@ -14,7 +14,7 @@ export interface Thought {
   dueDate?: Date;
   mood?: 'great' | 'good' | 'okay' | 'bad' | 'terrible';
   potential?: 'low' | 'medium' | 'high';
-  status?: string;
+  status?: 'To Do' | 'In Progress' | 'Blocked' | 'Done';
 }
 
 export interface RandomThought {
@@ -48,6 +48,7 @@ export interface TodoItem {
   content: string;
   completed: boolean;
   priority: 'low' | 'medium' | 'high';
+  status: 'To Do' | 'In Progress' | 'Blocked' | 'Done';
   dueDate?: Date;
   projectId?: string;
   createdAt: Date;
@@ -234,6 +235,7 @@ export const useMindnestStore = create<MindnestStore>()(
             id: crypto.randomUUID(),
             createdAt: new Date(),
             children: [],
+            status: todo.status || 'To Do',
           },
           ...state.todos,
         ],
@@ -251,6 +253,7 @@ export const useMindnestStore = create<MindnestStore>()(
                     createdAt: new Date(),
                     children: [],
                     parentId,
+                    status: todo.status || 'To Do',
                   },
                 ],
               }
@@ -259,7 +262,11 @@ export const useMindnestStore = create<MindnestStore>()(
       })),
       toggleTodo: (id) => set((state) => ({
         todos: state.todos.map((todo) =>
-          todo.id === id ? { ...todo, completed: !todo.completed } : todo
+          todo.id === id ? { 
+            ...todo, 
+            completed: !todo.completed,
+            status: !todo.completed ? 'Done' : 'To Do'
+          } : todo
         ),
       })),
       updateTodo: (id, updates) => set((state) => ({
@@ -325,6 +332,7 @@ export const useMindnestStore = create<MindnestStore>()(
             id: crypto.randomUUID(),
             createdAt: new Date(),
             children: [],
+            status: 'To Do' as const,
           }))
         ],
         notes: [
