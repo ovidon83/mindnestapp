@@ -122,18 +122,18 @@ export const ToDoView: React.FC = () => {
   const handleEdit = (task: GroupedTask) => {
     setEditingId(task.id);
     setEditContent(task.content);
+    
+    // Focus and set cursor position after state update
+    setTimeout(() => {
+      if (editTextareaRef.current) {
+        const textarea = editTextareaRef.current;
+        textarea.focus();
+        // Set cursor to the end of the text
+        const length = textarea.value.length;
+        textarea.setSelectionRange(length, length);
+      }
+    }, 0);
   };
-
-  // Focus and set cursor to end when editing starts
-  useEffect(() => {
-    if (editingId && editTextareaRef.current) {
-      const textarea = editTextareaRef.current;
-      textarea.focus();
-      // Set cursor to the end of the text
-      const length = textarea.value.length;
-      textarea.setSelectionRange(length, length);
-    }
-  }, [editingId]);
 
   const handleSaveEdit = () => {
     if (!editingId || !editContent.trim()) return;
