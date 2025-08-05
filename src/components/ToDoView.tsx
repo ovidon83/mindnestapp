@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckSquare, Circle, CheckCircle, Edit2, Trash2, Search, Clock, Zap, Calendar, ArrowRight, MoreVertical, ArrowUpRight } from 'lucide-react';
+import { CheckSquare, Circle, CheckCircle, Edit2, Trash2, Search, Clock, Zap, Calendar, ArrowRight, ArrowUpRight } from 'lucide-react';
 import { useMindnestStore } from '../store';
 import { TodoItem } from '../store';
 
@@ -226,7 +226,7 @@ export const ToDoView: React.FC = () => {
                 
                 {showUrgencyMenu && (
                   <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-10 min-w-32">
-                    {urgencyLevels.map(({ key, label, icon: Icon, color }) => (
+                    {urgencyLevels.map(({ key, label, icon: Icon }) => (
                       <button
                         key={key}
                         onClick={() => {
