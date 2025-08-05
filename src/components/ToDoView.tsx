@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckSquare, Circle, CheckCircle, Edit2, Trash2, Plus, Search, Calendar, Clock, Flag, Hash, ChevronDown, ChevronRight } from 'lucide-react';
+import { CheckSquare, Circle, CheckCircle, Edit2, Trash2, Plus, Search, Calendar, Clock, Hash, ChevronDown, ChevronRight } from 'lucide-react';
 import { useMindnestStore } from '../store';
 
 type TaskStatus = 'To Do' | 'In Progress' | 'Blocked' | 'Done';
@@ -160,7 +160,6 @@ export const ToDoView: React.FC = () => {
       updateThought(task.id, { 
         status: newStatus,
         metadata: { 
-          ...task.metadata, 
           completed: !task.completed 
         }
       });
@@ -176,7 +175,6 @@ export const ToDoView: React.FC = () => {
       updateThought(task.id, { 
         status: newStatus,
         metadata: { 
-          ...task.metadata, 
           completed: isCompleted 
         }
       });
@@ -354,7 +352,7 @@ export const ToDoView: React.FC = () => {
     </div>
   );
 
-  const StatusColumn: React.FC<{ status: TaskStatus; tasks: GroupedTask[]; tag: string }> = ({ status, tasks, tag }) => (
+  const StatusColumn: React.FC<{ status: TaskStatus; tasks: GroupedTask[] }> = ({ status, tasks }) => (
     <div className={`rounded-lg border-2 border-dashed p-3 min-h-32 ${getStatusColor(status)}`}>
       <h4 className="font-medium text-sm mb-3 text-gray-700 flex items-center gap-1">
         {status}
@@ -495,8 +493,7 @@ export const ToDoView: React.FC = () => {
                           <StatusColumn 
                             key={status} 
                             status={status} 
-                            tasks={statusGroups[status]} 
-                            tag={tag}
+                            tasks={statusGroups[status]}
                           />
                         ))}
                       </div>

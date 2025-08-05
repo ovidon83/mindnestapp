@@ -337,7 +337,9 @@ export const RandomThoughtInput: React.FC = () => {
       dueDate: extractedData.dueDate ? new Date(extractedData.dueDate) : undefined,
       mood: extractedData.mood,
       potential: extractedData.potential,
-      status: extractedData.status,
+      status: (['To Do', 'In Progress', 'Blocked', 'Done'].includes(extractedData.status as any)) 
+        ? extractedData.status as 'To Do' | 'In Progress' | 'Blocked' | 'Done'
+        : 'To Do',
     });
 
     // Route to appropriate section based on category
@@ -347,6 +349,7 @@ export const RandomThoughtInput: React.FC = () => {
           content: extractedData.title || enhancedContent,
           completed: false,
           priority: extractedData.priority || 'medium',
+          status: 'To Do',
           dueDate: extractedData.dueDate ? new Date(extractedData.dueDate) : undefined,
           tags: extractedData.tags || [],
           notes: extractedData.context,
@@ -431,6 +434,7 @@ export const RandomThoughtInput: React.FC = () => {
         content: cleanContent,
         completed: false,
         priority: 'medium',
+        status: 'To Do',
         tags: extractedTags,
         dueDate: new Date(), // Set as today's task
       });

@@ -91,6 +91,7 @@ export const ProjectSpace: React.FC = () => {
         content: newTaskContent.trim(),
         completed: false,
         priority: 'medium',
+        status: 'To Do',
         projectId,
       });
 

@@ -90,6 +90,7 @@ export const IdeasView: React.FC = () => {
         content: task,
         completed: false,
         priority: 'medium',
+        status: 'To Do',
         tags: idea.tags || [],
       });
     });

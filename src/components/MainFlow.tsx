@@ -31,7 +31,7 @@ export const MainFlow: React.FC = () => {
   const todayThoughts = thoughts.filter(t => {
     const due = t.metadata?.dueDate ? new Date(t.metadata.dueDate).toDateString() : null;
     return (
-      t.status === 'new' ||
+      t.status === 'To Do' ||
       due === todayStr ||
       t.priority === 'high' ||
       (t.tags && t.tags.some(tag => ['today', 'urgent'].includes(tag.toLowerCase())))
@@ -39,7 +39,7 @@ export const MainFlow: React.FC = () => {
   });
 
   // Helper: Inbox (unreviewed)
-  const inboxThoughts = thoughts.filter(t => t.status === 'new');
+  const inboxThoughts = thoughts.filter(t => t.status === 'To Do');
 
   // Helper: Mental Cleanup (thoughts from yesterday, last week, etc.)
   const yesterday = new Date(Date.now() - 86400000).toDateString();
@@ -100,7 +100,7 @@ export const MainFlow: React.FC = () => {
                 <span className="font-medium text-blue-700 mr-2">{t.metadata?.category}</span>
                 <span className="text-gray-800">{t.content}</span>
               </div>
-              <button onClick={() => updateThought(t.id, { status: 'reviewed' })} className="text-green-600 hover:text-green-800"><CheckCircle size={18} /></button>
+              <button onClick={() => updateThought(t.id, { status: 'Done' })} className="text-green-600 hover:text-green-800"><CheckCircle size={18} /></button>
             </div>
           ))
         )}
@@ -157,7 +157,7 @@ export const MainFlow: React.FC = () => {
                 <span className="text-gray-800">{t.content}</span>
               </div>
               <div className="flex gap-2">
-                <button onClick={() => updateThought(t.id, { status: 'reviewed' })} className="text-green-600 hover:text-green-800"><CheckCircle size={18} /></button>
+                <button onClick={() => updateThought(t.id, { status: 'Done' })} className="text-green-600 hover:text-green-800"><CheckCircle size={18} /></button>
                 <button onClick={() => deleteThought(t.id)} className="text-red-600 hover:text-red-800"><Trash2 size={18} /></button>
               </div>
             </div>
@@ -199,7 +199,7 @@ export const MainFlow: React.FC = () => {
         {yesterdayThoughts.length === 0 ? <div className="text-gray-400">None</div> : yesterdayThoughts.map(t => (
           <div key={t.id} className="bg-white rounded-lg border p-3 mb-1 flex items-center justify-between">
             <span className="text-gray-800">{t.content}</span>
-            <button onClick={() => updateThought(t.id, { status: 'reviewed' })} className="text-green-600 hover:text-green-800"><CheckCircle size={16} /></button>
+            <button onClick={() => updateThought(t.id, { status: 'Done' })} className="text-green-600 hover:text-green-800"><CheckCircle size={16} /></button>
           </div>
         ))}
       </div>
@@ -208,7 +208,7 @@ export const MainFlow: React.FC = () => {
         {weekThoughts.length === 0 ? <div className="text-gray-400">None</div> : weekThoughts.map(t => (
           <div key={t.id} className="bg-white rounded-lg border p-3 mb-1 flex items-center justify-between">
             <span className="text-gray-800">{t.content}</span>
-            <button onClick={() => updateThought(t.id, { status: 'archived' })} className="text-gray-400 hover:text-gray-700"><Trash2 size={16} /></button>
+            <button onClick={() => updateThought(t.id, { status: 'Done' })} className="text-gray-400 hover:text-gray-700"><Trash2 size={16} /></button>
           </div>
         ))}
       </div>

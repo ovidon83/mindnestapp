@@ -588,6 +588,7 @@ export const ToDoList: React.FC = () => {
         content: removeTagsFromText(newTodo),
         completed: false,
         priority: 'medium',
+        status: 'To Do',
         tags,
         dueDate: view === 'today' ? new Date() : undefined,
       });
