@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { BarChart3, TrendingUp, Calendar, CheckCircle, Lightbulb, MessageCircle, BookOpen, Target, Clock } from 'lucide-react';
+import { BarChart3, TrendingUp, Calendar, CheckCircle, Lightbulb, MessageCircle, Target, Clock } from 'lucide-react';
 import { useMindnestStore } from '../store';
 
 type TimeRange = '7d' | '30d' | '90d' | 'all';

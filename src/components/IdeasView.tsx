@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lightbulb, Plus, Edit2, Trash2, Star, ArrowRight, Search, Filter, CheckCircle, Circle } from 'lucide-react';
+import { Lightbulb, Plus, Edit2, Trash2, Star, Search, CheckCircle, Circle } from 'lucide-react';
 import { useMindnestStore } from '../store';
 
 type IdeaStatus = 'new' | 'developing' | 'implemented' | 'shelved';
@@ -76,16 +76,7 @@ export const IdeasView: React.FC = () => {
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
-  const getStatusBadge = (status: string) => {
-    const statusOption = statusOptions.find(s => s.value === status);
-    if (!statusOption) return null;
 
-    return (
-      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-${statusOption.color}-100 text-${statusOption.color}-800`}>
-        {statusOption.label}
-      </span>
-    );
-  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -207,7 +198,7 @@ export const IdeasView: React.FC = () => {
                     <tr key={idea.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          {getStatusIcon(idea.category)}
+                          {getStatusIcon(idea.category || 'new')}
                           <select
                             value={idea.category}
                             onChange={(e) => handleStatusChange(idea.id, e.target.value as IdeaStatus)}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckSquare, Circle, CheckCircle, Edit2, Trash2, Plus, Search, Filter, Clock, Zap, Calendar, ArrowRight } from 'lucide-react';
+import { CheckSquare, Circle, CheckCircle, Edit2, Trash2, Search, Clock, Zap, Calendar, ArrowRight } from 'lucide-react';
 import { useMindnestStore } from '../store';
 import { TodoItem } from '../store';
 
@@ -13,7 +13,6 @@ export const ToDoView: React.FC = () => {
 
   const { 
     todos, 
-    addTodo, 
     updateTodo, 
     deleteTodo, 
     toggleTodo
@@ -26,7 +25,6 @@ export const ToDoView: React.FC = () => {
     return todos.filter(todo => {
       if (todo.completed) return false;
       
-      const createdAtDate = todo.createdAt instanceof Date ? todo.createdAt : new Date(todo.createdAt);
       const dueDateStr = todo.dueDate ? (todo.dueDate instanceof Date ? todo.dueDate : new Date(todo.dueDate)).toDateString() : null;
       
       switch (urgency) {
