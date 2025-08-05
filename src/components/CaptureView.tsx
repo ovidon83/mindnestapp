@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Brain, Sparkles, Check, X, Edit2, Plus, Lightbulb, Target, Zap, Clock, Calendar } from 'lucide-react';
+import { Brain, Sparkles, Check, X, Edit2, Lightbulb, Target, Zap, Clock, Calendar } from 'lucide-react';
 import { useMindnestStore } from '../store';
 import { ParsedItem } from '../types';
 
