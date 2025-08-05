@@ -261,13 +261,13 @@ export const useADHDStore = create<ADHDStore>()(
           if (item.type === 'task') {
             addTask({
               content: item.content,
-              tags: item.tags,
+              tags: item.tags || [],
             });
           } else {
             addEntry({
               content: item.content,
               type: item.type as 'idea' | 'thought' | 'journal',
-              tags: item.tags,
+              tags: item.tags || [],
             });
           }
         });

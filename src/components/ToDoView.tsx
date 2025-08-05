@@ -248,14 +248,14 @@ export const ToDoView: React.FC = () => {
     }`}>
       {editingId === task.id ? (
         <div className="space-y-2">
-          <textarea
+          <input
+            key={task.id}
             defaultValue={task.content}
             onChange={(e) => setEditContent(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
-            rows={2}
+            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
             autoFocus
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
+              if (e.key === 'Enter') {
                 e.preventDefault();
                 handleSaveEdit();
               }

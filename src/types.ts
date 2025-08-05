@@ -25,8 +25,9 @@ export interface ParsedItem {
   id: string;
   content: string;
   type: 'task' | 'idea' | 'thought' | 'journal';
-  tags: string[];
-  confidence: number; // How confident the parser is about the classification
+  tags?: string[];
+  urgency?: string;
+  confidence?: number; // How confident the parser is about the classification
 }
 
 // Legacy types (keeping for backward compatibility during transition)

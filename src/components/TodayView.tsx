@@ -15,11 +15,14 @@ export const TodayView: React.FC = () => {
   const todayTasks = todos.filter(todo => {
     if (todo.completed) return false;
     
+    const createdAtDate = todo.createdAt instanceof Date ? todo.createdAt : new Date(todo.createdAt);
+    const dueDateStr = todo.dueDate ? (todo.dueDate instanceof Date ? todo.dueDate : new Date(todo.dueDate)).toDateString() : null;
+    
     return (
       todo.tags?.includes('today') ||
       todo.tags?.includes('urgent') ||
-      (todo.dueDate && new Date(todo.dueDate).toDateString() === today) ||
-      (todo.createdAt.toDateString() === today && !todo.tags?.includes('later'))
+      (dueDateStr === today) ||
+      (createdAtDate.toDateString() === today && !todo.tags?.includes('later'))
     );
   });
   

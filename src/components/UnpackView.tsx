@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Brain, Sparkles, Check, X, Edit2, Plus } from 'lucide-react';
-import { useADHDStore } from '../store/adhd-store';
+import { Brain, Sparkles, Check, X, Edit2, Plus, Lightbulb, Target, Zap, Clock } from 'lucide-react';
+import { useMindnestStore } from '../store';
 import { ParsedItem } from '../types';
 
 export const UnpackView: React.FC = () => {
@@ -10,15 +10,64 @@ export const UnpackView: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
   
-  const { processBrainDump, confirmParsedItems } = useADHDStore();
+  const { addTodo, addThought } = useMindnestStore();
   
   const handleBrainDump = () => {
     if (!brainDumpText.trim()) return;
     
     setIsProcessing(true);
-    // Simulate processing delay for better UX
+    // Split by line breaks and filter out empty lines
+    const lines = brainDumpText.split(/\n+/).filter(line => line.trim());
+    
+    const items: ParsedItem[] = lines.map(line => {
+      const id = `item_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const content = line.trim();
+      
+      // Smart categorization based on content patterns
+      let type: 'task' | 'idea' | 'thought' | 'journal' = 'thought';
+      let urgency: string[] = [];
+      
+      // Task patterns
+      if (content.match(/^(todo|task|do|fix|complete|finish|implement|add|create|update|delete|remove|build|setup|install|configure|test|debug|review|check|verify|schedule|book|call|email|send|buy|order|pay|submit|apply|sign|register|cancel|remind|follow up)/i) ||
+          content.includes('need to') || content.includes('should') || content.includes('must') ||
+          content.includes('deadline') || content.includes('due') || content.includes('urgent') ||
+          content.match(/\b(by|before|until|today|tomorrow|this week|next week|asap|urgent|priority)\b/i)) {
+        type = 'task';
+        
+        // Determine urgency
+        if (content.match(/\b(urgent|asap|critical|emergency|now|today|deadline)\b/i)) {
+          urgency.push('urgent');
+        }
+        if (content.match(/\b(today|this morning|this afternoon|tonight)\b/i)) {
+          urgency.push('today');
+        }
+        if (content.match(/\b(this week|by friday|before weekend)\b/i)) {
+          urgency.push('this_week');
+        }
+      }
+      // Idea patterns
+      else if (content.match(/^(idea|what if|maybe|could|might|potentially|brainstorm|concept|innovation|solution|approach|strategy|feature|improvement)/i) ||
+               content.includes('💡') || content.includes('idea:') || content.includes('maybe we could')) {
+        type = 'idea';
+      }
+      // Journal patterns  
+      else if (content.match(/^(feeling|felt|today|yesterday|this morning|this week|lately|currently|thinking about|reflecting on|grateful for|struggling with|learned|realized|noticed)/i) ||
+               content.includes('feel') || content.includes('emotion') || content.includes('mood') ||
+               content.match(/\b(happy|sad|excited|frustrated|anxious|stressed|proud|disappointed|grateful|worried|confused|tired|energized)\b/i)) {
+        type = 'journal';
+      }
+      
+      return {
+        id,
+        content,
+        type,
+        urgency: urgency.join(','),
+        tags: [],
+        confidence: 0.8 // Default confidence
+      };
+    });
+    
     setTimeout(() => {
-      const items = processBrainDump(brainDumpText);
       setParsedItems(items);
       setIsProcessing(false);
     }, 500);
@@ -58,7 +107,34 @@ export const UnpackView: React.FC = () => {
   
   const handleConfirm = () => {
     const validItems = parsedItems.filter(item => item.content.trim());
-    confirmParsedItems(validItems);
+    
+    // Create items in the appropriate stores
+    validItems.forEach(item => {
+      if (item.type === 'task') {
+        const tags = [];
+        if (item.urgency?.includes('urgent')) tags.push('urgent');
+        if (item.urgency?.includes('today')) tags.push('today');
+        if (item.urgency?.includes('this_week')) tags.push('this_week');
+        
+        const status = item.urgency?.includes('urgent') ? 'In Progress' as const : 'To Do' as const;
+        
+        addTodo({
+          content: item.content,
+          priority: item.urgency?.includes('urgent') ? 'high' : 'medium',
+          status,
+          completed: false,
+          tags
+        });
+      } else {
+        addThought({
+          content: item.content,
+          type: item.type === 'thought' ? 'random' : item.type as 'idea' | 'journal',
+          category: item.type,
+          tags: []
+        });
+      }
+    });
+    
     setBrainDumpText('');
     setParsedItems([]);
   };
@@ -70,20 +146,35 @@ export const UnpackView: React.FC = () => {
   
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'task': return '✅';
-      case 'idea': return '💡';
-      case 'journal': return '📓';
-      default: return '💭';
+      case 'task': return <Target size={16} className="text-blue-600" />;
+      case 'idea': return <Lightbulb size={16} className="text-yellow-600" />;
+      case 'journal': return <Edit2 size={16} className="text-purple-600" />;
+      default: return <Brain size={16} className="text-gray-600" />;
     }
   };
   
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'task': return 'bg-green-50 border-green-200 text-green-700';
-      case 'idea': return 'bg-yellow-50 border-yellow-200 text-yellow-700';
-      case 'journal': return 'bg-purple-50 border-purple-200 text-purple-700';
-      default: return 'bg-blue-50 border-blue-200 text-blue-700';
+      case 'task': return 'bg-blue-50 border-blue-200';
+      case 'idea': return 'bg-yellow-50 border-yellow-200';
+      case 'journal': return 'bg-purple-50 border-purple-200';
+      default: return 'bg-gray-50 border-gray-200';
     }
+  };
+  
+  const getUrgencyBadge = (urgency: string) => {
+    if (!urgency) return null;
+    
+    if (urgency.includes('urgent')) {
+      return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800"><Zap size={12} className="mr-1" />Urgent</span>;
+    }
+    if (urgency.includes('today')) {
+      return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800"><Clock size={12} className="mr-1" />Today</span>;
+    }
+    if (urgency.includes('this_week')) {
+      return <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">This Week</span>;
+    }
+    return null;
   };
 
   return (
@@ -93,10 +184,10 @@ export const UnpackView: React.FC = () => {
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-3">
             <Brain className="text-purple-600" size={36} />
-            Unpack Your Mind
+            Brain Dump
           </h1>
           <p className="text-gray-600 font-medium">
-            Type anything on your mind — we'll sort it for you
+            Dump everything on your mind — one thought per line, we'll organize it all
           </p>
         </div>
 
@@ -244,7 +335,7 @@ Or line by line:
                               {item.content}
                             </p>
                             
-                            {item.tags.length > 0 && (
+                            {item.tags && item.tags.length > 0 && (
                               <div className="flex gap-1 flex-wrap mb-2">
                                 {item.tags.map((tag, index) => (
                                   <span
@@ -254,6 +345,12 @@ Or line by line:
                                     #{tag}
                                   </span>
                                 ))}
+                              </div>
+                            )}
+                            
+                            {item.urgency && (
+                              <div className="mb-2">
+                                {getUrgencyBadge(item.urgency)}
                               </div>
                             )}
                             

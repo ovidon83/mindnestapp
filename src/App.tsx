@@ -12,11 +12,11 @@ function App() {
 
   const views = [
     { 
-      key: 'now' as AppView, 
-      label: 'Now', 
-      icon: Target, 
-      color: 'indigo',
-      description: 'Focus on one task'
+      key: 'unpack' as AppView, 
+      label: 'Brain Dump', 
+      icon: Brain, 
+      color: 'purple',
+      description: 'Capture & organize your thoughts'
     },
     { 
       key: 'today' as AppView, 
@@ -40,11 +40,11 @@ function App() {
       description: 'Safe backlog storage'
     },
     { 
-      key: 'unpack' as AppView, 
-      label: 'Unpack', 
-      icon: Brain, 
-      color: 'purple',
-      description: 'Brain dump & organize'
+      key: 'now' as AppView, 
+      label: 'Focus', 
+      icon: Target, 
+      color: 'indigo',
+      description: 'Deep work mode'
     },
   ];
 
