@@ -226,126 +226,144 @@ export const CaptureView: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-3">
-            <Brain className="text-purple-600" size={36} />
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl mb-4 shadow-lg shadow-purple-500/25">
+            <Brain className="text-white" size={24} />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Capture
           </h1>
-          <p className="text-gray-600 font-medium">
-            Quick capture anything on your mind — we'll organize it instantly
+          <p className="text-gray-500 max-w-md mx-auto">
+            Dump everything on your mind. We'll organize it instantly with smart categorization and urgency detection.
           </p>
         </div>
 
-        {/* Brain Dump Input */}
+        {/* Capture Input */}
         {parsedItems.length === 0 && (
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-200 p-6 mb-8">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg flex items-center justify-center">
-                <Plus size={20} className="text-white" />
-              </div>
-              <div>
-                <h2 className="text-xl font-medium text-gray-900">Brain Dump</h2>
-                <p className="text-sm text-gray-600">
-                  Just start typing. One thought per line works best.
-                </p>
-              </div>
-            </div>
-            
-            <textarea
-              value={brainDumpText}
-              onChange={(e) => setBrainDumpText(e.target.value)}
-              placeholder={`Dump everything here - any format works...
-
-Examples:
-• Line by line:
-  Buy groceries today
-  Call mom tomorrow
-  
-• Comma separated:
-  Get internet, Review project, Finish MVP, Build plan
-  
-• Bullet points:
-  - Fix bugs
-  - Write docs  
-  - Deploy app
-  
-• Mixed format - we'll figure it out!`}
-              className="w-full h-64 p-4 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-300 focus:bg-white placeholder-gray-500 resize-none text-lg"
-              disabled={isProcessing}
-            />
-            
-            <div className="flex items-center justify-between mt-4">
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <Sparkles size={16} />
-                <span>AI will automatically categorize your thoughts</span>
+          <div className="relative">
+            {/* Main Input Card */}
+            <div className="bg-white rounded-3xl shadow-xl border border-purple-100 overflow-hidden">
+              <div className="p-8">
+                <textarea
+                  value={brainDumpText}
+                  onChange={(e) => setBrainDumpText(e.target.value)}
+                  placeholder="Start typing anything on your mind..."
+                  className="w-full h-48 p-0 border-0 bg-transparent focus:outline-none resize-none text-lg text-gray-800 placeholder-gray-400"
+                  disabled={isProcessing}
+                  style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
+                />
               </div>
               
-              <div className="flex gap-2">
-                <button
-                  onClick={handleReset}
-                  disabled={!brainDumpText.trim() || isProcessing}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800 disabled:opacity-50 transition-colors"
-                >
-                  Clear
-                </button>
-                <button
-                  onClick={handleBrainDump}
-                  disabled={!brainDumpText.trim() || isProcessing}
-                  className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-                >
-                  {isProcessing ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      <span>Processing...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Brain size={16} />
-                      <span>Unpack</span>
-                    </>
-                  )}
-                </button>
+              {/* Bottom Bar */}
+              <div className="px-8 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <Sparkles size={16} className="text-purple-400" />
+                  <span>Smart parsing • Auto-categorization</span>
+                </div>
+                
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleReset}
+                    disabled={!brainDumpText.trim() || isProcessing}
+                    className="px-4 py-2 text-gray-500 hover:text-gray-700 disabled:opacity-50 transition-colors text-sm font-medium"
+                  >
+                    Clear
+                  </button>
+                  <button
+                    onClick={handleBrainDump}
+                    disabled={!brainDumpText.trim() || isProcessing}
+                    className="px-6 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 text-sm font-medium shadow-lg shadow-purple-600/25"
+                  >
+                    {isProcessing ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <span>Processing...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Brain size={16} />
+                        <span>Process</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
+
+            {/* Subtle Hints */}
+            {!brainDumpText && (
+              <div className="mt-6 text-center">
+                <p className="text-sm text-gray-400 mb-3">Supports any format:</p>
+                <div className="inline-flex items-center gap-6 text-xs text-gray-500">
+                  <span>Line by line</span>
+                  <span>•</span>
+                  <span>Comma separated</span>
+                  <span>•</span>
+                  <span>Bullet points</span>
+                  <span>•</span>
+                  <span>Mixed formats</span>
+                </div>
+              </div>
+            )}
+
+            {/* Contextual Tips - Only show when user starts typing */}
+            {brainDumpText && brainDumpText.length > 20 && (
+              <div className="mt-6 p-4 bg-amber-50/50 rounded-2xl border border-amber-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <Lightbulb size={16} className="text-amber-600" />
+                  <span className="text-sm font-medium text-amber-900">Smart Tips</span>
+                </div>
+                <div className="grid md:grid-cols-2 gap-4 text-xs text-amber-700">
+                  <div>
+                    <span className="font-medium">Better task detection:</span> Start with action words like "Call", "Buy", "Email"
+                  </div>
+                  <div>
+                    <span className="font-medium">Priority keywords:</span> Use "urgent", "today", "asap" for auto-prioritization
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
         {/* Parsed Items Preview */}
         {parsedItems.length > 0 && (
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-green-200 p-6 mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
-                  <Sparkles size={20} className="text-white" />
+          <div className="bg-white rounded-3xl shadow-xl border border-green-100 overflow-hidden">
+            <div className="p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-100">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg shadow-green-500/25">
+                    <Check size={20} className="text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900">
+                      Processed {parsedItems.length} items
+                    </h2>
+                    <p className="text-sm text-green-700">
+                      Review and adjust before saving
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-xl font-medium text-gray-900">
-                    Unpacked {parsedItems.length} items
-                  </h2>
-                  <p className="text-sm text-gray-600">
-                    Review and edit before confirming
-                  </p>
+                
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleReset}
+                    className="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-200 rounded-xl transition-colors text-sm font-medium"
+                  >
+                    Start Over
+                  </button>
+                  <button
+                    onClick={handleConfirm}
+                    className="px-6 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all flex items-center gap-2 text-sm font-medium shadow-lg shadow-green-600/25"
+                  >
+                    <Check size={16} />
+                    Save All
+                  </button>
                 </div>
-              </div>
-              
-              <div className="flex gap-2">
-                <button
-                  onClick={handleReset}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg transition-colors"
-                >
-                  Start Over
-                </button>
-                <button
-                  onClick={handleConfirm}
-                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-                >
-                  <Check size={16} />
-                  Confirm All
-                </button>
               </div>
             </div>
             
-            <div className="space-y-3">
+            <div className="p-6 space-y-4">
               {parsedItems.map((item) => (
                 <div
                   key={item.id}
