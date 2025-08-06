@@ -18,7 +18,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { CheckSquare, Circle, CheckCircle, Edit2, Trash2, Search, Clock, Zap, Calendar, ArrowRight, ArrowUpRight } from 'lucide-react';
+import { CheckSquare, Circle, CheckCircle, Edit2, Trash2, Search, Clock, Zap, Calendar, ArrowRight, ArrowUpRight, GripVertical } from 'lucide-react';
 import { useMindnestStore } from '../store';
 import { TodoItem } from '../store';
 
@@ -151,7 +151,7 @@ export const ToDoView: React.FC = () => {
     });
   };
 
-  const TaskCard: React.FC<{ task: TodoItem }> = ({ task }) => {
+  const TaskCard: React.FC<{ task: TodoItem; dragHandleProps?: any }> = ({ task, dragHandleProps }) => {
     const [showUrgencyMenu, setShowUrgencyMenu] = useState(false);
     
     const getCurrentUrgency = (): UrgencyLevel => {
@@ -200,6 +200,15 @@ export const ToDoView: React.FC = () => {
           </div>
         ) : (
           <div className="flex items-start gap-3">
+            {/* Drag handle */}
+            {dragHandleProps && (
+              <button
+                {...dragHandleProps}
+                className="cursor-grab p-1 text-gray-400 hover:text-gray-600"
+              >
+                <GripVertical size={16} />
+              </button>
+            )}
             <button
               onClick={() => toggleTodo(task.id)}
               className="mt-1 flex-shrink-0"
@@ -322,8 +331,8 @@ export const ToDoView: React.FC = () => {
       transition,
     };
     return (
-      <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-        <TaskCard task={task} />
+      <div ref={setNodeRef} style={style} {...attributes}>
+        <TaskCard task={task} dragHandleProps={{ ...attributes, ...listeners }} />
       </div>
     );
   };
