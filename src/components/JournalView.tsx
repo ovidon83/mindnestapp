@@ -828,6 +828,12 @@ export const JournalView: React.FC = () => {
                 </div>
               </div>
 
+              {/* Prompt of the Day */}
+              <div className="mb-6">
+                <p className="text-md text-gray-700 font-semibold mb-2">Prompt of the Day</p>
+                <p className="text-gray-600 italic">{["What are you grateful for today?","What challenged you today and how did you respond?","Write about a moment that made you smile recently.","What's a small win you achieved today?","How did you take care of yourself today?"][new Date().getDate() % 5]}</p>
+              </div>
+
               {/* Journal Content */}
               <div className="mb-6">
                 <label htmlFor="journal-content" className="block text-lg font-medium text-gray-700 mb-3">

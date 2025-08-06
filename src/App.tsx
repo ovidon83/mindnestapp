@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { Brain, CheckSquare, BookOpen, Lightbulb, MessageCircle, BarChart3 } from 'lucide-react';
+import { Brain, CheckSquare, BookOpen, MessageCircle, BarChart3 } from 'lucide-react';
 import { CaptureView } from './components/CaptureView';
 import { ToDoView } from './components/ToDoView';
 import { JournalView } from './components/JournalView';
-import { IdeasView } from './components/IdeasView';
 import { ThoughtsView } from './components/ThoughtsView';
 import { AnalyticsView } from './components/AnalyticsView';
 import { AppView } from './types';
@@ -34,13 +33,6 @@ function App() {
       description: 'Daily reflections'
     },
     { 
-      key: 'ideas' as AppView, 
-      label: 'Ideas', 
-      icon: Lightbulb, 
-      color: 'yellow',
-      description: 'Spark & develop'
-    },
-    { 
       key: 'thoughts' as AppView, 
       label: 'Thoughts', 
       icon: MessageCircle, 
@@ -61,7 +53,6 @@ function App() {
       case 'capture': return <CaptureView />;
       case 'todos': return <ToDoView />;
       case 'journal': return <JournalView />;
-      case 'ideas': return <IdeasView />;
       case 'thoughts': return <ThoughtsView />;
       case 'analytics': return <AnalyticsView />;
       default: return <CaptureView />;
@@ -72,7 +63,7 @@ function App() {
     <div className="min-h-screen bg-gray-50">
       {/* Mobile Navigation - Bottom */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 md:hidden">
-        <div className="grid grid-cols-4 gap-1 p-2">
+        <div className="grid grid-cols-5 gap-1 p-2">
           {views.map(({ key, label, icon: Icon, color }) => (
             <button
               key={key}

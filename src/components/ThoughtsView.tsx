@@ -12,7 +12,7 @@ export const ThoughtsView: React.FC = () => {
 
   // Filter random thoughts
   const randomThoughts = thoughts
-    .filter(thought => thought.type === 'random')
+    .filter(thought => thought.type === 'random' || thought.type === 'idea')
     .filter(thought => 
       thought.content.toLowerCase().includes(searchQuery.toLowerCase())
     )

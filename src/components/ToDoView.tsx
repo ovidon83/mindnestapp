@@ -18,7 +18,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { CheckSquare, Circle, CheckCircle, Edit2, Trash2, Search, Clock, Zap, Calendar, ArrowRight, ArrowUpRight, GripVertical } from 'lucide-react';
+import { CheckSquare, Circle, CheckCircle, Edit2, Trash2, Search, Clock, Zap, Calendar, ArrowRight, ArrowUpRight, GripVertical, MessageCircle } from 'lucide-react';
 import { useMindnestStore } from '../store';
 import { TodoItem } from '../store';
 
@@ -35,7 +35,8 @@ export const ToDoView: React.FC = () => {
     updateTodo, 
     deleteTodo, 
     toggleTodo,
-    reorderTodos
+    reorderTodos,
+    addThought
   } = useMindnestStore();
 
   // Filter todos by urgency
@@ -73,7 +74,7 @@ export const ToDoView: React.FC = () => {
   const urgencyLevels = [
     { 
       key: 'urgent' as UrgencyLevel, 
-      label: 'Now', 
+      label: 'Critical', 
       icon: Zap, 
       color: 'red',
       count: getTasksByUrgency('urgent').length
@@ -87,14 +88,14 @@ export const ToDoView: React.FC = () => {
     },
     { 
       key: 'this_week' as UrgencyLevel, 
-      label: 'This Week', 
+      label: 'Later', 
       icon: Calendar, 
       color: 'blue',
       count: getTasksByUrgency('this_week').length
     },
     { 
       key: 'later' as UrgencyLevel, 
-      label: 'Later', 
+      label: 'Someday', 
       icon: ArrowRight, 
       color: 'gray',
       count: getTasksByUrgency('later').length
@@ -275,6 +276,22 @@ export const ToDoView: React.FC = () => {
                 )}
               </div>
               
+              <button
+                onClick={() => {
+                  // Move to Thoughts
+                  addThought({
+                    content: task.content,
+                    type: 'idea',
+                    category: 'idea',
+                    tags: task.tags || []
+                  });
+                  deleteTodo(task.id);
+                }}
+                className="p-1 text-gray-400 hover:bg-gray-100 rounded transition-colors"
+                title="Move to Thoughts"
+              >
+                <MessageCircle size={16} />
+              </button>
               <button
                 onClick={() => handleEdit(task)}
                 className="p-1 text-gray-400 hover:bg-gray-100 rounded transition-colors"
