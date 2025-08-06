@@ -1,4 +1,23 @@
 import React, { useState } from 'react';
+
+// Drag and drop
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { CheckSquare, Circle, CheckCircle, Edit2, Trash2, Search, Clock, Zap, Calendar, ArrowRight, ArrowUpRight } from 'lucide-react';
 import { useMindnestStore } from '../store';
 import { TodoItem } from '../store';
@@ -15,7 +34,8 @@ export const ToDoView: React.FC = () => {
     todos, 
     updateTodo, 
     deleteTodo, 
-    toggleTodo
+    toggleTodo,
+    reorderTodos
   } = useMindnestStore();
 
   // Filter todos by urgency
@@ -53,7 +73,7 @@ export const ToDoView: React.FC = () => {
   const urgencyLevels = [
     { 
       key: 'urgent' as UrgencyLevel, 
-      label: 'Urgent', 
+      label: 'Now', 
       icon: Zap, 
       color: 'red',
       count: getTasksByUrgency('urgent').length
@@ -275,6 +295,39 @@ export const ToDoView: React.FC = () => {
     );
   };
 
+  // ----- Drag & Drop (dnd-kit) -----
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = filteredTasks.findIndex(t => t.id === active.id);
+    const newIndex = filteredTasks.findIndex(t => t.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const newOrderedIds = arrayMove(filteredTasks.map(t => t.id), oldIndex, newIndex);
+    reorderTodos(newOrderedIds);
+  };
+
+  const SortableTaskCard: React.FC<{ task: TodoItem }> = ({ task }) => {
+    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: task.id });
+    const style: React.CSSProperties = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+    };
+    return (
+      <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+        <TaskCard task={task} />
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-6xl mx-auto">
@@ -341,15 +394,23 @@ export const ToDoView: React.FC = () => {
                 No {urgencyLevels.find(u => u.key === activeUrgency)?.label.toLowerCase()} tasks
               </h3>
               <p className="text-gray-600">
-                {activeUrgency === 'urgent' ? 'Great! No urgent tasks right now.' :
+                {activeUrgency === 'urgent' ? 'Great! Nothing to do now – nice!' :
                  activeUrgency === 'today' ? 'All caught up for today!' :
                  'No tasks in this category yet.'}
               </p>
             </div>
           ) : (
-            filteredTasks.map(task => (
-              <TaskCard key={task.id} task={task} />
-            ))
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext items={filteredTasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+                {filteredTasks.map(task => (
+                  <SortableTaskCard key={task.id} task={task} />
+                ))}
+              </SortableContext>
+            </DndContext>
           )}
         </div>
       </div>
