@@ -126,6 +126,7 @@ interface MindnestStore {
   toggleTodo: (id: string) => void;
   updateTodo: (id: string, updates: Partial<TodoItem>) => void;
   deleteTodo: (id: string) => void;
+  reorderTodos: (orderedIds: string[]) => void;
   
   // Ideas
   ideas: Idea[];
@@ -277,6 +278,18 @@ export const useMindnestStore = create<MindnestStore>()(
       deleteTodo: (id) => set((state) => ({
         todos: state.todos.filter((todo) => todo.id !== id),
       })),
+
+      // Reorder Todos
+      reorderTodos: (orderedIds) => set((state) => {
+        // Map id -> todo for quick lookup
+        const idMap = Object.fromEntries(state.todos.map(t => [t.id, t]));
+        const reordered = orderedIds
+          .map(id => idMap[id])
+          .filter(Boolean);
+        // Append any todos that were not part of orderedIds (e.g., from other filters)
+        const remaining = state.todos.filter(t => !orderedIds.includes(t.id));
+        return { todos: [...reordered, ...remaining] };
+      }),
       
       // Ideas
       ideas: [],
