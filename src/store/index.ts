@@ -393,7 +393,7 @@ export const useMindnestStore = create<MindnestStore>()(
 
       // UI State
       activeView: 'capture', // Default view
-      setActiveView: (view) => set((state) => ({ activeView: view })),
+      setActiveView: (view) => set(() => ({ activeView: view })),
     }),
     {
       name: "mindnest-storage",

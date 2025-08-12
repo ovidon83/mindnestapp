@@ -1,10 +1,10 @@
 import React from 'react';
-import { CalendarDays, Clock } from 'lucide-react';
-import { useMindnestStore, TodoItem, Thought } from '../store';
+import { CalendarDays } from 'lucide-react';
+import { useMindnestStore } from '../store';
 import { startOfMonth, endOfMonth, eachDayOfInterval, isSameDay } from 'date-fns';
 
 export const CalendarView: React.FC = () => {
-  const { todos, thoughts, setActiveView } = useMindnestStore();
+  const { todos, thoughts } = useMindnestStore();
 
   const datedTodos = todos.filter(t => t.dueDate);
   const datedThoughts = thoughts.filter(t => (t as any).dueDate);
