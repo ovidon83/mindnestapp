@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Edit2, Trash2, Check, CalendarPlus, Clock, Tag, ListChecks } from 'lucide-react';
+import { Edit2, Trash2, Check, CalendarPlus, Clock, ListChecks } from 'lucide-react';
 import { useMindnestStore, Thought, TodoItem } from '../store';
 
 interface UnifiedItem {
@@ -17,7 +17,6 @@ export const InboxView: React.FC = () => {
     deleteThought,
     updateTodo,
     deleteTodo,
-    setActiveView,
   } = useMindnestStore();
 
   const [editingId, setEditingId] = useState<string | null>(null);
