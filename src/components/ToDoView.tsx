@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckSquare, Circle, CheckCircle, Edit2, Trash2, Search, Clock, Zap, Calendar, Plus, MessageSquare, Save, X, ChevronDown, ChevronRight } from 'lucide-react';
+import { CheckSquare, Circle, CheckCircle, Edit2, Trash2, Search, Clock, Zap, Calendar, Save, ChevronDown, ChevronRight } from 'lucide-react';
 import { useMindnestStore, TodoItem } from '../store';
 
 type UrgencyLevel = 'urgent' | 'today' | 'this_week' | 'later';
@@ -17,9 +17,7 @@ export const ToDoView: React.FC = () => {
     todos, 
     updateTodo, 
     deleteTodo, 
-    toggleTodo,
-    reorderTodos,
-    addTodo
+    toggleTodo
   } = useMindnestStore();
 
   // Filter todos by urgency

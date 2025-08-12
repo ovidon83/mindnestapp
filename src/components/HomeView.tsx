@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Edit2, Trash2, Check, CalendarPlus, Clock, ListChecks, Home, Target, Lightbulb, BookOpen, MessageCircle } from 'lucide-react';
+import { Edit2, Trash2, Check, CalendarPlus, Clock, Home, Target, Lightbulb, BookOpen, MessageCircle } from 'lucide-react';
 import { useMindnestStore, Thought, TodoItem } from '../store';
 
 interface UnifiedItem {
