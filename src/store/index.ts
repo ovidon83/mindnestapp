@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { AppView } from '../types';
 
 export interface Thought {
   id: string;
@@ -142,6 +143,10 @@ interface MindnestStore {
   
   // Multi-topic creation
   createMultipleItems: (result: MultiTopicResult) => void;
+
+  // UI State
+  activeView: AppView;
+  setActiveView: (view: AppView) => void;
 }
 
 export const useMindnestStore = create<MindnestStore>()(
@@ -385,6 +390,10 @@ export const useMindnestStore = create<MindnestStore>()(
           }))
         ],
       })),
+
+      // UI State
+      activeView: 'capture', // Default view
+      setActiveView: (view) => set((state) => ({ activeView: view })),
     }),
     {
       name: "mindnest-storage",
