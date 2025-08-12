@@ -1,7 +1,7 @@
 import { Brain, CheckSquare, BookOpen, MessageCircle, BarChart3, Inbox as InboxIcon, CalendarDays } from 'lucide-react';
 import { useMindnestStore } from './store';
 import { CaptureView } from './components/CaptureView';
-import { InboxView } from './components/InboxView.tsx';
+import { HomeView } from './components/HomeView.tsx';
 import { CalendarView } from './components/CalendarView.tsx';
 import { ToDoView } from './components/ToDoView';
 import { JournalView } from './components/JournalView';
@@ -20,7 +20,7 @@ function App() {
       color: 'purple',
       description: 'Quick capture & organize'
     },
-    { key: 'inbox' as AppView, label: 'Inbox', icon: InboxIcon, color: 'indigo', description: 'Unified dashboard' },
+    { key: 'home' as AppView, label: 'Home', icon: InboxIcon, color: 'indigo', description: 'Unified dashboard' },
     { key: 'calendar' as AppView, label: 'Calendar', icon: CalendarDays, color: 'emerald', description: 'Schedule view' },
     { 
       key: 'todos' as AppView, 
@@ -55,7 +55,7 @@ function App() {
   const renderView = () => {
     switch (activeView) {
       case 'capture': return <CaptureView />;
-      case 'inbox': return <InboxView />;
+      case 'home': return <HomeView />;
       case 'calendar': return <CalendarView />;
       case 'todos': return <ToDoView />;
       case 'journal': return <JournalView />;

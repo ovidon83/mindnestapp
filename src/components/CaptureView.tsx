@@ -175,8 +175,8 @@ export const CaptureView: React.FC = () => {
     
     setBrainDumpText('');
     setParsedItems([]);
-    // Navigate to Inbox after saving
-    setActiveView('inbox');
+    // Navigate to Home after saving
+    setActiveView('home');
   };
   
   const handleReset = () => {
