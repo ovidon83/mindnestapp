@@ -1,14 +1,16 @@
-import { useState } from 'react';
-import { Brain, CheckSquare, BookOpen, MessageCircle, BarChart3 } from 'lucide-react';
+import { Brain, CheckSquare, BookOpen, MessageCircle, BarChart3, Inbox as InboxIcon, CalendarDays } from 'lucide-react';
+import { useMindnestStore } from './store';
 import { CaptureView } from './components/CaptureView';
+import { InboxView } from './components/InboxView.tsx';
+import { CalendarView } from './components/CalendarView.tsx';
 import { ToDoView } from './components/ToDoView';
 import { JournalView } from './components/JournalView';
 import { ThoughtsView } from './components/ThoughtsView';
 import { AnalyticsView } from './components/AnalyticsView';
-import { AppView } from './types';
+import type { AppView } from './types';
 
 function App() {
-  const [activeView, setActiveView] = useState<AppView>('capture');
+  const { activeView, setActiveView } = useMindnestStore();
 
   const views = [
     { 
@@ -18,6 +20,8 @@ function App() {
       color: 'purple',
       description: 'Quick capture & organize'
     },
+    { key: 'inbox' as AppView, label: 'Inbox', icon: InboxIcon, color: 'indigo', description: 'Unified dashboard' },
+    { key: 'calendar' as AppView, label: 'Calendar', icon: CalendarDays, color: 'emerald', description: 'Schedule view' },
     { 
       key: 'todos' as AppView, 
       label: 'To-Do', 
@@ -51,6 +55,8 @@ function App() {
   const renderView = () => {
     switch (activeView) {
       case 'capture': return <CaptureView />;
+      case 'inbox': return <InboxView />;
+      case 'calendar': return <CalendarView />;
       case 'todos': return <ToDoView />;
       case 'journal': return <JournalView />;
       case 'thoughts': return <ThoughtsView />;
@@ -63,7 +69,7 @@ function App() {
     <div className="min-h-screen bg-gray-50">
       {/* Mobile Navigation - Bottom */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 md:hidden">
-        <div className="grid grid-cols-5 gap-1 p-2">
+        <div className="grid grid-cols-7 gap-1 p-2">
           {views.map(({ key, label, icon: Icon, color }) => (
             <button
               key={key}

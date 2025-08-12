@@ -10,7 +10,7 @@ export const CaptureView: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
   
-  const { addTodo, addThought } = useMindnestStore();
+  const { addTodo, addThought, setActiveView } = useMindnestStore();
   
   const handleBrainDump = () => {
     if (!brainDumpText.trim()) return;
@@ -175,6 +175,8 @@ export const CaptureView: React.FC = () => {
     
     setBrainDumpText('');
     setParsedItems([]);
+    // Navigate to Inbox after saving
+    setActiveView('inbox');
   };
   
   const handleReset = () => {
