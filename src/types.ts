@@ -1,150 +1,159 @@
-// Core data models for the ADHD-focused app
-export interface Task {
-  id: string;
-  content: string;
-  tags: string[];
-  createdAt: Date;
-  startedAt?: Date;
-  completedAt?: Date;
-  snoozedUntil?: Date;
-}
+// AI Personal Assistant Types for GenieNotes
+export type AppView = 'capture' | 'nextup' | 'inbox' | 'calendar' | 'reviews' | 'insights';
 
+// Entry classification types
+export type EntryType = 'task' | 'event' | 'idea' | 'insight' | 'reflection' | 'journal';
+
+// Priority levels
+export type Priority = 'low' | 'medium' | 'high' | 'urgent';
+
+// Status for tasks
+export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
+
+// Mood for reflections/journal
+export type Mood = 'great' | 'good' | 'okay' | 'bad' | 'terrible';
+
+// Unified entry interface
 export interface Entry {
   id: string;
   content: string;
-  type: 'idea' | 'thought' | 'journal';
-  tags?: string[];
-  createdAt: Date;
-}
-
-// App navigation types
-export type AppView = 'capture' | 'home' | 'calendar' | 'todos' | 'journal' | 'thoughts' | 'analytics';
-
-// Parsing result from brain dump
-export interface ParsedItem {
-  id: string;
-  content: string;
-  type: 'task' | 'idea' | 'thought' | 'journal';
-  tags?: string[];
-  urgency?: string;
-  confidence?: number; // How confident the parser is about the classification
-}
-
-// Legacy types (keeping for backward compatibility during transition)
-export interface Thought {
-  id: string;
-  content: string;
-  timestamp: Date;
-  type: 'random' | 'idea' | 'journal' | 'note' | 'todo' | 'project';
-  tags?: string[];
-  metadata?: Record<string, any>;
-}
-
-export interface JournalEntry {
-  id: string;
-  content: string;
-  date: Date;
-  mood?: 'great' | 'good' | 'okay' | 'bad' | 'terrible';
-  tags?: string[];
-  aiReflection?: string;
-}
-
-export interface Note {
-  id: string;
-  title: string;
-  content: string;
-  tags: string[];
+  type: EntryType;
   createdAt: Date;
   updatedAt: Date;
-  backlinks: string[]; // IDs of notes that link to this one
-}
-
-export interface TodoItem {
-  id: string;
-  content: string;
-  completed: boolean;
-  dueDate?: Date;
-  priority: 'low' | 'medium' | 'high';
-  parentId?: string; // For nested todos
-  children: TodoItem[];
-  createdAt: Date;
+  
+  // Classification metadata
+  confidence: number; // AI confidence in classification
+  tags: string[];
+  priority: Priority;
+  
+  // Date/time handling
+  dueDate?: Date; // For tasks
+  startDate?: Date; // For events
+  endDate?: Date; // For events
+  reminderDate?: Date; // When to remind
+  
+  // Location
+  location?: string;
+  
+  // Relationships
+  parentId?: string; // For prep tasks linked to events
+  relatedIds: string[]; // Related entries
+  
+  // Status and progress
+  status: TaskStatus;
   completedAt?: Date;
-  tags?: string[];
+  
+  // Additional metadata
   notes?: string;
+  mood?: Mood; // For reflections/journal
+  
+  // Auto-generated actions
+  autoActions: AutoAction[];
 }
 
-export interface Idea {
+// Auto-generated actions
+export interface AutoAction {
   id: string;
-  title: string;
-  description: string;
-  category: 'app' | 'business' | 'feature' | 'product' | 'service' | 'other';
-  status: 'concept' | 'researching' | 'validating' | 'planning' | 'building' | 'launched' | 'paused';
-  potential: 'low' | 'medium' | 'high';
-  marketSize?: string;
-  targetAudience?: string;
-  revenueModel?: string;
-  tags: string[];
-  createdAt: Date;
-  updatedAt: Date;
-  aiGenerated?: boolean;
+  type: 'prep_task' | 'reminder' | 'follow_up' | 'research';
+  content: string;
+  dueDate?: Date;
+  completed: boolean;
 }
 
-export interface Project {
-  id: string;
-  name: string;
-  description: string;
-  status: 'idea' | 'planning' | 'in-progress' | 'completed' | 'paused';
-  createdAt: Date;
-  updatedAt: Date;
-  backlog: TodoItem[];
-  notes: Note[];
-  tags: string[];
-  aiGenerated?: boolean;
-}
-
-export interface AIResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: string;
-}
-
-export type AppSection = 'dashboard' | 'thoughts' | 'journal' | 'todos' | 'ideas' | 'canvas';
-
-export interface AppState {
-  currentSection: AppSection;
-  focusMode: boolean;
-  searchQuery: string;
-  selectedProjectId?: string;
-}
-
-export interface UIState {
-  sidebarOpen: boolean;
-  showAIModal: boolean;
-  showSearchModal: boolean;
-  theme: 'light' | 'dark';
-}
-
-// AI Response Interfaces
-export interface ThoughtAnalysis {
-  category: string;
-  insight: string;
-  relatedThoughts: string[];
-}
-
-export interface JournalReflection {
-  reflection: string;
-  patterns: string[];
+// Parsed input result
+export interface ParsedInput {
+  entries: Entry[];
+  confidence: number;
   suggestions: string[];
 }
 
-export interface TagSuggestion {
-  tags: string[];
+// Date parsing result
+export interface DateParseResult {
+  date: Date;
+  confidence: number;
+  type: 'exact' | 'relative' | 'fuzzy';
+  context: string;
 }
 
-export interface BacklogGeneration {
-  todos: Array<{
-    content: string;
-    priority: 'low' | 'medium' | 'high';
-    dueDate?: Date;
-  }>;
+// Location parsing result
+export interface LocationParseResult {
+  location: string;
+  confidence: number;
+  type: 'exact' | 'fuzzy' | 'inferred';
+}
+
+// AI classification result
+export interface ClassificationResult {
+  type: EntryType;
+  confidence: number;
+  reasoning: string;
+  suggestedTags: string[];
+  suggestedPriority: Priority;
+}
+
+// Calendar event
+export interface CalendarEvent {
+  id: string;
+  title: string;
+  startDate: Date;
+  endDate: Date;
+  location?: string;
+  description?: string;
+  type: EntryType;
+  entryId: string; // Link to original entry
+}
+
+// Review summary
+export interface ReviewSummary {
+  period: 'daily' | 'weekly' | 'monthly';
+  startDate: Date;
+  endDate: Date;
+  totalEntries: number;
+  completedTasks: number;
+  upcomingDeadlines: number;
+  topTags: Array<{ tag: string; count: number }>;
+  topThemes: string[];
+  moodTrend?: Mood;
+  insights: string[];
+}
+
+// Analytics data
+export interface AnalyticsData {
+  totalEntries: number;
+  entriesByType: Record<EntryType, number>;
+  entriesByTime: Array<{ hour: number; count: number }>;
+  entriesByDay: Array<{ day: string; count: number }>;
+  topTags: Array<{ tag: string; count: number }>;
+  completionRate: number;
+  averageMood: number;
+  productivityScore: number;
+}
+
+// Search result
+export interface SearchResult {
+  entry: Entry;
+  relevance: number;
+  matchedFields: string[];
+  relatedEntries: Entry[];
+}
+
+// App state
+export interface AppState {
+  currentView: AppView;
+  searchQuery: string;
+  activeFilters: {
+    types: EntryType[];
+    tags: string[];
+    dateRange: { start: Date; end: Date } | null;
+  };
+  focusMode: boolean;
+}
+
+// UI state
+export interface UIState {
+  sidebarOpen: boolean;
+  showConfirmationFeed: boolean;
+  selectedEntryId: string | null;
+  editingEntryId: string | null;
+  theme: 'light' | 'dark';
 }

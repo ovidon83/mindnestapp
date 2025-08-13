@@ -1,423 +1,318 @@
-import { AIResponse, ThoughtAnalysis, JournalReflection, TagSuggestion, BacklogGeneration } from '../types';
-import { MultiTopicResult } from '../store';
+import * as chrono from 'chrono-node';
+import { 
+  Priority, 
+  ClassificationResult, 
+  DateParseResult, 
+  LocationParseResult,
+  ParsedInput,
+  Entry,
+  AutoAction
+} from '../types';
 
-const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
-
-class AIService {
-  private static async callOpenAI(prompt: string, systemPrompt?: string): Promise<any> {
-    if (!OPENAI_API_KEY) {
-      throw new Error('OpenAI API key not configured. Please set VITE_OPENAI_API_KEY environment variable.');
-    }
+export class AIService {
+  // AI Classification (stub implementation)
+  static classifyInput(content: string): ClassificationResult {
+    const lowerContent = content.toLowerCase();
     
-    try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'gpt-4',
-          messages: [
-            ...(systemPrompt ? [{ role: 'system', content: systemPrompt }] : []),
-            { role: 'user', content: prompt }
-          ],
-          temperature: 0.7,
-          max_tokens: 1500,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.choices[0].message.content;
-    } catch (error) {
-      console.error('OpenAI API call failed:', error);
-      throw error;
-    }
-  }
-
-  static async sortThought(content: string): Promise<AIResponse> {
-    try {
-      const systemPrompt = `You are an AI assistant that categorizes thoughts into different types. Analyze the given thought and return a JSON response with the following structure:
-{
-  "type": "todo|project|journal|note",
-  "confidence": 0.0-1.0,
-  "reasoning": "brief explanation"
-}`;
-
-      const prompt = `Please categorize this thought: "${content}"`;
-      
-      const result = await this.callOpenAI(prompt, systemPrompt);
-      const parsed = JSON.parse(result);
-      
-      return { success: true, data: parsed };
-    } catch (error) {
-      console.error('Error sorting thought:', error);
-      return { success: false, error: 'Failed to analyze thought' };
-    }
-  }
-
-  static async analyzeThought(content: string): Promise<AIResponse<ThoughtAnalysis>> {
-    try {
-      const systemPrompt = `You are a personal coach (spiritual/mental/life coach) helping the user grow. Analyze the user's thought, speak directly to them with warmth and encouragement, and provide a JSON response with the following structure:
-{
-  "category": "idea|memory|goal|reflection|question|insight",
-  "insight": "personal, coach-like analysis of the thought, with encouragement and clarity",
-  "nextSteps": ["actionable next step 1", "actionable next step 2"],
-  "relatedThoughts": ["related thought 1", "related thought 2", "related thought 3"]
-}
-Always suggest next steps that can be converted to tasks, projects, or ideas. Use a direct, supportive tone.`;
-
-      const prompt = `Please analyze this thought and provide insights: "${content}"`;
-      
-      const result = await this.callOpenAI(prompt, systemPrompt);
-      const parsed = JSON.parse(result);
-      
-      return { success: true, data: parsed };
-    } catch (error) {
-      console.error('Error analyzing thought:', error);
-      return { success: false, error: 'Failed to analyze thought' };
-    }
-  }
-
-  static async reflectOnDay(content: string): Promise<AIResponse<JournalReflection>> {
-    try {
-      const systemPrompt = `You are a personal coach (spiritual/mental/life coach) helping the user reflect and grow. Read the user's journal entry, speak directly to them with warmth and encouragement, and provide a JSON response with the following structure:
-{
-  "reflection": "personal, coach-like analysis of the day's entry, with encouragement and clarity",
-  "patterns": ["pattern 1", "pattern 2", "pattern 3"],
-  "suggestions": ["actionable suggestion 1", "actionable suggestion 2", "actionable suggestion 3"]
-}
-Always suggest actionable next steps that can be converted to tasks, goals, or journal prompts. Use a direct, supportive tone.`;
-
-      const prompt = `Please reflect on this journal entry: "${content}"`;
-      
-      const result = await this.callOpenAI(prompt, systemPrompt);
-      const parsed = JSON.parse(result);
-      
-      return { success: true, data: parsed };
-    } catch (error) {
-      console.error('Error reflecting on day:', error);
-      return { success: false, error: 'Failed to reflect on day' };
-    }
-  }
-
-  static async suggestTags(content: string): Promise<AIResponse<TagSuggestion>> {
-    try {
-      const systemPrompt = `You are an AI assistant that suggests relevant tags for content. Return a JSON response with the following structure:
-{
-  "tags": ["tag1", "tag2", "tag3", "tag4"]
-}
-
-Suggest 3-5 relevant tags that would help categorize and find this content later.`;
-
-      const prompt = `Please suggest tags for this content: "${content}"`;
-      
-      const result = await this.callOpenAI(prompt, systemPrompt);
-      const parsed = JSON.parse(result);
-      
-      return { success: true, data: parsed };
-    } catch (error) {
-      console.error('Error suggesting tags:', error);
-      return { success: false, error: 'Failed to suggest tags' };
-    }
-  }
-
-  static async generateBacklog(): Promise<AIResponse<BacklogGeneration>> {
-    try {
-      const systemPrompt = `You are an AI assistant that generates a personal productivity backlog. Return a JSON response with the following structure:
-{
-  "todos": [
-    {
-      "content": "task description",
-      "priority": "low|medium|high"
-    }
-  ]
-}
-
-Generate 5-8 realistic personal productivity tasks that someone might want to accomplish. Mix different priority levels.`;
-
-      const prompt = `Please generate a personal productivity backlog with various tasks.`;
-      
-      const result = await this.callOpenAI(prompt, systemPrompt);
-      const parsed = JSON.parse(result);
-      
-      return { success: true, data: parsed };
-    } catch (error) {
-      console.error('Error generating backlog:', error);
-      return { success: false, error: 'Failed to generate backlog' };
-    }
-  }
-
-  static async generateProjectBacklog(idea: string): Promise<AIResponse<BacklogGeneration>> {
-    try {
-      const systemPrompt = `You are an AI assistant that generates project tasks based on an idea. Return a JSON response with the following structure:
-{
-  "todos": [
-    {
-      "content": "task description",
-      "priority": "low|medium|high"
-    }
-  ]
-}
-
-Generate 6-10 realistic project tasks that would help bring this idea to life. Include research, planning, and execution tasks.`;
-
-      const prompt = `Please generate project tasks for this idea: "${idea}"`;
-      
-      const result = await this.callOpenAI(prompt, systemPrompt);
-      const parsed = JSON.parse(result);
-      
-      return { success: true, data: parsed };
-    } catch (error) {
-      console.error('Error generating project backlog:', error);
-      return { success: false, error: 'Failed to generate project backlog' };
-    }
-  }
-
-  static async enhanceIdea(description: string): Promise<AIResponse> {
-    try {
-      const systemPrompt = `You are a business strategy expert. Analyze the given idea and enhance it with market insights. Return a JSON response with the following structure:
-{
-  "category": "app|business|feature|product|service|other",
-  "potential": "low|medium|high",
-  "marketSize": "brief description of market size",
-  "targetAudience": "description of target audience",
-  "revenueModel": "suggested revenue model",
-  "tags": ["tag1", "tag2", "tag3"]
-}`;
-
-      const prompt = `Please analyze and enhance this idea: "${description}"`;
-      
-      const result = await this.callOpenAI(prompt, systemPrompt);
-      const parsed = JSON.parse(result);
-      
-      return { success: true, data: parsed };
-    } catch (error) {
-      console.error('Error enhancing idea:', error);
-      return { success: false, error: 'Failed to enhance idea' };
-    }
-  }
-
-  static async categorizeThought(content: string): Promise<AIResponse> {
-    try {
-      const systemPrompt = `You are an AI assistant that analyzes and categorizes personal thoughts. Analyze the given thought and return a JSON response with the following structure:
-{
-  "category": "task|idea|note|journal|project",
-  "confidence": 0.0-1.0,
-  "extractedData": {
-    "title": "extracted or suggested title",
-    "description": "enhanced description of the thought",
-    "priority": "low|medium|high",
-    "dueDate": "YYYY-MM-DD" (if applicable, null otherwise),
-    "tags": ["tag1", "tag2", "tag3"],
-    "mood": "great|good|okay|bad|terrible" (if emotional content),
-    "category": "work|personal|health|family|finance|creative|learning",
-    "potential": "low|medium|high" (for ideas),
-    "status": "concept|planning|in-progress|completed",
-    "suggestedActions": ["action 1", "action 2"],
-    "timeEstimate": "estimated time",
-    "energyLevel": "low|medium|high",
-    "context": "additional context or notes"
-  }
-}
-
-Guidelines:
-- "task": actionable items, to-dos, appointments, things that need to be done
-- "idea": creative thoughts, concepts, possibilities, innovations
-- "note": information to remember, facts, observations
-- "journal": personal reflections, feelings, daily experiences
-- "project": larger initiatives that may have multiple tasks
-
-Priority levels:
-- "high": urgent, time-sensitive, important
-- "medium": moderate importance, can wait
-- "low": nice to have, no rush
-
-Tags should be relevant keywords that help categorize and find the content later.
-Only include dueDate if there's a clear deadline or time sensitivity.
-Be generous with tag suggestions - include relevant categories, contexts, and keywords.`;
-
-      const prompt = `Please categorize and analyze this thought: "${content}"`;
-      
-      const result = await this.callOpenAI(prompt, systemPrompt);
-      const parsed = JSON.parse(result);
-      
-      return { success: true, data: parsed };
-    } catch (error) {
-      console.error('Error categorizing thought:', error);
-      return { success: false, error: 'Failed to categorize thought' };
-    }
-  }
-
-  static async analyzeMultipleTopics(content: string): Promise<MultiTopicResult> {
-    try {
-      const systemPrompt = `You are an AI assistant that analyzes text and extracts multiple types of content. Return a JSON object with the following structure:
-
-{
-  "tasks": [
-    {
-      "content": "task description",
-      "priority": "low|medium|high",
-      "dueDate": "YYYY-MM-DD (if mentioned)",
-      "tags": ["tag1", "tag2"],
-      "timeEstimate": "estimated time",
-      "energyLevel": "low|medium|high"
-    }
-  ],
-  "notes": [
-    {
-      "title": "note title",
-      "content": "note content",
-      "tags": ["tag1", "tag2"]
-    }
-  ],
-  "ideas": [
-    {
-      "title": "idea title",
-      "description": "description",
-      "category": "app|business|feature|product|service|other",
-      "status": "concept",
-      "potential": "low|medium|high",
-      "tags": ["tag1", "tag2"],
-      "marketSize": "market size description",
-      "targetAudience": "target audience description"
-    }
-  ],
-  "projects": [
-    {
-      "name": "project name",
-      "description": "description",
-      "status": "idea",
-      "tags": ["tag1", "tag2"],
-      "timeline": "estimated timeline",
-      "resources": ["resource1", "resource2"]
-    }
-  ],
-  "journalEntries": [
-    {
-      "content": "journal content",
-      "mood": "great|good|okay|bad|terrible",
-      "tags": ["tag1", "tag2"]
-    }
-  ]
-}
-
-Extract all relevant content types from the text. Be thorough and creative in identifying different types of content.`;
-
-      const prompt = `Please analyze this text and extract all relevant content: "${content}"`;
-      
-      const result = await this.callOpenAI(prompt, systemPrompt);
-      const parsed = JSON.parse(result);
-      
-      return parsed;
-    } catch (error) {
-      console.error('Error analyzing multiple topics:', error);
+    // Task patterns
+    if (this.matchesTaskPatterns(lowerContent)) {
       return {
-        tasks: [],
-        notes: [],
-        ideas: [],
-        projects: [],
-        journalEntries: []
+        type: 'task',
+        confidence: 0.9,
+        reasoning: 'Contains action verbs and task indicators',
+        suggestedTags: this.extractTags(content),
+        suggestedPriority: this.determinePriority(lowerContent)
       };
     }
+    
+    // Event patterns
+    if (this.matchesEventPatterns(lowerContent)) {
+      return {
+        type: 'event',
+        confidence: 0.85,
+        reasoning: 'Contains time/date references and meeting indicators',
+        suggestedTags: this.extractTags(content),
+        suggestedPriority: this.determinePriority(lowerContent)
+      };
+    }
+    
+    // Idea patterns
+    if (this.matchesIdeaPatterns(lowerContent)) {
+      return {
+        type: 'idea',
+        confidence: 0.8,
+        reasoning: 'Contains creative or conceptual language',
+        suggestedTags: this.extractTags(content),
+        suggestedPriority: 'medium'
+      };
+    }
+    
+    // Insight patterns
+    if (this.matchesInsightPatterns(lowerContent)) {
+      return {
+        type: 'insight',
+        confidence: 0.75,
+        reasoning: 'Contains observational or analytical language',
+        suggestedTags: this.extractTags(content),
+        suggestedPriority: 'medium'
+      };
+    }
+    
+    // Reflection patterns
+    if (this.matchesReflectionPatterns(lowerContent)) {
+      return {
+        type: 'reflection',
+        confidence: 0.8,
+        reasoning: 'Contains personal or introspective language',
+        suggestedTags: this.extractTags(content),
+        suggestedPriority: 'low'
+      };
+    }
+    
+    // Journal patterns
+    if (this.matchesJournalPatterns(lowerContent)) {
+      return {
+        type: 'journal',
+        confidence: 0.85,
+        reasoning: 'Contains daily activity or personal narrative',
+        suggestedTags: this.extractTags(content),
+        suggestedPriority: 'low'
+      };
+    }
+    
+    // Default to insight
+    return {
+      type: 'insight',
+      confidence: 0.6,
+      reasoning: 'General observation or note',
+      suggestedTags: this.extractTags(content),
+      suggestedPriority: 'medium'
+    };
   }
 
-  static async generateTodayView(thoughts: any[], todos: any[], ideas: any[], projects: any[]): Promise<AIResponse> {
-    try {
-      const systemPrompt = `You are an AI assistant that creates a personalized "Today" view. Analyze the user's thoughts, tasks, ideas, and projects to suggest what should be focused on today. Return a JSON response with the following structure:
-
-{
-  "focusAreas": [
-    {
-      "title": "focus area title",
-      "description": "why this matters today",
-      "priority": "low|medium|high",
-      "items": ["item1", "item2"],
-      "estimatedTime": "time estimate"
-    }
-  ],
-  "suggestedTasks": [
-    {
-      "content": "task description",
-      "priority": "low|medium|high",
-      "reason": "why this should be done today",
-      "energyLevel": "low|medium|high"
-    }
-  ],
-  "insights": [
-    "insight about patterns or opportunities"
-  ],
-  "mood": "great|good|okay|bad|terrible",
-  "energyLevel": "low|medium|high",
-  "recommendations": [
-    "personalized recommendation"
-  ]
-}
-
-Consider:
-- Urgent tasks and deadlines
-- Energy levels and mood patterns
-- Progress on ongoing projects
-- New ideas that need attention
-- Personal well-being and balance`;
-
-      const context = `
-Thoughts: ${thoughts.map(t => t.content).join(', ')}
-Tasks: ${todos.map(t => t.content).join(', ')}
-Ideas: ${ideas.map(i => i.title).join(', ')}
-Projects: ${projects.map(p => p.name).join(', ')}
-      `;
-
-      const prompt = `Please create a personalized Today view based on this context: ${context}`;
-      
-      const result = await this.callOpenAI(prompt, systemPrompt);
-      const parsed = JSON.parse(result);
-      
-      return { success: true, data: parsed };
-    } catch (error) {
-      console.error('Error generating today view:', error);
-      return { success: false, error: 'Failed to generate today view' };
-    }
+  // Date parsing using chrono-node
+  static parseDates(content: string): DateParseResult[] {
+    const results = chrono.parse(content);
+    return results.map(result => ({
+      date: result.start.date(),
+      confidence: result.start.isCertain('day') ? 0.9 : 0.7,
+      type: result.start.isCertain('day') ? 'exact' : 'relative',
+      context: result.text
+    }));
   }
 
-  static async enhanceThoughtWithContext(thought: any, allThoughts: any[]): Promise<AIResponse> {
-    try {
-      const systemPrompt = `You are an AI assistant that enhances thoughts with context and connections. Analyze a thought in relation to other thoughts and return enhanced insights. Return a JSON response with the following structure:
-
-{
-  "enhancedThought": {
-    "connections": ["related thought 1", "related thought 2"],
-    "patterns": ["pattern 1", "pattern 2"],
-    "insights": ["insight 1", "insight 2"],
-    "suggestedActions": ["action 1", "action 2"],
-    "priority": "low|medium|high",
-    "category": "refined category"
-  },
-  "recommendations": [
-    "recommendation based on patterns"
-  ]
-}`;
-
-      const context = `
-Current thought: ${thought.content}
-Other thoughts: ${allThoughts.filter(t => t.id !== thought.id).map(t => t.content).join(', ')}
-      `;
-
-      const prompt = `Please enhance this thought with context: ${context}`;
-      
-      const result = await this.callOpenAI(prompt, systemPrompt);
-      const parsed = JSON.parse(result);
-      
-      return { success: true, data: parsed };
-    } catch (error) {
-      console.error('Error enhancing thought with context:', error);
-      return { success: false, error: 'Failed to enhance thought' };
+  // Location detection
+  static parseLocation(content: string): LocationParseResult | null {
+    const locationPatterns = [
+      /(?:at|in|to|from)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/g,
+      /@\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/g,
+      /(?:WeWork|Starbucks|Office|Home|Gym|Restaurant|Cafe)/gi
+    ];
+    
+    for (const pattern of locationPatterns) {
+      const match = content.match(pattern);
+      if (match) {
+        return {
+          location: match[1] || match[0],
+          confidence: 0.8,
+          type: 'exact'
+        };
+      }
     }
+    
+    return null;
   }
-}
 
-export { AIService }; 
+  // Parse input and generate entries
+  static parseInput(content: string): ParsedInput {
+    const classification = this.classifyInput(content);
+    
+    // Split content if it contains multiple items
+    const items = this.splitMultipleItems(content);
+    
+    const entries: Entry[] = items.map((item, index) => {
+      const itemClassification = this.classifyInput(item);
+      const itemDates = this.parseDates(item);
+      const itemLocation = this.parseLocation(item);
+      
+      const entry: Entry = {
+        id: `entry_${Date.now()}_${index}`,
+        content: item.trim(),
+        type: itemClassification.type,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        confidence: itemClassification.confidence,
+        tags: itemClassification.suggestedTags,
+        priority: itemClassification.suggestedPriority,
+        status: 'pending',
+        autoActions: [],
+        relatedIds: [],
+        notes: ''
+      };
+      
+      // Handle dates based on type
+      if (itemClassification.type === 'task' && itemDates.length > 0) {
+        entry.dueDate = itemDates[0].date;
+      } else if (itemClassification.type === 'event' && itemDates.length > 0) {
+        entry.startDate = itemDates[0].date;
+        // Set end date to 1 hour after start if not specified
+        const endDate = new Date(itemDates[0].date);
+        endDate.setHours(endDate.getHours() + 1);
+        entry.endDate = endDate;
+        
+        // Generate prep task for events
+        const prepTask: AutoAction = {
+          id: `prep_${entry.id}`,
+          type: 'prep_task',
+          content: `Prepare for: ${item.trim()}`,
+          dueDate: new Date(itemDates[0].date.getTime() - 24 * 60 * 60 * 1000), // Day before
+          completed: false
+        };
+        entry.autoActions.push(prepTask);
+      }
+      
+      // Handle location
+      if (itemLocation) {
+        entry.location = itemLocation.location;
+      }
+      
+      return entry;
+    });
+    
+    return {
+      entries,
+      confidence: classification.confidence,
+      suggestions: this.generateSuggestions(entries)
+    };
+  }
+
+  // Split content into multiple items
+  private static splitMultipleItems(content: string): string[] {
+    const separators = [/\n+/, /;/, /, and/, /, then/, /\.\s+(?=[A-Z])/];
+    
+    for (const separator of separators) {
+      const parts = content.split(separator);
+      if (parts.length > 1 && parts.every(part => part.trim().length > 3)) {
+        return parts.map(part => part.trim()).filter(part => part.length > 0);
+      }
+    }
+    
+    return [content];
+  }
+
+  // Pattern matching methods
+  private static matchesTaskPatterns(content: string): boolean {
+    const taskPatterns = [
+      /^(?:todo|task|do|fix|complete|finish|implement|add|create|update|delete|remove|build|setup|install|configure|test|debug|review|check|verify|schedule|book|call|email|send|buy|order|pay|submit|apply|sign|register|cancel|remind|follow up)/,
+      /(?:need to|should|must|have to|got to|gotta)/,
+      /(?:deadline|due|urgent|asap|priority)/
+    ];
+    
+    return taskPatterns.some(pattern => pattern.test(content));
+  }
+
+  private static matchesEventPatterns(content: string): boolean {
+    const eventPatterns = [
+      /(?:meet|meeting|appointment|call|lunch|dinner|coffee|drinks|party|event|conference|workshop|session)/,
+      /(?:tomorrow|today|next week|this week|morning|afternoon|evening|night)/,
+      /(?:at \d{1,2}(?::\d{2})?\s*(?:am|pm)?)/,
+      /(?:on \w+)/,
+      /(?:with|@)/
+    ];
+    
+    return eventPatterns.some(pattern => pattern.test(content));
+  }
+
+  private static matchesIdeaPatterns(content: string): boolean {
+    const ideaPatterns = [
+      /^(?:idea|what if|maybe|could|might|potentially|brainstorm|concept|innovation|solution|approach|strategy|feature|improvement)/,
+      /(?:💡|idea:|maybe we could|what about|consider|think about)/
+    ];
+    
+    return ideaPatterns.some(pattern => pattern.test(content));
+  }
+
+  private static matchesInsightPatterns(content: string): boolean {
+    const insightPatterns = [
+      /(?:noticed|observed|realized|discovered|learned|found|figured out|understood)/,
+      /(?:pattern|trend|insight|observation|discovery|learning)/
+    ];
+    
+    return insightPatterns.some(pattern => pattern.test(content));
+  }
+
+  private static matchesReflectionPatterns(content: string): boolean {
+    const reflectionPatterns = [
+      /(?:feeling|felt|thinking about|reflecting on|grateful for|struggling with|working on)/,
+      /(?:happy|sad|excited|frustrated|anxious|stressed|proud|disappointed|grateful|worried|confused|tired|energized)/
+    ];
+    
+    return reflectionPatterns.some(pattern => pattern.test(content));
+  }
+
+  private static matchesJournalPatterns(content: string): boolean {
+    const journalPatterns = [
+      /(?:today|yesterday|this morning|this week|lately|currently|morning routine|evening routine)/,
+      /(?:woke up|went to|had|ate|drank|exercised|worked|studied|read|watched|listened to)/
+    ];
+    
+    return journalPatterns.some(pattern => pattern.test(content));
+  }
+
+  // Extract tags from content
+  private static extractTags(content: string): string[] {
+    const tags: string[] = [];
+    
+    // Extract hashtags
+    const hashtags = content.match(/#\w+/g);
+    if (hashtags) {
+      tags.push(...hashtags.map(tag => tag.slice(1)));
+    }
+    
+    // Extract priority indicators
+    if (content.toLowerCase().includes('urgent') || content.toLowerCase().includes('asap')) {
+      tags.push('priority');
+    }
+    
+    if (content.toLowerCase().includes('goal') || content.toLowerCase().includes('objective')) {
+      tags.push('goal');
+    }
+    
+    return tags;
+  }
+
+  // Determine priority based on content
+  private static determinePriority(content: string): Priority {
+    if (content.includes('urgent') || content.includes('asap') || content.includes('emergency')) {
+      return 'urgent';
+    }
+    if (content.includes('important') || content.includes('deadline') || content.includes('due')) {
+      return 'high';
+    }
+    if (content.includes('priority') || content.includes('focus')) {
+      return 'medium';
+    }
+    return 'low';
+  }
+
+  // Generate suggestions based on entries
+  private static generateSuggestions(entries: Entry[]): string[] {
+    const suggestions: string[] = [];
+    
+    entries.forEach(entry => {
+      if (entry.type === 'event' && entry.startDate) {
+        suggestions.push(`Set reminder for ${entry.content} 15 minutes before`);
+      }
+      
+      if (entry.type === 'task' && entry.priority === 'high') {
+        suggestions.push(`Block time in calendar for ${entry.content}`);
+      }
+      
+      if (entry.tags.includes('goal')) {
+        suggestions.push(`Break down ${entry.content} into smaller tasks`);
+      }
+    });
+    
+    return suggestions;
+  }
+} 

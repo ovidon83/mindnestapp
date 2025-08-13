@@ -1,411 +1,625 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { AppView } from '../types';
+import type { 
+  AppView, 
+  Entry, 
+  EntryType, 
+  Priority, 
+  CalendarEvent,
+  ReviewSummary,
+  AnalyticsData,
+  SearchResult,
+  AppState,
+  UIState,
+  AutoAction
+} from '../types';
 
-export interface Thought {
-  id: string;
-  content: string;
-  timestamp: Date;
-  type: 'random' | 'journal' | 'note' | 'todo' | 'project' | 'idea';
-  tags?: string[];
-  metadata?: Record<string, any>;
-  aiEnhanced?: boolean;
-  category?: string;
-  priority?: 'low' | 'medium' | 'high';
-  dueDate?: Date;
-  mood?: 'great' | 'good' | 'okay' | 'bad' | 'terrible';
-  potential?: 'low' | 'medium' | 'high';
-  status?: 'To Do' | 'In Progress' | 'Blocked' | 'Done';
-}
-
-export interface RandomThought {
-  id: string;
-  content: string;
-  createdAt: Date;
-  category?: string;
-  aiInsight?: string;
-  tags?: string[];
-}
-
-export interface JournalEntry {
-  id: string;
-  content: string;
-  mood: 'great' | 'good' | 'okay' | 'bad' | 'terrible';
-  date: Date;
-  aiReflection?: string;
-}
-
-export interface Note {
-  id: string;
-  title: string;
-  content: string;
-  tags: string[];
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface TodoItem {
-  id: string;
-  content: string;
-  completed: boolean;
-  priority: 'low' | 'medium' | 'high';
-  status: 'To Do' | 'In Progress' | 'Blocked' | 'Done';
-  dueDate?: Date;
-  projectId?: string;
-  createdAt: Date;
-  children: TodoItem[];
-  tags?: string[];
-  notes?: string;
-  parentId?: string;
-  order?: number;
-}
-
-export interface Idea {
-  id: string;
-  title: string;
-  description: string;
-  category: 'app' | 'business' | 'feature' | 'product' | 'service' | 'other';
-  status: 'concept' | 'researching' | 'validating' | 'planning' | 'building' | 'launched' | 'paused';
-  potential: 'low' | 'medium' | 'high';
-  marketSize?: string;
-  targetAudience?: string;
-  revenueModel?: string;
-  tags: string[];
-  createdAt: Date;
-  updatedAt: Date;
-  aiGenerated?: boolean;
-}
-
-export interface Project {
-  id: string;
-  name: string;
-  description: string;
-  deadline?: Date;
-  status: 'idea' | 'planning' | 'in-progress' | 'completed' | 'paused';
-  createdAt: Date;
-  updatedAt: Date;
-  todos: TodoItem[];
-  tags?: string[];
-}
-
-export interface MultiTopicResult {
-  tasks: Array<Omit<TodoItem, 'id' | 'createdAt' | 'children' | 'parentId'>>;
-  notes: Array<Omit<Note, 'id' | 'createdAt' | 'updatedAt'>>;
-  ideas: Array<Omit<Idea, 'id' | 'createdAt' | 'updatedAt'>>;
-  projects: Array<Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'todos'>>;
-  journalEntries: Array<Omit<JournalEntry, 'id' | 'date'>>;
-}
-
-interface MindnestStore {
-  // Unified Thoughts
-  thoughts: Thought[];
-  addThought: (thought: Omit<Thought, 'id' | 'timestamp'>) => void;
-  updateThought: (id: string, updates: Partial<Thought>) => void;
-  deleteThought: (id: string) => void;
+interface GenieNotesStore {
+  // Core data
+  entries: Entry[];
+  calendarEvents: CalendarEvent[];
   
-  // Random Thoughts
-  randomThoughts: RandomThought[];
-  addRandomThought: (thought: Omit<RandomThought, 'id' | 'createdAt'>) => void;
-  deleteRandomThought: (id: string) => void;
+  // App state
+  appState: AppState;
+  uiState: UIState;
   
-  // Journal
-  journalEntries: JournalEntry[];
-  addJournalEntry: (entry: Omit<JournalEntry, 'id' | 'date'>) => void;
-  updateJournalEntry: (id: string, updates: Partial<JournalEntry>) => void;
-  deleteJournalEntry: (id: string) => void;
+  // Entry management
+  addEntry: (entry: Omit<Entry, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateEntry: (id: string, updates: Partial<Entry>) => void;
+  deleteEntry: (id: string) => void;
+  completeEntry: (id: string) => void;
   
-  // Notes
-  notes: Note[];
-  addNote: (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  updateNote: (id: string, updates: Partial<Note>) => void;
-  deleteNote: (id: string) => void;
+  // Entry operations
+  changeEntryType: (id: string, newType: EntryType) => void;
+  changeEntryPriority: (id: string, newPriority: Priority) => void;
+  addEntryTag: (id: string, tag: string) => void;
+  removeEntryTag: (id: string, tag: string) => void;
+  setEntryDueDate: (id: string, dueDate: Date | null) => void;
+  setEntryLocation: (id: string, location: string | null) => void;
   
-  // Todos
-  todos: TodoItem[];
-  addTodo: (todo: Omit<TodoItem, 'id' | 'createdAt' | 'children' | 'parentId'>) => void;
-  addSubTodo: (parentId: string, todo: Omit<TodoItem, 'id' | 'createdAt' | 'children' | 'parentId'>) => void;
-  toggleTodo: (id: string) => void;
-  updateTodo: (id: string, updates: Partial<TodoItem>) => void;
-  deleteTodo: (id: string) => void;
-  reorderTodos: (orderedIds: string[]) => void;
+  // Auto-actions
+  completeAutoAction: (entryId: string, actionId: string) => void;
+  addAutoAction: (entryId: string, action: Omit<AutoAction, 'id'>) => void;
   
-  // Ideas
-  ideas: Idea[];
-  addIdea: (idea: Omit<Idea, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  updateIdea: (id: string, updates: Partial<Idea>) => void;
-  deleteIdea: (id: string) => void;
+  // Calendar management
+  addCalendarEvent: (event: Omit<CalendarEvent, 'id'>) => void;
+  updateCalendarEvent: (id: string, updates: Partial<CalendarEvent>) => void;
+  deleteCalendarEvent: (id: string) => void;
   
-  // Projects
-  projects: Project[];
-  addProject: (project: Omit<Project, 'id' | 'createdAt' | 'updatedAt' | 'todos'>) => void;
-  updateProject: (id: string, updates: Partial<Project>) => void;
-  deleteProject: (id: string) => void;
+  // Search and filtering
+  searchEntries: (query: string) => SearchResult[];
+  getEntriesByType: (type: EntryType) => Entry[];
+  getEntriesByTag: (tag: string) => Entry[];
+  getEntriesByDateRange: (start: Date, end: Date) => Entry[];
   
-  // Multi-topic creation
-  createMultipleItems: (result: MultiTopicResult) => void;
-
-  // UI State
-  activeView: AppView;
-  setActiveView: (view: AppView) => void;
+  // Next Up logic
+  getNextUpEntries: () => Entry[];
+  getTodayEntries: () => Entry[];
+  getThisWeekEntries: () => Entry[];
+  getUpcomingEntries: () => Entry[];
+  
+  // Reviews and insights
+  generateDailyReview: () => ReviewSummary;
+  generateWeeklyReview: () => ReviewSummary;
+  generateMonthlyReview: () => ReviewSummary;
+  getAnalytics: () => AnalyticsData;
+  
+  // UI state management
+  setCurrentView: (view: AppView) => void;
+  setSearchQuery: (query: string) => void;
+  setActiveFilters: (filters: Partial<AppState['activeFilters']>) => void;
+  toggleFocusMode: () => void;
+  toggleSidebar: () => void;
+  toggleConfirmationFeed: () => void;
+  setSelectedEntry: (id: string | null) => void;
+  setEditingEntry: (id: string | null) => void;
+  
+  // Utility functions
+  exportToICS: (entryId: string) => string;
+  importFromText: () => Entry[];
+  
+  // Helper methods for analytics
+  getTopTags: (entries: Entry[]) => Array<{ tag: string; count: number }>;
+  getTopThemes: (entries: Entry[]) => string[];
+  generateInsights: (entries: Entry[]) => string[];
+  getEntriesByTypeCount: (entries: Entry[]) => Record<string, number>;
+  getEntriesByTimeCount: (entries: Entry[]) => Array<{ hour: number; count: number }>;
+  getEntriesByDayCount: (entries: Entry[]) => Array<{ day: string; count: number }>;
+  getCompletionRate: (entries: Entry[]) => number;
+  getAverageMood: (entries: Entry[]) => number;
+  getProductivityScore: (entries: Entry[]) => number;
 }
 
-export const useMindnestStore = create<MindnestStore>()(
+export const useGenieNotesStore = create<GenieNotesStore>()(
   persist(
-    (set, _get) => ({
-      // Unified Thoughts
-      thoughts: [],
-      addThought: (thought) => set((state) => ({
-        thoughts: [
-          {
-            ...thought,
+    (set, get) => ({
+      // Initial state
+      entries: [],
+      calendarEvents: [],
+      
+      appState: {
+        currentView: 'nextup',
+        searchQuery: '',
+        activeFilters: {
+          types: [],
+          tags: [],
+          dateRange: null
+        },
+        focusMode: false
+      },
+      
+      uiState: {
+        sidebarOpen: false,
+        showConfirmationFeed: false,
+        selectedEntryId: null,
+        editingEntryId: null,
+        theme: 'light'
+      },
+      
+      // Entry management
+      addEntry: (entryData) => {
+        const entry: Entry = {
+          ...entryData,
+          id: crypto.randomUUID(),
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
+        
+        set((state) => ({
+          entries: [entry, ...state.entries]
+        }));
+        
+        // Auto-generate calendar event for events
+        if (entry.type === 'event' && entry.startDate) {
+          const calendarEvent: CalendarEvent = {
             id: crypto.randomUUID(),
-            timestamp: new Date(),
-          },
-          ...state.thoughts,
-        ],
-      })),
-      updateThought: (id, updates) => set((state) => ({
-        thoughts: state.thoughts.map((thought) =>
-          thought.id === id ? { ...thought, ...updates } : thought
-        ),
-      })),
-      deleteThought: (id) => set((state) => ({
-        thoughts: state.thoughts.filter((thought) => thought.id !== id),
+            title: entry.content,
+            startDate: entry.startDate,
+            endDate: entry.endDate || new Date(entry.startDate.getTime() + 60 * 60 * 1000),
+            location: entry.location,
+            description: entry.notes,
+            type: entry.type,
+            entryId: entry.id
+          };
+          
+          set((state) => ({
+            calendarEvents: [calendarEvent, ...state.calendarEvents]
+          }));
+        }
+      },
+      
+      updateEntry: (id, updates) => set((state) => ({
+        entries: state.entries.map((entry) =>
+          entry.id === id ? { ...entry, ...updates, updatedAt: new Date() } : entry
+        )
       })),
       
-      // Random Thoughts
-      randomThoughts: [],
-      addRandomThought: (thought) => set((state) => ({
-        randomThoughts: [
-          {
-            ...thought,
-            id: crypto.randomUUID(),
-            createdAt: new Date(),
-          },
-          ...state.randomThoughts,
-        ],
-      })),
-      deleteRandomThought: (id) => set((state) => ({
-        randomThoughts: state.randomThoughts.filter((thought) => thought.id !== id),
+      deleteEntry: (id) => set((state) => ({
+        entries: state.entries.filter((entry) => entry.id !== id),
+        calendarEvents: state.calendarEvents.filter((event) => event.entryId !== id)
       })),
       
-      // Journal
-      journalEntries: [],
-      addJournalEntry: (entry) => set((state) => ({
-        journalEntries: [
-          {
-            ...entry,
-            id: crypto.randomUUID(),
-            date: new Date(),
-          },
-          ...state.journalEntries,
-        ],
-      })),
-      updateJournalEntry: (id, updates) => set((state) => ({
-        journalEntries: state.journalEntries.map((entry) =>
-          entry.id === id ? { ...entry, ...updates } : entry
-        ),
-      })),
-      deleteJournalEntry: (id) => set((state) => ({
-        journalEntries: state.journalEntries.filter((entry) => entry.id !== id),
+      completeEntry: (id) => set((state) => ({
+        entries: state.entries.map((entry) =>
+          entry.id === id ? { ...entry, status: 'completed', completedAt: new Date(), updatedAt: new Date() } : entry
+        )
       })),
       
-      // Notes
-      notes: [],
-      addNote: (note) => set((state) => ({
-        notes: [
-          {
-            ...note,
-            id: crypto.randomUUID(),
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-          ...state.notes,
-        ],
-      })),
-      updateNote: (id, updates) => set((state) => ({
-        notes: state.notes.map((note) =>
-          note.id === id ? { ...note, ...updates, updatedAt: new Date() } : note
-        ),
-      })),
-      deleteNote: (id) => set((state) => ({
-        notes: state.notes.filter((note) => note.id !== id),
+      // Entry operations
+      changeEntryType: (id, newType) => get().updateEntry(id, { type: newType }),
+      changeEntryPriority: (id, newPriority) => get().updateEntry(id, { priority: newPriority }),
+      
+      addEntryTag: (id, tag) => set((state) => ({
+        entries: state.entries.map((entry) =>
+          entry.id === id 
+            ? { ...entry, tags: [...entry.tags, tag], updatedAt: new Date() }
+            : entry
+        )
       })),
       
-      // Todos
-      todos: [],
-      addTodo: (todo) => set((state) => ({
-        todos: [
-          {
-            ...todo,
-            id: crypto.randomUUID(),
-            createdAt: new Date(),
-            children: [],
-            status: todo.status || 'To Do',
-          },
-          ...state.todos,
-        ],
+      removeEntryTag: (id, tag) => set((state) => ({
+        entries: state.entries.map((entry) =>
+          entry.id === id 
+            ? { ...entry, tags: entry.tags.filter(t => t !== tag), updatedAt: new Date() }
+            : entry
+        )
       })),
-      addSubTodo: (parentId, todo) => set((state) => ({
-        todos: state.todos.map((t) =>
-          t.id === parentId
+      
+      setEntryDueDate: (id, dueDate) => get().updateEntry(id, { dueDate: dueDate || undefined }),
+      setEntryLocation: (id, location) => get().updateEntry(id, { location: location || undefined }),
+      
+      // Auto-actions
+      completeAutoAction: (entryId, actionId) => set((state) => ({
+        entries: state.entries.map((entry) =>
+          entry.id === entryId
             ? {
-                ...t,
-                children: [
-                  ...t.children,
-                  {
-                    ...todo,
-                    id: crypto.randomUUID(),
-                    createdAt: new Date(),
-                    children: [],
-                    parentId,
-                    status: todo.status || 'To Do',
-                  },
-                ],
+                ...entry,
+                autoActions: entry.autoActions.map((action) =>
+                  action.id === actionId ? { ...action, completed: true } : action
+                ),
+                updatedAt: new Date()
               }
-            : t
-        ),
+            : entry
+        )
       })),
-      toggleTodo: (id) => set((state) => ({
-        todos: state.todos.map((todo) =>
-          todo.id === id ? { 
-            ...todo, 
-            completed: !todo.completed,
-            status: !todo.completed ? 'Done' : 'To Do'
-          } : todo
-        ),
+      
+      addAutoAction: (entryId, actionData) => {
+        const action: AutoAction = {
+          ...actionData,
+          id: crypto.randomUUID()
+        };
+        
+        set((state) => ({
+          entries: state.entries.map((entry) =>
+            entry.id === entryId
+              ? { ...entry, autoActions: [...entry.autoActions, action], updatedAt: new Date() }
+              : entry
+          )
+        }));
+      },
+      
+      // Calendar management
+      addCalendarEvent: (eventData) => {
+        const event: CalendarEvent = {
+          ...eventData,
+          id: crypto.randomUUID()
+        };
+        
+        set((state) => ({
+          calendarEvents: [event, ...state.calendarEvents]
+        }));
+      },
+      
+      updateCalendarEvent: (id, updates) => set((state) => ({
+        calendarEvents: state.calendarEvents.map((event) =>
+          event.id === id ? { ...event, ...updates } : event
+        )
       })),
-      updateTodo: (id, updates) => set((state) => ({
-        todos: state.todos.map((todo) =>
-          todo.id === id ? { ...todo, ...updates } : todo
-        ),
+      
+      deleteCalendarEvent: (id) => set((state) => ({
+        calendarEvents: state.calendarEvents.filter((event) => event.id !== id)
       })),
-      deleteTodo: (id) => set((state) => ({
-        todos: state.todos.filter((todo) => todo.id !== id),
-      })),
-
-      // Reorder Todos
-      reorderTodos: (orderedIds) => set((state) => {
-        // Map id -> todo for quick lookup
-        const idMap = Object.fromEntries(state.todos.map(t => [t.id, t]));
-        const reordered = orderedIds
-          .map(id => idMap[id])
-          .filter(Boolean);
-        // Append any todos that were not part of orderedIds (e.g., from other filters)
-        const remaining = state.todos.filter(t => !orderedIds.includes(t.id));
-        return { todos: [...reordered, ...remaining] };
+      
+      // Search and filtering
+      searchEntries: (query) => {
+        const { entries } = get();
+        const lowerQuery = query.toLowerCase();
+        
+        return entries
+          .filter(entry => 
+            entry.content.toLowerCase().includes(lowerQuery) ||
+            entry.tags.some(tag => tag.toLowerCase().includes(lowerQuery)) ||
+            entry.location?.toLowerCase().includes(lowerQuery)
+          )
+          .map(entry => ({
+            entry,
+            relevance: calculateRelevance(entry, lowerQuery),
+            matchedFields: getMatchedFields(entry, lowerQuery),
+            relatedEntries: findRelatedEntries(entry, entries)
+          }))
+          .sort((a, b) => b.relevance - a.relevance);
+      },
+      
+      getEntriesByType: (type) => get().entries.filter(entry => entry.type === type),
+      getEntriesByTag: (tag) => get().entries.filter(entry => entry.tags.includes(tag)),
+      
+      getEntriesByDateRange: (start, end) => get().entries.filter(entry => {
+        const entryDate = entry.dueDate || entry.startDate || entry.createdAt;
+        return entryDate >= start && entryDate <= end;
       }),
       
-      // Ideas
-      ideas: [],
-      addIdea: (idea) => set((state) => ({
-        ideas: [
-          {
-            ...idea,
-            id: crypto.randomUUID(),
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-          ...state.ideas,
-        ],
-      })),
-      updateIdea: (id, updates) => set((state) => ({
-        ideas: state.ideas.map((idea) =>
-          idea.id === id ? { ...idea, ...updates, updatedAt: new Date() } : idea
-        ),
-      })),
-      deleteIdea: (id) => set((state) => ({
-        ideas: state.ideas.filter((idea) => idea.id !== id),
+      // Next Up logic
+      getNextUpEntries: () => {
+        const { entries } = get();
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        
+        return entries
+          .filter(entry => {
+            const entryDate = entry.dueDate || entry.startDate;
+            return entry.status !== 'completed' && entryDate && entryDate >= today;
+          })
+          .sort((a, b) => {
+            // Priority ranking: deadlines > prep dependencies > importance > recency
+            const aDate = a.dueDate || a.startDate;
+            const bDate = b.dueDate || b.startDate;
+            
+            if (aDate && bDate) {
+              return aDate.getTime() - bDate.getTime();
+            }
+            
+            const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
+            const aPriority = priorityOrder[a.priority];
+            const bPriority = priorityOrder[b.priority];
+            
+            if (aPriority !== bPriority) {
+              return bPriority - aPriority;
+            }
+            
+            return b.createdAt.getTime() - a.createdAt.getTime();
+          });
+      },
+      
+      getTodayEntries: () => {
+        const { entries } = get();
+        const today = new Date();
+        const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000 - 1);
+        
+        return entries.filter(entry => {
+          const entryDate = entry.dueDate || entry.startDate;
+          return entryDate && entryDate >= todayStart && entryDate <= todayEnd;
+        });
+      },
+      
+      getThisWeekEntries: () => {
+        const { entries } = get();
+        const now = new Date();
+        const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+        const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000 - 1);
+        
+        return entries.filter(entry => {
+          const entryDate = entry.dueDate || entry.startDate;
+          return entryDate && entryDate >= weekStart && entryDate <= weekEnd;
+        });
+      },
+      
+      getUpcomingEntries: () => {
+        const { entries } = get();
+        const now = new Date();
+        const weekEnd = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+        
+        return entries.filter(entry => {
+          const entryDate = entry.dueDate || entry.startDate;
+          return entryDate && entryDate > weekEnd;
+        });
+      },
+      
+      // Reviews and insights
+      generateDailyReview: () => {
+        const { entries } = get();
+        const today = new Date();
+        const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000 - 1);
+        
+        const todayEntries = entries.filter(entry => 
+          entry.createdAt >= todayStart && entry.createdAt <= todayEnd
+        );
+        
+        return {
+          period: 'daily',
+          startDate: todayStart,
+          endDate: todayEnd,
+          totalEntries: todayEntries.length,
+          completedTasks: todayEntries.filter(e => e.status === 'completed').length,
+          upcomingDeadlines: todayEntries.filter(e => e.dueDate && e.dueDate > today).length,
+          topTags: get().getTopTags(todayEntries),
+          topThemes: get().getTopThemes(todayEntries),
+          insights: get().generateInsights(todayEntries)
+        };
+      },
+      
+      generateWeeklyReview: () => {
+        const { entries } = get();
+        const now = new Date();
+        const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+        const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000 - 1);
+        
+        const weekEntries = entries.filter(entry => 
+          entry.createdAt >= weekStart && entry.createdAt <= weekEnd
+        );
+        
+        return {
+          period: 'weekly',
+          startDate: weekStart,
+          endDate: weekEnd,
+          totalEntries: weekEntries.length,
+          completedTasks: weekEntries.filter(e => e.status === 'completed').length,
+          upcomingDeadlines: weekEntries.filter(e => e.dueDate && e.dueDate > now).length,
+          topTags: get().getTopTags(weekEntries),
+          topThemes: get().getTopThemes(weekEntries),
+          insights: get().generateInsights(weekEntries)
+        };
+      },
+      
+      generateMonthlyReview: () => {
+        const { entries } = get();
+        const now = new Date();
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        
+        const monthEntries = entries.filter(entry => 
+          entry.createdAt >= monthStart && entry.createdAt <= monthEnd
+        );
+        
+        return {
+          period: 'monthly',
+          startDate: monthStart,
+          endDate: monthEnd,
+          totalEntries: monthEntries.length,
+          completedTasks: monthEntries.filter(e => e.status === 'completed').length,
+          upcomingDeadlines: monthEntries.filter(e => e.dueDate && e.dueDate > now).length,
+          topTags: get().getTopTags(monthEntries),
+          topThemes: get().getTopThemes(monthEntries),
+          insights: get().generateInsights(monthEntries)
+        };
+      },
+      
+      getAnalytics: () => {
+        const { entries } = get();
+        const now = new Date();
+        const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        
+        const recentEntries = entries.filter(entry => entry.createdAt >= last30Days);
+        
+        return {
+          totalEntries: entries.length,
+          entriesByType: get().getEntriesByTypeCount(recentEntries),
+          entriesByTime: get().getEntriesByTimeCount(recentEntries),
+          entriesByDay: get().getEntriesByDayCount(recentEntries),
+          topTags: get().getTopTags(recentEntries),
+          completionRate: get().getCompletionRate(recentEntries),
+          averageMood: get().getAverageMood(recentEntries),
+          productivityScore: get().getProductivityScore(recentEntries)
+        };
+      },
+      
+      // UI state management
+      setCurrentView: (view) => set((state) => ({
+        appState: { ...state.appState, currentView: view }
       })),
       
-      // Projects
-      projects: [],
-      addProject: (project) => set((state) => ({
-        projects: [
-          {
-            ...project,
-            id: crypto.randomUUID(),
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            todos: [],
-          },
-          ...state.projects,
-        ],
-      })),
-      updateProject: (id, updates) => set((state) => ({
-        projects: state.projects.map((project) =>
-          project.id === id ? { ...project, ...updates, updatedAt: new Date() } : project
-        ),
-      })),
-      deleteProject: (id) => set((state) => ({
-        projects: state.projects.filter((project) => project.id !== id),
+      setSearchQuery: (query) => set((state) => ({
+        appState: { ...state.appState, searchQuery: query }
       })),
       
-      // Multi-topic creation
-      createMultipleItems: (result) => set((state) => ({
-        todos: [
-          ...state.todos,
-          ...result.tasks.map(task => ({
-            ...task,
-            id: crypto.randomUUID(),
-            createdAt: new Date(),
-            children: [],
-            status: 'To Do' as const,
-          }))
-        ],
-        notes: [
-          ...state.notes,
-          ...result.notes.map(note => ({
-            ...note,
-            id: crypto.randomUUID(),
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          }))
-        ],
-        ideas: [
-          ...state.ideas,
-          ...result.ideas.map(idea => ({
-            ...idea,
-            id: crypto.randomUUID(),
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          }))
-        ],
-        projects: [
-          ...state.projects,
-          ...result.projects.map(project => ({
-            ...project,
-            id: crypto.randomUUID(),
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            todos: [],
-          }))
-        ],
-        journalEntries: [
-          ...state.journalEntries,
-          ...result.journalEntries.map(entry => ({
-            ...entry,
-            id: crypto.randomUUID(),
-            date: new Date(),
-          }))
-        ],
+      setActiveFilters: (filters) => set((state) => ({
+        appState: { 
+          ...state.appState, 
+          activeFilters: { ...state.appState.activeFilters, ...filters }
+        }
       })),
-
-      // UI State
-      activeView: 'capture', // Default view
-      setActiveView: (view) => set(() => ({ activeView: view })),
+      
+      toggleFocusMode: () => set((state) => ({
+        appState: { ...state.appState, focusMode: !state.appState.focusMode }
+      })),
+      
+      toggleSidebar: () => set((state) => ({
+        uiState: { ...state.uiState, sidebarOpen: !state.uiState.sidebarOpen }
+      })),
+      
+      toggleConfirmationFeed: () => set((state) => ({
+        uiState: { ...state.uiState, showConfirmationFeed: !state.uiState.showConfirmationFeed }
+      })),
+      
+      setSelectedEntry: (id) => set((state) => ({
+        uiState: { ...state.uiState, selectedEntryId: id }
+      })),
+      
+      setEditingEntry: (id) => set((state) => ({
+        uiState: { ...state.uiState, editingEntryId: id }
+      })),
+      
+      // Utility functions
+      exportToICS: (entryId) => {
+        const { entries } = get();
+        const entry = entries.find(e => e.id === entryId);
+        if (!entry) return '';
+        
+        const startDate = entry.startDate || entry.dueDate || entry.createdAt;
+        const endDate = entry.endDate || new Date(startDate.getTime() + 60 * 60 * 1000);
+        
+        return `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+SUMMARY:${entry.content}
+DTSTART:${startDate.toISOString().replace(/[-:]/g, '').split('.')[0]}Z
+DTEND:${endDate.toISOString().replace(/[-:]/g, '').split('.')[0]}Z
+DESCRIPTION:${entry.notes || ''}
+LOCATION:${entry.location || ''}
+END:VEVENT
+END:VCALENDAR`;
+      },
+      
+      importFromText: () => {
+        // This will be implemented to use the AI service
+        return [];
+      },
+      
+      // Helper methods for analytics
+      getTopTags: (entries: Entry[]) => {
+        const tagCounts: Record<string, number> = {};
+        entries.forEach(entry => {
+          entry.tags.forEach(tag => {
+            tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+          });
+        });
+        return Object.entries(tagCounts)
+          .map(([tag, count]) => ({ tag, count }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 10);
+      },
+      
+      getTopThemes: (entries: Entry[]) => {
+        const themes = entries
+          .filter(e => e.tags.includes('goal') || e.tags.includes('priority'))
+          .map(e => e.content.split(' ').slice(0, 3).join(' '));
+        return [...new Set(themes)].slice(0, 5);
+      },
+      
+      generateInsights: (entries: Entry[]) => {
+        const insights: string[] = [];
+        const completed = entries.filter(e => e.status === 'completed').length;
+        const total = entries.length;
+        
+        if (completed > 0) {
+          insights.push(`Completed ${completed} out of ${total} items`);
+        }
+        
+        const highPriority = entries.filter(e => e.priority === 'high' || e.priority === 'urgent').length;
+        if (highPriority > 0) {
+          insights.push(`${highPriority} high-priority items need attention`);
+        }
+        
+        return insights;
+      },
+      
+      getEntriesByTypeCount: (entries: Entry[]) => {
+        const counts: Record<string, number> = {};
+        entries.forEach(entry => {
+          counts[entry.type] = (counts[entry.type] || 0) + 1;
+        });
+        return counts;
+      },
+      
+      getEntriesByTimeCount: (entries: Entry[]) => {
+        const timeCounts: Record<number, number> = {};
+        entries.forEach(entry => {
+          const hour = entry.createdAt.getHours();
+          timeCounts[hour] = (timeCounts[hour] || 0) + 1;
+        });
+        return Object.entries(timeCounts)
+          .map(([hour, count]) => ({ hour: parseInt(hour), count }))
+          .sort((a, b) => a.hour - b.hour);
+      },
+      
+      getEntriesByDayCount: (entries: Entry[]) => {
+        const dayCounts: Record<string, number> = {};
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        entries.forEach(entry => {
+          const day = days[entry.createdAt.getDay()];
+          dayCounts[day] = (dayCounts[day] || 0) + 1;
+        });
+        return days.map(day => ({ day, count: dayCounts[day] || 0 }));
+      },
+      
+      getCompletionRate: (entries: Entry[]) => {
+        const tasks = entries.filter(e => e.type === 'task');
+        if (tasks.length === 0) return 0;
+        const completed = tasks.filter(e => e.status === 'completed').length;
+        return Math.round((completed / tasks.length) * 100);
+      },
+      
+      getAverageMood: (entries: Entry[]) => {
+        const moodEntries = entries.filter(e => e.mood);
+        if (moodEntries.length === 0) return 0;
+        const moodValues = { great: 5, good: 4, okay: 3, bad: 2, terrible: 1 };
+        const total = moodEntries.reduce((sum, e) => sum + moodValues[e.mood!], 0);
+        return Math.round(total / moodEntries.length);
+      },
+      
+      getProductivityScore: (entries: Entry[]) => {
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const todayEntries = entries.filter(e => e.createdAt >= today);
+        
+        let score = 0;
+        score += todayEntries.filter(e => e.status === 'completed').length * 10;
+        score += todayEntries.filter(e => e.priority === 'high' || e.priority === 'urgent').length * 5;
+        score += todayEntries.filter(e => e.type === 'task').length * 2;
+        
+        return Math.min(score, 100);
+      }
     }),
     {
-      name: "mindnest-storage",
+      name: "genienotes-storage",
       partialize: (state) => ({
-        thoughts: state.thoughts,
-        randomThoughts: state.randomThoughts,
-        journalEntries: state.journalEntries,
-        notes: state.notes,
-        todos: state.todos,
-        ideas: state.ideas,
-        projects: state.projects,
-      }),
+        entries: state.entries,
+        calendarEvents: state.calendarEvents,
+        appState: state.appState,
+        uiState: state.uiState
+      })
     }
   )
-); 
+);
+
+// Helper functions (these would be moved to a separate utils file in a real implementation)
+function calculateRelevance(entry: Entry, query: string): number {
+  let score = 0;
+  
+  if (entry.content.toLowerCase().includes(query)) score += 10;
+  if (entry.tags.some(tag => tag.toLowerCase().includes(query))) score += 5;
+  if (entry.location?.toLowerCase().includes(query)) score += 3;
+  
+  return score;
+}
+
+function getMatchedFields(entry: Entry, query: string): string[] {
+  const fields: string[] = [];
+  
+  if (entry.content.toLowerCase().includes(query)) fields.push('content');
+  if (entry.tags.some(tag => tag.toLowerCase().includes(query))) fields.push('tags');
+  if (entry.location?.toLowerCase().includes(query)) fields.push('location');
+  
+  return fields;
+}
+
+function findRelatedEntries(entry: Entry, allEntries: Entry[]): Entry[] {
+  return allEntries
+    .filter(e => e.id !== entry.id)
+    .filter(e => 
+      e.tags.some(tag => entry.tags.includes(tag)) ||
+      e.content.toLowerCase().includes(entry.content.toLowerCase().split(' ')[0])
+    )
+    .slice(0, 3);
+} 
