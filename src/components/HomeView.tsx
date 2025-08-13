@@ -244,6 +244,64 @@ export const HomeView: React.FC = () => {
     setEditingEntry(null);
   };
 
+  // Change the time period of an entry
+  const changeEntryTimePeriod = (entryId: string, newPeriod: 'today' | 'week' | 'upcoming') => {
+    const entry = allEntries.find(e => e.id === entryId);
+    if (!entry) return;
+
+    let updates: Partial<Entry> = {};
+    
+    switch (newPeriod) {
+      case 'today':
+        // Add today tag and set due date to today if not urgent
+        updates = {
+          tags: [...(entry.tags || []), 'today'].filter((tag, index, arr) => arr.indexOf(tag) === index), // Remove duplicates
+          dueDate: entry.priority === 'urgent' ? entry.dueDate : new Date()
+        };
+        break;
+      case 'week':
+        // Add week tag and set due date to end of week if not urgent
+        updates = {
+          tags: [...(entry.tags || []), 'week'].filter((tag, index, arr) => arr.indexOf(tag) === index),
+          dueDate: entry.priority === 'urgent' ? entry.dueDate : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        };
+        break;
+      case 'upcoming':
+        // Add upcoming tag and set due date to next month if not urgent
+        updates = {
+          tags: [...(entry.tags || []), 'upcoming'].filter((tag, index, arr) => arr.indexOf(tag) === index),
+          dueDate: entry.priority === 'urgent' ? entry.dueDate : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+        };
+        break;
+    }
+
+    updateEntry(entryId, {
+      ...updates,
+      updatedAt: new Date()
+    });
+  };
+
+  // Adjust priority to reorder entries
+  const adjustPriority = (entryId: string, direction: 'up' | 'down') => {
+    const entry = allEntries.find(e => e.id === entryId);
+    if (!entry) return;
+
+    const priorityOrder = ['low', 'medium', 'high', 'urgent'];
+    const currentIndex = priorityOrder.indexOf(entry.priority);
+    
+    if (direction === 'up' && currentIndex < priorityOrder.length - 1) {
+      updateEntry(entryId, {
+        priority: priorityOrder[currentIndex + 1] as Priority,
+        updatedAt: new Date()
+      });
+    } else if (direction === 'down' && currentIndex > 0) {
+      updateEntry(entryId, {
+        priority: priorityOrder[currentIndex - 1] as Priority,
+        updatedAt: new Date()
+      });
+    }
+  };
+
   // Get entries for the current active tab
   const getCurrentTabEntries = () => {
     switch (activeTab) {
@@ -412,6 +470,26 @@ export const HomeView: React.FC = () => {
                       </div>
                       <div className="flex gap-1">
                         <button
+                          onClick={() => adjustPriority(entry.id, 'up')}
+                          disabled={entry.priority === 'urgent'}
+                          className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Increase priority"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => adjustPriority(entry.id, 'down')}
+                          disabled={entry.priority === 'low'}
+                          className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Decrease priority"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                        <button
                           onClick={() => handleEditEntry(entry)}
                           className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
                         >
@@ -429,6 +507,21 @@ export const HomeView: React.FC = () => {
                         >
                           <Eye className="w-4 h-4" />
                         </button>
+                        <select
+                          value=""
+                          onChange={(e) => {
+                            if (e.target.value) {
+                              changeEntryTimePeriod(entry.id, e.target.value as 'today' | 'week' | 'upcoming');
+                              e.target.value = ''; // Reset selection
+                            }
+                          }}
+                          className="px-2 py-1 text-xs border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition-colors"
+                        >
+                          <option value="">Move to...</option>
+                          <option value="today">Today</option>
+                          <option value="week">This Week</option>
+                          <option value="upcoming">Upcoming</option>
+                        </select>
                       </div>
                     </div>
                   ))}
@@ -552,6 +645,26 @@ export const HomeView: React.FC = () => {
                             </div>
                             <div className="flex gap-1">
                               <button
+                                onClick={() => adjustPriority(entry.id, 'up')}
+                                disabled={entry.priority === 'urgent'}
+                                className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                title="Increase priority"
+                              >
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                </svg>
+                              </button>
+                              <button
+                                onClick={() => adjustPriority(entry.id, 'down')}
+                                disabled={entry.priority === 'low'}
+                                className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                title="Decrease priority"
+                              >
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                              </button>
+                              <button
                                 onClick={() => handleEditEntry(entry)}
                                 className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
                               >
@@ -563,6 +676,21 @@ export const HomeView: React.FC = () => {
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
+                              <select
+                                value=""
+                                onChange={(e) => {
+                                  if (e.target.value) {
+                                    changeEntryTimePeriod(entry.id, e.target.value as 'today' | 'week' | 'upcoming');
+                                    e.target.value = ''; // Reset selection
+                                  }
+                                }}
+                                className="px-2 py-1 text-xs border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition-colors"
+                              >
+                                <option value="">Move to...</option>
+                                <option value="today">Today</option>
+                                <option value="week">This Week</option>
+                                <option value="upcoming">Upcoming</option>
+                              </select>
                             </div>
                           </div>
                         );
