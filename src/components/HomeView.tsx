@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Edit2, Trash2, Check, CalendarPlus, Clock, Home, Target, Lightbulb, BookOpen, MessageCircle, Search, Filter, Plus, Eye, MoreHorizontal } from 'lucide-react';
+import { Edit2, Trash2, Check, CalendarPlus, Clock, Home, Target, Lightbulb, BookOpen, MessageCircle, Search, Filter, Plus, MoreHorizontal } from 'lucide-react';
 import { useMindnestStore, Thought, TodoItem } from '../store';
 
 interface UnifiedItem {
@@ -64,10 +64,6 @@ export const HomeView: React.FC = () => {
     }
     setEditingId(null);
     setEditContent('');
-  };
-
-  const handleNavigateToView = (view: string) => {
-    setActiveView(view as any);
   };
 
   const formatDate = (d: Date) => {
