@@ -28,42 +28,86 @@ export const CaptureView: React.FC = () => {
     // Simple AI parsing logic - in a real app this would be more sophisticated
     const lowerText = text.toLowerCase();
     
-    // Determine type
+    // Determine type - improved logic with more patterns
     let type: EntryType = 'note';
-    if (lowerText.includes('task') || lowerText.includes('todo') || lowerText.includes('need to') || lowerText.includes('should')) {
+    
+    // Task detection - more comprehensive
+    if (lowerText.includes('task') || lowerText.includes('todo') || lowerText.includes('need to') || 
+        lowerText.includes('should') || lowerText.includes('must') || lowerText.includes('have to') ||
+        lowerText.includes('finish') || lowerText.includes('complete') || lowerText.includes('do') ||
+        lowerText.includes('work on') || lowerText.includes('start') || lowerText.includes('prepare') ||
+        lowerText.includes('email') || lowerText.includes('call') || lowerText.includes('meet') ||
+        lowerText.includes('buy') || lowerText.includes('get') || lowerText.includes('find') ||
+        lowerText.includes('review') || lowerText.includes('check') || lowerText.includes('update') ||
+        lowerText.includes('create') || lowerText.includes('build') || lowerText.includes('design') ||
+        lowerText.includes('write') || lowerText.includes('read') || lowerText.includes('study') ||
+        lowerText.includes('organize') || lowerText.includes('clean') || lowerText.includes('fix') ||
+        lowerText.includes('solve') || lowerText.includes('plan') || lowerText.includes('schedule')) {
       type = 'task';
-    } else if (lowerText.includes('meet') || lowerText.includes('event') || lowerText.includes('appointment')) {
+    } 
+    // Event detection
+    else if (lowerText.includes('meeting') || lowerText.includes('event') || lowerText.includes('appointment') ||
+             lowerText.includes('conference') || lowerText.includes('party') || lowerText.includes('dinner') ||
+             lowerText.includes('lunch') || lowerText.includes('call') || lowerText.includes('interview') ||
+             lowerText.includes('presentation') || lowerText.includes('workshop') || lowerText.includes('class')) {
       type = 'event';
-    } else if (lowerText.includes('idea') || lowerText.includes('think') || lowerText.includes('maybe')) {
+    } 
+    // Idea detection
+    else if (lowerText.includes('idea') || lowerText.includes('think') || lowerText.includes('maybe') ||
+             lowerText.includes('could') || lowerText.includes('might') || lowerText.includes('perhaps') ||
+             lowerText.includes('concept') || lowerText.includes('brainstorm') || lowerText.includes('innovation')) {
       type = 'idea';
-    } else if (lowerText.includes('insight') || lowerText.includes('learned') || lowerText.includes('discovered')) {
+    } 
+    // Insight detection
+    else if (lowerText.includes('insight') || lowerText.includes('learned') || lowerText.includes('discovered') ||
+             lowerText.includes('realized') || lowerText.includes('understood') || lowerText.includes('figured out') ||
+             lowerText.includes('aha') || lowerText.includes('eureka') || lowerText.includes('breakthrough')) {
       type = 'insight';
-    } else if (lowerText.includes('reflect') || lowerText.includes('feel') || lowerText.includes('mood')) {
+    } 
+    // Reflection detection
+    else if (lowerText.includes('reflect') || lowerText.includes('feel') || lowerText.includes('mood') ||
+             lowerText.includes('thought') || lowerText.includes('wonder') || lowerText.includes('question') ||
+             lowerText.includes('doubt') || lowerText.includes('hope') || lowerText.includes('wish') ||
+             lowerText.includes('grateful') || lowerText.includes('happy') || lowerText.includes('sad') ||
+             lowerText.includes('excited') || lowerText.includes('worried') || lowerText.includes('confused')) {
       type = 'reflection';
-    } else if (lowerText.includes('journal') || lowerText.includes('today') || lowerText.includes('day')) {
+    } 
+    // Journal detection
+    else if (lowerText.includes('journal') || lowerText.includes('today') || lowerText.includes('day') ||
+             lowerText.includes('morning') || lowerText.includes('evening') || lowerText.includes('weekend') ||
+             lowerText.includes('yesterday') || lowerText.includes('this week') || lowerText.includes('month')) {
       type = 'journal';
-    } else if (lowerText.includes('remind') || lowerText.includes('remember')) {
+    } 
+    // Reminder detection
+    else if (lowerText.includes('remind') || lowerText.includes('remember') || lowerText.includes('don\'t forget') ||
+             lowerText.includes('note to self') || lowerText.includes('reminder') || lowerText.includes('alert')) {
       type = 'reminder';
     }
     
-    // Determine priority
+    // Determine priority - improved logic
     let priority: Priority = 'medium';
-    if (lowerText.includes('urgent') || lowerText.includes('asap') || lowerText.includes('emergency')) {
+    if (lowerText.includes('urgent') || lowerText.includes('asap') || lowerText.includes('emergency') ||
+        lowerText.includes('critical') || lowerText.includes('immediate') || lowerText.includes('now')) {
       priority = 'urgent';
-    } else if (lowerText.includes('important') || lowerText.includes('high') || lowerText.includes('critical')) {
+    } else if (lowerText.includes('important') || lowerText.includes('high') || lowerText.includes('priority') ||
+               lowerText.includes('key') || lowerText.includes('essential') || lowerText.includes('crucial')) {
       priority = 'high';
-    } else if (lowerText.includes('low') || lowerText.includes('sometime') || lowerText.includes('maybe')) {
+    } else if (lowerText.includes('low') || lowerText.includes('sometime') || lowerText.includes('maybe') ||
+               lowerText.includes('optional') || lowerText.includes('nice to have') || lowerText.includes('if time')) {
       priority = 'low';
     }
     
     // Extract tags (words starting with #)
     const tags = text.match(/#\w+/g)?.map(tag => tag.slice(1)) || [];
     
-    // Extract dates (simple patterns)
+    // Extract dates - improved patterns
     const datePatterns = [
-      /(?:due|by|on)\s+(\w+\s+\d+)/i,
+      /(?:due|by|on|at)\s+(\w+\s+\d+)/i,
       /(\d{1,2}\/\d{1,2})/,
-      /(\w+\s+\d{1,2})/i
+      /(\w+\s+\d{1,2})/i,
+      /(?:next|this)\s+(\w+)/i,
+      /(?:in|after)\s+(\d+)\s+(?:days?|weeks?|months?)/i,
+      /(?:tomorrow|today|tonight)/i
     ];
     
     let dueDate: Date | undefined;
@@ -71,7 +115,23 @@ export const CaptureView: React.FC = () => {
       const match = text.match(pattern);
       if (match) {
         try {
-          dueDate = new Date(match[1]);
+          let dateString = match[1] || match[0];
+          
+          // Handle relative dates
+          if (dateString.toLowerCase() === 'tomorrow') {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            dueDate = tomorrow;
+          } else if (dateString.toLowerCase() === 'today') {
+            dueDate = new Date();
+          } else if (dateString.toLowerCase() === 'tonight') {
+            const tonight = new Date();
+            tonight.setHours(20, 0, 0, 0); // 8 PM
+            dueDate = tonight;
+          } else {
+            dueDate = new Date(dateString);
+          }
+          
           if (isNaN(dueDate.getTime())) dueDate = undefined;
         } catch {
           dueDate = undefined;
@@ -84,6 +144,15 @@ export const CaptureView: React.FC = () => {
     const locationMatch = text.match(/(?:at|in|@)\s+([A-Za-z\s]+)/i);
     const location = locationMatch ? locationMatch[1].trim() : undefined;
     
+    // Debug logging
+    console.log('=== AI Parsing Debug ===');
+    console.log('Input:', text);
+    console.log('Detected type:', type);
+    console.log('Detected priority:', priority);
+    console.log('Detected tags:', tags);
+    console.log('Detected due date:', dueDate);
+    console.log('Detected location:', location);
+    
     return {
       type,
       priority,
@@ -93,7 +162,7 @@ export const CaptureView: React.FC = () => {
       status: type === 'task' ? 'pending' as TaskStatus : 'pending' as TaskStatus,
       needsReview: false,
       confidence: 0.8,
-      reasoning: `Classified as ${type} based on keywords and context`,
+      reasoning: `Classified as ${type} based on keywords and context. Priority: ${priority}`,
       relatedIds: []
     };
   };

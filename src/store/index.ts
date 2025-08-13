@@ -92,9 +92,17 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
           updatedAt: new Date()
         };
         
-        set((state) => ({
-          entries: [entry, ...state.entries]
-        }));
+        console.log('=== Store Debug: Adding Entry ===');
+        console.log('Entry data:', entryData);
+        console.log('Created entry:', entry);
+        
+        set((state) => {
+          const newState = {
+            entries: [entry, ...state.entries]
+          };
+          console.log('New store state:', newState);
+          return newState;
+        });
       },
       
       updateEntry: (id, updates) => set((state) => ({

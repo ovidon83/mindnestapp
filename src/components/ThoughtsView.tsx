@@ -39,6 +39,13 @@ export const ThoughtsView: React.FC = () => {
   const urgentEntries = getUrgentEntries();
   const topTags = getTopTags(allEntries);
 
+  // Debug logging
+  console.log('=== ThoughtsView Debug ===');
+  console.log('All entries:', allEntries);
+  console.log('Review entries:', reviewEntries);
+  console.log('Urgent entries:', urgentEntries);
+  console.log('Top tags:', topTags);
+
   const getTypeIcon = (type: EntryType) => {
     switch (type) {
       case 'task': return <CheckCircle className="w-4 h-4" />;
