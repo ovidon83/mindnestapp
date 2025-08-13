@@ -5,7 +5,6 @@ import {
   CheckCircle,
   Clock,
   MapPin,
-  Tag,
   Zap,
   Target,
   TrendingUp,
@@ -21,86 +20,160 @@ export const CaptureView: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [parsedEntry, setParsedEntry] = useState<Partial<Entry> | null>(null);
+  const [editableEntry, setEditableEntry] = useState<Partial<Entry> | null>(null);
   
   const { addEntry, setCurrentView } = useGenieNotesStore();
 
   const parseInput = (text: string) => {
-    // Simple AI parsing logic - in a real app this would be more sophisticated
+    // Enhanced AI parsing logic with better context understanding
     const lowerText = text.toLowerCase();
     
-    // Determine type - improved logic with more patterns
-    let type: EntryType = 'note';
+    // Extract tags first (words starting with #)
+    const tags = text.match(/#\w+/g)?.map(tag => tag.slice(1)) || [];
     
-    // Task detection - more comprehensive
-    if (lowerText.includes('task') || lowerText.includes('todo') || lowerText.includes('need to') || 
-        lowerText.includes('should') || lowerText.includes('must') || lowerText.includes('have to') ||
-        lowerText.includes('finish') || lowerText.includes('complete') || lowerText.includes('do') ||
-        lowerText.includes('work on') || lowerText.includes('start') || lowerText.includes('prepare') ||
-        lowerText.includes('email') || lowerText.includes('call') || lowerText.includes('meet') ||
-        lowerText.includes('buy') || lowerText.includes('get') || lowerText.includes('find') ||
-        lowerText.includes('review') || lowerText.includes('check') || lowerText.includes('update') ||
-        lowerText.includes('create') || lowerText.includes('build') || lowerText.includes('design') ||
-        lowerText.includes('write') || lowerText.includes('read') || lowerText.includes('study') ||
-        lowerText.includes('organize') || lowerText.includes('clean') || lowerText.includes('fix') ||
-        lowerText.includes('solve') || lowerText.includes('plan') || lowerText.includes('schedule')) {
-      type = 'task';
-    } 
-    // Event detection
-    else if (lowerText.includes('meeting') || lowerText.includes('event') || lowerText.includes('appointment') ||
-             lowerText.includes('conference') || lowerText.includes('party') || lowerText.includes('dinner') ||
-             lowerText.includes('lunch') || lowerText.includes('call') || lowerText.includes('interview') ||
-             lowerText.includes('presentation') || lowerText.includes('workshop') || lowerText.includes('class')) {
-      type = 'event';
-    } 
-    // Idea detection
-    else if (lowerText.includes('idea') || lowerText.includes('think') || lowerText.includes('maybe') ||
-             lowerText.includes('could') || lowerText.includes('might') || lowerText.includes('perhaps') ||
-             lowerText.includes('concept') || lowerText.includes('brainstorm') || lowerText.includes('innovation')) {
-      type = 'idea';
-    } 
-    // Insight detection
-    else if (lowerText.includes('insight') || lowerText.includes('learned') || lowerText.includes('discovered') ||
-             lowerText.includes('realized') || lowerText.includes('understood') || lowerText.includes('figured out') ||
-             lowerText.includes('aha') || lowerText.includes('eureka') || lowerText.includes('breakthrough')) {
-      type = 'insight';
-    } 
-    // Reflection detection
-    else if (lowerText.includes('reflect') || lowerText.includes('feel') || lowerText.includes('mood') ||
-             lowerText.includes('thought') || lowerText.includes('wonder') || lowerText.includes('question') ||
-             lowerText.includes('doubt') || lowerText.includes('hope') || lowerText.includes('wish') ||
-             lowerText.includes('grateful') || lowerText.includes('happy') || lowerText.includes('sad') ||
-             lowerText.includes('excited') || lowerText.includes('worried') || lowerText.includes('confused')) {
-      type = 'reflection';
-    } 
-    // Journal detection
-    else if (lowerText.includes('journal') || lowerText.includes('today') || lowerText.includes('day') ||
-             lowerText.includes('morning') || lowerText.includes('evening') || lowerText.includes('weekend') ||
-             lowerText.includes('yesterday') || lowerText.includes('this week') || lowerText.includes('month')) {
-      type = 'journal';
-    } 
-    // Reminder detection
-    else if (lowerText.includes('remind') || lowerText.includes('remember') || lowerText.includes('don\'t forget') ||
-             lowerText.includes('note to self') || lowerText.includes('reminder') || lowerText.includes('alert')) {
-      type = 'reminder';
+    // Check for explicit hashtag indicators first (highest priority)
+    if (tags.includes('idea') || tags.includes('concept') || tags.includes('innovation')) {
+      return createEntry('idea', 'medium', tags, text);
+    }
+    if (tags.includes('task') || tags.includes('todo') || tags.includes('action')) {
+      return createEntry('task', 'medium', tags, text);
+    }
+    if (tags.includes('insight') || tags.includes('learned') || tags.includes('discovery')) {
+      return createEntry('insight', 'medium', tags, text);
+    }
+    if (tags.includes('reflection') || tags.includes('feel') || tags.includes('mood')) {
+      return createEntry('reflection', 'medium', tags, text);
+    }
+    if (tags.includes('journal') || tags.includes('today') || tags.includes('day')) {
+      return createEntry('journal', 'medium', tags, text);
+    }
+    if (tags.includes('reminder') || tags.includes('remember')) {
+      return createEntry('reminder', 'medium', tags, text);
+    }
+    if (tags.includes('event') || tags.includes('meeting') || tags.includes('appointment')) {
+      return createEntry('event', 'medium', tags, text);
     }
     
-    // Determine priority - improved logic
+    // Determine type based on content analysis (more intelligent)
+    let type: EntryType = 'note';
+    let confidence = 0.7;
+    let reasoning = '';
+    
+    // IDEA DETECTION - Look for concept/innovation language
+    if (lowerText.includes('ai personal assistant') || lowerText.includes('could be') || 
+        lowerText.includes('would be great') || lowerText.includes('imagine if') ||
+        lowerText.includes('what if') || lowerText.includes('maybe we could') ||
+        lowerText.includes('innovation') || lowerText.includes('concept') ||
+        lowerText.includes('brainstorm') || lowerText.includes('possibility') ||
+        lowerText.includes('potential') || lowerText.includes('opportunity') ||
+        (lowerText.includes('idea') && !lowerText.includes('good idea')) ||
+        (lowerText.includes('think') && lowerText.includes('about'))) {
+      type = 'idea';
+      confidence = 0.9;
+      reasoning = 'Contains concept/innovation language and exploratory thinking';
+    }
+    // TASK DETECTION - Look for actionable language
+    else if (lowerText.includes('need to') || lowerText.includes('must') || 
+             lowerText.includes('have to') || lowerText.includes('should') ||
+             lowerText.includes('finish') || lowerText.includes('complete') || 
+             lowerText.includes('do') || lowerText.includes('work on') ||
+             lowerText.includes('start') || lowerText.includes('prepare') ||
+             lowerText.includes('email') || lowerText.includes('call') || 
+             lowerText.includes('meet') || lowerText.includes('buy') || 
+             lowerText.includes('get') || lowerText.includes('find') ||
+             lowerText.includes('review') || lowerText.includes('check') || 
+             lowerText.includes('update') || lowerText.includes('create') || 
+             lowerText.includes('build') || lowerText.includes('design') ||
+             lowerText.includes('write') || lowerText.includes('read') || 
+             lowerText.includes('study') || lowerText.includes('organize') || 
+             lowerText.includes('clean') || lowerText.includes('fix') ||
+             lowerText.includes('solve') || lowerText.includes('plan') || 
+             lowerText.includes('schedule') || lowerText.includes('asap') ||
+             lowerText.includes('urgent') || lowerText.includes('deadline')) {
+      type = 'task';
+      confidence = 0.85;
+      reasoning = 'Contains actionable language and specific actions to perform';
+    }
+    // EVENT DETECTION - Look for scheduling/meeting language
+    else if (lowerText.includes('meeting') || lowerText.includes('event') || 
+             lowerText.includes('appointment') || lowerText.includes('conference') ||
+             lowerText.includes('party') || lowerText.includes('dinner') || 
+             lowerText.includes('lunch') || lowerText.includes('interview') ||
+             lowerText.includes('presentation') || lowerText.includes('workshop') || 
+             lowerText.includes('class') || lowerText.includes('at ') ||
+             lowerText.includes('on ') || lowerText.includes('tomorrow') ||
+             lowerText.includes('next week') || lowerText.includes('this weekend')) {
+      type = 'event';
+      confidence = 0.8;
+      reasoning = 'Contains scheduling language and time/date references';
+    }
+    // INSIGHT DETECTION - Look for learning/discovery language
+    else if (lowerText.includes('insight') || lowerText.includes('learned') || 
+             lowerText.includes('discovered') || lowerText.includes('realized') ||
+             lowerText.includes('understood') || lowerText.includes('figured out') ||
+             lowerText.includes('aha') || lowerText.includes('eureka') || 
+             lowerText.includes('breakthrough') || lowerText.includes('key takeaway') ||
+             lowerText.includes('lesson') || lowerText.includes('pattern') ||
+             lowerText.includes('trend') || lowerText.includes('observation')) {
+      type = 'insight';
+      confidence = 0.85;
+      reasoning = 'Contains learning/discovery language and realizations';
+    }
+    // REFLECTION DETECTION - Look for emotional/contemplative language
+    else if (lowerText.includes('reflect') || lowerText.includes('feel') || 
+             lowerText.includes('mood') || lowerText.includes('thought') ||
+             lowerText.includes('wonder') || lowerText.includes('question') ||
+             lowerText.includes('doubt') || lowerText.includes('hope') || 
+             lowerText.includes('wish') || lowerText.includes('grateful') ||
+             lowerText.includes('happy') || lowerText.includes('sad') || 
+             lowerText.includes('excited') || lowerText.includes('worried') ||
+             lowerText.includes('confused') || lowerText.includes('amazing') ||
+             lowerText.includes('frustrated') || lowerText.includes('inspired')) {
+      type = 'reflection';
+      confidence = 0.8;
+      reasoning = 'Contains emotional/contemplative language and personal feelings';
+    }
+    // JOURNAL DETECTION - Look for daily/recap language
+    else if (lowerText.includes('journal') || lowerText.includes('today') || 
+             lowerText.includes('day') || lowerText.includes('morning') ||
+             lowerText.includes('evening') || lowerText.includes('weekend') ||
+             lowerText.includes('yesterday') || lowerText.includes('this week') || 
+             lowerText.includes('month') || lowerText.includes('recap') ||
+             lowerText.includes('summary') || lowerText.includes('update')) {
+      type = 'journal';
+      confidence = 0.75;
+      reasoning = 'Contains daily/recap language and time-based summaries';
+    }
+    // REMINDER DETECTION - Look for memory/alert language
+    else if (lowerText.includes('remind') || lowerText.includes('remember') || 
+             lowerText.includes('don\'t forget') || lowerText.includes('note to self') ||
+             lowerText.includes('reminder') || lowerText.includes('alert') ||
+             lowerText.includes('keep in mind') || lowerText.includes('mental note')) {
+      type = 'reminder';
+      confidence = 0.8;
+      reasoning = 'Contains memory/alert language and self-reminders';
+    }
+    
+    // Determine priority based on urgency indicators
     let priority: Priority = 'medium';
-    if (lowerText.includes('urgent') || lowerText.includes('asap') || lowerText.includes('emergency') ||
-        lowerText.includes('critical') || lowerText.includes('immediate') || lowerText.includes('now')) {
+    if (lowerText.includes('urgent') || lowerText.includes('asap') || 
+        lowerText.includes('emergency') || lowerText.includes('critical') || 
+        lowerText.includes('immediate') || lowerText.includes('now') ||
+        lowerText.includes('deadline') || lowerText.includes('due today')) {
       priority = 'urgent';
-    } else if (lowerText.includes('important') || lowerText.includes('high') || lowerText.includes('priority') ||
-               lowerText.includes('key') || lowerText.includes('essential') || lowerText.includes('crucial')) {
+    } else if (lowerText.includes('important') || lowerText.includes('high') || 
+               lowerText.includes('priority') || lowerText.includes('key') || 
+               lowerText.includes('essential') || lowerText.includes('crucial') ||
+               lowerText.includes('must') || lowerText.includes('need to')) {
       priority = 'high';
-    } else if (lowerText.includes('low') || lowerText.includes('sometime') || lowerText.includes('maybe') ||
-               lowerText.includes('optional') || lowerText.includes('nice to have') || lowerText.includes('if time')) {
+    } else if (lowerText.includes('low') || lowerText.includes('sometime') || 
+               lowerText.includes('maybe') || lowerText.includes('optional') || 
+               lowerText.includes('nice to have') || lowerText.includes('if time') ||
+               lowerText.includes('could') || lowerText.includes('might')) {
       priority = 'low';
     }
     
-    // Extract tags (words starting with #)
-    const tags = text.match(/#\w+/g)?.map(tag => tag.slice(1)) || [];
-    
-    // Extract dates - improved patterns
+    // Extract dates with improved patterns
     const datePatterns = [
       /(?:due|by|on|at)\s+(\w+\s+\d+)/i,
       /(\d{1,2}\/\d{1,2})/,
@@ -117,7 +190,6 @@ export const CaptureView: React.FC = () => {
         try {
           let dateString = match[1] || match[0];
           
-          // Handle relative dates
           if (dateString.toLowerCase() === 'tomorrow') {
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
@@ -126,7 +198,7 @@ export const CaptureView: React.FC = () => {
             dueDate = new Date();
           } else if (dateString.toLowerCase() === 'tonight') {
             const tonight = new Date();
-            tonight.setHours(20, 0, 0, 0); // 8 PM
+            tonight.setHours(20, 0, 0, 0);
             dueDate = tonight;
           } else {
             dueDate = new Date(dateString);
@@ -148,10 +220,12 @@ export const CaptureView: React.FC = () => {
     console.log('=== AI Parsing Debug ===');
     console.log('Input:', text);
     console.log('Detected type:', type);
+    console.log('Confidence:', confidence);
     console.log('Detected priority:', priority);
     console.log('Detected tags:', tags);
     console.log('Detected due date:', dueDate);
     console.log('Detected location:', location);
+    console.log('Reasoning:', reasoning);
     
     return {
       type,
@@ -161,8 +235,67 @@ export const CaptureView: React.FC = () => {
       location,
       status: type === 'task' ? 'pending' as TaskStatus : 'pending' as TaskStatus,
       needsReview: false,
-      confidence: 0.8,
-      reasoning: `Classified as ${type} based on keywords and context. Priority: ${priority}`,
+      confidence,
+      reasoning: reasoning || `Classified as ${type} based on content analysis. Priority: ${priority}`,
+      relatedIds: []
+    };
+  };
+
+  const createEntry = (type: EntryType, priority: Priority, tags: string[], text: string) => {
+    // Helper function to create entries with consistent structure
+    
+    // Extract dates and location
+    const datePatterns = [
+      /(?:due|by|on|at)\s+(\w+\s+\d+)/i,
+      /(\d{1,2}\/\d{1,2})/,
+      /(\w+\s+\d{1,2})/i,
+      /(?:next|this)\s+(\w+)/i,
+      /(?:in|after)\s+(\d+)\s+(?:days?|weeks?|months?)/i,
+      /(?:tomorrow|today|tonight)/i
+    ];
+    
+    let dueDate: Date | undefined;
+    for (const pattern of datePatterns) {
+      const match = text.match(pattern);
+      if (match) {
+        try {
+          let dateString = match[1] || match[0];
+          
+          if (dateString.toLowerCase() === 'tomorrow') {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            dueDate = tomorrow;
+          } else if (dateString.toLowerCase() === 'today') {
+            dueDate = new Date();
+          } else if (dateString.toLowerCase() === 'tonight') {
+            const tonight = new Date();
+            tonight.setHours(20, 0, 0, 0);
+            dueDate = tonight;
+          } else {
+            dueDate = new Date(dateString);
+          }
+          
+          if (isNaN(dueDate.getTime())) dueDate = undefined;
+        } catch {
+          dueDate = undefined;
+        }
+        break;
+      }
+    }
+    
+    const locationMatch = text.match(/(?:at|in|@)\s+([A-Za-z\s]+)/i);
+    const location = locationMatch ? locationMatch[1].trim() : undefined;
+    
+    return {
+      type,
+      priority,
+      tags,
+      dueDate,
+      location,
+      status: type === 'task' ? 'pending' as TaskStatus : 'pending' as TaskStatus,
+      needsReview: false,
+      confidence: 0.95,
+      reasoning: `Explicitly tagged as ${type} with #${type} hashtag`,
       relatedIds: []
     };
   };
@@ -178,6 +311,7 @@ export const CaptureView: React.FC = () => {
       
       const parsed = parseInput(inputText.trim());
       setParsedEntry(parsed);
+      setEditableEntry(parsed); // Allow editing of the parsed entry
       setShowPreview(true);
     } catch (error) {
       console.error('Error parsing input:', error);
@@ -187,40 +321,41 @@ export const CaptureView: React.FC = () => {
   };
 
   const handleConfirm = () => {
-    if (parsedEntry) {
+    if (editableEntry) {
       console.log('=== CaptureView: handleConfirm ===');
       console.log('About to add entry:', {
         content: inputText.trim(),
-        type: parsedEntry.type!,
-        priority: parsedEntry.priority!,
-        tags: parsedEntry.tags || [],
-        dueDate: parsedEntry.dueDate,
-        location: parsedEntry.location,
-        status: parsedEntry.status!,
-        needsReview: parsedEntry.needsReview!,
-        confidence: parsedEntry.confidence!,
-        reasoning: parsedEntry.reasoning!,
-        relatedIds: parsedEntry.relatedIds || []
+        type: editableEntry.type!,
+        priority: editableEntry.priority!,
+        tags: editableEntry.tags || [],
+        dueDate: editableEntry.dueDate,
+        location: editableEntry.location,
+        status: editableEntry.status!,
+        needsReview: editableEntry.needsReview!,
+        confidence: editableEntry.confidence!,
+        reasoning: editableEntry.reasoning!,
+        relatedIds: editableEntry.relatedIds || []
       });
       
       addEntry({
         content: inputText.trim(),
-        type: parsedEntry.type!,
-        priority: parsedEntry.priority!,
-        tags: parsedEntry.tags || [],
-        dueDate: parsedEntry.dueDate,
-        location: parsedEntry.location,
-        status: parsedEntry.status!,
-        needsReview: parsedEntry.needsReview!,
-        confidence: parsedEntry.confidence!,
-        reasoning: parsedEntry.reasoning!,
-        relatedIds: parsedEntry.relatedIds || []
+        type: editableEntry.type!,
+        priority: editableEntry.priority!,
+        tags: editableEntry.tags || [],
+        dueDate: editableEntry.dueDate,
+        location: editableEntry.location,
+        status: editableEntry.status!,
+        needsReview: editableEntry.needsReview!,
+        confidence: editableEntry.confidence!,
+        reasoning: editableEntry.reasoning!,
+        relatedIds: editableEntry.relatedIds || []
       });
       
       console.log('=== CaptureView: Entry added, about to navigate ===');
       
       setInputText('');
       setParsedEntry(null);
+      setEditableEntry(null);
       setShowPreview(false);
       
       // Add a small delay to ensure the store update completes
@@ -264,17 +399,7 @@ export const CaptureView: React.FC = () => {
     }
   };
 
-  const getPriorityColor = (priority: Priority) => {
-    switch (priority) {
-      case 'urgent': return 'bg-red-100 text-red-800 border-red-200';
-      case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low': return 'bg-gray-100 text-gray-800 border-gray-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  if (showPreview && parsedEntry) {
+  if (showPreview && parsedEntry && editableEntry) {
     return (
       <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-2xl mx-auto">
@@ -284,7 +409,7 @@ export const CaptureView: React.FC = () => {
               AI Analysis Complete
             </h1>
             <p className="text-gray-600">
-              Here's how I categorized your thought. Review and confirm below.
+              Here's how I categorized your thought. You can edit the details before saving.
             </p>
           </div>
 
@@ -292,18 +417,56 @@ export const CaptureView: React.FC = () => {
           <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm mb-6">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center space-x-3">
-                <div className={`p-3 rounded-lg ${getTypeColor(parsedEntry.type!)}`}>
-                  {getTypeIcon(parsedEntry.type!)}
+                <div className={`p-3 rounded-lg ${getTypeColor(editableEntry.type!)}`}>
+                  {getTypeIcon(editableEntry.type!)}
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900">{inputText}</h3>
-                  <div className="flex items-center space-x-2 mt-2">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(parsedEntry.type!)}`}>
-                      {parsedEntry.type}
-                    </span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(parsedEntry.priority!)}`}>
-                      {parsedEntry.priority}
-                    </span>
+                  
+                  {/* Editable Type */}
+                  <div className="mt-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Type:</label>
+                    <select
+                      value={editableEntry.type}
+                      onChange={(e) => setEditableEntry({...editableEntry, type: e.target.value as EntryType})}
+                      className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="task">Task</option>
+                      <option value="event">Event</option>
+                      <option value="idea">Idea</option>
+                      <option value="insight">Insight</option>
+                      <option value="reflection">Reflection</option>
+                      <option value="journal">Journal</option>
+                      <option value="reminder">Reminder</option>
+                      <option value="note">Note</option>
+                    </select>
+                  </div>
+                  
+                  {/* Editable Priority */}
+                  <div className="mt-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Priority:</label>
+                    <select
+                      value={editableEntry.priority}
+                      onChange={(e) => setEditableEntry({...editableEntry, priority: e.target.value as Priority})}
+                      className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="urgent">Urgent</option>
+                      <option value="high">High</option>
+                      <option value="medium">Medium</option>
+                      <option value="low">Low</option>
+                    </select>
+                  </div>
+                  
+                  {/* Editable Tags */}
+                  <div className="mt-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Tags:</label>
+                    <input
+                      type="text"
+                      value={editableEntry.tags?.join(', ') || ''}
+                      onChange={(e) => setEditableEntry({...editableEntry, tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)})}
+                      placeholder="Enter tags separated by commas"
+                      className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
+                    />
                   </div>
                 </div>
               </div>
@@ -311,24 +474,17 @@ export const CaptureView: React.FC = () => {
 
             {/* Parsed Details */}
             <div className="space-y-3">
-              {parsedEntry.dueDate && (
+              {editableEntry.dueDate && (
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                   <Clock className="w-4 h-4" />
-                  <span>Due: {parsedEntry.dueDate.toLocaleDateString()}</span>
+                  <span>Due: {editableEntry.dueDate.toLocaleDateString()}</span>
                 </div>
               )}
               
-              {parsedEntry.location && (
+              {editableEntry.location && (
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
                   <MapPin className="w-4 h-4" />
-                  <span>Location: {parsedEntry.location}</span>
-                </div>
-              )}
-              
-              {parsedEntry.tags && parsedEntry.tags.length > 0 && (
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <Tag className="w-4 h-4" />
-                  <span>Tags: {parsedEntry.tags.map(tag => `#${tag}`).join(', ')}</span>
+                  <span>Location: {editableEntry.location}</span>
                 </div>
               )}
             </div>
@@ -352,7 +508,7 @@ export const CaptureView: React.FC = () => {
               Edit
             </button>
             <button
-              onClick={handleConfirm}
+              onClick={() => handleConfirm()}
               className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               Confirm & Save
