@@ -1,4 +1,4 @@
-export type AppView = 'capture' | 'thoughts';
+export type AppView = 'capture' | 'home';
 
 export type EntryType = 'task' | 'event' | 'idea' | 'insight' | 'reflection' | 'journal' | 'reminder' | 'note';
 

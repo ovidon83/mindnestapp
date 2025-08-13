@@ -10,7 +10,9 @@ import {
   TrendingUp,
   CalendarDays,
   Calendar,
-  Bell
+  Bell,
+  Lightbulb,
+  Edit3
 } from 'lucide-react';
 import { useGenieNotesStore } from '../store';
 import { Entry, EntryType, Priority, TaskStatus } from '../types';
@@ -360,8 +362,8 @@ export const CaptureView: React.FC = () => {
       
       // Add a small delay to ensure the store update completes
       setTimeout(() => {
-        console.log('=== CaptureView: Navigating to thoughts view ===');
-        setCurrentView('thoughts');
+        console.log('=== CaptureView: Navigating to home view ===');
+        setCurrentView('home');
       }, 100);
     }
   };
@@ -401,117 +403,137 @@ export const CaptureView: React.FC = () => {
 
   if (showPreview && parsedEntry && editableEntry) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-2xl mx-auto">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
+        <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
           {/* Header */}
-          <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-green-500 to-teal-600 rounded-full mb-4 shadow-lg">
+              <CheckCircle className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
               AI Analysis Complete
             </h1>
-            <p className="text-gray-600">
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Here's how I categorized your thought. You can edit the details before saving.
             </p>
           </div>
 
           {/* Preview Card */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm mb-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <div className={`p-3 rounded-lg ${getTypeColor(editableEntry.type!)}`}>
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 sm:p-8 mb-8">
+            <div className="mb-6">
+              <div className="flex items-start gap-4 mb-6">
+                <div className={`p-4 rounded-xl ${getTypeColor(editableEntry.type!)} shadow-sm`}>
                   {getTypeIcon(editableEntry.type!)}
                 </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">{inputText}</h3>
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4 leading-relaxed">{inputText}</h3>
                   
-                  {/* Editable Type */}
-                  <div className="mt-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Type:</label>
-                    <select
-                      value={editableEntry.type}
-                      onChange={(e) => setEditableEntry({...editableEntry, type: e.target.value as EntryType})}
-                      className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="task">Task</option>
-                      <option value="event">Event</option>
-                      <option value="idea">Idea</option>
-                      <option value="insight">Insight</option>
-                      <option value="reflection">Reflection</option>
-                      <option value="journal">Journal</option>
-                      <option value="reminder">Reminder</option>
-                      <option value="note">Note</option>
-                    </select>
-                  </div>
-                  
-                  {/* Editable Priority */}
-                  <div className="mt-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Priority:</label>
-                    <select
-                      value={editableEntry.priority}
-                      onChange={(e) => setEditableEntry({...editableEntry, priority: e.target.value as Priority})}
-                      className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="urgent">Urgent</option>
-                      <option value="high">High</option>
-                      <option value="medium">Medium</option>
-                      <option value="low">Low</option>
-                    </select>
+                  {/* Editable Fields Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Editable Type */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Type:</label>
+                      <select
+                        value={editableEntry.type}
+                        onChange={(e) => setEditableEntry({...editableEntry, type: e.target.value as EntryType})}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors"
+                      >
+                        <option value="task">Task</option>
+                        <option value="event">Event</option>
+                        <option value="idea">Idea</option>
+                        <option value="insight">Insight</option>
+                        <option value="reflection">Reflection</option>
+                        <option value="journal">Journal</option>
+                        <option value="reminder">Reminder</option>
+                        <option value="note">Note</option>
+                      </select>
+                    </div>
+                    
+                    {/* Editable Priority */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Priority:</label>
+                      <select
+                        value={editableEntry.priority}
+                        onChange={(e) => setEditableEntry({...editableEntry, priority: e.target.value as Priority})}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors"
+                      >
+                        <option value="urgent">Urgent</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                      </select>
+                    </div>
                   </div>
                   
                   {/* Editable Tags */}
-                  <div className="mt-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Tags:</label>
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Tags:</label>
                     <input
                       type="text"
                       value={editableEntry.tags?.join(', ') || ''}
                       onChange={(e) => setEditableEntry({...editableEntry, tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)})}
                       placeholder="Enter tags separated by commas"
-                      className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors"
                     />
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Parsed Details */}
-            <div className="space-y-3">
-              {editableEntry.dueDate && (
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <Clock className="w-4 h-4" />
-                  <span>Due: {editableEntry.dueDate.toLocaleDateString()}</span>
+              {/* Parsed Details */}
+              {(editableEntry.dueDate || editableEntry.location) && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 p-4 bg-gray-50 rounded-xl">
+                  {editableEntry.dueDate && (
+                    <div className="flex items-center gap-3 text-gray-700">
+                      <Clock className="w-5 h-5 text-green-600" />
+                      <div>
+                        <p className="text-sm font-medium">Due Date</p>
+                        <p className="text-sm text-gray-600">{editableEntry.dueDate.toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {editableEntry.location && (
+                    <div className="flex items-center gap-3 text-gray-700">
+                      <MapPin className="w-5 h-5 text-green-600" />
+                      <div>
+                        <p className="text-sm font-medium">Location</p>
+                        <p className="text-sm text-gray-600">{editableEntry.location}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
-              
-              {editableEntry.location && (
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <MapPin className="w-4 h-4" />
-                  <span>Location: {editableEntry.location}</span>
-                </div>
-              )}
-            </div>
 
-            {/* AI Reasoning */}
-            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-center space-x-2 text-sm text-blue-800">
-                <Sparkles className="w-4 h-4" />
-                <span className="font-medium">AI Reasoning:</span>
+              {/* AI Reasoning */}
+              <div className="p-4 bg-gradient-to-r from-green-50 to-teal-50 border border-green-200 rounded-xl">
+                <div className="flex items-center gap-3 mb-2">
+                  <Sparkles className="w-5 h-5 text-green-600" />
+                  <span className="font-medium text-green-800">AI Reasoning</span>
+                </div>
+                <p className="text-green-700 leading-relaxed">{parsedEntry.reasoning}</p>
               </div>
-              <p className="text-sm text-blue-700 mt-1">{parsedEntry.reasoning}</p>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex space-x-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <button
               onClick={handleEdit}
-              className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex-1 px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 shadow-sm hover:shadow-md"
             >
-              Edit
+              <div className="flex items-center justify-center gap-2">
+                <Edit3 className="w-5 h-5" />
+                <span>Edit Input</span>
+              </div>
             </button>
             <button
               onClick={() => handleConfirm()}
-              className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex-1 px-6 py-4 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-xl font-medium hover:from-green-700 hover:to-teal-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             >
-              Confirm & Save
+              <div className="flex items-center justify-center gap-2">
+                <CheckCircle className="w-5 h-5" />
+                <span>Confirm & Save</span>
+              </div>
             </button>
           </div>
         </div>
@@ -520,23 +542,24 @@ export const CaptureView: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
         {/* Header */}
-        <div className="mb-12 text-center">
-          <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Brain className="w-10 h-10 text-white" />
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-4 shadow-lg">
+            <Brain className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
             Capture Your Thoughts
           </h1>
-          <p className="text-xl text-gray-600 max-w-md mx-auto">
-            Just type what's on your mind. AI will automatically categorize, tag, and organize everything.
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Let AI help you organize and categorize your ideas, tasks, and insights. 
+            Just type naturally and we'll figure out the rest.
           </p>
         </div>
 
         {/* Input Form */}
-        <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 sm:p-8 mb-8">
           <div className="mb-6">
             <label htmlFor="thought-input" className="block text-sm font-medium text-gray-700 mb-2">
               What's on your mind?
@@ -545,47 +568,46 @@ export const CaptureView: React.FC = () => {
               id="thought-input"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              placeholder="Type anything: tasks, ideas, insights, reminders, journal entries..."
-              className="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && e.metaKey) {
-                  handleSubmit();
-                }
-              }}
+              placeholder="Type your thought here... For example: 'Need to finish project by Friday #task' or 'AI Personal Assistant for parents #idea'"
+              className="w-full h-32 sm:h-40 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-900 placeholder-gray-500"
+              disabled={isProcessing}
             />
           </div>
 
-          <button
-            onClick={handleSubmit}
-            disabled={!inputText.trim() || isProcessing}
-            className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-          >
-            {isProcessing ? (
-              <>
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>Processing...</span>
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-5 h-5" />
-                <span>Analyze & Save</span>
-              </>
-            )}
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={handleSubmit}
+              disabled={!inputText.trim() || isProcessing}
+              className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              {isProcessing ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Analyzing...</span>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center gap-2">
+                  <Sparkles className="w-4 h-4" />
+                  <span>Analyze & Categorize</span>
+                </div>
+              )}
+            </button>
+          </div>
 
-          <p className="text-xs text-gray-500 text-center mt-3">
-            Press ⌘+Enter to submit
-          </p>
-        </div>
-
-        {/* Examples */}
-        <div className="mt-8 text-center">
-          <p className="text-sm text-gray-500 mb-3">Examples:</p>
-          <div className="flex flex-wrap justify-center gap-2 text-xs">
-            <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full">"Need to finish project by Friday #work"</span>
-            <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full">"Great insight about user behavior"</span>
-            <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full">"Meet Alex tomorrow at 3pm #meeting"</span>
-            <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full">"Feeling productive today"</span>
+          {/* Tips */}
+          <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+            <div className="flex items-start gap-3">
+              <Lightbulb className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-blue-800">
+                <p className="font-medium mb-1">💡 Pro Tips:</p>
+                <ul className="space-y-1 text-blue-700">
+                  <li>• Use hashtags like <code className="bg-blue-200 px-1 rounded">#idea</code>, <code className="bg-blue-200 px-1 rounded">#task</code>, <code className="bg-blue-200 px-1 rounded">#insight</code></li>
+                  <li>• Include dates like "tomorrow", "next week", "Friday"</li>
+                  <li>• Add urgency words like "urgent", "ASAP", "important"</li>
+                  <li>• Mention locations with "at", "in", or "@"</li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </div>
