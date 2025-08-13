@@ -187,21 +187,21 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         console.log('All entries:', entries);
         
         // Filter by type
-        if (appState.activeFilters.type !== 'all') {
+        if (appState.activeFilters.type && appState.activeFilters.type !== 'all') {
           const beforeTypeFilter = filtered.length;
           filtered = filtered.filter(entry => entry.type === appState.activeFilters.type);
           console.log(`Type filter (${appState.activeFilters.type}): ${beforeTypeFilter} -> ${filtered.length}`);
         }
         
         // Filter by priority
-        if (appState.activeFilters.priority !== 'all') {
+        if (appState.activeFilters.priority && appState.activeFilters.priority !== 'all') {
           const beforePriorityFilter = filtered.length;
           filtered = filtered.filter(entry => entry.priority === appState.activeFilters.priority);
           console.log(`Priority filter (${appState.activeFilters.priority}): ${beforePriorityFilter} -> ${filtered.length}`);
         }
         
         // Filter by status
-        if (appState.activeFilters.status !== 'all') {
+        if (appState.activeFilters.status && appState.activeFilters.status !== 'all') {
           const beforeStatusFilter = filtered.length;
           filtered = filtered.filter(entry => entry.status === appState.activeFilters.status);
           console.log(`Status filter (${appState.activeFilters.status}): ${beforeStatusFilter} -> ${filtered.length}`);
