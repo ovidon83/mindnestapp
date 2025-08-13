@@ -1,16 +1,102 @@
 import React, { useState } from 'react';
-import { Brain, Send, Check, X, Edit2, Calendar, MapPin, Clock, Zap } from 'lucide-react';
+import { 
+  Brain, 
+  Sparkles,
+  CheckCircle,
+  Clock,
+  MapPin,
+  Tag,
+  Zap,
+  Target,
+  TrendingUp,
+  CalendarDays,
+  Calendar,
+  Bell
+} from 'lucide-react';
 import { useGenieNotesStore } from '../store';
-import { AIService } from '../services/ai';
-import { Entry, EntryType, Priority } from '../types';
+import { Entry, EntryType, Priority, TaskStatus } from '../types';
 
 export const CaptureView: React.FC = () => {
   const [inputText, setInputText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [parsedEntries, setParsedEntries] = useState<Entry[]>([]);
-  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [parsedEntry, setParsedEntry] = useState<Partial<Entry> | null>(null);
   
   const { addEntry, setCurrentView } = useGenieNotesStore();
+
+  const parseInput = (text: string) => {
+    // Simple AI parsing logic - in a real app this would be more sophisticated
+    const lowerText = text.toLowerCase();
+    
+    // Determine type
+    let type: EntryType = 'note';
+    if (lowerText.includes('task') || lowerText.includes('todo') || lowerText.includes('need to') || lowerText.includes('should')) {
+      type = 'task';
+    } else if (lowerText.includes('meet') || lowerText.includes('event') || lowerText.includes('appointment')) {
+      type = 'event';
+    } else if (lowerText.includes('idea') || lowerText.includes('think') || lowerText.includes('maybe')) {
+      type = 'idea';
+    } else if (lowerText.includes('insight') || lowerText.includes('learned') || lowerText.includes('discovered')) {
+      type = 'insight';
+    } else if (lowerText.includes('reflect') || lowerText.includes('feel') || lowerText.includes('mood')) {
+      type = 'reflection';
+    } else if (lowerText.includes('journal') || lowerText.includes('today') || lowerText.includes('day')) {
+      type = 'journal';
+    } else if (lowerText.includes('remind') || lowerText.includes('remember')) {
+      type = 'reminder';
+    }
+    
+    // Determine priority
+    let priority: Priority = 'medium';
+    if (lowerText.includes('urgent') || lowerText.includes('asap') || lowerText.includes('emergency')) {
+      priority = 'urgent';
+    } else if (lowerText.includes('important') || lowerText.includes('high') || lowerText.includes('critical')) {
+      priority = 'high';
+    } else if (lowerText.includes('low') || lowerText.includes('sometime') || lowerText.includes('maybe')) {
+      priority = 'low';
+    }
+    
+    // Extract tags (words starting with #)
+    const tags = text.match(/#\w+/g)?.map(tag => tag.slice(1)) || [];
+    
+    // Extract dates (simple patterns)
+    const datePatterns = [
+      /(?:due|by|on)\s+(\w+\s+\d+)/i,
+      /(\d{1,2}\/\d{1,2})/,
+      /(\w+\s+\d{1,2})/i
+    ];
+    
+    let dueDate: Date | undefined;
+    for (const pattern of datePatterns) {
+      const match = text.match(pattern);
+      if (match) {
+        try {
+          dueDate = new Date(match[1]);
+          if (isNaN(dueDate.getTime())) dueDate = undefined;
+        } catch {
+          dueDate = undefined;
+        }
+        break;
+      }
+    }
+    
+    // Extract location
+    const locationMatch = text.match(/(?:at|in|@)\s+([A-Za-z\s]+)/i);
+    const location = locationMatch ? locationMatch[1].trim() : undefined;
+    
+    return {
+      type,
+      priority,
+      tags,
+      dueDate,
+      location,
+      status: type === 'task' ? 'pending' as TaskStatus : 'pending' as TaskStatus,
+      needsReview: false,
+      confidence: 0.8,
+      reasoning: `Classified as ${type} based on keywords and context`,
+      relatedIds: []
+    };
+  };
 
   const handleSubmit = async () => {
     if (!inputText.trim()) return;
@@ -18,10 +104,12 @@ export const CaptureView: React.FC = () => {
     setIsProcessing(true);
     
     try {
-      // Use AI service to parse input
-      const result = AIService.parseInput(inputText.trim());
-      setParsedEntries(result.entries);
-      setShowConfirmation(true);
+      // Simulate AI processing
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const parsed = parseInput(inputText.trim());
+      setParsedEntry(parsed);
+      setShowPreview(true);
     } catch (error) {
       console.error('Error parsing input:', error);
     } finally {
@@ -30,37 +118,43 @@ export const CaptureView: React.FC = () => {
   };
 
   const handleConfirm = () => {
-    // Add all parsed entries to store
-    parsedEntries.forEach(entry => {
-      addEntry(entry);
-    });
-    
-    // Reset and navigate to Next Up
-    setInputText('');
-    setParsedEntries([]);
-    setShowConfirmation(false);
-    setCurrentView('nextup');
+    if (parsedEntry) {
+      addEntry({
+        content: inputText.trim(),
+        type: parsedEntry.type!,
+        priority: parsedEntry.priority!,
+        tags: parsedEntry.tags || [],
+        dueDate: parsedEntry.dueDate,
+        location: parsedEntry.location,
+        status: parsedEntry.status!,
+        needsReview: parsedEntry.needsReview!,
+        confidence: parsedEntry.confidence!,
+        reasoning: parsedEntry.reasoning!,
+        relatedIds: parsedEntry.relatedIds || []
+      });
+      
+      setInputText('');
+      setParsedEntry(null);
+      setShowPreview(false);
+      setCurrentView('thoughts');
+    }
   };
 
-  const handleUndo = () => {
-    setParsedEntries([]);
-    setShowConfirmation(false);
-  };
-
-  const handleEditEntry = (index: number) => {
-    // Allow editing of individual entries before confirmation
-    // This would open an edit modal in a real implementation
-    console.log('Edit entry:', index);
+  const handleEdit = () => {
+    setShowPreview(false);
+    setParsedEntry(null);
   };
 
   const getTypeIcon = (type: EntryType) => {
     switch (type) {
-      case 'task': return <Check className="w-4 h-4" />;
+      case 'task': return <CheckCircle className="w-4 h-4" />;
       case 'event': return <Calendar className="w-4 h-4" />;
       case 'idea': return <Zap className="w-4 h-4" />;
-      case 'insight': return <Brain className="w-4 h-4" />;
-      case 'reflection': return <Brain className="w-4 h-4" />;
-      case 'journal': return <Clock className="w-4 h-4" />;
+      case 'insight': return <Target className="w-4 h-4" />;
+      case 'reflection': return <TrendingUp className="w-4 h-4" />;
+      case 'journal': return <CalendarDays className="w-4 h-4" />;
+      case 'reminder': return <Bell className="w-4 h-4" />;
+      case 'note': return <Brain className="w-4 h-4" />;
       default: return <Brain className="w-4 h-4" />;
     }
   };
@@ -73,147 +167,104 @@ export const CaptureView: React.FC = () => {
       case 'insight': return 'bg-yellow-100 text-yellow-800';
       case 'reflection': return 'bg-indigo-100 text-indigo-800';
       case 'journal': return 'bg-gray-100 text-gray-800';
+      case 'reminder': return 'bg-orange-100 text-orange-800';
+      case 'note': return 'bg-pink-100 text-pink-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getPriorityColor = (priority: Priority) => {
     switch (priority) {
-      case 'urgent': return 'bg-red-100 text-red-800';
-      case 'high': return 'bg-orange-100 text-orange-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'low': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'urgent': return 'bg-red-100 text-red-800 border-red-200';
+      case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'low': return 'bg-gray-100 text-gray-800 border-gray-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
-  const formatDate = (date: Date | string) => {
-    const dateObj = date instanceof Date ? date : new Date(date);
-    const now = new Date();
-    const diff = now.getTime() - dateObj.getTime();
-    const minutes = Math.floor(diff / (1000 * 60));
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}h ago`;
-    if (days < 7) return `${days}d ago`;
-    return dateObj.toLocaleDateString();
-  };
-
-  if (showConfirmation) {
+  if (showPreview && parsedEntry) {
     return (
       <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-2xl mx-auto">
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-8 text-center">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Confirm Your Entries
+              AI Analysis Complete
             </h1>
             <p className="text-gray-600">
-              AI has parsed your input into {parsedEntries.length} entry{parsedEntries.length !== 1 ? 's' : ''}. 
-              Review and confirm below.
+              Here's how I categorized your thought. Review and confirm below.
             </p>
           </div>
 
-          {/* Confirmation Feed */}
-          <div className="space-y-4 mb-8">
-            {parsedEntries.map((entry, index) => (
-              <div key={entry.id} className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center space-x-3">
-                    <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
-                      {getTypeIcon(entry.type)}
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{entry.content}</h3>
-                      <div className="flex items-center space-x-2 text-sm text-gray-500">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
-                          {entry.priority}
-                        </span>
-                        <span className="capitalize">{entry.type}</span>
-                        {entry.location && (
-                          <>
-                            <MapPin className="w-3 h-3" />
-                            <span>{entry.location}</span>
-                          </>
-                        )}
-                        {entry.dueDate && (
-                          <>
-                            <Clock className="w-3 h-3" />
-                            <span>{entry.dueDate instanceof Date ? entry.dueDate.toLocaleDateString() : new Date(entry.dueDate).toLocaleDateString()}</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => handleEditEntry(index)}
-                    className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-                    title="Edit entry"
-                  >
-                    <Edit2 size={16} />
-                  </button>
+          {/* Preview Card */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm mb-6">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <div className={`p-3 rounded-lg ${getTypeColor(parsedEntry.type!)}`}>
+                  {getTypeIcon(parsedEntry.type!)}
                 </div>
-
-                {/* Tags */}
-                {entry.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {entry.tags.map(tag => (
-                      <span key={tag} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {/* Auto-actions */}
-                {entry.autoActions.length > 0 && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h4 className="font-medium text-blue-900 mb-2">Auto-generated Actions:</h4>
-                    <div className="space-y-2">
-                      {entry.autoActions.map(action => (
-                        <div key={action.id} className="flex items-center space-x-2 text-sm">
-                          <Check className="w-4 h-4 text-blue-600" />
-                          <span className="text-blue-800">{action.content}</span>
-                          {action.dueDate && (
-                            <span className="text-blue-600">
-                              (due {action.dueDate instanceof Date ? action.dueDate.toLocaleDateString() : new Date(action.dueDate).toLocaleDateString()})
-                            </span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Confidence indicator */}
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <span>AI Confidence: {Math.round(entry.confidence * 100)}%</span>
-                    <span>Created {formatDate(entry.createdAt)}</span>
+                <div>
+                  <h3 className="font-semibold text-gray-900">{inputText}</h3>
+                  <div className="flex items-center space-x-2 mt-2">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(parsedEntry.type!)}`}>
+                      {parsedEntry.type}
+                    </span>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(parsedEntry.priority!)}`}>
+                      {parsedEntry.priority}
+                    </span>
                   </div>
                 </div>
               </div>
-            ))}
+            </div>
+
+            {/* Parsed Details */}
+            <div className="space-y-3">
+              {parsedEntry.dueDate && (
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <Clock className="w-4 h-4" />
+                  <span>Due: {parsedEntry.dueDate.toLocaleDateString()}</span>
+                </div>
+              )}
+              
+              {parsedEntry.location && (
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <MapPin className="w-4 h-4" />
+                  <span>Location: {parsedEntry.location}</span>
+                </div>
+              )}
+              
+              {parsedEntry.tags && parsedEntry.tags.length > 0 && (
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <Tag className="w-4 h-4" />
+                  <span>Tags: {parsedEntry.tags.map(tag => `#${tag}`).join(', ')}</span>
+                </div>
+              )}
+            </div>
+
+            {/* AI Reasoning */}
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center space-x-2 text-sm text-blue-800">
+                <Sparkles className="w-4 h-4" />
+                <span className="font-medium">AI Reasoning:</span>
+              </div>
+              <p className="text-sm text-blue-700 mt-1">{parsedEntry.reasoning}</p>
+            </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-between">
+          <div className="flex space-x-4">
             <button
-              onClick={handleUndo}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              onClick={handleEdit}
+              className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              <X className="w-4 h-4 inline mr-2" />
-              Undo & Edit
+              Edit
             </button>
-            
             <button
               onClick={handleConfirm}
-              className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              <Check className="w-4 h-4 inline mr-2" />
-              Confirm All ({parsedEntries.length})
+              Confirm & Save
             </button>
           </div>
         </div>
@@ -222,98 +273,72 @@ export const CaptureView: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-2xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-600 rounded-full mb-6">
+        <div className="mb-12 text-center">
+          <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
             <Brain className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Capture Your Thoughts
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Tell me what's on your mind. I'll automatically classify, parse dates, 
-            and create the right entries for you.
+          <p className="text-xl text-gray-600 max-w-md mx-auto">
+            Just type what's on your mind. AI will automatically categorize, tag, and organize everything.
           </p>
         </div>
 
         {/* Input Form */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+        <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
           <div className="mb-6">
             <label htmlFor="thought-input" className="block text-sm font-medium text-gray-700 mb-2">
-              What would you like to capture?
+              What's on your mind?
             </label>
             <textarea
               id="thought-input"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              placeholder="Examples:&#10;• Meet Alex Thu 3pm about launch at WeWork&#10;• Email John about budget, finish Q3 report by Friday&#10;• Had a great idea for a new feature while walking&#10;• Feeling grateful for the team's support today"
-              className="w-full h-48 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-900 placeholder-gray-400"
-              disabled={isProcessing}
+              placeholder="Type anything: tasks, ideas, insights, reminders, journal entries..."
+              className="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && e.metaKey) {
+                  handleSubmit();
+                }
+              }}
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-500">
-              {inputText.length > 0 && (
-                <span>
-                  {inputText.length} characters • 
-                  {inputText.split(/[.!?;,\n]/).filter(s => s.trim().length > 0).length} potential items
-                </span>
-              )}
-            </div>
-            
-            <button
-              onClick={handleSubmit}
-              disabled={!inputText.trim() || isProcessing}
-              className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium flex items-center"
-            >
-              {isProcessing ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Processing...
-                </>
-              ) : (
-                <>
-                  <Send className="w-4 h-4 mr-2" />
-                  Process & Classify
-                </>
-              )}
-            </button>
-          </div>
+          <button
+            onClick={handleSubmit}
+            disabled={!inputText.trim() || isProcessing}
+            className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+          >
+            {isProcessing ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Processing...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-5 h-5" />
+                <span>Analyze & Save</span>
+              </>
+            )}
+          </button>
+
+          <p className="text-xs text-gray-500 text-center mt-3">
+            Press ⌘+Enter to submit
+          </p>
         </div>
 
-        {/* Features Preview */}
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-lg p-6 text-center">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <Brain className="w-6 h-6 text-blue-600" />
-            </div>
-            <h3 className="font-semibold text-gray-900 mb-2">Smart Classification</h3>
-            <p className="text-sm text-gray-600">
-              Automatically detects tasks, events, ideas, insights, and more
-            </p>
-          </div>
-          
-          <div className="bg-white rounded-lg p-6 text-center">
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <Calendar className="w-6 h-6 text-green-600" />
-            </div>
-            <h3 className="font-semibold text-gray-900 mb-2">Date Parsing</h3>
-            <p className="text-sm text-gray-600">
-              Extracts dates, times, and locations from natural language
-            </p>
-          </div>
-          
-          <div className="bg-white rounded-lg p-6 text-center">
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <Zap className="w-6 h-6 text-purple-600" />
-            </div>
-            <h3 className="font-semibold text-gray-900 mb-2">Auto Actions</h3>
-            <p className="text-sm text-gray-600">
-              Generates prep tasks and reminders automatically
-            </p>
+        {/* Examples */}
+        <div className="mt-8 text-center">
+          <p className="text-sm text-gray-500 mb-3">Examples:</p>
+          <div className="flex flex-wrap justify-center gap-2 text-xs">
+            <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full">"Need to finish project by Friday #work"</span>
+            <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full">"Great insight about user behavior"</span>
+            <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full">"Meet Alex tomorrow at 3pm #meeting"</span>
+            <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full">"Feeling productive today"</span>
           </div>
         </div>
       </div>

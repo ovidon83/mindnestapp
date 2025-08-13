@@ -1,19 +1,15 @@
-// AI Personal Assistant Types for GenieNotes
-export type AppView = 'capture' | 'nextup' | 'inbox' | 'calendar' | 'reviews' | 'insights';
+export type AppView = 'capture' | 'thoughts';
 
-// Entry classification types
-export type EntryType = 'task' | 'event' | 'idea' | 'insight' | 'reflection' | 'journal';
+export type EntryType = 'task' | 'event' | 'idea' | 'insight' | 'reflection' | 'journal' | 'reminder' | 'note';
 
-// Priority levels
-export type Priority = 'low' | 'medium' | 'high' | 'urgent';
+export type Priority = 'urgent' | 'high' | 'medium' | 'low';
 
-// Status for tasks
-export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
+export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'archived';
 
-// Mood for reflections/journal
 export type Mood = 'great' | 'good' | 'okay' | 'bad' | 'terrible';
 
-// Unified entry interface
+export type ReviewReason = 'unclear_outcome' | 'overdue' | 'ignored_long_time' | 'needs_clarification' | 'low_confidence';
+
 export interface Entry {
   id: string;
   content: string;
@@ -21,139 +17,53 @@ export interface Entry {
   createdAt: Date;
   updatedAt: Date;
   
-  // Classification metadata
+  // AI Analysis
   confidence: number; // AI confidence in classification
+  reasoning: string; // Why AI classified it this way
+  needsReview: boolean; // Flag for review section
+  reviewReason?: ReviewReason;
+  reviewNote?: string;
+  
+  // Parsed Data
   tags: string[];
   priority: Priority;
-  
-  // Date/time handling
-  dueDate?: Date; // For tasks
-  startDate?: Date; // For events
-  endDate?: Date; // For events
-  reminderDate?: Date; // When to remind
-  
-  // Location
+  dueDate?: Date;
+  startDate?: Date;
+  endDate?: Date;
   location?: string;
+  people?: string[]; // Extracted people names
   
-  // Relationships
-  parentId?: string; // For prep tasks linked to events
-  relatedIds: string[]; // Related entries
-  
-  // Status and progress
-  status: TaskStatus;
-  completedAt?: Date;
-  
-  // Additional metadata
+  // Additional Context
   notes?: string;
   mood?: Mood; // For reflections/journal
+  status: TaskStatus; // For tasks
   
-  // Auto-generated actions
-  autoActions: AutoAction[];
+  // Relationships
+  relatedIds: string[]; // Related entries
+  parentId?: string; // For subtasks
+  
+  // Metadata
+  reminderDate?: Date;
+  completedAt?: Date;
+  lastReviewedAt?: Date;
 }
 
-// Auto-generated actions
-export interface AutoAction {
-  id: string;
-  type: 'prep_task' | 'reminder' | 'follow_up' | 'research';
-  content: string;
-  dueDate?: Date;
-  completed: boolean;
-}
-
-// Parsed input result
-export interface ParsedInput {
-  entries: Entry[];
-  confidence: number;
-  suggestions: string[];
-}
-
-// Date parsing result
-export interface DateParseResult {
-  date: Date;
-  confidence: number;
-  type: 'exact' | 'relative' | 'fuzzy';
-  context: string;
-}
-
-// Location parsing result
-export interface LocationParseResult {
-  location: string;
-  confidence: number;
-  type: 'exact' | 'fuzzy' | 'inferred';
-}
-
-// AI classification result
-export interface ClassificationResult {
-  type: EntryType;
-  confidence: number;
-  reasoning: string;
-  suggestedTags: string[];
-  suggestedPriority: Priority;
-}
-
-// Calendar event
-export interface CalendarEvent {
-  id: string;
-  title: string;
-  startDate: Date;
-  endDate: Date;
-  location?: string;
-  description?: string;
-  type: EntryType;
-  entryId: string; // Link to original entry
-}
-
-// Review summary
-export interface ReviewSummary {
-  period: 'daily' | 'weekly' | 'monthly';
-  startDate: Date;
-  endDate: Date;
-  totalEntries: number;
-  completedTasks: number;
-  upcomingDeadlines: number;
-  topTags: Array<{ tag: string; count: number }>;
-  topThemes: string[];
-  moodTrend?: Mood;
-  insights: string[];
-}
-
-// Analytics data
-export interface AnalyticsData {
-  totalEntries: number;
-  entriesByType: Record<EntryType, number>;
-  entriesByTime: Array<{ hour: number; count: number }>;
-  entriesByDay: Array<{ day: string; count: number }>;
-  topTags: Array<{ tag: string; count: number }>;
-  completionRate: number;
-  averageMood: number;
-  productivityScore: number;
-}
-
-// Search result
-export interface SearchResult {
-  entry: Entry;
-  relevance: number;
-  matchedFields: string[];
-  relatedEntries: Entry[];
-}
-
-// App state
 export interface AppState {
   currentView: AppView;
   searchQuery: string;
   activeFilters: {
-    types: EntryType[];
+    type: EntryType | 'all';
+    priority: Priority | 'all';
+    status: TaskStatus | 'all';
     tags: string[];
-    dateRange: { start: Date; end: Date } | null;
+    needsReview: boolean;
   };
-  focusMode: boolean;
 }
 
-// UI state
 export interface UIState {
-  sidebarOpen: boolean;
-  showConfirmationFeed: boolean;
   selectedEntryId: string | null;
   editingEntryId: string | null;
-  theme: 'light' | 'dark';
+  showReviewModal: boolean;
+  sidebarOpen: boolean;
+  focusMode: boolean;
 }
