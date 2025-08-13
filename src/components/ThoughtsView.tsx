@@ -31,7 +31,8 @@ export const ThoughtsView: React.FC = () => {
     deleteEntry,
     markReviewed,
     setEditingEntry,
-    getTopTags
+    getTopTags,
+    addEntry
   } = useGenieNotesStore();
 
   const allEntries = getFilteredEntries();
@@ -249,6 +250,30 @@ export const ThoughtsView: React.FC = () => {
               <p className="text-gray-600">Your collection of captured thoughts, organized and prioritized</p>
             </div>
             <div className="flex items-center space-x-4">
+              {/* Test Button */}
+              <button
+                onClick={() => {
+                  console.log('=== Test Button Clicked ===');
+                  const testEntry = {
+                    content: 'Test entry ' + new Date().toLocaleTimeString(),
+                    type: 'task' as EntryType,
+                    priority: 'medium' as Priority,
+                    tags: ['test'],
+                    status: 'pending' as TaskStatus,
+                    needsReview: false,
+                    confidence: 0.9,
+                    reasoning: 'Test entry for debugging',
+                    relatedIds: []
+                  };
+                  console.log('Adding test entry:', testEntry);
+                  addEntry(testEntry);
+                  console.log('Test entry added');
+                }}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm"
+              >
+                🧪 Test Add Entry
+              </button>
+              
               <div className="text-right">
                 <div className="text-2xl font-bold text-gray-900">{allEntries.length}</div>
                 <div className="text-sm text-gray-500">Total entries</div>

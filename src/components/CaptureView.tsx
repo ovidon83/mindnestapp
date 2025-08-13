@@ -188,6 +188,21 @@ export const CaptureView: React.FC = () => {
 
   const handleConfirm = () => {
     if (parsedEntry) {
+      console.log('=== CaptureView: handleConfirm ===');
+      console.log('About to add entry:', {
+        content: inputText.trim(),
+        type: parsedEntry.type!,
+        priority: parsedEntry.priority!,
+        tags: parsedEntry.tags || [],
+        dueDate: parsedEntry.dueDate,
+        location: parsedEntry.location,
+        status: parsedEntry.status!,
+        needsReview: parsedEntry.needsReview!,
+        confidence: parsedEntry.confidence!,
+        reasoning: parsedEntry.reasoning!,
+        relatedIds: parsedEntry.relatedIds || []
+      });
+      
       addEntry({
         content: inputText.trim(),
         type: parsedEntry.type!,
@@ -202,10 +217,17 @@ export const CaptureView: React.FC = () => {
         relatedIds: parsedEntry.relatedIds || []
       });
       
+      console.log('=== CaptureView: Entry added, about to navigate ===');
+      
       setInputText('');
       setParsedEntry(null);
       setShowPreview(false);
-      setCurrentView('thoughts');
+      
+      // Add a small delay to ensure the store update completes
+      setTimeout(() => {
+        console.log('=== CaptureView: Navigating to thoughts view ===');
+        setCurrentView('thoughts');
+      }, 100);
     }
   };
 
