@@ -29,6 +29,7 @@ export const HomeView: React.FC = () => {
   });
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<'today' | 'week' | 'upcoming'>('today');
 
   const { 
     getFilteredEntries,
@@ -243,6 +244,32 @@ export const HomeView: React.FC = () => {
     setEditingEntry(null);
   };
 
+  // Get entries for the current active tab
+  const getCurrentTabEntries = () => {
+    switch (activeTab) {
+      case 'today':
+        return todayEntries;
+      case 'week':
+        return thisWeekEntries;
+      case 'upcoming':
+        return upcomingEntries;
+      default:
+        return todayEntries;
+    }
+  };
+
+  // Set default tab based on available entries
+  React.useEffect(() => {
+    if (todayEntries.length > 0 && activeTab === 'today') return;
+    if (thisWeekEntries.length > 0 && activeTab === 'week') return;
+    if (upcomingEntries.length > 0 && activeTab === 'upcoming') return;
+    
+    // Set to first tab with entries
+    if (todayEntries.length > 0) setActiveTab('today');
+    else if (thisWeekEntries.length > 0) setActiveTab('week');
+    else if (upcomingEntries.length > 0) setActiveTab('upcoming');
+  }, [todayEntries.length, thisWeekEntries.length, upcomingEntries.length, activeTab]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
@@ -409,243 +436,145 @@ export const HomeView: React.FC = () => {
               </div>
             )}
 
-            {/* Today Section */}
-            {todayEntries.length > 0 && (
-              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-blue-500" />
-                    Today
-                  </h2>
-                  <span className="text-sm text-gray-500">{todayEntries.length} items</span>
+            {/* Time-based Tabs */}
+            {(todayEntries.length > 0 || thisWeekEntries.length > 0 || upcomingEntries.length > 0) && (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+                {/* Tab Navigation */}
+                <div className="flex border-b border-gray-200">
+                  {todayEntries.length > 0 && (
+                    <button
+                      onClick={() => setActiveTab('today')}
+                      className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+                        activeTab === 'today'
+                          ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        <span>Today</span>
+                        <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+                          {todayEntries.length}
+                        </span>
+                      </div>
+                    </button>
+                  )}
+                  
+                  {thisWeekEntries.length > 0 && (
+                    <button
+                      onClick={() => setActiveTab('week')}
+                      className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+                        activeTab === 'week'
+                          ? 'text-green-600 border-b-2 border-green-600 bg-green-50'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        <span>This Week</span>
+                        <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">
+                          {thisWeekEntries.length}
+                        </span>
+                      </div>
+                    </button>
+                  )}
+                  
+                  {upcomingEntries.length > 0 && (
+                    <button
+                      onClick={() => setActiveTab('upcoming')}
+                      className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+                        activeTab === 'upcoming'
+                          ? 'text-purple-600 border-b-2 border-purple-600 bg-purple-50'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        <span>Upcoming</span>
+                        <span className="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-full">
+                          {upcomingEntries.length}
+                        </span>
+                      </div>
+                    </button>
+                  )}
                 </div>
-                <div className="space-y-3">
-                  {sortEntries(todayEntries).slice(0, 4).map((entry) => {
-                    const isUrgent = entry.priority === 'urgent' || 
-                      (entry.dueDate && entry.dueDate <= new Date());
-                    
-                    return (
-                      <div key={entry.id} className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
-                        isUrgent 
-                          ? 'bg-red-50 border-red-200 hover:bg-red-100' 
-                          : 'bg-blue-50 border-blue-200 hover:bg-blue-100'
-                      }`}>
-                        <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
-                          {getTypeIcon(entry.type)}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-gray-900 truncate">{entry.content}</p>
-                          <div className="flex items-center gap-2 mt-1 flex-wrap">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(entry.type)}`}>
-                              {entry.type}
-                            </span>
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
-                              {entry.priority}
-                            </span>
-                            {isUrgent && (
-                              <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 border border-red-200 flex items-center gap-1">
-                                <Zap className="w-3 h-3" />
-                                Urgent
-                              </span>
-                            )}
-                            {entry.tags && entry.tags.length > 0 && (
-                              <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
-                                {entry.tags[0]}
-                              </span>
-                            )}
-                            <span className="text-xs text-gray-500">
-                              {getRelativeTime(entry.createdAt)}
-                            </span>
+
+                {/* Tab Content */}
+                <div className="p-6">
+                  {getCurrentTabEntries().length > 0 ? (
+                    <div className="space-y-3">
+                      {sortEntries(getCurrentTabEntries()).slice(0, 6).map((entry) => {
+                        const isUrgent = entry.priority === 'urgent' || 
+                          (entry.dueDate && entry.dueDate <= new Date());
+                        
+                        const getTabColor = () => {
+                          switch (activeTab) {
+                            case 'today':
+                              return isUrgent ? 'bg-red-50 border-red-200 hover:bg-red-100' : 'bg-blue-50 border-blue-200 hover:bg-blue-100';
+                            case 'week':
+                              return 'bg-green-50 border-green-200 hover:bg-green-100';
+                            case 'upcoming':
+                              return 'bg-purple-50 border-purple-200 hover:bg-purple-100';
+                            default:
+                              return 'bg-gray-50 border-gray-200 hover:bg-gray-100';
+                          }
+                        };
+                        
+                        return (
+                          <div key={entry.id} className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${getTabColor()}`}>
+                            <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
+                              {getTypeIcon(entry.type)}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-gray-900 truncate">{entry.content}</p>
+                              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(entry.type)}`}>
+                                  {entry.type}
+                                </span>
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
+                                  {entry.priority}
+                                </span>
+                                {isUrgent && (
+                                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 border border-red-200 flex items-center gap-1">
+                                    <Zap className="w-3 h-3" />
+                                    Urgent
+                                  </span>
+                                )}
+                                {entry.tags && entry.tags.length > 0 && (
+                                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                                    {entry.tags[0]}
+                                  </span>
+                                )}
+                                <span className="text-xs text-gray-500">
+                                  {getRelativeTime(entry.createdAt)}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="flex gap-1">
+                              <button
+                                onClick={() => handleEditEntry(entry)}
+                                className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                              >
+                                <Edit3 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => deleteEntry(entry.id)}
+                                className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex gap-1">
-                          <button
-                            onClick={() => handleEditEntry(entry)}
-                            className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                          >
-                            <Edit3 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => deleteEntry(entry.id)}
-                            className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* This Week Section */}
-            {thisWeekEntries.length > 0 && (
-              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-green-500" />
-                    This Week
-                  </h2>
-                  <span className="text-sm text-gray-500">{thisWeekEntries.length} items</span>
-                </div>
-                <div className="space-y-3">
-                  {sortEntries(thisWeekEntries).slice(0, 4).map((entry) => (
-                    <div key={entry.id} className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200 hover:bg-green-100 transition-colors">
-                      <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
-                        {getTypeIcon(entry.type)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 truncate">{entry.content}</p>
-                        <div className="flex items-center gap-2 mt-1 flex-wrap">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(entry.type)}`}>
-                            {entry.type}
-                          </span>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
-                            {entry.priority}
-                          </span>
-                          {entry.tags && entry.tags.length > 0 && (
-                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 border border-green-200">
-                              {entry.tags[0]}
-                            </span>
-                          )}
-                          {entry.dueDate && (
-                            <span className="text-xs text-gray-500 flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {formatDate(entry.dueDate)}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex gap-1">
-                        <button
-                          onClick={() => handleEditEntry(entry)}
-                          className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => deleteEntry(entry.id)}
-                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                        );
+                      })}
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Upcoming Section */}
-            {upcomingEntries.length > 0 && (
-              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-purple-500" />
-                    Upcoming
-                  </h2>
-                  <span className="text-sm text-gray-500">{upcomingEntries.length} items</span>
-                </div>
-                <div className="space-y-3">
-                  {sortEntries(upcomingEntries).slice(0, 4).map((entry) => (
-                    <div key={entry.id} className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200 hover:bg-purple-100 transition-colors">
-                      <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
-                        {getTypeIcon(entry.type)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 truncate">{entry.content}</p>
-                        <div className="flex items-center gap-2 mt-1 flex-wrap">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(entry.type)}`}>
-                            {entry.type}
-                          </span>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
-                            {entry.priority}
-                          </span>
-                          {entry.tags && entry.tags.length > 0 && (
-                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700 border border-purple-200">
-                              {entry.tags[0]}
-                            </span>
-                          )}
-                          {entry.dueDate && (
-                            <span className="text-xs text-gray-500 flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {formatDate(entry.dueDate)}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex gap-1">
-                        <button
-                          onClick={() => handleEditEntry(entry)}
-                          className="p-2 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => deleteEntry(entry.id)}
-                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                      <p className="text-lg font-medium">No entries in this time period</p>
+                      <p className="text-sm">Try switching to another tab or adjusting your filters</p>
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Recent Entries (fallback when no time-based entries) */}
-            {todayEntries.length === 0 && thisWeekEntries.length === 0 && upcomingEntries.length === 0 && (
-              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-gray-500" />
-                    Recent Entries
-                  </h2>
-                  <span className="text-sm text-gray-500">{allEntries.length} items</span>
-                </div>
-                <div className="space-y-3">
-                  {sortEntries(allEntries).slice(0, 3).map((entry) => (
-                    <div key={entry.id} className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
-                      <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
-                        {getTypeIcon(entry.type)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 truncate">{entry.content}</p>
-                        <div className="flex items-center gap-2 mt-2 flex-wrap">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(entry.type)}`}>
-                            {entry.type}
-                          </span>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
-                            {entry.priority}
-                          </span>
-                          {entry.tags && entry.tags.length > 0 && (
-                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
-                              {entry.tags[0]}
-                            </span>
-                          )}
-                          <span className="text-xs text-gray-500">
-                            {getRelativeTime(entry.createdAt)}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex gap-1">
-                        <button
-                          onClick={() => handleEditEntry(entry)}
-                          className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => deleteEntry(entry.id)}
-                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                  )}
                 </div>
               </div>
             )}
