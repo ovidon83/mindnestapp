@@ -3,7 +3,6 @@ import {
   Search, 
   Clock, 
   Tag, 
-  CheckCircle, 
   Edit3, 
   Trash2, 
   Eye,
@@ -18,7 +17,7 @@ import {
   BarChart3
 } from 'lucide-react';
 import { useGenieNotesStore } from '../store';
-import { EntryType, Priority, TaskStatus } from '../types';
+import { EntryType, Priority, TaskStatus, Entry } from '../types';
 
 export const HomeView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -28,16 +27,17 @@ export const HomeView: React.FC = () => {
     status: 'all' as TaskStatus | 'all',
     needsReview: false
   });
+  const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const { 
     getFilteredEntries,
     getEntriesNeedingReview,
     getUrgentEntries,
-    completeEntry,
     deleteEntry,
     markReviewed,
-    setEditingEntry: setStoreEditingEntry,
-    getTopTags
+    getTopTags,
+    updateEntry
   } = useGenieNotesStore();
 
   const allEntries = getFilteredEntries();
@@ -45,13 +45,41 @@ export const HomeView: React.FC = () => {
   const urgentEntries = getUrgentEntries();
   const topTags = getTopTags(allEntries);
 
+  // Apply search filter
+  const searchFilteredEntries = searchQuery.trim() 
+    ? allEntries.filter(entry => 
+        entry.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        entry.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        entry.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        entry.priority.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (entry.location && entry.location.toLowerCase().includes(searchQuery.toLowerCase()))
+      )
+    : allEntries;
+
+  // Apply active filters
+  const filteredEntries = searchFilteredEntries.filter(entry => {
+    // Filter by type
+    if (activeFilters.type !== 'all' && entry.type !== activeFilters.type) return false;
+    
+    // Filter by priority
+    if (activeFilters.priority !== 'all' && entry.priority !== activeFilters.priority) return false;
+    
+    // Filter by status
+    if (activeFilters.status !== 'all' && entry.status !== activeFilters.status) return false;
+    
+    // Filter by review status
+    if (activeFilters.needsReview && !entry.needsReview) return false;
+    
+    return true;
+  });
+
   // Date-based organization
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const endOfWeek = new Date(today);
   endOfWeek.setDate(today.getDate() + 7);
 
-  const todayEntries = allEntries.filter(entry => {
+  const todayEntries = filteredEntries.filter(entry => {
     // Check if entry has "today" tag or mentions today
     if (entry.tags?.some(tag => tag.toLowerCase().includes('today'))) return true;
     
@@ -67,7 +95,7 @@ export const HomeView: React.FC = () => {
     return false;
   });
 
-  const thisWeekEntries = allEntries.filter(entry => {
+  const thisWeekEntries = filteredEntries.filter(entry => {
     // Check if entry has "this week" tag or mentions this week
     if (entry.tags?.some(tag => tag.toLowerCase().includes('week') || tag.toLowerCase().includes('weekly'))) return true;
     
@@ -83,7 +111,7 @@ export const HomeView: React.FC = () => {
     return false;
   });
 
-  const upcomingEntries = allEntries.filter(entry => {
+  const upcomingEntries = filteredEntries.filter(entry => {
     // Check if entry has "upcoming" tag
     if (entry.tags?.some(tag => tag.toLowerCase().includes('upcoming') || tag.toLowerCase().includes('future'))) return true;
     
@@ -167,6 +195,27 @@ export const HomeView: React.FC = () => {
     return formatDate(date);
   };
 
+  const handleEditEntry = (entry: Entry) => {
+    setEditingEntry(entry);
+    setShowEditModal(true);
+  };
+
+  const handleSaveEntry = (updatedEntry: Partial<Entry>) => {
+    if (editingEntry) {
+      updateEntry(editingEntry.id, {
+        ...updatedEntry,
+        updatedAt: new Date()
+      });
+      setShowEditModal(false);
+      setEditingEntry(null);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setShowEditModal(false);
+    setEditingEntry(null);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
@@ -200,10 +249,10 @@ export const HomeView: React.FC = () => {
                   <div className="text-sm text-green-500">This Week</div>
                 </div>
               )}
-              {urgentEntries.length > 0 && (
-                <div className="bg-white rounded-xl p-4 shadow-sm border border-red-200 bg-red-50">
-                  <div className="text-2xl font-bold text-red-600">{urgentEntries.length}</div>
-                  <div className="text-sm text-red-500">Urgent</div>
+              {upcomingEntries.length > 0 && (
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-purple-200 bg-purple-50">
+                  <div className="text-2xl font-bold text-purple-600">{upcomingEntries.length}</div>
+                  <div className="text-sm text-purple-500">Upcoming</div>
                 </div>
               )}
             </div>
@@ -250,6 +299,28 @@ export const HomeView: React.FC = () => {
                 <option value="medium">Medium</option>
                 <option value="low">Low</option>
               </select>
+
+              <select
+                value={activeFilters.status}
+                onChange={(e) => setActiveFilters({...activeFilters, status: e.target.value as TaskStatus | 'all'})}
+                className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm"
+              >
+                <option value="all">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="archived">Archived</option>
+              </select>
+
+              <label className="flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-xl bg-white shadow-sm cursor-pointer hover:bg-gray-50">
+                <input
+                  type="checkbox"
+                  checked={activeFilters.needsReview}
+                  onChange={(e) => setActiveFilters({...activeFilters, needsReview: e.target.checked})}
+                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-700">Review Only</span>
+              </label>
             </div>
           </div>
         </div>
@@ -258,48 +329,6 @@ export const HomeView: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Urgent & Review */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Urgent Section */}
-            {urgentEntries.length > 0 && (
-              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                    <Zap className="w-5 h-5 text-red-500" />
-                    Urgent Items
-                  </h2>
-                  <span className="text-sm text-gray-500">{urgentEntries.length} items</span>
-                </div>
-                <div className="space-y-3">
-                  {urgentEntries.slice(0, 3).map((entry) => (
-                    <div key={entry.id} className="flex items-center gap-3 p-3 bg-red-50 rounded-lg border border-red-200">
-                      <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
-                        {getTypeIcon(entry.type)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 truncate">{entry.content}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
-                            {entry.priority}
-                          </span>
-                          {entry.dueDate && (
-                            <span className="text-xs text-gray-500 flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {formatDate(entry.dueDate)}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => completeEntry(entry.id)}
-                        className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors"
-                      >
-                        <CheckCircle className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Review Section */}
             {reviewEntries.length > 0 && (
               <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
@@ -350,46 +379,61 @@ export const HomeView: React.FC = () => {
                   <span className="text-sm text-gray-500">{todayEntries.length} items</span>
                 </div>
                 <div className="space-y-3">
-                  {todayEntries.slice(0, 4).map((entry) => (
-                    <div key={entry.id} className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors">
-                      <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
-                        {getTypeIcon(entry.type)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 truncate">{entry.content}</p>
-                        <div className="flex items-center gap-2 mt-1 flex-wrap">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(entry.type)}`}>
-                            {entry.type}
-                          </span>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
-                            {entry.priority}
-                          </span>
-                          {entry.tags && entry.tags.length > 0 && (
-                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200">
-                              {entry.tags[0]}
+                  {todayEntries.slice(0, 4).map((entry) => {
+                    const isUrgent = entry.priority === 'urgent' || 
+                      (entry.dueDate && entry.dueDate <= new Date());
+                    
+                    return (
+                      <div key={entry.id} className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
+                        isUrgent 
+                          ? 'bg-red-50 border-red-200 hover:bg-red-100' 
+                          : 'bg-blue-50 border-blue-200 hover:bg-blue-100'
+                      }`}>
+                        <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
+                          {getTypeIcon(entry.type)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-gray-900 truncate">{entry.content}</p>
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(entry.type)}`}>
+                              {entry.type}
                             </span>
-                          )}
-                          <span className="text-xs text-gray-500">
-                            {getRelativeTime(entry.createdAt)}
-                          </span>
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
+                              {entry.priority}
+                            </span>
+                            {isUrgent && (
+                              <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 border border-red-200 flex items-center gap-1">
+                                <Zap className="w-3 h-3" />
+                                Urgent
+                              </span>
+                            )}
+                            {entry.tags && entry.tags.length > 0 && (
+                              <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                                {entry.tags[0]}
+                              </span>
+                            )}
+                            <span className="text-xs text-gray-500">
+                              {getRelativeTime(entry.createdAt)}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() => handleEditEntry(entry)}
+                            className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => deleteEntry(entry.id)}
+                            className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </div>
                       </div>
-                      <div className="flex gap-1">
-                        <button
-                          onClick={() => setStoreEditingEntry(entry.id)}
-                          className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => deleteEntry(entry.id)}
-                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -434,7 +478,7 @@ export const HomeView: React.FC = () => {
                       </div>
                       <div className="flex gap-1">
                         <button
-                          onClick={() => setStoreEditingEntry(entry.id)}
+                          onClick={() => handleEditEntry(entry)}
                           className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors"
                         >
                           <Edit3 className="w-4 h-4" />
@@ -492,7 +536,7 @@ export const HomeView: React.FC = () => {
                       </div>
                       <div className="flex gap-1">
                         <button
-                          onClick={() => setStoreEditingEntry(entry.id)}
+                          onClick={() => handleEditEntry(entry)}
                           className="p-2 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors"
                         >
                           <Edit3 className="w-4 h-4" />
@@ -547,7 +591,7 @@ export const HomeView: React.FC = () => {
                       </div>
                       <div className="flex gap-1">
                         <button
-                          onClick={() => setStoreEditingEntry(entry.id)}
+                          onClick={() => handleEditEntry(entry)}
                           className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
                         >
                           <Edit3 className="w-4 h-4" />
@@ -645,6 +689,167 @@ export const HomeView: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Edit Modal */}
+      {showEditModal && editingEntry && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-gray-900">Edit Entry</h3>
+                <button
+                  onClick={handleCancelEdit}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Content */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
+                <textarea
+                  value={editingEntry.content}
+                  onChange={(e) => setEditingEntry({...editingEntry, content: e.target.value})}
+                  className="w-full h-24 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  placeholder="Enter your thought content..."
+                />
+              </div>
+
+              {/* Type and Priority Row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                  <select
+                    value={editingEntry.type}
+                    onChange={(e) => setEditingEntry({...editingEntry, type: e.target.value as EntryType})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="task">Task</option>
+                    <option value="event">Event</option>
+                    <option value="idea">Idea</option>
+                    <option value="insight">Insight</option>
+                    <option value="reflection">Reflection</option>
+                    <option value="journal">Journal</option>
+                    <option value="reminder">Reminder</option>
+                    <option value="note">Note</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+                  <select
+                    value={editingEntry.priority}
+                    onChange={(e) => setEditingEntry({...editingEntry, priority: e.target.value as Priority})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="urgent">Urgent</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Status and Due Date Row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                  <select
+                    value={editingEntry.status}
+                    onChange={(e) => setEditingEntry({...editingEntry, status: e.target.value as TaskStatus})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                    <option value="archived">Archived</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
+                  <input
+                    type="datetime-local"
+                    value={editingEntry.dueDate ? new Date(editingEntry.dueDate.getTime() - editingEntry.dueDate.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''}
+                    onChange={(e) => setEditingEntry({...editingEntry, dueDate: e.target.value ? new Date(e.target.value) : undefined})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              {/* Tags and Location Row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Tags (comma-separated)</label>
+                  <input
+                    type="text"
+                    value={editingEntry.tags?.join(', ') || ''}
+                    onChange={(e) => setEditingEntry({...editingEntry, tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter tags separated by commas"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                  <input
+                    type="text"
+                    value={editingEntry.location || ''}
+                    onChange={(e) => setEditingEntry({...editingEntry, location: e.target.value || undefined})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter location"
+                  />
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                <textarea
+                  value={editingEntry.notes || ''}
+                  onChange={(e) => setEditingEntry({...editingEntry, notes: e.target.value || undefined})}
+                  className="w-full h-20 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  placeholder="Add additional notes..."
+                />
+              </div>
+
+              {/* Review Settings */}
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={editingEntry.needsReview || false}
+                    onChange={(e) => setEditingEntry({...editingEntry, needsReview: e.target.checked})}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <span className="text-sm text-gray-700">Needs Review</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="p-6 border-t border-gray-200 flex gap-3">
+              <button
+                onClick={handleCancelEdit}
+                className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleSaveEntry(editingEntry)}
+                className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
