@@ -195,6 +195,33 @@ export const HomeView: React.FC = () => {
     return formatDate(date);
   };
 
+  // Sort entries with urgent items first, then by priority and recency
+  const sortEntries = (entries: Entry[]) => {
+    return entries.sort((a, b) => {
+      // First: urgent items go to the top
+      const aIsUrgent = a.priority === 'urgent' || (a.dueDate && a.dueDate <= new Date());
+      const bIsUrgent = b.priority === 'urgent' || (b.dueDate && b.dueDate <= new Date());
+      
+      if (aIsUrgent && !bIsUrgent) return -1;
+      if (!aIsUrgent && bIsUrgent) return 1;
+      
+      // Second: if both are urgent or both are not urgent, sort by priority
+      const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
+      const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority];
+      if (priorityDiff !== 0) return priorityDiff;
+      
+      // Third: if same priority, sort by due date (earlier due dates first)
+      if (a.dueDate && b.dueDate) {
+        const dateDiff = a.dueDate.getTime() - b.dueDate.getTime();
+        if (dateDiff !== 0) return dateDiff;
+      } else if (a.dueDate && !b.dueDate) return -1;
+      else if (!a.dueDate && b.dueDate) return 1;
+      
+      // Fourth: if same priority and due date, sort by creation time (newest first)
+      return b.createdAt.getTime() - a.createdAt.getTime();
+    });
+  };
+
   const handleEditEntry = (entry: Entry) => {
     setEditingEntry(entry);
     setShowEditModal(true);
@@ -340,7 +367,7 @@ export const HomeView: React.FC = () => {
                   <span className="text-sm text-gray-500">{reviewEntries.length} items</span>
                 </div>
                 <div className="space-y-3">
-                  {reviewEntries.slice(0, 3).map((entry) => (
+                  {sortEntries(reviewEntries).slice(0, 3).map((entry) => (
                     <div key={entry.id} className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
                       <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
                         {getTypeIcon(entry.type)}
@@ -379,7 +406,7 @@ export const HomeView: React.FC = () => {
                   <span className="text-sm text-gray-500">{todayEntries.length} items</span>
                 </div>
                 <div className="space-y-3">
-                  {todayEntries.slice(0, 4).map((entry) => {
+                  {sortEntries(todayEntries).slice(0, 4).map((entry) => {
                     const isUrgent = entry.priority === 'urgent' || 
                       (entry.dueDate && entry.dueDate <= new Date());
                     
@@ -449,7 +476,7 @@ export const HomeView: React.FC = () => {
                   <span className="text-sm text-gray-500">{thisWeekEntries.length} items</span>
                 </div>
                 <div className="space-y-3">
-                  {thisWeekEntries.slice(0, 4).map((entry) => (
+                  {sortEntries(thisWeekEntries).slice(0, 4).map((entry) => (
                     <div key={entry.id} className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200 hover:bg-green-100 transition-colors">
                       <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
                         {getTypeIcon(entry.type)}
@@ -507,7 +534,7 @@ export const HomeView: React.FC = () => {
                   <span className="text-sm text-gray-500">{upcomingEntries.length} items</span>
                 </div>
                 <div className="space-y-3">
-                  {upcomingEntries.slice(0, 4).map((entry) => (
+                  {sortEntries(upcomingEntries).slice(0, 4).map((entry) => (
                     <div key={entry.id} className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200 hover:bg-purple-100 transition-colors">
                       <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
                         {getTypeIcon(entry.type)}
@@ -565,7 +592,7 @@ export const HomeView: React.FC = () => {
                   <span className="text-sm text-gray-500">{allEntries.length} items</span>
                 </div>
                 <div className="space-y-3">
-                  {allEntries.slice(0, 3).map((entry) => (
+                  {sortEntries(allEntries).slice(0, 3).map((entry) => (
                     <div key={entry.id} className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
                       <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
                         {getTypeIcon(entry.type)}
