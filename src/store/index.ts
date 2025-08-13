@@ -77,6 +77,7 @@ interface GenieNotesStore {
   // Utility functions
   exportToICS: (entryId: string) => string;
   importFromText: () => Entry[];
+  debugEntries: () => { total: number; nextUp: number };
   
   // Helper methods for analytics
   getTopTags: (entries: Entry[]) => Array<{ tag: string; count: number }>;
@@ -272,27 +273,31 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
       // Next Up logic
       getNextUpEntries: () => {
         const { entries } = get();
-        const now = new Date();
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         
         return entries
-          .filter(entry => {
-            const entryDate = entry.dueDate || entry.startDate;
-            if (!entryDate) return false;
-            const date = entryDate instanceof Date ? entryDate : new Date(entryDate);
-            return entry.status !== 'completed' && date >= today;
-          })
+          .filter(entry => entry.status !== 'completed')
           .sort((a, b) => {
             // Priority ranking: deadlines > prep dependencies > importance > recency
-            const aDate = a.dueDate || a.startDate;
-            const bDate = b.dueDate || b.startDate;
             
-            if (aDate && bDate) {
-              const aDateObj = aDate instanceof Date ? aDate : new Date(aDate);
-              const bDateObj = bDate instanceof Date ? bDate : new Date(bDate);
-              return aDateObj.getTime() - bDateObj.getTime();
+            // First, prioritize entries with due dates
+            const aHasDueDate = a.dueDate || a.startDate;
+            const bHasDueDate = b.dueDate || b.startDate;
+            
+            if (aHasDueDate && !bHasDueDate) return -1;
+            if (!aHasDueDate && bHasDueDate) return 1;
+            
+            // If both have due dates, sort by date
+            if (aHasDueDate && bHasDueDate) {
+              const aDate = a.dueDate || a.startDate;
+              const bDate = b.dueDate || b.startDate;
+              if (aDate && bDate) {
+                const aDateObj = aDate instanceof Date ? aDate : new Date(aDate);
+                const bDateObj = bDate instanceof Date ? bDate : new Date(bDate);
+                return aDateObj.getTime() - bDateObj.getTime();
+              }
             }
             
+            // Then by priority
             const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
             const aPriority = priorityOrder[a.priority];
             const bPriority = priorityOrder[b.priority];
@@ -301,6 +306,7 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
               return bPriority - aPriority;
             }
             
+            // Finally by recency (newest first)
             const aCreated = a.createdAt instanceof Date ? a.createdAt : new Date(a.createdAt);
             const bCreated = b.createdAt instanceof Date ? b.createdAt : new Date(b.createdAt);
             return bCreated.getTime() - aCreated.getTime();
@@ -314,10 +320,18 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000 - 1);
         
         return entries.filter(entry => {
+          // Include entries created today OR entries due today
+          const created = entry.createdAt instanceof Date ? entry.createdAt : new Date(entry.createdAt);
+          const isCreatedToday = created >= todayStart && created <= todayEnd;
+          
           const entryDate = entry.dueDate || entry.startDate;
-          if (!entryDate) return false;
-          const date = entryDate instanceof Date ? entryDate : new Date(entryDate);
-          return date >= todayStart && date <= todayEnd;
+          if (entryDate) {
+            const date = entryDate instanceof Date ? entryDate : new Date(entryDate);
+            const isDueToday = date >= todayStart && date <= todayEnd;
+            return isCreatedToday || isDueToday;
+          }
+          
+          return isCreatedToday;
         });
       },
       
@@ -328,10 +342,18 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000 - 1);
         
         return entries.filter(entry => {
+          // Include entries created this week OR entries due this week
+          const created = entry.createdAt instanceof Date ? entry.createdAt : new Date(entry.createdAt);
+          const isCreatedThisWeek = created >= weekStart && created <= weekEnd;
+          
           const entryDate = entry.dueDate || entry.startDate;
-          if (!entryDate) return false;
-          const date = entryDate instanceof Date ? entryDate : new Date(entryDate);
-          return date >= weekStart && date <= weekEnd;
+          if (entryDate) {
+            const date = entryDate instanceof Date ? entryDate : new Date(entryDate);
+            const isDueThisWeek = date >= weekStart && date <= weekEnd;
+            return isCreatedThisWeek || isDueThisWeek;
+          }
+          
+          return isCreatedThisWeek;
         });
       },
       
@@ -341,10 +363,18 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         const weekEnd = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
         
         return entries.filter(entry => {
+          // Include entries created in the future OR entries due in the future
+          const created = entry.createdAt instanceof Date ? entry.createdAt : new Date(entry.createdAt);
+          const isCreatedInFuture = created > weekEnd;
+          
           const entryDate = entry.dueDate || entry.startDate;
-          if (!entryDate) return false;
-          const date = entryDate instanceof Date ? entryDate : new Date(entryDate);
-          return date > weekEnd;
+          if (entryDate) {
+            const date = entryDate instanceof Date ? entryDate : new Date(entryDate);
+            const isDueInFuture = date > weekEnd;
+            return isCreatedInFuture || isDueInFuture;
+          }
+          
+          return isCreatedInFuture;
         });
       },
       
@@ -499,6 +529,33 @@ DESCRIPTION:${entry.notes || ''}
 LOCATION:${entry.location || ''}
 END:VEVENT
 END:VCALENDAR`;
+      },
+      
+      // Debug function to help troubleshoot
+      debugEntries: () => {
+        const { entries } = get();
+        console.log('=== DEBUG: All Entries ===');
+        console.log('Total entries:', entries.length);
+        entries.forEach((entry, index) => {
+          console.log(`${index + 1}. ${entry.type}: "${entry.content}"`, {
+            id: entry.id,
+            status: entry.status,
+            priority: entry.priority,
+            dueDate: entry.dueDate,
+            startDate: entry.startDate,
+            createdAt: entry.createdAt,
+            tags: entry.tags
+          });
+        });
+        
+        console.log('=== DEBUG: Next Up Entries ===');
+        const nextUp = get().getNextUpEntries();
+        console.log('Next Up count:', nextUp.length);
+        nextUp.forEach((entry, index) => {
+          console.log(`${index + 1}. ${entry.type}: "${entry.content}"`);
+        });
+        
+        return { total: entries.length, nextUp: nextUp.length };
       },
       
       importFromText: () => {

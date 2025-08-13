@@ -27,7 +27,8 @@ export const NextUpView: React.FC = () => {
     getUpcomingEntries,
     completeEntry,
     deleteEntry,
-    setCurrentView
+    setCurrentView,
+    debugEntries
   } = useGenieNotesStore();
 
   const nextUpEntries = getNextUpEntries();
@@ -289,6 +290,19 @@ export const NextUpView: React.FC = () => {
                 </button>
               ))}
             </div>
+            
+            {/* Debug Button */}
+            <button
+              onClick={() => {
+                const debug = debugEntries();
+                console.log('Debug result:', debug);
+                alert(`Total entries: ${debug.total}, Next Up: ${debug.nextUp}`);
+              }}
+              className="px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors text-sm"
+              title="Debug entries visibility"
+            >
+              🐛 Debug
+            </button>
           </div>
         </div>
 
