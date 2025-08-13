@@ -14,6 +14,11 @@ import { HomeView } from './components/HomeView';
 import { CalendarView } from './components/CalendarView';
 import { ReviewsView } from './components/ReviewsView';
 import { InsightsView } from './components/InsightsView';
+// Temporarily comment out old components to get core working
+// import { ToDoView } from './components/ToDoView';
+// import { JournalView } from './components/JournalView';
+// import { ThoughtsView } from './components/ThoughtsView';
+// import { AnalyticsView } from './components/AnalyticsView';
 import type { AppView } from './types';
 
 function App() {
