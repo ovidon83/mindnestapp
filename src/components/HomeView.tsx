@@ -383,12 +383,26 @@ export const HomeView: React.FC = () => {
                           </span>
                         </div>
                       </div>
-                      <button
-                        onClick={() => markReviewed(entry.id)}
-                        className="p-2 text-orange-600 hover:bg-orange-100 rounded-lg transition-colors"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => handleEditEntry(entry)}
+                          className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => deleteEntry(entry.id)}
+                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => markReviewed(entry.id)}
+                          className="p-2 text-orange-600 hover:bg-orange-100 rounded-lg transition-colors"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
