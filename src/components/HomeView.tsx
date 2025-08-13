@@ -45,9 +45,64 @@ export const HomeView: React.FC = () => {
   const urgentEntries = getUrgentEntries();
   const topTags = getTopTags(allEntries);
 
+  // Date-based organization
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const endOfWeek = new Date(today);
+  endOfWeek.setDate(today.getDate() + 7);
+
+  const todayEntries = allEntries.filter(entry => {
+    // Check if entry has "today" tag or mentions today
+    if (entry.tags?.some(tag => tag.toLowerCase().includes('today'))) return true;
+    
+    // Check if entry mentions "today" in content
+    if (entry.content.toLowerCase().includes('today')) return true;
+    
+    // Check if due date is today
+    if (entry.dueDate && entry.dueDate >= today && entry.dueDate < new Date(today.getTime() + 24 * 60 * 60 * 1000)) return true;
+    
+    // Check if created today
+    if (entry.createdAt >= today && entry.createdAt < new Date(today.getTime() + 24 * 60 * 60 * 1000)) return true;
+    
+    return false;
+  });
+
+  const thisWeekEntries = allEntries.filter(entry => {
+    // Check if entry has "this week" tag or mentions this week
+    if (entry.tags?.some(tag => tag.toLowerCase().includes('week') || tag.toLowerCase().includes('weekly'))) return true;
+    
+    // Check if entry mentions "this week" in content
+    if (entry.content.toLowerCase().includes('this week') || entry.content.toLowerCase().includes('week')) return true;
+    
+    // Check if due date is this week
+    if (entry.dueDate && entry.dueDate >= today && entry.dueDate < endOfWeek) return true;
+    
+    // Check if created this week
+    if (entry.createdAt >= today && entry.createdAt < endOfWeek) return true;
+    
+    return false;
+  });
+
+  const upcomingEntries = allEntries.filter(entry => {
+    // Check if entry has "upcoming" tag
+    if (entry.tags?.some(tag => tag.toLowerCase().includes('upcoming') || tag.toLowerCase().includes('future'))) return true;
+    
+    // Check if entry mentions future dates
+    if (entry.content.toLowerCase().includes('next week') || entry.content.toLowerCase().includes('next month') || 
+        entry.content.toLowerCase().includes('tomorrow') || entry.content.toLowerCase().includes('upcoming')) return true;
+    
+    // Check if due date is in the future
+    if (entry.dueDate && entry.dueDate > endOfWeek) return true;
+    
+    return false;
+  });
+
   // Debug logging
   console.log('=== HomeView Debug ===');
   console.log('All entries:', allEntries);
+  console.log('Today entries:', todayEntries);
+  console.log('This week entries:', thisWeekEntries);
+  console.log('Upcoming entries:', upcomingEntries);
   console.log('Review entries:', reviewEntries);
   console.log('Urgent entries:', urgentEntries);
   console.log('Top tags:', topTags);
@@ -133,20 +188,24 @@ export const HomeView: React.FC = () => {
                 <div className="text-2xl font-bold text-gray-900">{allEntries.length}</div>
                 <div className="text-sm text-gray-500">Total</div>
               </div>
+              {todayEntries.length > 0 && (
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-blue-200 bg-blue-50">
+                  <div className="text-2xl font-bold text-blue-600">{todayEntries.length}</div>
+                  <div className="text-sm text-blue-500">Today</div>
+                </div>
+              )}
+              {thisWeekEntries.length > 0 && (
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-green-200 bg-green-50">
+                  <div className="text-2xl font-bold text-green-600">{thisWeekEntries.length}</div>
+                  <div className="text-sm text-green-500">This Week</div>
+                </div>
+              )}
               {urgentEntries.length > 0 && (
                 <div className="bg-white rounded-xl p-4 shadow-sm border border-red-200 bg-red-50">
                   <div className="text-2xl font-bold text-red-600">{urgentEntries.length}</div>
                   <div className="text-sm text-red-500">Urgent</div>
                 </div>
               )}
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
-                <div className="text-2xl font-bold text-gray-900">{reviewEntries.length}</div>
-                <div className="text-sm text-gray-500">Review</div>
-              </div>
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
-                <div className="text-2xl font-bold text-gray-900">{topTags.length}</div>
-                <div className="text-sm text-gray-500">Tags</div>
-              </div>
             </div>
           </div>
 
@@ -280,58 +339,231 @@ export const HomeView: React.FC = () => {
               </div>
             )}
 
-            {/* All Entries */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-gray-500" />
-                  All Entries
-                </h2>
-                <span className="text-sm text-gray-500">{allEntries.length} items</span>
-              </div>
-              <div className="space-y-3">
-                {allEntries.slice(0, 5).map((entry) => (
-                  <div key={entry.id} className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
-                    <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
-                      {getTypeIcon(entry.type)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">{entry.content}</p>
-                      <div className="flex items-center gap-2 mt-2 flex-wrap">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(entry.type)}`}>
-                          {entry.type}
-                        </span>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
-                          {entry.priority}
-                        </span>
-                        {entry.tags && entry.tags.length > 0 && (
-                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
-                            {entry.tags[0]}
+            {/* Today Section */}
+            {todayEntries.length > 0 && (
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-blue-500" />
+                    Today
+                  </h2>
+                  <span className="text-sm text-gray-500">{todayEntries.length} items</span>
+                </div>
+                <div className="space-y-3">
+                  {todayEntries.slice(0, 4).map((entry) => (
+                    <div key={entry.id} className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors">
+                      <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
+                        {getTypeIcon(entry.type)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-900 truncate">{entry.content}</p>
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(entry.type)}`}>
+                            {entry.type}
                           </span>
-                        )}
-                        <span className="text-xs text-gray-500">
-                          {getRelativeTime(entry.createdAt)}
-                        </span>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
+                            {entry.priority}
+                          </span>
+                          {entry.tags && entry.tags.length > 0 && (
+                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200">
+                              {entry.tags[0]}
+                            </span>
+                          )}
+                          <span className="text-xs text-gray-500">
+                            {getRelativeTime(entry.createdAt)}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => setStoreEditingEntry(entry.id)}
+                          className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => deleteEntry(entry.id)}
+                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     </div>
-                    <div className="flex gap-1">
-                      <button
-                        onClick={() => setStoreEditingEntry(entry.id)}
-                        className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => deleteEntry(entry.id)}
-                        className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* This Week Section */}
+            {thisWeekEntries.length > 0 && (
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-green-500" />
+                    This Week
+                  </h2>
+                  <span className="text-sm text-gray-500">{thisWeekEntries.length} items</span>
+                </div>
+                <div className="space-y-3">
+                  {thisWeekEntries.slice(0, 4).map((entry) => (
+                    <div key={entry.id} className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200 hover:bg-green-100 transition-colors">
+                      <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
+                        {getTypeIcon(entry.type)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-900 truncate">{entry.content}</p>
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(entry.type)}`}>
+                            {entry.type}
+                          </span>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
+                            {entry.priority}
+                          </span>
+                          {entry.tags && entry.tags.length > 0 && (
+                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 border border-green-200">
+                              {entry.tags[0]}
+                            </span>
+                          )}
+                          {entry.dueDate && (
+                            <span className="text-xs text-gray-500 flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {formatDate(entry.dueDate)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => setStoreEditingEntry(entry.id)}
+                          className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => deleteEntry(entry.id)}
+                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Upcoming Section */}
+            {upcomingEntries.length > 0 && (
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-purple-500" />
+                    Upcoming
+                  </h2>
+                  <span className="text-sm text-gray-500">{upcomingEntries.length} items</span>
+                </div>
+                <div className="space-y-3">
+                  {upcomingEntries.slice(0, 4).map((entry) => (
+                    <div key={entry.id} className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200 hover:bg-purple-100 transition-colors">
+                      <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
+                        {getTypeIcon(entry.type)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-900 truncate">{entry.content}</p>
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(entry.type)}`}>
+                            {entry.type}
+                          </span>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
+                            {entry.priority}
+                          </span>
+                          {entry.tags && entry.tags.length > 0 && (
+                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700 border border-purple-200">
+                              {entry.tags[0]}
+                            </span>
+                          )}
+                          {entry.dueDate && (
+                            <span className="text-xs text-gray-500 flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {formatDate(entry.dueDate)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => setStoreEditingEntry(entry.id)}
+                          className="p-2 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => deleteEntry(entry.id)}
+                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Recent Entries (fallback when no time-based entries) */}
+            {todayEntries.length === 0 && thisWeekEntries.length === 0 && upcomingEntries.length === 0 && (
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-gray-500" />
+                    Recent Entries
+                  </h2>
+                  <span className="text-sm text-gray-500">{allEntries.length} items</span>
+                </div>
+                <div className="space-y-3">
+                  {allEntries.slice(0, 3).map((entry) => (
+                    <div key={entry.id} className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
+                      <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
+                        {getTypeIcon(entry.type)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-900 truncate">{entry.content}</p>
+                        <div className="flex items-center gap-2 mt-2 flex-wrap">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(entry.type)}`}>
+                            {entry.type}
+                          </span>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
+                            {entry.priority}
+                          </span>
+                          {entry.tags && entry.tags.length > 0 && (
+                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                              {entry.tags[0]}
+                            </span>
+                          )}
+                          <span className="text-xs text-gray-500">
+                            {getRelativeTime(entry.createdAt)}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => setStoreEditingEntry(entry.id)}
+                          className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => deleteEntry(entry.id)}
+                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right Column - Analytics & Tags */}
