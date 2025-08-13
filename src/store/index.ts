@@ -180,41 +180,61 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         const { entries, appState } = get();
         let filtered = entries;
         
+        console.log('=== Store Debug: getFilteredEntries ===');
+        console.log('Total entries in store:', entries.length);
+        console.log('Current filters:', appState.activeFilters);
+        console.log('Search query:', appState.searchQuery);
+        console.log('All entries:', entries);
+        
         // Filter by type
         if (appState.activeFilters.type !== 'all') {
+          const beforeTypeFilter = filtered.length;
           filtered = filtered.filter(entry => entry.type === appState.activeFilters.type);
+          console.log(`Type filter (${appState.activeFilters.type}): ${beforeTypeFilter} -> ${filtered.length}`);
         }
         
         // Filter by priority
         if (appState.activeFilters.priority !== 'all') {
+          const beforePriorityFilter = filtered.length;
           filtered = filtered.filter(entry => entry.priority === appState.activeFilters.priority);
+          console.log(`Priority filter (${appState.activeFilters.priority}): ${beforePriorityFilter} -> ${filtered.length}`);
         }
         
         // Filter by status
         if (appState.activeFilters.status !== 'all') {
+          const beforeStatusFilter = filtered.length;
           filtered = filtered.filter(entry => entry.status === appState.activeFilters.status);
+          console.log(`Status filter (${appState.activeFilters.status}): ${beforeStatusFilter} -> ${filtered.length}`);
         }
         
         // Filter by tags
         if (appState.activeFilters.tags.length > 0) {
+          const beforeTagsFilter = filtered.length;
           filtered = filtered.filter(entry => 
             appState.activeFilters.tags.some(tag => entry.tags.includes(tag))
           );
+          console.log(`Tags filter (${appState.activeFilters.tags}): ${beforeTagsFilter} -> ${filtered.length}`);
         }
         
         // Filter by review status
         if (appState.activeFilters.needsReview) {
+          const beforeReviewFilter = filtered.length;
           filtered = filtered.filter(entry => entry.needsReview);
+          console.log(`Review filter: ${beforeReviewFilter} -> ${filtered.length}`);
         }
         
         // Search query
         if (appState.searchQuery) {
+          const beforeSearchFilter = filtered.length;
           filtered = filtered.filter(entry =>
             entry.content.toLowerCase().includes(appState.searchQuery.toLowerCase()) ||
             entry.tags.some(tag => tag.toLowerCase().includes(appState.searchQuery.toLowerCase())) ||
             entry.notes?.toLowerCase().includes(appState.searchQuery.toLowerCase())
           );
+          console.log(`Search filter ("${appState.searchQuery}"): ${beforeSearchFilter} -> ${filtered.length}`);
         }
+        
+        console.log('Final filtered entries:', filtered);
         
         // Sort by urgency and recency
         return filtered.sort((a, b) => {
@@ -263,7 +283,12 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         
-        return entries
+        console.log('=== Store Debug: getUrgentEntries ===');
+        console.log('Total entries in store:', entries.length);
+        console.log('Today date:', today);
+        console.log('All entries:', entries);
+        
+        const urgentEntries = entries
           .filter(entry => {
             if (entry.status === 'completed') return false;
             if (entry.priority === 'urgent') return true;
@@ -291,6 +316,9 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
             const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
             return priorityOrder[b.priority] - priorityOrder[a.priority];
           });
+        
+        console.log('Urgent entries found:', urgentEntries);
+        return urgentEntries;
       },
       
       // UI state management
