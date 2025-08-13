@@ -131,11 +131,12 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         
         // Auto-generate calendar event for events
         if (entry.type === 'event' && entry.startDate) {
+          const startDate = entry.startDate instanceof Date ? entry.startDate : new Date(entry.startDate);
           const calendarEvent: CalendarEvent = {
             id: crypto.randomUUID(),
             title: entry.content,
-            startDate: entry.startDate,
-            endDate: entry.endDate || new Date(entry.startDate.getTime() + 60 * 60 * 1000),
+            startDate: startDate,
+            endDate: entry.endDate || new Date(startDate.getTime() + 60 * 60 * 1000),
             location: entry.location,
             description: entry.notes,
             type: entry.type,
@@ -277,7 +278,9 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         return entries
           .filter(entry => {
             const entryDate = entry.dueDate || entry.startDate;
-            return entry.status !== 'completed' && entryDate && entryDate >= today;
+            if (!entryDate) return false;
+            const date = entryDate instanceof Date ? entryDate : new Date(entryDate);
+            return entry.status !== 'completed' && date >= today;
           })
           .sort((a, b) => {
             // Priority ranking: deadlines > prep dependencies > importance > recency
@@ -285,7 +288,9 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
             const bDate = b.dueDate || b.startDate;
             
             if (aDate && bDate) {
-              return aDate.getTime() - bDate.getTime();
+              const aDateObj = aDate instanceof Date ? aDate : new Date(aDate);
+              const bDateObj = bDate instanceof Date ? bDate : new Date(bDate);
+              return aDateObj.getTime() - bDateObj.getTime();
             }
             
             const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
@@ -296,7 +301,9 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
               return bPriority - aPriority;
             }
             
-            return b.createdAt.getTime() - a.createdAt.getTime();
+            const aCreated = a.createdAt instanceof Date ? a.createdAt : new Date(a.createdAt);
+            const bCreated = b.createdAt instanceof Date ? b.createdAt : new Date(b.createdAt);
+            return bCreated.getTime() - aCreated.getTime();
           });
       },
       
@@ -308,7 +315,9 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         
         return entries.filter(entry => {
           const entryDate = entry.dueDate || entry.startDate;
-          return entryDate && entryDate >= todayStart && entryDate <= todayEnd;
+          if (!entryDate) return false;
+          const date = entryDate instanceof Date ? entryDate : new Date(entryDate);
+          return date >= todayStart && date <= todayEnd;
         });
       },
       
@@ -320,7 +329,9 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         
         return entries.filter(entry => {
           const entryDate = entry.dueDate || entry.startDate;
-          return entryDate && entryDate >= weekStart && entryDate <= weekEnd;
+          if (!entryDate) return false;
+          const date = entryDate instanceof Date ? entryDate : new Date(entryDate);
+          return date >= weekStart && date <= weekEnd;
         });
       },
       
@@ -331,7 +342,9 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         
         return entries.filter(entry => {
           const entryDate = entry.dueDate || entry.startDate;
-          return entryDate && entryDate > weekEnd;
+          if (!entryDate) return false;
+          const date = entryDate instanceof Date ? entryDate : new Date(entryDate);
+          return date > weekEnd;
         });
       },
       
@@ -342,9 +355,10 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
         const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000 - 1);
         
-        const todayEntries = entries.filter(entry => 
-          entry.createdAt >= todayStart && entry.createdAt <= todayEnd
-        );
+        const todayEntries = entries.filter(entry => {
+          const created = entry.createdAt instanceof Date ? entry.createdAt : new Date(entry.createdAt);
+          return created >= todayStart && created <= todayEnd;
+        });
         
         return {
           period: 'daily',
@@ -352,7 +366,11 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
           endDate: todayEnd,
           totalEntries: todayEntries.length,
           completedTasks: todayEntries.filter(e => e.status === 'completed').length,
-          upcomingDeadlines: todayEntries.filter(e => e.dueDate && e.dueDate > today).length,
+          upcomingDeadlines: todayEntries.filter(e => {
+            if (!e.dueDate) return false;
+            const due = e.dueDate instanceof Date ? e.dueDate : new Date(e.dueDate);
+            return due > today;
+          }).length,
           topTags: get().getTopTags(todayEntries),
           topThemes: get().getTopThemes(todayEntries),
           insights: get().generateInsights(todayEntries)
@@ -467,14 +485,16 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         if (!entry) return '';
         
         const startDate = entry.startDate || entry.dueDate || entry.createdAt;
-        const endDate = entry.endDate || new Date(startDate.getTime() + 60 * 60 * 1000);
+        const startDateObj = startDate instanceof Date ? startDate : new Date(startDate);
+        const endDate = entry.endDate || new Date(startDateObj.getTime() + 60 * 60 * 1000);
+        const endDateObj = endDate instanceof Date ? endDate : new Date(endDate);
         
         return `BEGIN:VCALENDAR
 VERSION:2.0
 BEGIN:VEVENT
 SUMMARY:${entry.content}
-DTSTART:${startDate.toISOString().replace(/[-:]/g, '').split('.')[0]}Z
-DTEND:${endDate.toISOString().replace(/[-:]/g, '').split('.')[0]}Z
+DTSTART:${startDateObj.toISOString().replace(/[-:]/g, '').split('.')[0]}Z
+DTEND:${endDateObj.toISOString().replace(/[-:]/g, '').split('.')[0]}Z
 DESCRIPTION:${entry.notes || ''}
 LOCATION:${entry.location || ''}
 END:VEVENT
@@ -535,7 +555,8 @@ END:VCALENDAR`;
       getEntriesByTimeCount: (entries: Entry[]) => {
         const timeCounts: Record<number, number> = {};
         entries.forEach(entry => {
-          const hour = entry.createdAt.getHours();
+          const date = entry.createdAt instanceof Date ? entry.createdAt : new Date(entry.createdAt);
+          const hour = date.getHours();
           timeCounts[hour] = (timeCounts[hour] || 0) + 1;
         });
         return Object.entries(timeCounts)
@@ -547,7 +568,8 @@ END:VCALENDAR`;
         const dayCounts: Record<string, number> = {};
         const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         entries.forEach(entry => {
-          const day = days[entry.createdAt.getDay()];
+          const date = entry.createdAt instanceof Date ? entry.createdAt : new Date(entry.createdAt);
+          const day = days[date.getDay()];
           dayCounts[day] = (dayCounts[day] || 0) + 1;
         });
         return days.map(day => ({ day, count: dayCounts[day] || 0 }));
@@ -571,7 +593,10 @@ END:VCALENDAR`;
       getProductivityScore: (entries: Entry[]) => {
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const todayEntries = entries.filter(e => e.createdAt >= today);
+        const todayEntries = entries.filter(e => {
+          const date = e.createdAt instanceof Date ? e.createdAt : new Date(e.createdAt);
+          return date >= today;
+        });
         
         let score = 0;
         score += todayEntries.filter(e => e.status === 'completed').length * 10;
@@ -588,7 +613,28 @@ END:VCALENDAR`;
         calendarEvents: state.calendarEvents,
         appState: state.appState,
         uiState: state.uiState
-      })
+      }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          // Convert date strings back to Date objects
+          state.entries = state.entries.map(entry => ({
+            ...entry,
+            createdAt: new Date(entry.createdAt),
+            updatedAt: new Date(entry.updatedAt),
+            dueDate: entry.dueDate ? new Date(entry.dueDate) : undefined,
+            startDate: entry.startDate ? new Date(entry.startDate) : undefined,
+            endDate: entry.endDate ? new Date(entry.endDate) : undefined,
+            reminderDate: entry.reminderDate ? new Date(entry.reminderDate) : undefined,
+            completedAt: entry.completedAt ? new Date(entry.completedAt) : undefined
+          }));
+          
+          state.calendarEvents = state.calendarEvents.map(event => ({
+            ...event,
+            startDate: new Date(event.startDate),
+            endDate: new Date(event.endDate)
+          }));
+        }
+      }
     }
   )
 );

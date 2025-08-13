@@ -58,9 +58,10 @@ export const HomeView: React.FC = () => {
     }
   };
 
-  const formatDate = (date: Date) => {
+  const formatDate = (date: Date | string) => {
+    const dateObj = date instanceof Date ? date : new Date(date);
     const now = new Date();
-    const diff = now.getTime() - date.getTime();
+    const diff = now.getTime() - dateObj.getTime();
     const minutes = Math.floor(diff / (1000 * 60));
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -68,7 +69,7 @@ export const HomeView: React.FC = () => {
     if (minutes < 60) return `${minutes}m ago`;
     if (hours < 24) return `${hours}h ago`;
     if (days < 7) return `${days}d ago`;
-    return date.toLocaleDateString();
+    return dateObj.toLocaleDateString();
   };
 
   const getFilteredEntries = () => {
@@ -85,7 +86,11 @@ export const HomeView: React.FC = () => {
       );
     }
     
-    return filtered.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return filtered.sort((a, b) => {
+      const aCreated = a.createdAt instanceof Date ? a.createdAt : new Date(a.createdAt);
+      const bCreated = b.createdAt instanceof Date ? b.createdAt : new Date(b.createdAt);
+      return bCreated.getTime() - aCreated.getTime();
+    });
   };
 
   const getTodayEntries = () => {
@@ -95,7 +100,9 @@ export const HomeView: React.FC = () => {
     
     return entries.filter(entry => {
       const entryDate = entry.dueDate || entry.startDate || entry.createdAt;
-      return entryDate >= todayStart && entryDate <= todayEnd;
+      if (!entryDate) return false;
+      const date = entryDate instanceof Date ? entryDate : new Date(entryDate);
+      return date >= todayStart && date <= todayEnd;
     });
   };
 
@@ -149,14 +156,14 @@ export const HomeView: React.FC = () => {
         {entry.dueDate && (
           <div className="flex items-center space-x-1">
             <Clock size={14} />
-            <span>Due {entry.dueDate.toLocaleDateString()}</span>
+            <span>Due {entry.dueDate instanceof Date ? entry.dueDate.toLocaleDateString() : new Date(entry.dueDate).toLocaleDateString()}</span>
           </div>
         )}
         
         {entry.startDate && (
           <div className="flex items-center space-x-1">
             <CalendarPlus size={14} />
-            <span>{entry.startDate.toLocaleDateString()}</span>
+            <span>{entry.startDate instanceof Date ? entry.startDate.toLocaleDateString() : new Date(entry.startDate).toLocaleDateString()}</span>
           </div>
         )}
         

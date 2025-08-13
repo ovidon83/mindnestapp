@@ -87,9 +87,10 @@ export const CaptureView: React.FC = () => {
     }
   };
 
-  const formatDate = (date: Date) => {
+  const formatDate = (date: Date | string) => {
+    const dateObj = date instanceof Date ? date : new Date(date);
     const now = new Date();
-    const diff = now.getTime() - date.getTime();
+    const diff = now.getTime() - dateObj.getTime();
     const minutes = Math.floor(diff / (1000 * 60));
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -97,7 +98,7 @@ export const CaptureView: React.FC = () => {
     if (minutes < 60) return `${minutes}m ago`;
     if (hours < 24) return `${hours}h ago`;
     if (days < 7) return `${days}d ago`;
-    return date.toLocaleDateString();
+    return dateObj.toLocaleDateString();
   };
 
   if (showConfirmation) {
@@ -140,7 +141,7 @@ export const CaptureView: React.FC = () => {
                         {entry.dueDate && (
                           <>
                             <Clock className="w-3 h-3" />
-                            <span>{entry.dueDate.toLocaleDateString()}</span>
+                            <span>{entry.dueDate instanceof Date ? entry.dueDate.toLocaleDateString() : new Date(entry.dueDate).toLocaleDateString()}</span>
                           </>
                         )}
                       </div>
@@ -177,7 +178,7 @@ export const CaptureView: React.FC = () => {
                           <span className="text-blue-800">{action.content}</span>
                           {action.dueDate && (
                             <span className="text-blue-600">
-                              (due {action.dueDate.toLocaleDateString()})
+                              (due {action.dueDate instanceof Date ? action.dueDate.toLocaleDateString() : new Date(action.dueDate).toLocaleDateString()})
                             </span>
                           )}
                         </div>
