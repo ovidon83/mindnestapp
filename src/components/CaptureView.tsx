@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useGenieNotesStore } from '../store';
 import { Entry, EntryType, Priority, TaskStatus } from '../types';
+import * as chrono from 'chrono-node';
 
 export const CaptureView: React.FC = () => {
   const [inputText, setInputText] = useState('');
@@ -26,278 +27,194 @@ export const CaptureView: React.FC = () => {
   
   const { addEntry, setCurrentView } = useGenieNotesStore();
 
-  const parseInput = (text: string) => {
-    // Enhanced AI parsing logic with better context understanding
-    const lowerText = text.toLowerCase();
+  // Directive parser - maps hashtags to structured fields
+  const parseDirectives = (text: string) => {
+    const directives: {
+      pinnedForDate?: Date;
+      dueDate?: Date;
+      targetWeek?: string;
+      priority?: Priority;
+      type?: EntryType;
+    } = {};
     
-    // Extract tags first (words starting with #)
-    const tags = text.match(/#\w+/g)?.map(tag => tag.slice(1)) || [];
-    
-    // Check for explicit hashtag indicators first (highest priority)
-    if (tags.includes('idea') || tags.includes('concept') || tags.includes('innovation')) {
-      return createEntry('idea', 'medium', tags, text);
-    }
-    if (tags.includes('task') || tags.includes('todo') || tags.includes('action')) {
-      return createEntry('task', 'medium', tags, text);
-    }
-    if (tags.includes('insight') || tags.includes('learned') || tags.includes('discovery')) {
-      return createEntry('insight', 'medium', tags, text);
-    }
-    if (tags.includes('reflection') || tags.includes('feel') || tags.includes('mood')) {
-      return createEntry('reflection', 'medium', tags, text);
-    }
-    if (tags.includes('journal') || tags.includes('today') || tags.includes('day')) {
-      return createEntry('journal', 'medium', tags, text);
-    }
-    if (tags.includes('reminder') || tags.includes('remember')) {
-      return createEntry('reminder', 'medium', tags, text);
-    }
-    if (tags.includes('event') || tags.includes('meeting') || tags.includes('appointment')) {
-      return createEntry('event', 'medium', tags, text);
-    }
-    
-    // Determine type based on content analysis (more intelligent)
-    let type: EntryType = 'note';
-    let confidence = 0.7;
-    let reasoning = '';
-    
-    // IDEA DETECTION - Look for concept/innovation language
-    if (lowerText.includes('ai personal assistant') || lowerText.includes('could be') || 
-        lowerText.includes('would be great') || lowerText.includes('imagine if') ||
-        lowerText.includes('what if') || lowerText.includes('maybe we could') ||
-        lowerText.includes('innovation') || lowerText.includes('concept') ||
-        lowerText.includes('brainstorm') || lowerText.includes('possibility') ||
-        lowerText.includes('potential') || lowerText.includes('opportunity') ||
-        (lowerText.includes('idea') && !lowerText.includes('good idea')) ||
-        (lowerText.includes('think') && lowerText.includes('about'))) {
-      type = 'idea';
-      confidence = 0.9;
-      reasoning = 'Contains concept/innovation language and exploratory thinking';
-    }
-    // TASK DETECTION - Look for actionable language
-    else if (lowerText.includes('need to') || lowerText.includes('must') || 
-             lowerText.includes('have to') || lowerText.includes('should') ||
-             lowerText.includes('finish') || lowerText.includes('complete') || 
-             lowerText.includes('do') || lowerText.includes('work on') ||
-             lowerText.includes('start') || lowerText.includes('prepare') ||
-             lowerText.includes('email') || lowerText.includes('call') || 
-             lowerText.includes('meet') || lowerText.includes('buy') || 
-             lowerText.includes('get') || lowerText.includes('find') ||
-             lowerText.includes('review') || lowerText.includes('check') || 
-             lowerText.includes('update') || lowerText.includes('create') || 
-             lowerText.includes('build') || lowerText.includes('design') ||
-             lowerText.includes('write') || lowerText.includes('read') || 
-             lowerText.includes('study') || lowerText.includes('organize') || 
-             lowerText.includes('clean') || lowerText.includes('fix') ||
-             lowerText.includes('solve') || lowerText.includes('plan') || 
-             lowerText.includes('schedule') || lowerText.includes('asap') ||
-             lowerText.includes('urgent') || lowerText.includes('deadline')) {
-      type = 'task';
-      confidence = 0.85;
-      reasoning = 'Contains actionable language and specific actions to perform';
-    }
-    // EVENT DETECTION - Look for scheduling/meeting language
-    else if (lowerText.includes('meeting') || lowerText.includes('event') || 
-             lowerText.includes('appointment') || lowerText.includes('conference') ||
-             lowerText.includes('party') || lowerText.includes('dinner') || 
-             lowerText.includes('lunch') || lowerText.includes('interview') ||
-             lowerText.includes('presentation') || lowerText.includes('workshop') || 
-             lowerText.includes('class') || lowerText.includes('at ') ||
-             lowerText.includes('on ') || lowerText.includes('tomorrow') ||
-             lowerText.includes('next week') || lowerText.includes('this weekend')) {
-      type = 'event';
-      confidence = 0.8;
-      reasoning = 'Contains scheduling language and time/date references';
-    }
-    // INSIGHT DETECTION - Look for learning/discovery language
-    else if (lowerText.includes('insight') || lowerText.includes('learned') || 
-             lowerText.includes('discovered') || lowerText.includes('realized') ||
-             lowerText.includes('understood') || lowerText.includes('figured out') ||
-             lowerText.includes('aha') || lowerText.includes('eureka') || 
-             lowerText.includes('breakthrough') || lowerText.includes('key takeaway') ||
-             lowerText.includes('lesson') || lowerText.includes('pattern') ||
-             lowerText.includes('trend') || lowerText.includes('observation')) {
-      type = 'insight';
-      confidence = 0.85;
-      reasoning = 'Contains learning/discovery language and realizations';
-    }
-    // REFLECTION DETECTION - Look for emotional/contemplative language
-    else if (lowerText.includes('reflect') || lowerText.includes('feel') || 
-             lowerText.includes('mood') || lowerText.includes('thought') ||
-             lowerText.includes('wonder') || lowerText.includes('question') ||
-             lowerText.includes('doubt') || lowerText.includes('hope') || 
-             lowerText.includes('wish') || lowerText.includes('grateful') ||
-             lowerText.includes('happy') || lowerText.includes('sad') || 
-             lowerText.includes('excited') || lowerText.includes('worried') ||
-             lowerText.includes('confused') || lowerText.includes('amazing') ||
-             lowerText.includes('frustrated') || lowerText.includes('inspired')) {
-      type = 'reflection';
-      confidence = 0.8;
-      reasoning = 'Contains emotional/contemplative language and personal feelings';
-    }
-    // JOURNAL DETECTION - Look for daily/recap language
-    else if (lowerText.includes('journal') || lowerText.includes('today') || 
-             lowerText.includes('day') || lowerText.includes('morning') ||
-             lowerText.includes('evening') || lowerText.includes('weekend') ||
-             lowerText.includes('yesterday') || lowerText.includes('this week') || 
-             lowerText.includes('month') || lowerText.includes('recap') ||
-             lowerText.includes('summary') || lowerText.includes('update')) {
-      type = 'journal';
-      confidence = 0.75;
-      reasoning = 'Contains daily/recap language and time-based summaries';
-    }
-    // REMINDER DETECTION - Look for memory/alert language
-    else if (lowerText.includes('remind') || lowerText.includes('remember') || 
-             lowerText.includes('don\'t forget') || lowerText.includes('note to self') ||
-             lowerText.includes('reminder') || lowerText.includes('alert') ||
-             lowerText.includes('keep in mind') || lowerText.includes('mental note')) {
-      type = 'reminder';
-      confidence = 0.8;
-      reasoning = 'Contains memory/alert language and self-reminders';
-    }
-    
-    // Determine priority based on urgency indicators
-    let priority: Priority = 'medium';
-    if (lowerText.includes('urgent') || lowerText.includes('asap') || 
-        lowerText.includes('emergency') || lowerText.includes('critical') || 
-        lowerText.includes('immediate') || lowerText.includes('now') ||
-        lowerText.includes('deadline') || lowerText.includes('due today')) {
-      priority = 'urgent';
-    } else if (lowerText.includes('important') || lowerText.includes('high') || 
-               lowerText.includes('priority') || lowerText.includes('key') || 
-               lowerText.includes('essential') || lowerText.includes('crucial') ||
-               lowerText.includes('must') || lowerText.includes('need to')) {
-      priority = 'high';
-    } else if (lowerText.includes('low') || lowerText.includes('sometime') || 
-               lowerText.includes('maybe') || lowerText.includes('optional') || 
-               lowerText.includes('nice to have') || lowerText.includes('if time') ||
-               lowerText.includes('could') || lowerText.includes('might')) {
-      priority = 'low';
-    }
-    
-    // Extract dates with improved patterns
-    const datePatterns = [
-      /(?:due|by|on|at)\s+(\w+\s+\d+)/i,
-      /(\d{1,2}\/\d{1,2})/,
-      /(\w+\s+\d{1,2})/i,
-      /(?:next|this)\s+(\w+)/i,
-      /(?:in|after)\s+(\d+)\s+(?:days?|weeks?|months?)/i,
-      /(?:tomorrow|today|tonight)/i
+    const directivePatterns = [
+      // Date directives
+      { pattern: /#today\b/i, action: () => { directives.pinnedForDate = new Date(); } },
+      { pattern: /#tomorrow\b/i, action: () => { 
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(9, 0, 0, 0);
+        directives.dueDate = tomorrow;
+      }},
+      { pattern: /#thisweek\b/i, action: () => { directives.targetWeek = 'currentWeek'; } },
+      { pattern: /#week\b/i, action: () => { directives.targetWeek = 'currentWeek'; } },
+      { pattern: /#nextweek\b/i, action: () => { directives.targetWeek = 'nextWeek'; } },
+      
+      // Priority directives
+      { pattern: /#urgent\b/i, action: () => { directives.priority = 'urgent'; } },
+      { pattern: /#high\b/i, action: () => { directives.priority = 'high'; } },
+      { pattern: /#medium\b/i, action: () => { directives.priority = 'medium'; } },
+      { pattern: /#low\b/i, action: () => { directives.priority = 'low'; } },
+      
+      // Type directives
+      { pattern: /#journal\b/i, action: () => { directives.type = 'journal'; } },
+      { pattern: /#task\b/i, action: () => { directives.type = 'task'; } },
+      { pattern: /#idea\b/i, action: () => { directives.type = 'idea'; } },
+      { pattern: /#insight\b/i, action: () => { directives.type = 'insight'; } },
+      { pattern: /#reflection\b/i, action: () => { directives.type = 'reflection'; } },
+      { pattern: /#event\b/i, action: () => { directives.type = 'event'; } },
+      { pattern: /#reminder\b/i, action: () => { directives.type = 'reminder'; } },
+      { pattern: /#note\b/i, action: () => { directives.type = 'note'; } },
     ];
-    
-    let dueDate: Date | undefined;
-    for (const pattern of datePatterns) {
-      const match = text.match(pattern);
-      if (match) {
-        try {
-          let dateString = match[1] || match[0];
-          
-          if (dateString.toLowerCase() === 'tomorrow') {
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            dueDate = tomorrow;
-          } else if (dateString.toLowerCase() === 'today') {
-            dueDate = new Date();
-          } else if (dateString.toLowerCase() === 'tonight') {
-            const tonight = new Date();
-            tonight.setHours(20, 0, 0, 0);
-            dueDate = tonight;
-          } else {
-            dueDate = new Date(dateString);
-          }
-          
-          if (isNaN(dueDate.getTime())) dueDate = undefined;
-        } catch {
-          dueDate = undefined;
-        }
-        break;
+
+    // Apply all directive patterns
+    directivePatterns.forEach(({ pattern, action }) => {
+      if (pattern.test(text)) {
+        action();
       }
-    }
-    
-    // Extract location
-    const locationMatch = text.match(/(?:at|in|@)\s+([A-Za-z\s]+)/i);
-    const location = locationMatch ? locationMatch[1].trim() : undefined;
-    
-    // Debug logging
-    console.log('=== AI Parsing Debug ===');
-    console.log('Input:', text);
-    console.log('Detected type:', type);
-    console.log('Confidence:', confidence);
-    console.log('Detected priority:', priority);
-    console.log('Detected tags:', tags);
-    console.log('Detected due date:', dueDate);
-    console.log('Detected location:', location);
-    console.log('Reasoning:', reasoning);
-    
-    return {
-      type,
-      priority,
-      tags,
-      dueDate,
-      location,
-      status: type === 'task' ? 'pending' as TaskStatus : 'pending' as TaskStatus,
-      needsReview: false,
-      confidence,
-      reasoning: reasoning || `Classified as ${type} based on content analysis. Priority: ${priority}`,
-      relatedIds: []
-    };
+    });
+
+    return directives;
   };
 
-  const createEntry = (type: EntryType, priority: Priority, tags: string[], text: string) => {
-    // Helper function to create entries with consistent structure
-    
-    // Extract dates and location
-    const datePatterns = [
-      /(?:due|by|on|at)\s+(\w+\s+\d+)/i,
-      /(\d{1,2}\/\d{1,2})/,
-      /(\w+\s+\d{1,2})/i,
-      /(?:next|this)\s+(\w+)/i,
-      /(?:in|after)\s+(\d+)\s+(?:days?|weeks?|months?)/i,
-      /(?:tomorrow|today|tonight)/i
+  // Extract user tags (non-directive hashtags)
+  const extractUserTags = (text: string) => {
+    const directiveTags = [
+      'today', 'tomorrow', 'thisweek', 'week', 'nextweek',
+      'urgent', 'high', 'medium', 'low',
+      'journal', 'task', 'idea', 'insight', 'reflection', 'event', 'reminder', 'note'
     ];
     
-    let dueDate: Date | undefined;
-    for (const pattern of datePatterns) {
-      const match = text.match(pattern);
-      if (match) {
-        try {
-          let dateString = match[1] || match[0];
-          
-          if (dateString.toLowerCase() === 'tomorrow') {
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            dueDate = tomorrow;
-          } else if (dateString.toLowerCase() === 'today') {
-            dueDate = new Date();
-          } else if (dateString.toLowerCase() === 'tonight') {
-            const tonight = new Date();
-            tonight.setHours(20, 0, 0, 0);
-            dueDate = tonight;
-          } else {
-            dueDate = new Date(dateString);
-          }
-          
-          if (isNaN(dueDate.getTime())) dueDate = undefined;
-        } catch {
-          dueDate = undefined;
-        }
-        break;
-      }
+    const hashtags = text.match(/#\w+/g)?.map(tag => tag.slice(1)) || [];
+    return hashtags.filter(tag => !directiveTags.includes(tag.toLowerCase()));
+  };
+
+  // Clean content by removing directive hashtags and normalizing
+  const cleanContent = (text: string) => {
+    let cleaned = text;
+    
+    // Remove directive hashtags
+    const directivePatterns = [
+      /#today\b/gi, /#tomorrow\b/gi, /#thisweek\b/gi, /#week\b/gi, /#nextweek\b/gi,
+      /#urgent\b/gi, /#high\b/gi, /#medium\b/gi, /#low\b/gi,
+      /#journal\b/gi, /#task\b/gi, /#idea\b/gi, /#insight\b/gi, 
+      /#reflection\b/gi, /#event\b/gi, /#reminder\b/gi, /#note\b/gi
+    ];
+    
+    directivePatterns.forEach(pattern => {
+      cleaned = cleaned.replace(pattern, '');
+    });
+    
+    // Clean up the text
+    cleaned = cleaned
+      .replace(/\s+/g, ' ') // Collapse multiple spaces
+      .replace(/\s*[,\s]*$/g, '') // Remove trailing commas and spaces
+      .replace(/^\s*[,\s]*/g, '') // Remove leading commas and spaces
+      .trim();
+    
+    return cleaned;
+  };
+
+  // Parse natural language dates using chrono-node
+  const parseNaturalLanguageDates = (text: string) => {
+    const results = chrono.parse(text);
+    if (results.length === 0) return {};
+    
+    const firstResult = results[0];
+    const startDate = firstResult.start.date();
+    
+    // If it's a time expression, set as due date
+    if (firstResult.start.isCertain('hour')) {
+      return { dueDate: startDate };
     }
     
-    const locationMatch = text.match(/(?:at|in|@)\s+([A-Za-z\s]+)/i);
-    const location = locationMatch ? locationMatch[1].trim() : undefined;
+    // If it's just a date, set as pinned date
+    return { pinnedForDate: startDate };
+  };
+
+  // Set default times for date expressions
+  const setDefaultTimes = (directives: any, chronoResults: any) => {
+    const defaults: any = {};
+    
+    // If we have a pinned date but no specific time, set default 9 AM
+    if (directives.pinnedForDate && !chronoResults.dueDate) {
+      const defaultTime = new Date(directives.pinnedForDate);
+      defaultTime.setHours(9, 0, 0, 0);
+      defaults.dueDate = defaultTime;
+    }
+    
+    // If we have "next week" directive, set to Monday 9 AM
+    if (directives.targetWeek === 'nextWeek' && !chronoResults.dueDate) {
+      const nextMonday = new Date();
+      nextMonday.setDate(nextMonday.getDate() + (8 - nextMonday.getDay()) % 7);
+      nextMonday.setHours(9, 0, 0, 0);
+      defaults.dueDate = nextMonday;
+    }
+    
+    return defaults;
+  };
+
+  const parseInput = (text: string) => {
+    console.log('=== Enhanced AI Parsing Debug ===');
+    console.log('Original input:', text);
+    
+    // Store original text
+    const rawContent = text;
+    
+    // Parse directives first
+    const directives = parseDirectives(text);
+    console.log('Directives parsed:', directives);
+    
+    // Parse natural language dates with chrono
+    const chronoResults = parseNaturalLanguageDates(text);
+    console.log('Chrono results:', chronoResults);
+    
+    // Set default times where appropriate
+    const defaultTimes = setDefaultTimes(directives, chronoResults);
+    console.log('Default times set:', defaultTimes);
+    
+    // Extract user tags (non-directive)
+    const userTags = extractUserTags(text);
+    console.log('User tags extracted:', userTags);
+    
+    // Clean content for display
+    const cleanDisplayContent = cleanContent(text);
+    console.log('Cleaned content:', cleanDisplayContent);
+    
+    // Determine final values (chrono results override directives)
+    const finalDueDate = chronoResults.dueDate || directives.dueDate || defaultTimes.dueDate;
+    const finalPinnedDate = directives.pinnedForDate || chronoResults.pinnedForDate;
+    const finalPriority = directives.priority || 'medium';
+    const finalType = directives.type || 'note';
+    const finalTargetWeek = directives.targetWeek;
+    
+    // Determine if entry should be pinned to today
+    const shouldPinToToday = finalPinnedDate || 
+      (finalDueDate && finalDueDate.toDateString() === new Date().toDateString()) ||
+      finalTargetWeek === 'currentWeek';
+    
+    console.log('Final parsed values:', {
+      dueDate: finalDueDate,
+      pinnedForDate: finalPinnedDate,
+      targetWeek: finalTargetWeek,
+      priority: finalPriority,
+      type: finalType,
+      shouldPinToToday
+    });
     
     return {
-      type,
-      priority,
-      tags,
-      dueDate,
-      location,
-      status: type === 'task' ? 'pending' as TaskStatus : 'pending' as TaskStatus,
+      content: cleanDisplayContent,
+      rawContent,
+      type: finalType,
+      priority: finalPriority,
+      tags: userTags,
+      dueDate: finalDueDate,
+      pinnedForDate: finalPinnedDate,
+      targetWeek: finalTargetWeek,
+      status: finalType === 'task' ? 'pending' as TaskStatus : 'pending' as TaskStatus,
       needsReview: false,
       confidence: 0.95,
-      reasoning: `Explicitly tagged as ${type} with #${type} hashtag`,
+      reasoning: `Parsed with enhanced AI: Type=${finalType}, Priority=${finalPriority}, Due=${finalDueDate}, Pinned=${finalPinnedDate}`,
       relatedIds: []
     };
   };
@@ -326,12 +243,14 @@ export const CaptureView: React.FC = () => {
     if (editableEntry) {
       console.log('=== CaptureView: handleConfirm ===');
       console.log('About to add entry:', {
-        content: inputText.trim(),
+        content: editableEntry.content!,
+        rawContent: editableEntry.rawContent!,
         type: editableEntry.type!,
         priority: editableEntry.priority!,
         tags: editableEntry.tags || [],
         dueDate: editableEntry.dueDate,
-        location: editableEntry.location,
+        pinnedForDate: editableEntry.pinnedForDate,
+        targetWeek: editableEntry.targetWeek,
         status: editableEntry.status!,
         needsReview: editableEntry.needsReview!,
         confidence: editableEntry.confidence!,
@@ -340,12 +259,14 @@ export const CaptureView: React.FC = () => {
       });
       
       addEntry({
-        content: inputText.trim(),
+        content: editableEntry.content!,
+        rawContent: editableEntry.rawContent!,
         type: editableEntry.type!,
         priority: editableEntry.priority!,
         tags: editableEntry.tags || [],
         dueDate: editableEntry.dueDate,
-        location: editableEntry.location,
+        pinnedForDate: editableEntry.pinnedForDate,
+        targetWeek: editableEntry.targetWeek,
         status: editableEntry.status!,
         needsReview: editableEntry.needsReview!,
         confidence: editableEntry.confidence!,

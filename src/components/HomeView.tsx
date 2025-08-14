@@ -74,14 +74,17 @@ export const HomeView: React.FC = () => {
     return true;
   });
 
-  // Date-based organization
+  // Date-based organization using new directive system
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const endOfWeek = new Date(today);
   endOfWeek.setDate(today.getDate() + 7);
 
   const todayEntries = filteredEntries.filter(entry => {
-    // Check if entry has "today" tag or mentions today
+    // Check if entry is pinned to today
+    if (entry.pinnedForDate && entry.pinnedForDate.toDateString() === today.toDateString()) return true;
+    
+    // Check if entry has "today" tag (legacy support)
     if (entry.tags?.some(tag => tag.toLowerCase().includes('today'))) return true;
     
     // Check if entry mentions "today" in content
@@ -97,7 +100,10 @@ export const HomeView: React.FC = () => {
   });
 
   const thisWeekEntries = filteredEntries.filter(entry => {
-    // Check if entry has "this week" tag or mentions this week
+    // Check if entry targets current week
+    if (entry.targetWeek === 'currentWeek') return true;
+    
+    // Check if entry has "this week" tag (legacy support)
     if (entry.tags?.some(tag => tag.toLowerCase().includes('week') || tag.toLowerCase().includes('weekly'))) return true;
     
     // Check if entry mentions "this week" in content
@@ -113,7 +119,10 @@ export const HomeView: React.FC = () => {
   });
 
   const upcomingEntries = filteredEntries.filter(entry => {
-    // Check if entry has "upcoming" tag
+    // Check if entry targets next week
+    if (entry.targetWeek === 'nextWeek') return true;
+    
+    // Check if entry has "upcoming" tag (legacy support)
     if (entry.tags?.some(tag => tag.toLowerCase().includes('upcoming') || tag.toLowerCase().includes('future'))) return true;
     
     // Check if entry mentions future dates
@@ -253,24 +262,27 @@ export const HomeView: React.FC = () => {
     
     switch (newPeriod) {
       case 'today':
-        // Add today tag and set due date to today if not urgent
+        // Pin to today and set due date to today if not urgent
         updates = {
-          tags: [...(entry.tags || []), 'today'].filter((tag, index, arr) => arr.indexOf(tag) === index), // Remove duplicates
-          dueDate: entry.priority === 'urgent' ? entry.dueDate : new Date()
+          pinnedForDate: new Date(),
+          dueDate: entry.priority === 'urgent' ? entry.dueDate : new Date(),
+          targetWeek: undefined // Clear week targeting
         };
         break;
       case 'week':
-        // Add week tag and set due date to end of week if not urgent
+        // Target current week and set due date to end of week if not urgent
         updates = {
-          tags: [...(entry.tags || []), 'week'].filter((tag, index, arr) => arr.indexOf(tag) === index),
-          dueDate: entry.priority === 'urgent' ? entry.dueDate : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+          targetWeek: 'currentWeek',
+          dueDate: entry.priority === 'urgent' ? entry.dueDate : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          pinnedForDate: undefined // Clear today pinning
         };
         break;
       case 'upcoming':
-        // Add upcoming tag and set due date to next month if not urgent
+        // Target next week and set due date to next month if not urgent
         updates = {
-          tags: [...(entry.tags || []), 'upcoming'].filter((tag, index, arr) => arr.indexOf(tag) === index),
-          dueDate: entry.priority === 'urgent' ? entry.dueDate : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          targetWeek: 'nextWeek',
+          dueDate: entry.priority === 'urgent' ? entry.dueDate : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          pinnedForDate: undefined // Clear today pinning
         };
         break;
     }
@@ -877,6 +889,32 @@ export const HomeView: React.FC = () => {
                     onChange={(e) => setEditingEntry({...editingEntry, dueDate: e.target.value ? new Date(e.target.value) : undefined})}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
+                </div>
+              </div>
+
+              {/* Pinned Date and Target Week Row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Pin to Date</label>
+                  <input
+                    type="date"
+                    value={editingEntry.pinnedForDate ? editingEntry.pinnedForDate.toISOString().split('T')[0] : ''}
+                    onChange={(e) => setEditingEntry({...editingEntry, pinnedForDate: e.target.value ? new Date(e.target.value) : undefined})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Target Week</label>
+                  <select
+                    value={editingEntry.targetWeek || ''}
+                    onChange={(e) => setEditingEntry({...editingEntry, targetWeek: e.target.value || undefined})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">No specific week</option>
+                    <option value="currentWeek">This Week</option>
+                    <option value="nextWeek">Next Week</option>
+                  </select>
                 </div>
               </div>
 

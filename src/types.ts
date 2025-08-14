@@ -12,7 +12,8 @@ export type ReviewReason = 'unclear_outcome' | 'overdue' | 'ignored_long_time' |
 
 export interface Entry {
   id: string;
-  content: string;
+  content: string; // Clean, directive-free content for display
+  rawContent: string; // Original text with directives for reference/debug
   type: EntryType;
   createdAt: Date;
   updatedAt: Date;
@@ -25,9 +26,11 @@ export interface Entry {
   reviewNote?: string;
   
   // Parsed Data
-  tags: string[];
+  tags: string[]; // User tags only (excludes directive tags)
   priority: Priority;
-  dueDate?: Date;
+  dueDate?: Date; // Specific due date/time
+  pinnedForDate?: Date; // Date to pin to (e.g., today, specific date)
+  targetWeek?: string; // Target week (e.g., "currentWeek", "nextWeek")
   startDate?: Date;
   endDate?: Date;
   location?: string;
@@ -39,8 +42,8 @@ export interface Entry {
   status: TaskStatus; // For tasks
   
   // Relationships
-  relatedIds: string[]; // Related entries
   parentId?: string; // For subtasks
+  relatedIds: string[]; // Related entries
   
   // Metadata
   reminderDate?: Date;
