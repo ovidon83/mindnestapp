@@ -145,7 +145,14 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
       changeEntryPriority: (id, newPriority) => get().updateEntry(id, { priority: newPriority }),
       changeEntryTimePeriod: (id, period) => {
         const entry = get().entries.find(e => e.id === id);
-        if (!entry) return;
+        if (!entry) {
+          console.log(`Entry not found: ${id}`);
+          return;
+        }
+        
+        console.log(`=== Changing time period for entry: ${entry.content} ===`);
+        console.log('Current entry:', entry);
+        console.log('New period:', period);
         
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -159,6 +166,7 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
               pinnedForDate: today,
               targetWeek: undefined
             };
+            console.log('Setting to today:', today);
             break;
           case 'week':
             // Set to current week (Monday)
@@ -169,6 +177,7 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
               pinnedForDate: monday,
               targetWeek: 'currentWeek'
             };
+            console.log('Setting to current week (Monday):', monday);
             break;
           case 'upcoming':
             // Set to next week (Monday)
@@ -178,10 +187,17 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
               pinnedForDate: nextMonday,
               targetWeek: 'nextWeek'
             };
+            console.log('Setting to next week (Monday):', nextMonday);
             break;
         }
         
+        console.log('Updates to apply:', updates);
         get().updateEntry(id, updates);
+        
+        // Verify the update
+        const updatedEntry = get().entries.find(e => e.id === id);
+        console.log('Updated entry:', updatedEntry);
+        console.log('=== Time period change complete ===');
       },
       adjustPriority: (id, direction) => {
         const entry = get().entries.find(e => e.id === id);

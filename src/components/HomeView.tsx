@@ -144,6 +144,7 @@ export const HomeView: React.FC = () => {
   // Debug logging
   console.log('=== HomeView Debug ===');
   console.log('All entries:', allEntries);
+  console.log('Filtered entries:', filteredEntries);
   console.log('Today entries:', todayEntries);
   console.log('This week entries:', thisWeekEntries);
   console.log('Upcoming entries:', upcomingEntries);
@@ -765,25 +766,25 @@ export const HomeView: React.FC = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Tasks</span>
                   <span className="font-medium text-gray-900">
-                    {allEntries.filter(e => e.type === 'task').length}
+                    {filteredEntries.filter(e => e.type === 'task').length}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Ideas</span>
                   <span className="font-medium text-gray-900">
-                    {allEntries.filter(e => e.type === 'idea').length}
+                    {filteredEntries.filter(e => e.type === 'idea').length}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Insights</span>
                   <span className="font-medium text-gray-900">
-                    {allEntries.filter(e => e.type === 'insight').length}
+                    {filteredEntries.filter(e => e.type === 'insight').length}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Completed</span>
                   <span className="font-medium text-gray-700">
-                    {allEntries.filter(e => e.status === 'completed').length}
+                    {filteredEntries.filter(e => e.status === 'completed').length}
                   </span>
                 </div>
               </div>
@@ -816,7 +817,7 @@ export const HomeView: React.FC = () => {
                 Recent Activity
               </h3>
               <div className="space-y-3">
-                {allEntries.slice(0, 3).map((entry) => (
+                {filteredEntries.slice(0, 3).map((entry) => (
                   <div key={entry.id} className="flex items-center gap-3">
                     <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
                       {getTypeIcon(entry.type)}
