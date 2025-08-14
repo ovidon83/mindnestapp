@@ -59,6 +59,8 @@ interface GenieNotesStore {
   getEntriesByPriority: (priority: Priority) => Entry[];
   // Clean up duplicate tags in existing entries
   cleanupDuplicateTags: () => void;
+  // Remove directive tags from existing entries' tag arrays
+  cleanupDirectiveTags: () => void;
   // Migrate existing entries to clean format (remove hashtags from titles, ensure all hashtags are tags)
   migrateEntriesToCleanFormat: () => void;
 }
@@ -459,6 +461,43 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
           updatedAt: new Date()
         }))
       })),
+
+      // Remove directive tags from existing entries' tag arrays
+      cleanupDirectiveTags: () => set((state) => {
+        const directiveTags = [
+          'today', 'tomorrow', 'thisweek', 'week', 'nextweek',
+          'urgent', 'high', 'medium', 'low',
+          'journal', 'task', 'idea', 'insight', 'reflection', 'event', 'reminder', 'note'
+        ];
+        
+        console.log('=== Store: Cleaning up directive tags ===');
+        
+        const cleanedEntries = state.entries.map((entry) => {
+          const originalTags = entry.tags;
+          const cleanedTags = entry.tags.filter(tag => {
+            const isDirective = directiveTags.some(directive => 
+              directive.toLowerCase() === tag.toLowerCase()
+            );
+            if (isDirective) {
+              console.log(`Removing directive tag "${tag}" from entry "${entry.content}"`);
+            }
+            return !isDirective;
+          });
+          
+          if (originalTags.length !== cleanedTags.length) {
+            console.log(`Entry "${entry.content}": ${originalTags.length} -> ${cleanedTags.length} tags`);
+          }
+          
+          return {
+            ...entry,
+            tags: cleanedTags,
+            updatedAt: new Date()
+          };
+        });
+        
+        console.log('=== Store: Directive tag cleanup complete ===');
+        return { entries: cleanedEntries };
+      }),
 
       // Migrate existing entries to clean format (remove hashtags from titles, ensure all hashtags are tags)
       migrateEntriesToCleanFormat: () => set((state) => {

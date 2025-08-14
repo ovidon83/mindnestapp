@@ -100,7 +100,7 @@ export const CaptureView: React.FC = () => {
     return directives;
   };
 
-  // Extract ALL hashtags as tags, but exclude directive hashtags to avoid duplication
+  // Extract user hashtags, excluding directive hashtags to avoid duplication
   const extractUserTags = (text: string) => {
     const directiveTags = [
       'today', 'tomorrow', 'thisweek', 'week', 'nextweek',
@@ -109,8 +109,21 @@ export const CaptureView: React.FC = () => {
     ];
     
     const hashtags = text.match(/#\w+/g)?.map(tag => tag.slice(1)) || [];
-    // Only return non-directive hashtags to avoid duplication
-    return hashtags.filter(tag => !directiveTags.includes(tag.toLowerCase()));
+    console.log('All hashtags found:', hashtags);
+    
+    // Filter out directive tags (case-insensitive)
+    const userTags = hashtags.filter(tag => {
+      const isDirective = directiveTags.some(directive => 
+        directive.toLowerCase() === tag.toLowerCase()
+      );
+      if (isDirective) {
+        console.log(`Filtering out directive tag: ${tag}`);
+      }
+      return !isDirective;
+    });
+    
+    console.log('Final user tags (after filtering directives):', userTags);
+    return userTags;
   };
 
   // Clean content by removing ALL hashtags and normalizing
@@ -189,13 +202,13 @@ export const CaptureView: React.FC = () => {
     const defaultTimes = setDefaultTimes(directives, chronoResults);
     console.log('Default times set:', defaultTimes);
     
-    // Extract ALL hashtags as tags
+    // Extract user tags from original text (excluding directive tags)
     const userTags = extractUserTags(text);
-    console.log('User tags extracted:', userTags);
+    console.log('User tags extracted (excluding directives):', userTags);
     
-    // Clean content for display
+    // Clean content for display (remove ALL hashtags)
     const cleanDisplayContent = cleanContent(text);
-    console.log('Cleaned content:', cleanDisplayContent);
+    console.log('Cleaned content (all hashtags removed):', cleanDisplayContent);
     
     // Determine final values (chrono results override directives)
     const finalDueDate = chronoResults.dueDate || directives.dueDate || defaultTimes.dueDate;
