@@ -39,7 +39,8 @@ export const HomeView: React.FC = () => {
     getTopTags,
     changeEntryTimePeriod,
     adjustPriority,
-    markReviewed
+    markReviewed,
+    completeEntry
   } = useGenieNotesStore();
 
   // Auto-cleanup on mount to ensure data consistency
@@ -596,6 +597,13 @@ export const HomeView: React.FC = () => {
                           </svg>
                         </button>
                         <button
+                          onClick={() => completeEntry(entry.id)}
+                          className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors"
+                          title="Mark as completed"
+                        >
+                          <CheckCircle className="w-4 h-4" />
+                        </button>
+                        <button
                           onClick={() => handleEditEntry(entry)}
                           className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
                         >
@@ -812,6 +820,13 @@ export const HomeView: React.FC = () => {
                                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                   </svg>
+                                </button>
+                                <button
+                                  onClick={() => completeEntry(entry.id)}
+                                  className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors"
+                                  title="Mark as completed"
+                                >
+                                  <CheckCircle className="w-4 h-4" />
                                 </button>
                                 <button
                                   onClick={() => handleEditEntry(entry)}
