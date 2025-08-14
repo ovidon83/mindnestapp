@@ -1,56 +1,59 @@
 import React, { useState } from 'react';
 import { 
-  Search, 
-  Clock, 
-  Tag, 
-  Edit3, 
-  Trash2, 
-  Eye,
-  TrendingUp,
-  Calendar,
-  Target,
-  Zap,
-  Lightbulb,
-  BookOpen,
-  Bell,
-  FileText,
-  BarChart3,
-  CheckCircle
+  Calendar, 
+  Target, 
+  Lightbulb, 
+  TrendingUp, 
+  Eye, 
+  BookOpen, 
+  Bell, 
+  FileText, 
+  BarChart3, 
+  CheckCircle,
+  Search,
+  ChevronDown,
+  ChevronUp,
+  Plus,
+  Pin,
+  Clock,
+  AlertTriangle,
+  X
 } from 'lucide-react';
 import { useGenieNotesStore } from '../store';
-import { EntryType, Priority, TaskStatus, Entry } from '../types';
+import { Entry, EntryType, Priority } from '../types';
 
 export const HomeView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState({
-    type: 'all' as EntryType | 'all',
-    priority: 'all' as Priority | 'all',
-    status: 'all' as TaskStatus | 'all',
+    type: 'all',
+    priority: 'all',
+    status: 'all',
     needsReview: false
   });
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [activeTab, setActiveTab] = useState<'today' | 'week' | 'upcoming' | 'completed' | 'other'>('today');
+  const [insightsDrawerOpen, setInsightsDrawerOpen] = useState(false);
+  const [collapsedSections, setCollapsedSections] = useState({
+    overdue: false,
+    today: false,
+    thisWeek: false,
+    upcoming: false
+  });
+  const [selectedEntries, setSelectedEntries] = useState<Set<string>>(new Set());
+  const [showBatchBar, setShowBatchBar] = useState(false);
 
   const {
     entries,
-    deleteEntry,
     updateEntry,
-    getTopTags,
+    deleteEntry,
+    completeEntry,
     changeEntryTimePeriod,
     adjustPriority,
-    markReviewed,
-    completeEntry
+    setCurrentView,
+    getTopTags
   } = useGenieNotesStore();
 
-  // Auto-cleanup on mount to ensure data consistency
-  React.useEffect(() => {
-    // No cleanup needed - user doesn't want this functionality
-  }, []);
-
   // Get raw entries from store and apply all filtering consistently
-  const rawEntries = entries; // Use raw entries from store
-  const reviewEntries = rawEntries.filter(entry => entry.needsReview);
+  const rawEntries = entries;
   const topTags = getTopTags(rawEntries);
 
   // Apply search filter
@@ -87,832 +90,675 @@ export const HomeView: React.FC = () => {
   const endOfWeek = new Date(today);
   endOfWeek.setDate(today.getDate() + 7);
 
+  // Overdue: tasks with dueDate < today and not completed
+  const overdueEntries = filteredEntries.filter(entry => {
+    if (entry.status === 'completed') return false;
+    if (entry.dueDate && entry.dueDate instanceof Date && entry.dueDate < today) return true;
+    return false;
+  });
+
+  // Today: due today OR pinnedForDate=today
   const todayEntries = filteredEntries.filter(entry => {
-    // EXCLUDE completed entries from time-based views
     if (entry.status === 'completed') return false;
     
-    // Check if entry is pinned to today
+    // Check if pinned to today
     if (entry.pinnedForDate && entry.pinnedForDate instanceof Date && entry.pinnedForDate.toDateString() === today.toDateString()) return true;
     
-    // Check if entry has "today" tag (legacy support)
-    if (entry.tags?.some(tag => tag.toLowerCase().includes('today'))) return true;
-    
-    // Check if entry mentions "today" in content
-    if (entry.content.toLowerCase().includes('today')) return true;
-    
-    // Check if due date is today
+    // Check if due today
     if (entry.dueDate && entry.dueDate instanceof Date && entry.dueDate >= today && entry.dueDate < new Date(today.getTime() + 24 * 60 * 60 * 1000)) return true;
     
-    // Check if created today
-    if (entry.createdAt && entry.createdAt instanceof Date && entry.createdAt >= today && entry.createdAt < new Date(today.getTime() + 24 * 60 * 60 * 1000)) return true;
-    
     return false;
   });
 
+  // This Week: within next 7 days (group by weekday)
   const thisWeekEntries = filteredEntries.filter(entry => {
-    // EXCLUDE completed entries from time-based views
     if (entry.status === 'completed') return false;
-    
-    // EXCLUDE entries that are already in today
     if (todayEntries.some(todayEntry => todayEntry.id === entry.id)) return false;
     
-    // Check if entry targets current week
-    if (entry.targetWeek === 'currentWeek') return true;
-    
-    // Check if entry has "this week" tag (legacy support)
-    if (entry.tags?.some(tag => tag.toLowerCase().includes('week') || tag.toLowerCase().includes('weekly'))) return true;
-    
-    // Check if entry mentions "this week" in content
-    if (entry.content.toLowerCase().includes('this week') || entry.content.toLowerCase().includes('week')) return true;
-    
-    // Check if due date is this week
     if (entry.dueDate && entry.dueDate instanceof Date && entry.dueDate >= today && entry.dueDate < endOfWeek) return true;
-    
-    // Check if created this week
-    if (entry.createdAt && entry.createdAt instanceof Date && entry.createdAt >= today && entry.createdAt < endOfWeek) return true;
-    
+    if (entry.targetWeek === 'currentWeek') return true;
     return false;
   });
 
+  // Upcoming: everything else
   const upcomingEntries = filteredEntries.filter(entry => {
-    // EXCLUDE completed entries from time-based views
-    if (entry.status === 'completed') return false;
-    
-    // EXCLUDE entries that are already in today or this week
-    if (todayEntries.some(todayEntry => todayEntry.id === entry.id)) return false;
-    if (thisWeekEntries.some(weekEntry => weekEntry.id === entry.id)) return false;
-    
-    // Check if entry targets next week
-    if (entry.targetWeek === 'nextWeek') return true;
-    
-    // Check if entry has "upcoming" tag (legacy support)
-    if (entry.tags?.some(tag => tag.toLowerCase().includes('upcoming') || tag.toLowerCase().includes('future'))) return true;
-    
-    // Check if entry mentions future dates
-    if (entry.content.toLowerCase().includes('next week') || entry.content.toLowerCase().includes('next month') || 
-        entry.content.toLowerCase().includes('tomorrow') || entry.content.toLowerCase().includes('upcoming')) return true;
-    
-    // Check if due date is in the future
-    if (entry.dueDate && entry.dueDate instanceof Date && entry.dueDate > endOfWeek) return true;
-    
-    return false;
-  });
-
-  // Get completed entries separately
-  const completedEntries = filteredEntries.filter(entry => entry.status === 'completed');
-  
-  // Get entries that don't fit any time-based category (fallback)
-  const otherEntries = filteredEntries.filter(entry => {
     if (entry.status === 'completed') return false;
     if (todayEntries.some(todayEntry => todayEntry.id === entry.id)) return false;
     if (thisWeekEntries.some(weekEntry => weekEntry.id === entry.id)) return false;
-    if (upcomingEntries.some(upcomingEntry => upcomingEntry.id === entry.id)) return false;
     return true;
   });
 
-  // Debug logging with detailed counts
-  console.log('=== HomeView Debug ===');
-  console.log('Raw entries from store:', rawEntries.length);
-  console.log('Filtered entries (after search + filters):', filteredEntries.length);
-  console.log('Today entries:', todayEntries.length);
-  console.log('This week entries:', thisWeekEntries.length);
-  console.log('Upcoming entries:', upcomingEntries.length);
-  console.log('Review entries:', reviewEntries.length);
-  console.log('Completed entries:', completedEntries.length);
-  console.log('Other entries:', otherEntries.length);
-  
-  // Show ALL raw entries to find the missing one
-  console.log('=== ALL RAW ENTRIES ===');
-  rawEntries.forEach((entry, index) => {
-    console.log(`Entry ${index + 1}:`, {
-      id: entry.id,
-      content: entry.content,
-      type: entry.type,
-      status: entry.status,
-      priority: entry.priority,
-      pinnedForDate: entry.pinnedForDate,
-      dueDate: entry.dueDate,
-      createdAt: entry.createdAt,
-      tags: entry.tags
-    });
-  });
-  
-  // Check for duplicate counting
-  const todayIds = todayEntries.map(e => e.id);
-  const weekIds = thisWeekEntries.map(e => e.id);
-  const upcomingIds = upcomingEntries.map(e => e.id);
-  
-  const duplicatesTodayWeek = todayIds.filter(id => weekIds.includes(id));
-  const duplicatesTodayUpcoming = todayIds.filter(id => upcomingIds.includes(id));
-  const duplicatesWeekUpcoming = weekIds.filter(id => upcomingIds.includes(id));
-  
-  console.log('Duplicates between Today and This Week:', duplicatesTodayWeek.length, duplicatesTodayWeek);
-  console.log('Duplicates between Today and Upcoming:', duplicatesTodayUpcoming.length, duplicatesTodayUpcoming);
-  console.log('Duplicates between This Week and Upcoming:', duplicatesWeekUpcoming.length, duplicatesWeekUpcoming);
-  
-  // Log individual entries for debugging
-  console.log('Today entries details:', todayEntries.map(e => ({ id: e.id, content: e.content, type: e.type, pinnedForDate: e.pinnedForDate, dueDate: e.dueDate, createdAt: e.createdAt })));
-  console.log('This week entries details:', thisWeekEntries.map(e => ({ id: e.id, content: e.content, type: e.type, targetWeek: e.targetWeek, dueDate: e.dueDate, createdAt: e.createdAt })));
-  console.log('Other entries details:', otherEntries.map(e => ({ id: e.id, content: e.content, type: e.type, pinnedForDate: e.pinnedForDate, dueDate: e.dueDate, createdAt: e.createdAt })));
-  
-  // Debug the missing entry specifically
-  console.log('=== DEBUGGING MISSING ENTRY ===');
-  const missingEntry = rawEntries.find(entry => 
-    entry.content.includes('Review 2013s classic schedule and talk to Lauren about changing the game on 10/18 for later')
-  );
-  if (missingEntry) {
-    console.log('Missing entry found:', missingEntry);
-    console.log('Why not in Today?');
-    console.log('- Has today tag?', missingEntry.tags?.some(tag => tag.toLowerCase().includes('today')));
-    console.log('- Mentions today?', missingEntry.content.toLowerCase().includes('today'));
-    console.log('- Due date today?', missingEntry.dueDate && missingEntry.dueDate instanceof Date && missingEntry.dueDate >= today && missingEntry.dueDate < new Date(today.getTime() + 24 * 60 * 60 * 1000));
-    console.log('- Created today?', missingEntry.createdAt && missingEntry.createdAt instanceof Date && missingEntry.createdAt >= today && missingEntry.createdAt < new Date(today.getTime() + 24 * 60 * 60 * 1000));
-    console.log('- Pinned to today?', missingEntry.pinnedForDate && missingEntry.pinnedForDate instanceof Date && missingEntry.pinnedForDate.toDateString() === today.toDateString());
-    
-    console.log('Why not in This Week?');
-    console.log('- Has week tag?', missingEntry.tags?.some(tag => tag.toLowerCase().includes('week') || tag.toLowerCase().includes('weekly')));
-    console.log('- Mentions week?', missingEntry.content.toLowerCase().includes('this week') || missingEntry.content.toLowerCase().includes('week'));
-    console.log('- Due date this week?', missingEntry.dueDate && missingEntry.dueDate instanceof Date && missingEntry.dueDate >= today && missingEntry.dueDate < endOfWeek);
-    console.log('- Created this week?', missingEntry.createdAt && missingEntry.createdAt instanceof Date && missingEntry.createdAt >= today && missingEntry.createdAt < endOfWeek);
-    console.log('- Target week?', missingEntry.targetWeek);
-    
-    console.log('Why not in Upcoming?');
-    console.log('- Has upcoming tag?', missingEntry.tags?.some(tag => tag.toLowerCase().includes('upcoming') || tag.toLowerCase().includes('future')));
-    console.log('- Mentions future?', missingEntry.content.toLowerCase().includes('next week') || missingEntry.content.toLowerCase().includes('next month') || missingEntry.content.toLowerCase().includes('tomorrow') || missingEntry.content.toLowerCase().includes('upcoming'));
-    console.log('- Due date future?', missingEntry.dueDate && missingEntry.dueDate instanceof Date && missingEntry.dueDate > endOfWeek);
-    console.log('- Target week next?', missingEntry.targetWeek);
-  }
+  // Group This Week entries by weekday
+  const thisWeekByDay = thisWeekEntries.reduce((acc, entry) => {
+    const dueDate = entry.dueDate instanceof Date ? entry.dueDate : new Date();
+    const dayName = dueDate.toLocaleDateString('en-US', { weekday: 'long' });
+    if (!acc[dayName]) acc[dayName] = [];
+    acc[dayName].push(entry);
+    return acc;
+  }, {} as Record<string, Entry[]>);
 
+  // Batch actions
+  const toggleEntrySelection = (entryId: string) => {
+    const newSelected = new Set(selectedEntries);
+    if (newSelected.has(entryId)) {
+      newSelected.delete(entryId);
+    } else {
+      newSelected.add(entryId);
+    }
+    setSelectedEntries(newSelected);
+    setShowBatchBar(newSelected.size > 0);
+  };
+
+  const selectAllInSection = (sectionEntries: Entry[]) => {
+    const newSelected = new Set(selectedEntries);
+    sectionEntries.forEach(entry => newSelected.add(entry.id));
+    setSelectedEntries(newSelected);
+    setShowBatchBar(true);
+  };
+
+  const clearSelection = () => {
+    setSelectedEntries(new Set());
+    setShowBatchBar(false);
+  };
+
+  const batchPinToToday = () => {
+    selectedEntries.forEach(entryId => {
+      changeEntryTimePeriod(entryId, 'today');
+    });
+    clearSelection();
+  };
+
+  const batchComplete = () => {
+    selectedEntries.forEach(entryId => {
+      completeEntry(entryId);
+    });
+    clearSelection();
+  };
+
+  const batchDelete = () => {
+    if (confirm(`Delete ${selectedEntries.size} selected entries?`)) {
+      selectedEntries.forEach(entryId => {
+        deleteEntry(entryId);
+      });
+      clearSelection();
+    }
+  };
+
+  // Toggle section collapse
+  const toggleSection = (section: keyof typeof collapsedSections) => {
+    setCollapsedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
+  // Helper functions
   const getTypeIcon = (type: EntryType) => {
     switch (type) {
-      case 'task': return <Target className="w-5 h-5" />;
-      case 'event': return <Calendar className="w-5 h-5" />;
-      case 'idea': return <Lightbulb className="w-5 h-5" />;
-      case 'insight': return <TrendingUp className="w-5 h-5" />;
-      case 'reflection': return <Eye className="w-5 h-5" />;
-      case 'journal': return <BookOpen className="w-5 h-5" />;
-      case 'reminder': return <Bell className="w-5 h-5" />;
-      case 'note': return <FileText className="w-5 h-5" />;
-      default: return <FileText className="w-5 h-5" />;
+      case 'task': return <Target className="w-4 h-4" />;
+      case 'event': return <Calendar className="w-4 h-4" />;
+      case 'idea': return <Lightbulb className="w-4 h-4" />;
+      case 'insight': return <TrendingUp className="w-4 h-4" />;
+      case 'reflection': return <Eye className="w-4 h-4" />;
+      case 'journal': return <BookOpen className="w-4 h-4" />;
+      case 'reminder': return <Bell className="w-4 h-4" />;
+      case 'note': return <FileText className="w-4 h-4" />;
+      default: return <FileText className="w-4 h-4" />;
     }
   };
 
-  const getTypeColor = (type: EntryType) => {
-    switch (type) {
-      case 'task': return 'bg-blue-100 text-blue-700';
-      case 'event': return 'bg-green-100 text-green-700';
-      case 'idea': return 'bg-purple-100 text-purple-700';
-      case 'insight': return 'bg-indigo-100 text-indigo-700';
-      case 'reflection': return 'bg-pink-100 text-pink-700';
-      case 'journal': return 'bg-yellow-100 text-yellow-700';
-      case 'reminder': return 'bg-orange-100 text-orange-700';
-      case 'note': return 'bg-gray-100 text-gray-700';
-      default: return 'bg-gray-100 text-gray-700';
+  const getPriorityColor = (priority: Priority) => {
+    switch (priority) {
+      case 'urgent': return 'bg-red-100 text-red-700 border-red-200';
+      case 'high': return 'bg-orange-100 text-orange-700 border-orange-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+      case 'low': return 'bg-gray-100 text-gray-700 border-gray-200';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
-  };
-
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
   };
 
   const getRelativeTime = (date: Date) => {
     const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
 
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}h ago`;
-    if (days < 7) return `${days}d ago`;
-    return formatDate(date);
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
   };
 
-  // Sort entries with urgent items first, then by priority and recency
-  const sortEntries = (entries: Entry[]) => {
-    return entries.sort((a, b) => {
-      // First: urgent items go to the top
-      const aIsUrgent = a.priority === 'urgent' || (a.dueDate && a.dueDate <= new Date());
-      const bIsUrgent = b.priority === 'urgent' || (b.dueDate && b.dueDate <= new Date());
-      
-      if (aIsUrgent && !bIsUrgent) return -1;
-      if (!aIsUrgent && bIsUrgent) return 1;
-      
-      // Second: if both are urgent or both are not urgent, sort by priority
-      const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
-      const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority];
-      if (priorityDiff !== 0) return priorityDiff;
-      
-      // Third: if same priority, sort by due date (earlier due dates first)
-      if (a.dueDate && b.dueDate) {
-        const dateDiff = a.dueDate.getTime() - b.dueDate.getTime();
-        if (dateDiff !== 0) return dateDiff;
-      } else if (a.dueDate && !b.dueDate) return -1;
-      else if (!a.dueDate && b.dueDate) return 1;
-      
-      // Fourth: if same priority and due date, sort by creation time (newest first)
-      return b.createdAt.getTime() - a.createdAt.getTime();
-    });
-  };
-
-  const handleEditEntry = (entry: Entry) => {
-    setEditingEntry(entry);
-    setShowEditModal(true);
-  };
-
-  const handleSaveEntry = (updatedEntry: Partial<Entry>) => {
-    if (editingEntry) {
-      updateEntry(editingEntry.id, {
-        ...updatedEntry,
-        updatedAt: new Date()
-      });
-      setShowEditModal(false);
-      setEditingEntry(null);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setShowEditModal(false);
-    setEditingEntry(null);
-  };
-
-  // Get entries for the current active tab
-  const getCurrentTabEntries = () => {
-    switch (activeTab) {
-      case 'today':
-        return todayEntries;
-      case 'week':
-        return thisWeekEntries;
-      case 'upcoming':
-        return upcomingEntries;
-      case 'completed':
-        return completedEntries;
-      case 'other':
-        return otherEntries;
-      default:
-        return todayEntries;
-    }
-  };
-
-  // Set default tab based on available entries
-  React.useEffect(() => {
-    if (todayEntries.length > 0 && activeTab === 'today') return;
-    if (thisWeekEntries.length > 0 && activeTab === 'week') return;
-    if (upcomingEntries.length > 0 && activeTab === 'upcoming') return;
-    if (completedEntries.length > 0 && activeTab === 'completed') return;
-    if (otherEntries.length > 0 && activeTab === 'other') return;
+  const formatDueDate = (date: Date) => {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
     
-    // Set to first tab with entries
-    if (todayEntries.length > 0) setActiveTab('today');
-    else if (thisWeekEntries.length > 0) setActiveTab('week');
-    else if (upcomingEntries.length > 0) setActiveTab('upcoming');
-    else if (completedEntries.length > 0) setActiveTab('completed');
-    else if (otherEntries.length > 0) setActiveTab('other');
-  }, [todayEntries.length, thisWeekEntries.length, upcomingEntries.length, completedEntries.length, otherEntries.length, activeTab]);
+    if (date.toDateString() === today.toDateString()) return 'Today';
+    if (date.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
+    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-        {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-            <div className="mb-4 sm:mb-0">
-              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
-                Welcome Home
-              </h1>
-              <p className="text-gray-600 text-lg">
-                Your personal thought sanctuary and productivity hub
-              </p>
+  const getTypeColor = (type: EntryType) => {
+    switch (type) {
+      case 'task': return 'bg-blue-100';
+      case 'event': return 'bg-green-100';
+      case 'idea': return 'bg-purple-100';
+      case 'insight': return 'bg-yellow-100';
+      case 'reflection': return 'bg-orange-100';
+      case 'journal': return 'bg-indigo-100';
+      case 'reminder': return 'bg-red-100';
+      case 'note': return 'bg-gray-100';
+      default: return 'bg-gray-100';
+    }
+  };
+
+  // Entry card component
+  const EntryCard = ({ entry, showCheckbox = true }: { entry: Entry; showCheckbox?: boolean }) => {
+    const [expanded, setExpanded] = useState(false);
+    const isSelected = selectedEntries.has(entry.id);
+
+    return (
+      <div className={`bg-white rounded-xl border transition-all duration-200 hover:shadow-sm ${
+        isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
+      }`}>
+        {/* Compact line */}
+        <div className="p-4">
+          <div className="flex items-center gap-3">
+            {showCheckbox && (
+              <input
+                type="checkbox"
+                checked={isSelected}
+                onChange={() => toggleEntrySelection(entry.id)}
+                className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+              />
+            )}
+            
+            <div className="flex items-center gap-2 text-gray-500">
+              {getTypeIcon(entry.type)}
+            </div>
+            
+            <div className="flex-1 min-w-0">
+              <h3 className="font-medium text-gray-900 truncate">{entry.content}</h3>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              {/* Due date chip */}
+              {entry.dueDate && (
+                <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
+                  {formatDueDate(entry.dueDate)}
+                </span>
+              )}
+              
+              {/* Priority chip */}
+              <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getPriorityColor(entry.priority)}`}>
+                {entry.priority}
+              </span>
+              
+              {/* Tag pills */}
+              {entry.tags && entry.tags.length > 0 && (
+                <div className="flex gap-1">
+                  {entry.tags.slice(0, 2).map((tag, index) => (
+                    <span key={index} className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded-full">
+                      {tag}
+                    </span>
+                  ))}
+                  {entry.tags.length > 2 && (
+                    <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded-full">
+                      +{entry.tags.length - 2}
+                    </span>
+                  )}
+                </div>
+              )}
+              
+              {/* Time ago */}
+              <span className="text-xs text-gray-500">
+                {getRelativeTime(entry.createdAt)}
+              </span>
+              
+              {/* Today toggle pill */}
+              <button
+                onClick={() => {
+                  if (entry.pinnedForDate && entry.pinnedForDate.toDateString() === today.toDateString()) {
+                    updateEntry(entry.id, { pinnedForDate: undefined });
+                  } else {
+                    updateEntry(entry.id, { pinnedForDate: today });
+                  }
+                }}
+                className={`px-2 py-1 text-xs font-medium rounded-full transition-colors ${
+                  entry.pinnedForDate && entry.pinnedForDate.toDateString() === today.toDateString()
+                    ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                    : 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-blue-50 hover:border-blue-200'
+                }`}
+                title="Pin to Today (Y)"
+              >
+                <Pin className="w-3 h-3" />
+              </button>
+            </div>
+            
+            {/* Expand/collapse */}
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors"
+            >
+              {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
+        
+        {/* Expanded details */}
+        {expanded && (
+          <div className="px-4 pb-4 border-t border-gray-100">
+            <div className="pt-3 space-y-3">
+              {/* Note content */}
+              {entry.content && (
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">Note</h4>
+                  <p className="text-sm text-gray-600">{entry.content}</p>
+                </div>
+              )}
+              
+              {/* Tags */}
+              {entry.tags && entry.tags.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">Tags</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {entry.tags.map((tag, index) => (
+                      <span key={index} className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded-full">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Actions */}
+              <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
+                <button
+                  onClick={() => adjustPriority(entry.id, 'up')}
+                  disabled={entry.priority === 'urgent'}
+                  className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50"
+                  title="Increase priority"
+                >
+                  <ChevronUp className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => adjustPriority(entry.id, 'down')}
+                  disabled={entry.priority === 'low'}
+                  className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50"
+                  title="Decrease priority"
+                >
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => completeEntry(entry.id)}
+                  className="p-1 text-green-600 hover:text-green-800 hover:bg-green-100 rounded transition-colors"
+                  title="Mark as completed"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setEditingEntry(entry)}
+                  className="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded transition-colors"
+                  title="Edit entry"
+                >
+                  <FileText className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => deleteEntry(entry.id)}
+                  className="p-1 text-red-600 hover:text-red-800 hover:bg-red-100 rounded transition-colors"
+                  title="Delete entry"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+                
+                {/* Move to dropdown */}
+                <select
+                  value=""
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      changeEntryTimePeriod(entry.id, e.target.value as 'today' | 'week' | 'upcoming');
+                      e.target.value = '';
+                    }
+                  }}
+                  className="px-2 py-1 text-xs border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition-all"
+                >
+                  <option value="">Move to...</option>
+                  <option value="today">Today</option>
+                  <option value="week">This Week</option>
+                  <option value="upcoming">Upcoming</option>
+                </select>
+              </div>
             </div>
           </div>
+        )}
+      </div>
+    );
+  };
 
-          {/* Stats Cards - Beautiful Design */}
-          {filteredEntries.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-              {/* Total Entries */}
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl p-6 shadow-lg border border-blue-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-3xl font-bold text-blue-700">{filteredEntries.length}</div>
-                    <div className="text-sm font-medium text-blue-600">Total</div>
-                  </div>
-                  <div className="p-3 bg-blue-200 rounded-xl">
-                    <FileText className="w-6 h-6 text-blue-700" />
-                  </div>
-                </div>
-              </div>
+  // Section component
+  const Section = ({ 
+    title, 
+    entries, 
+    accentColor, 
+    collapsible = true, 
+    collapsed = false, 
+    onToggle,
+    showSelectAll = false,
+    children 
+  }: {
+    title: string;
+    entries: Entry[];
+    accentColor: string;
+    collapsible?: boolean;
+    collapsed?: boolean;
+    onToggle?: () => void;
+    showSelectAll?: boolean;
+    children?: React.ReactNode;
+  }) => {
+    if (entries.length === 0 && !children) return null;
+    
+    return (
+      <div className="mb-8">
+        <div className={`flex items-center justify-between mb-4 p-4 rounded-lg ${accentColor}`}>
+          <div className="flex items-center gap-3">
+            <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+            <span className="px-2 py-1 text-sm font-medium bg-white/80 text-gray-700 rounded-full">
+              {entries.length}
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            {showSelectAll && entries.length > 0 && (
+              <button
+                onClick={() => selectAllInSection(entries)}
+                className="px-3 py-1 text-sm font-medium text-gray-700 bg-white/80 rounded-lg hover:bg-white transition-colors"
+              >
+                Select All
+              </button>
+            )}
+            
+            {collapsible && (
+              <button
+                onClick={onToggle}
+                className="p-1 text-gray-600 hover:text-gray-800 rounded transition-colors"
+              >
+                {collapsed ? <ChevronDown className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
+              </button>
+            )}
+          </div>
+        </div>
+        
+        {!collapsed && (
+          <div className="space-y-3">
+            {children || entries.map(entry => (
+              <EntryCard key={entry.id} entry={entry} />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
-              {/* Today */}
-              <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl p-6 shadow-lg border border-green-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-3xl font-bold text-green-700">{todayEntries.length}</div>
-                    <div className="text-sm font-medium text-green-600">Today</div>
-                  </div>
-                  <div className="p-3 bg-green-200 rounded-xl">
-                    <Calendar className="w-6 h-6 text-green-700" />
-                  </div>
-                </div>
-              </div>
-
-              {/* This Week */}
-              <div className="bg-gradient-to-br from-purple-50 to-violet-100 rounded-2xl p-6 shadow-lg border border-purple-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-3xl font-bold text-purple-700">{thisWeekEntries.length}</div>
-                    <div className="text-sm font-medium text-purple-600">This Week</div>
-                  </div>
-                  <div className="p-3 bg-purple-200 rounded-xl">
-                    <Target className="w-6 h-6 text-purple-700" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Needs Review */}
-              <div className="bg-gradient-to-br from-orange-50 to-amber-100 rounded-2xl p-6 shadow-lg border border-orange-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-3xl font-bold text-orange-700">{reviewEntries.length}</div>
-                    <div className="text-sm font-medium text-orange-600">Review</div>
-                  </div>
-                  <div className="p-3 bg-orange-200 rounded-xl">
-                    <Eye className="w-6 h-6 text-orange-700" />
-                  </div>
-                </div>
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Sticky top bar */}
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-5xl mx-auto px-6 py-4">
+          <div className="flex items-center gap-4">
+            {/* Capture button */}
+            <button
+              onClick={() => setCurrentView('capture')}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              <Plus className="w-4 h-4 inline mr-2" />
+              Capture
+            </button>
+            
+            {/* Search */}
+            <div className="flex-1 max-w-md">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Search your thoughts..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
               </div>
             </div>
-          ) : (
-            /* Empty State - Beautiful Design */
-            <div className="bg-gradient-to-br from-gray-50 to-slate-100 rounded-2xl p-8 mb-6 shadow-lg border border-gray-200 text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Lightbulb className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">No thoughts captured yet</h3>
-              <p className="text-gray-600 mb-4">Start by capturing your first thought, idea, or task</p>
-              <button 
-                onClick={() => window.location.href = '/#capture'}
-                className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+            
+            {/* Filters */}
+            <div className="flex items-center gap-3">
+              <select
+                value={activeFilters.type}
+                onChange={(e) => setActiveFilters(prev => ({ ...prev, type: e.target.value }))}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
               >
-                Capture Your First Thought
+                <option value="all">All Types</option>
+                <option value="task">Tasks</option>
+                <option value="idea">Ideas</option>
+                <option value="insight">Insights</option>
+                <option value="note">Notes</option>
+              </select>
+              
+              <select
+                value={activeFilters.priority}
+                onChange={(e) => setActiveFilters(prev => ({ ...prev, priority: e.target.value }))}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              >
+                <option value="all">All Priorities</option>
+                <option value="urgent">Urgent</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+              
+              <select
+                value={activeFilters.status}
+                onChange={(e) => setActiveFilters(prev => ({ ...prev, status: e.target.value }))}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              >
+                <option value="all">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+              
+              <label className="flex items-center gap-2 text-sm text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={activeFilters.needsReview}
+                  onChange={(e) => setActiveFilters(prev => ({ ...prev, needsReview: e.target.checked }))}
+                  className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                />
+                Review Only
+              </label>
+            </div>
+            
+            {/* Insights toggle */}
+            <button
+              onClick={() => setInsightsDrawerOpen(!insightsDrawerOpen)}
+              className={`p-2 rounded-lg transition-colors ${
+                insightsDrawerOpen 
+                  ? 'bg-blue-100 text-blue-700' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+              title="Toggle Insights"
+            >
+              <BarChart3 className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Main content */}
+      <div className="max-w-5xl mx-auto px-6 py-8">
+        {/* Overdue Section */}
+        <Section
+          title="Overdue"
+          entries={overdueEntries}
+          accentColor="bg-red-50 border-l-4 border-red-400"
+          collapsed={collapsedSections.overdue}
+          onToggle={() => toggleSection('overdue')}
+          showSelectAll={true}
+        >
+          {overdueEntries.length > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+              <div className="flex items-center gap-2 text-red-700 mb-3">
+                <AlertTriangle className="w-5 h-5" />
+                <span className="font-medium">Overdue Tasks</span>
+              </div>
+              <p className="text-sm text-red-600 mb-3">
+                These tasks are past their due date. Consider carrying them to Today or updating their due dates.
+              </p>
+              <button
+                onClick={batchPinToToday}
+                className="px-3 py-1 text-sm font-medium text-red-700 bg-white border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
+              >
+                Carry Selected to Today
               </button>
             </div>
           )}
-        </div>
+        </Section>
 
-        {/* Search and Filters */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search your thoughts..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm"
-            />
+        {/* Today Section */}
+        <Section
+          title="Today"
+          entries={todayEntries}
+          accentColor="bg-blue-50 border-l-4 border-blue-400"
+          collapsed={collapsedSections.today}
+          onToggle={() => toggleSection('today')}
+        >
+          {todayEntries.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+              <p className="text-lg font-medium">No tasks for today</p>
+              <p className="text-sm mb-4">Add some tasks or pin items from upcoming</p>
+              <button
+                onClick={() => setCurrentView('capture')}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Add Task
+              </button>
+            </div>
+          )}
+        </Section>
+
+        {/* This Week Section */}
+        <Section
+          title="This Week"
+          entries={thisWeekEntries}
+          accentColor="bg-violet-50 border-l-4 border-violet-400"
+          collapsed={collapsedSections.thisWeek}
+          onToggle={() => toggleSection('thisWeek')}
+        >
+          {Object.entries(thisWeekByDay).map(([dayName, dayEntries]) => (
+            <div key={dayName} className="mb-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-medium text-gray-700">{dayName}</h3>
+                <button
+                  onClick={() => {
+                    // Pin first item to today
+                    if (dayEntries.length > 0) {
+                      updateEntry(dayEntries[0].id, { pinnedForDate: today });
+                    }
+                  }}
+                  className="px-2 py-1 text-xs font-medium text-violet-700 bg-violet-100 rounded hover:bg-violet-200 transition-colors"
+                >
+                  Pin to Today
+                </button>
+              </div>
+              <div className="space-y-2">
+                {dayEntries.map(entry => (
+                  <EntryCard key={entry.id} entry={entry} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </Section>
+
+        {/* Upcoming Section */}
+        <Section
+          title="Upcoming / Someday"
+          entries={upcomingEntries}
+          accentColor="bg-gray-50 border-l-4 border-gray-400"
+          collapsed={collapsedSections.upcoming}
+          onToggle={() => toggleSection('upcoming')}
+        >
+          {upcomingEntries.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              <Clock className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+              <p className="text-lg font-medium">No upcoming items</p>
+              <p className="text-sm">All your tasks are organized for today and this week</p>
+            </div>
+          )}
+        </Section>
+      </div>
+
+      {/* Batch actions bar */}
+      {showBatchBar && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-20">
+          <div className="max-w-5xl mx-auto px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-gray-700">
+                  {selectedEntries.size} items selected
+                </span>
+                <button
+                  onClick={clearSelection}
+                  className="text-sm text-gray-500 hover:text-gray-700"
+                >
+                  Clear selection
+                </button>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={batchPinToToday}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                  Pin to Today
+                </button>
+                <button
+                  onClick={batchComplete}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                >
+                  Mark Complete
+                </button>
+                <button
+                  onClick={batchDelete}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
           </div>
-          
-          <div className="flex gap-2">
-            <select
-              value={activeFilters.type}
-              onChange={(e) => setActiveFilters({...activeFilters, type: e.target.value as EntryType | 'all'})}
-              className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm"
-            >
-              <option value="all">All Types</option>
-              <option value="task">Tasks</option>
-              <option value="event">Events</option>
-              <option value="idea">Ideas</option>
-              <option value="insight">Insights</option>
-              <option value="reflection">Reflections</option>
-              <option value="journal">Journal</option>
-              <option value="reminder">Reminders</option>
-              <option value="note">Notes</option>
-            </select>
+        </div>
+      )}
+
+      {/* Insights drawer */}
+      {insightsDrawerOpen && (
+        <div className="fixed right-0 top-0 h-full w-80 bg-white border-l border-gray-200 shadow-lg z-30 overflow-y-auto">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-gray-900">Insights</h2>
+              <button
+                onClick={() => setInsightsDrawerOpen(false)}
+                className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
             
-            <select
-              value={activeFilters.priority}
-              onChange={(e) => setActiveFilters({...activeFilters, priority: e.target.value as Priority | 'all'})}
-              className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm"
-            >
-              <option value="all">All Priorities</option>
-              <option value="urgent">Urgent</option>
-              <option value="high">High</option>
-              <option value="medium">Medium</option>
-              <option value="low">Low</option>
-            </select>
-
-            <select
-              value={activeFilters.status}
-              onChange={(e) => setActiveFilters({...activeFilters, status: e.target.value as TaskStatus | 'all'})}
-              className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm"
-            >
-              <option value="all">All Statuses</option>
-              <option value="pending">Pending</option>
-              <option value="in_progress">In Progress</option>
-              <option value="completed">Completed</option>
-              <option value="archived">Archived</option>
-            </select>
-
-            <label className="flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-xl bg-white shadow-sm cursor-pointer hover:bg-gray-50">
-              <input
-                type="checkbox"
-                checked={activeFilters.needsReview}
-                onChange={(e) => setActiveFilters({...activeFilters, needsReview: e.target.checked})}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-              />
-              <span className="text-sm text-gray-700">Review Only</span>
-            </label>
-          </div>
-        </div>
-
-        {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Urgent & Review */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Review Section */}
-            {reviewEntries.length > 0 && (
-              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                    <Eye className="w-5 h-5 text-orange-500" />
-                    Needs Review
-                  </h2>
-                  <span className="text-sm text-gray-500">{reviewEntries.length} items</span>
-                </div>
-                <div className="space-y-3">
-                  {sortEntries(reviewEntries).slice(0, 3).map((entry) => (
-                    <div key={entry.id} className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
-                      <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
-                        {getTypeIcon(entry.type)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 truncate">{entry.content}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          {/* Only show user tags - no type or priority pills */}
-                          {entry.tags && entry.tags.length > 0 && (
-                            <>
-                              {[...new Set(entry.tags)].map((tag, index) => (
-                                <span key={`${entry.id}-${tag}-${index}`} className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
-                                  {tag}
-                                </span>
-                              ))}
-                            </>
-                          )}
-                          <span className="text-xs text-gray-500">
-                            {getRelativeTime(entry.createdAt)}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex gap-1">
-                        {/* Priority Indicator - Subtle and clean */}
-                        {entry.priority === 'urgent' && (
-                          <div className="flex items-center justify-center w-6 h-6 bg-red-100 rounded-full" title="Urgent Priority">
-                            <Zap className="w-3 h-3 text-red-600" />
-                          </div>
-                        )}
-                        {entry.priority === 'high' && (
-                          <div className="flex items-center justify-center w-6 h-6 bg-orange-100 rounded-full" title="High Priority">
-                            <div className="w-1.5 h-1.5 bg-orange-500 rounded-full"></div>
-                          </div>
-                        )}
-                        {entry.priority === 'medium' && (
-                          <div className="flex items-center justify-center w-6 h-6 bg-yellow-100 rounded-full" title="Medium Priority">
-                            <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full"></div>
-                          </div>
-                        )}
-                        {entry.priority === 'low' && (
-                          <div className="flex items-center justify-center w-6 h-6 bg-gray-100 rounded-full" title="Low Priority">
-                            <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
-                          </div>
-                        )}
-                        
-                        <button
-                          onClick={() => adjustPriority(entry.id, 'up')}
-                          disabled={entry.priority === 'urgent'}
-                          className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Increase priority"
-                        >
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={() => adjustPriority(entry.id, 'down')}
-                          disabled={entry.priority === 'low'}
-                          className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Decrease priority"
-                        >
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={() => completeEntry(entry.id)}
-                          className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors"
-                          title="Mark as completed"
-                        >
-                          <CheckCircle className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleEditEntry(entry)}
-                          className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => deleteEntry(entry.id)}
-                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => markReviewed(entry.id)}
-                          className="p-2 text-orange-600 hover:bg-orange-100 rounded-lg transition-colors"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <select
-                          value=""
-                          onChange={(e) => {
-                            if (e.target.value) {
-                              changeEntryTimePeriod(entry.id, e.target.value as 'today' | 'week' | 'upcoming');
-                              e.target.value = ''; // Reset selection
-                            }
-                          }}
-                          className="px-3 py-2 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer font-medium text-gray-700 hover:border-blue-300 shadow-sm"
-                        >
-                          <option value="" className="text-gray-500">📅 Move to...</option>
-                          <option value="today" className="text-green-700">🟢 Today</option>
-                          <option value="week" className="text-blue-700">🔵 This Week</option>
-                          <option value="upcoming" className="text-purple-700">�� Upcoming</option>
-                        </select>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Time-based Tabs */}
-            {(todayEntries.length > 0 || thisWeekEntries.length > 0 || upcomingEntries.length > 0) && (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-                {/* Tab Navigation */}
-                <div className="flex border-b border-gray-200">
-                  {/* Always show Today tab */}
-                  <button
-                    onClick={() => setActiveTab('today')}
-                    className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
-                      activeTab === 'today'
-                        ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      <span>Today</span>
-                      <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
-                        {todayEntries.length}
-                      </span>
-                    </div>
-                  </button>
-                  
-                  {/* Always show This Week tab */}
-                  <button
-                    onClick={() => setActiveTab('week')}
-                    className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
-                      activeTab === 'week'
-                        ? 'text-green-600 border-b-2 border-green-600 bg-green-50'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      <span>This Week</span>
-                      <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">
-                        {thisWeekEntries.length}
-                      </span>
-                    </div>
-                  </button>
-                  
-                  {/* Always show Upcoming tab */}
-                  <button
-                    onClick={() => setActiveTab('upcoming')}
-                    className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
-                      activeTab === 'upcoming'
-                        ? 'text-purple-600 border-b-2 border-purple-600 bg-purple-50'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      <span>Upcoming</span>
-                      <span className="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-full">
-                        {upcomingEntries.length}
-                      </span>
-                    </div>
-                  </button>
-                  
-                  {/* Always show Completed tab */}
-                  <button
-                    onClick={() => setActiveTab('completed')}
-                    className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
-                      activeTab === 'completed'
-                        ? 'text-green-600 border-b-2 border-green-600 bg-green-50'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-center gap-2">
-                      <CheckCircle className="w-4 h-4" />
-                      <span>Completed</span>
-                      <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">
-                        {completedEntries.length}
-                      </span>
-                    </div>
-                  </button>
-                  
-                  {/* Always show Other tab */}
-                  <button
-                    onClick={() => setActiveTab('other')}
-                    className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
-                      activeTab === 'other'
-                        ? 'text-gray-600 border-b-2 border-gray-600 bg-gray-50'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-center gap-2">
-                      <FileText className="w-4 h-4" />
-                      <span>Other</span>
-                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                        {otherEntries.length}
-                      </span>
-                    </div>
-                  </button>
-                </div>
-
-                {/* Tab Content */}
-                <div className="p-6">
-                  {getCurrentTabEntries().length > 0 ? (
-                    <div className="space-y-3">
-                      {sortEntries(getCurrentTabEntries()).slice(0, 6).map((entry) => {
-                        const isUrgent = entry.priority === 'urgent' || 
-                          (entry.dueDate && entry.dueDate <= new Date());
-                        
-                        const getTabColor = () => {
-                          switch (activeTab) {
-                            case 'today':
-                              return isUrgent ? 'bg-red-50 border-red-200 hover:bg-red-100' : 'bg-blue-50 border-blue-200 hover:bg-blue-100';
-                            case 'week':
-                              return 'bg-green-50 border-green-200 hover:bg-green-100';
-                            case 'upcoming':
-                              return 'bg-purple-50 border-purple-200 hover:bg-purple-100';
-                            case 'completed':
-                              return 'bg-green-50 border-green-200 hover:bg-green-100';
-                            case 'other':
-                              return 'bg-gray-50 border-gray-200 hover:bg-gray-100';
-                            default:
-                              return 'bg-gray-50 border-gray-200 hover:bg-gray-100';
-                          }
-                        };
-                        
-                        return (
-                          <div key={entry.id} className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${getTabColor()}`}>
-                            {/* Left: Task Icon */}
-                            <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
-                              {getTypeIcon(entry.type)}
-                            </div>
-                            
-                            {/* Center: Content and Tags */}
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-gray-900 truncate">{entry.content}</p>
-                              <div className="flex items-center gap-2 mt-1 flex-wrap">
-                                {/* Only show user tags - no type or priority pills */}
-                                {entry.tags && entry.tags.length > 0 && (
-                                  <>
-                                    {[...new Set(entry.tags)].map((tag, index) => (
-                                      <span key={`${entry.id}-${tag}-${index}`} className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
-                                        {tag}
-                                      </span>
-                                    ))}
-                                  </>
-                                )}
-                                <span className="text-xs text-gray-500">
-                                  {getRelativeTime(entry.createdAt)}
-                                </span>
-                              </div>
-                            </div>
-                            
-                            {/* Right: Priority Indicator and Actions */}
-                            <div className="flex items-center gap-2">
-                              {/* Priority Indicator - Subtle and clean */}
-                              {entry.priority === 'urgent' && (
-                                <div className="flex items-center justify-center w-8 h-8 bg-red-100 rounded-full" title="Urgent Priority">
-                                  <Zap className="w-4 h-4 text-red-600" />
-                                </div>
-                              )}
-                              {entry.priority === 'high' && (
-                                <div className="flex items-center justify-center w-8 h-8 bg-orange-100 rounded-full" title="High Priority">
-                                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                                </div>
-                              )}
-                              {entry.priority === 'medium' && (
-                                <div className="flex items-center justify-center w-8 h-8 bg-yellow-100 rounded-full" title="Medium Priority">
-                                  <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                                </div>
-                              )}
-                              {entry.priority === 'low' && (
-                                <div className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full" title="Low Priority">
-                                  <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
-                                </div>
-                              )}
-                              
-                              {/* Action Buttons */}
-                              <div className="flex gap-1">
-                                <button
-                                  onClick={() => adjustPriority(entry.id, 'up')}
-                                  disabled={entry.priority === 'urgent'}
-                                  className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                  title="Increase priority"
-                                >
-                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                                  </svg>
-                                </button>
-                                <button
-                                  onClick={() => adjustPriority(entry.id, 'down')}
-                                  disabled={entry.priority === 'low'}
-                                  className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                  title="Decrease priority"
-                                >
-                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                  </svg>
-                                </button>
-                                <button
-                                  onClick={() => completeEntry(entry.id)}
-                                  className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors"
-                                  title="Mark as completed"
-                                >
-                                  <CheckCircle className="w-4 h-4" />
-                                </button>
-                                <button
-                                  onClick={() => handleEditEntry(entry)}
-                                  className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                                >
-                                  <Edit3 className="w-4 h-4" />
-                                </button>
-                                <button
-                                  onClick={() => deleteEntry(entry.id)}
-                                  className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                                <select
-                                  value=""
-                                  onChange={(e) => {
-                                    if (e.target.value) {
-                                      changeEntryTimePeriod(entry.id, e.target.value as 'today' | 'week' | 'upcoming');
-                                      e.target.value = ''; // Reset selection
-                                    }
-                                  }}
-                                  className="px-3 py-2 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer font-medium text-gray-700 hover:border-blue-300 shadow-sm"
-                                >
-                                  <option value="" className="text-gray-500">📅 Move to...</option>
-                                  <option value="today" className="text-green-700">🟢 Today</option>
-                                  <option value="week" className="text-blue-700">🔵 This Week</option>
-                                  <option value="upcoming" className="text-purple-700">🟣 Upcoming</option>
-                                </select>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                      <p className="text-lg font-medium">No entries in this time period</p>
-                      <p className="text-sm">Try switching to another tab or adjusting your filters</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Right Column - Analytics & Tags */}
-          <div className="space-y-6">
             {/* Quick Stats */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-blue-500" />
-                Quick Stats
-              </h3>
-              <div className="space-y-3">
+            <div className="mb-6">
+              <h3 className="text-sm font-medium text-gray-700 mb-3">Quick Stats</h3>
+              <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Tasks</span>
                   <span className="font-medium text-gray-900">
@@ -939,101 +785,79 @@ export const HomeView: React.FC = () => {
                 </div>
               </div>
             </div>
-
+            
             {/* Top Tags */}
             {topTags.length > 0 && (
-              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <Tag className="w-5 h-5 text-purple-500" />
-                  Top Tags
-                </h3>
+              <div className="mb-6">
+                <h3 className="text-sm font-medium text-gray-700 mb-3">Top Tags</h3>
                 <div className="flex flex-wrap gap-2">
-                  {topTags.slice(0, 8).map((tag) => (
-                    <span
-                      key={tag.tag}
-                      className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium border border-purple-200"
-                    >
+                  {topTags.map((tag, index) => (
+                    <span key={index} className="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-700 rounded-full">
                       #{tag.tag}
                     </span>
                   ))}
                 </div>
               </div>
             )}
-
+            
             {/* Recent Activity */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-green-500" />
-                Recent Activity
-              </h3>
-              <div className="space-y-3">
+            <div>
+              <h3 className="text-sm font-medium text-gray-700 mb-3">Recent Activity</h3>
+              <div className="space-y-2">
                 {filteredEntries.slice(0, 3).map((entry) => (
-                  <div key={entry.id} className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
+                  <div key={entry.id} className="flex items-center gap-2 text-sm">
+                    <div className={`p-1 rounded ${getTypeColor(entry.type)}`}>
                       {getTypeIcon(entry.type)}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{entry.content}</p>
-                      <p className="text-xs text-gray-500">{getRelativeTime(entry.createdAt)}</p>
-                    </div>
+                    <span className="text-gray-900 truncate">{entry.content}</span>
+                    <span className="text-gray-500 text-xs">
+                      {getRelativeTime(entry.createdAt)}
+                    </span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Edit Modal */}
-      {showEditModal && editingEntry && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            {/* Modal Header */}
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900">Edit Entry</h2>
-              <p className="text-sm text-gray-600 mt-1">Update your thought, task, or idea</p>
-            </div>
-
-            {/* Modal Content */}
-            <div className="p-6 space-y-6">
-              {/* Title */}
+      {editingEntry && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h2 className="text-lg font-semibold mb-4">Edit Entry</h2>
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
-                <input
-                  type="text"
+                <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                <textarea
                   value={editingEntry.content}
-                  onChange={(e) => setEditingEntry({...editingEntry, content: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter title"
+                  onChange={(e) => setEditingEntry({ ...editingEntry, content: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  rows={3}
                 />
               </div>
-
-              {/* Type and Priority Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
                   <select
                     value={editingEntry.type}
-                    onChange={(e) => setEditingEntry({...editingEntry, type: e.target.value as EntryType})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onChange={(e) => setEditingEntry({ ...editingEntry, type: e.target.value as EntryType })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="task">Task</option>
-                    <option value="event">Event</option>
                     <option value="idea">Idea</option>
                     <option value="insight">Insight</option>
-                    <option value="reflection">Reflection</option>
-                    <option value="journal">Journal</option>
-                    <option value="reminder">Reminder</option>
                     <option value="note">Note</option>
                   </select>
                 </div>
-
+                
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
                   <select
                     value={editingEntry.priority}
-                    onChange={(e) => setEditingEntry({...editingEntry, priority: e.target.value as Priority})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onChange={(e) => setEditingEntry({ ...editingEntry, priority: e.target.value as Priority })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
@@ -1042,128 +866,28 @@ export const HomeView: React.FC = () => {
                   </select>
                 </div>
               </div>
-
-              {/* Due Date and Status Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
-                  <input
-                    type="date"
-                    value={editingEntry.dueDate && editingEntry.dueDate instanceof Date ? editingEntry.dueDate.toISOString().split('T')[0] : ''}
-                    onChange={(e) => setEditingEntry({...editingEntry, dueDate: e.target.value ? new Date(e.target.value) : undefined})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                  <select
-                    value={editingEntry.status}
-                    onChange={(e) => setEditingEntry({...editingEntry, status: e.target.value as TaskStatus})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                    <option value="archived">Archived</option>
-                  </select>
-                </div>
+              
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setEditingEntry(null)}
+                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    updateEntry(editingEntry.id, editingEntry);
+                    setEditingEntry(null);
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Save
+                </button>
               </div>
-
-              {/* Pinned Date and Target Week Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Pin to Date</label>
-                  <input
-                    type="date"
-                    value={editingEntry.pinnedForDate && editingEntry.pinnedForDate instanceof Date ? editingEntry.pinnedForDate.toISOString().split('T')[0] : ''}
-                    onChange={(e) => setEditingEntry({...editingEntry, pinnedForDate: e.target.value ? new Date(e.target.value) : undefined})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Target Week</label>
-                  <select
-                    value={editingEntry.targetWeek || ''}
-                    onChange={(e) => setEditingEntry({...editingEntry, targetWeek: e.target.value || undefined})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">No specific week</option>
-                    <option value="currentWeek">This Week</option>
-                    <option value="nextWeek">Next Week</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Tags and Location Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Tags (comma-separated)</label>
-                  <input
-                    type="text"
-                    value={editingEntry.tags?.join(', ') || ''}
-                    onChange={(e) => setEditingEntry({...editingEntry, tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter tags separated by commas"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                  <input
-                    type="text"
-                    value={editingEntry.location || ''}
-                    onChange={(e) => setEditingEntry({...editingEntry, location: e.target.value || undefined})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter location"
-                  />
-                </div>
-              </div>
-
-              {/* Notes */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
-                <textarea
-                  value={editingEntry.notes || ''}
-                  onChange={(e) => setEditingEntry({...editingEntry, notes: e.target.value || undefined})}
-                  className="w-full h-20 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                  placeholder="Add additional notes..."
-                />
-              </div>
-
-              {/* Review Settings */}
-              <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={editingEntry.needsReview || false}
-                    onChange={(e) => setEditingEntry({...editingEntry, needsReview: e.target.checked})}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                  />
-                  <span className="text-sm text-gray-700">Needs Review</span>
-                </label>
-              </div>
-            </div>
-
-            {/* Modal Actions */}
-            <div className="p-6 border-t border-gray-200 flex gap-3">
-              <button
-                onClick={handleCancelEdit}
-                className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleSaveEntry(editingEntry)}
-                className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-              >
-                Save Changes
-              </button>
             </div>
           </div>
         </div>
       )}
     </div>
   );
-};
+}
