@@ -149,6 +149,19 @@ export const HomeView: React.FC = () => {
   console.log('Upcoming entries:', upcomingEntries.length);
   console.log('Review entries:', reviewEntries.length);
   
+  // Check for duplicate counting
+  const todayIds = todayEntries.map(e => e.id);
+  const weekIds = thisWeekEntries.map(e => e.id);
+  const upcomingIds = upcomingEntries.map(e => e.id);
+  
+  const duplicatesTodayWeek = todayIds.filter(id => weekIds.includes(id));
+  const duplicatesTodayUpcoming = todayIds.filter(id => upcomingIds.includes(id));
+  const duplicatesWeekUpcoming = weekIds.filter(id => upcomingIds.includes(id));
+  
+  console.log('Duplicates between Today and This Week:', duplicatesTodayWeek.length, duplicatesTodayWeek);
+  console.log('Duplicates between Today and Upcoming:', duplicatesTodayUpcoming.length, duplicatesTodayUpcoming);
+  console.log('Duplicates between This Week and Upcoming:', duplicatesWeekUpcoming.length, duplicatesWeekUpcoming);
+  
   // Log individual entries for debugging
   console.log('Today entries details:', todayEntries.map(e => ({ id: e.id, content: e.content, type: e.type, pinnedForDate: e.pinnedForDate, dueDate: e.dueDate, createdAt: e.createdAt })));
   console.log('This week entries details:', thisWeekEntries.map(e => ({ id: e.id, content: e.content, type: e.type, targetWeek: e.targetWeek, dueDate: e.dueDate, createdAt: e.createdAt })));
