@@ -406,27 +406,40 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
 
       // Migrate existing entries to clean format (remove hashtags from titles, ensure all hashtags are tags)
       migrateEntriesToCleanFormat: () => set((state) => {
+        console.log('=== Store: Starting migration to clean format ===');
+        console.log('Original entries:', state.entries);
+        
         const migratedEntries = state.entries.map((entry) => {
+          console.log(`--- Processing entry: ${entry.id} ---`);
+          console.log('Original content:', entry.content);
+          console.log('Original tags:', entry.tags);
+          
           // Extract all hashtags from the content
           const hashtagPattern = /#\w+/g;
           const hashtags = entry.content.match(hashtagPattern)?.map(tag => tag.slice(1)) || [];
+          console.log('Extracted hashtags:', hashtags);
           
           // Clean the content by removing hashtags
           const cleanContent = entry.content.replace(hashtagPattern, '').replace(/\s+/g, ' ').trim();
+          console.log('Cleaned content:', cleanContent);
           
           // Merge existing tags with extracted hashtags, remove duplicates
           const allTags = [...new Set([...(entry.tags || []), ...hashtags])];
+          console.log('Final merged tags:', allTags);
           
-          return {
+          const migratedEntry = {
             ...entry,
             content: cleanContent,
             tags: allTags,
             updatedAt: new Date()
           };
+          
+          console.log('Migrated entry:', migratedEntry);
+          return migratedEntry;
         });
         
-        console.log('=== Store: Migrating entries to clean format ===');
-        console.log('Migrated entries:', migratedEntries);
+        console.log('=== Store: Migration complete ===');
+        console.log('Final migrated entries:', migratedEntries);
         
         return { entries: migratedEntries };
       })

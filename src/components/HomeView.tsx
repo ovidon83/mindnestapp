@@ -363,518 +363,531 @@ export const HomeView: React.FC = () => {
               </p>
             </div>
             
-            {/* Stats Cards - Beautiful Design */}
-            {filteredEntries.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-                {/* Total Entries */}
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl p-6 shadow-lg border border-blue-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-3xl font-bold text-blue-700">{filteredEntries.length}</div>
-                      <div className="text-sm font-medium text-blue-600">Total</div>
-                    </div>
-                    <div className="p-3 bg-blue-200 rounded-xl">
-                      <FileText className="w-6 h-6 text-blue-700" />
-                    </div>
-                  </div>
-                </div>
+            {/* Manual Cleanup Button */}
+            <div className="mb-4 sm:mb-0">
+              <button
+                onClick={() => {
+                  cleanupDuplicateTags();
+                  migrateEntriesToCleanFormat();
+                }}
+                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg"
+              >
+                🧹 Clean Up Entries
+              </button>
+            </div>
+          </div>
 
-                {/* Today */}
-                <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl p-6 shadow-lg border border-green-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-3xl font-bold text-green-700">{todayEntries.length}</div>
-                      <div className="text-sm font-medium text-green-600">Today</div>
-                    </div>
-                    <div className="p-3 bg-green-200 rounded-xl">
-                      <Calendar className="w-6 h-6 text-green-700" />
-                    </div>
+          {/* Stats Cards - Beautiful Design */}
+          {filteredEntries.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+              {/* Total Entries */}
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl p-6 shadow-lg border border-blue-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-3xl font-bold text-blue-700">{filteredEntries.length}</div>
+                    <div className="text-sm font-medium text-blue-600">Total</div>
                   </div>
-                </div>
-
-                {/* This Week */}
-                <div className="bg-gradient-to-br from-purple-50 to-violet-100 rounded-2xl p-6 shadow-lg border border-purple-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-3xl font-bold text-purple-700">{thisWeekEntries.length}</div>
-                      <div className="text-sm font-medium text-purple-600">This Week</div>
-                    </div>
-                    <div className="p-3 bg-purple-200 rounded-xl">
-                      <Target className="w-6 h-6 text-purple-700" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Needs Review */}
-                <div className="bg-gradient-to-br from-orange-50 to-amber-100 rounded-2xl p-6 shadow-lg border border-orange-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-3xl font-bold text-orange-700">{reviewEntries.length}</div>
-                      <div className="text-sm font-medium text-orange-600">Review</div>
-                    </div>
-                    <div className="p-3 bg-orange-200 rounded-xl">
-                      <Eye className="w-6 h-6 text-orange-700" />
-                    </div>
+                  <div className="p-3 bg-blue-200 rounded-xl">
+                    <FileText className="w-6 h-6 text-blue-700" />
                   </div>
                 </div>
               </div>
-            ) : (
-              /* Empty State - Beautiful Design */
-              <div className="bg-gradient-to-br from-gray-50 to-slate-100 rounded-2xl p-8 mb-6 shadow-lg border border-gray-200 text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Lightbulb className="w-8 h-8 text-white" />
+
+              {/* Today */}
+              <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl p-6 shadow-lg border border-green-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-3xl font-bold text-green-700">{todayEntries.length}</div>
+                    <div className="text-sm font-medium text-green-600">Today</div>
+                  </div>
+                  <div className="p-3 bg-green-200 rounded-xl">
+                    <Calendar className="w-6 h-6 text-green-700" />
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">No thoughts captured yet</h3>
-                <p className="text-gray-600 mb-4">Start by capturing your first thought, idea, or task</p>
-                <button 
-                  onClick={() => window.location.href = '/#capture'}
-                  className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
-                >
-                  Capture Your First Thought
-                </button>
               </div>
-            )}
-          </div>
 
-          {/* Search and Filters */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search your thoughts..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm"
-              />
+              {/* This Week */}
+              <div className="bg-gradient-to-br from-purple-50 to-violet-100 rounded-2xl p-6 shadow-lg border border-purple-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-3xl font-bold text-purple-700">{thisWeekEntries.length}</div>
+                    <div className="text-sm font-medium text-purple-600">This Week</div>
+                  </div>
+                  <div className="p-3 bg-purple-200 rounded-xl">
+                    <Target className="w-6 h-6 text-purple-700" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Needs Review */}
+              <div className="bg-gradient-to-br from-orange-50 to-amber-100 rounded-2xl p-6 shadow-lg border border-orange-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-3xl font-bold text-orange-700">{reviewEntries.length}</div>
+                    <div className="text-sm font-medium text-orange-600">Review</div>
+                  </div>
+                  <div className="p-3 bg-orange-200 rounded-xl">
+                    <Eye className="w-6 h-6 text-orange-700" />
+                  </div>
+                </div>
+              </div>
             </div>
-            
-            <div className="flex gap-2">
-              <select
-                value={activeFilters.type}
-                onChange={(e) => setActiveFilters({...activeFilters, type: e.target.value as EntryType | 'all'})}
-                className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm"
+          ) : (
+            /* Empty State - Beautiful Design */
+            <div className="bg-gradient-to-br from-gray-50 to-slate-100 rounded-2xl p-8 mb-6 shadow-lg border border-gray-200 text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Lightbulb className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">No thoughts captured yet</h3>
+              <p className="text-gray-600 mb-4">Start by capturing your first thought, idea, or task</p>
+              <button 
+                onClick={() => window.location.href = '/#capture'}
+                className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
               >
-                <option value="all">All Types</option>
-                <option value="task">Tasks</option>
-                <option value="event">Events</option>
-                <option value="idea">Ideas</option>
-                <option value="insight">Insights</option>
-                <option value="reflection">Reflections</option>
-                <option value="journal">Journal</option>
-                <option value="reminder">Reminders</option>
-                <option value="note">Notes</option>
-              </select>
-              
-              <select
-                value={activeFilters.priority}
-                onChange={(e) => setActiveFilters({...activeFilters, priority: e.target.value as Priority | 'all'})}
-                className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm"
-              >
-                <option value="all">All Priorities</option>
-                <option value="urgent">Urgent</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-              </select>
-
-              <select
-                value={activeFilters.status}
-                onChange={(e) => setActiveFilters({...activeFilters, status: e.target.value as TaskStatus | 'all'})}
-                className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm"
-              >
-                <option value="all">All Statuses</option>
-                <option value="pending">Pending</option>
-                <option value="in_progress">In Progress</option>
-                <option value="completed">Completed</option>
-                <option value="archived">Archived</option>
-              </select>
-
-              <label className="flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-xl bg-white shadow-sm cursor-pointer hover:bg-gray-50">
-                <input
-                  type="checkbox"
-                  checked={activeFilters.needsReview}
-                  onChange={(e) => setActiveFilters({...activeFilters, needsReview: e.target.checked})}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <span className="text-sm text-gray-700">Review Only</span>
-              </label>
+                Capture Your First Thought
+              </button>
             </div>
-          </div>
+          )}
         </div>
 
-        {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Urgent & Review */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Review Section */}
-            {reviewEntries.length > 0 && (
-              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                    <Eye className="w-5 h-5 text-orange-500" />
-                    Needs Review
-                  </h2>
-                  <span className="text-sm text-gray-500">{reviewEntries.length} items</span>
-                </div>
-                <div className="space-y-3">
-                  {sortEntries(reviewEntries).slice(0, 3).map((entry) => (
-                    <div key={entry.id} className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
-                      <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
-                        {getTypeIcon(entry.type)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 truncate">{entry.content}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(entry.type)}`}>
-                            {entry.type}
-                          </span>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
-                            {entry.priority === 'urgent' ? (
-                              <span className="flex items-center gap-1">
-                                <Zap className="w-3 h-3" />
-                                {entry.priority}
-                              </span>
-                            ) : (
-                              entry.priority
-                            )}
-                          </span>
-                          {entry.tags && entry.tags.length > 0 && (
-                            <>
-                              {console.log('Entry tags before dedup:', entry.tags)}
-                              {[...new Set(entry.tags)].map((tag, index) => (
-                                <span key={`${entry.id}-${tag}-${index}`} className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
-                                  {tag}
-                                </span>
-                              ))}
-                            </>
-                          )}
-                          <span className="text-xs text-gray-500">
-                            {getRelativeTime(entry.createdAt)}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex gap-1">
-                        <button
-                          onClick={() => adjustPriority(entry.id, 'up')}
-                          disabled={entry.priority === 'urgent'}
-                          className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Increase priority"
-                        >
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={() => adjustPriority(entry.id, 'down')}
-                          disabled={entry.priority === 'low'}
-                          className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Decrease priority"
-                        >
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={() => handleEditEntry(entry)}
-                          className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => deleteEntry(entry.id)}
-                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => markReviewed(entry.id)}
-                          className="p-2 text-orange-600 hover:bg-orange-100 rounded-lg transition-colors"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <select
-                          value=""
-                          onChange={(e) => {
-                            if (e.target.value) {
-                              changeEntryTimePeriod(entry.id, e.target.value as 'today' | 'week' | 'upcoming');
-                              e.target.value = ''; // Reset selection
-                            }
-                          }}
-                          className="px-3 py-2 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer font-medium text-gray-700 hover:border-blue-300 shadow-sm"
-                        >
-                          <option value="" className="text-gray-500">📅 Move to...</option>
-                          <option value="today" className="text-green-700">🟢 Today</option>
-                          <option value="week" className="text-blue-700">🔵 This Week</option>
-                          <option value="upcoming" className="text-purple-700">🟣 Upcoming</option>
-                        </select>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Time-based Tabs */}
-            {(todayEntries.length > 0 || thisWeekEntries.length > 0 || upcomingEntries.length > 0) && (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-                {/* Tab Navigation */}
-                <div className="flex border-b border-gray-200">
-                  {todayEntries.length > 0 && (
-                    <button
-                      onClick={() => setActiveTab('today')}
-                      className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
-                        activeTab === 'today'
-                          ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center justify-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        <span>Today</span>
-                        <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
-                          {todayEntries.length}
-                        </span>
-                      </div>
-                    </button>
-                  )}
-                  
-                  {thisWeekEntries.length > 0 && (
-                    <button
-                      onClick={() => setActiveTab('week')}
-                      className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
-                        activeTab === 'week'
-                          ? 'text-green-600 border-b-2 border-green-600 bg-green-50'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center justify-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        <span>This Week</span>
-                        <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">
-                          {thisWeekEntries.length}
-                        </span>
-                      </div>
-                    </button>
-                  )}
-                  
-                  {upcomingEntries.length > 0 && (
-                    <button
-                      onClick={() => setActiveTab('upcoming')}
-                      className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
-                        activeTab === 'upcoming'
-                          ? 'text-purple-600 border-b-2 border-purple-600 bg-purple-50'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center justify-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        <span>Upcoming</span>
-                        <span className="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-full">
-                          {upcomingEntries.length}
-                        </span>
-                      </div>
-                    </button>
-                  )}
-                </div>
-
-                {/* Tab Content */}
-                <div className="p-6">
-                  {getCurrentTabEntries().length > 0 ? (
-                    <div className="space-y-3">
-                      {sortEntries(getCurrentTabEntries()).slice(0, 6).map((entry) => {
-                        const isUrgent = entry.priority === 'urgent' || 
-                          (entry.dueDate && entry.dueDate <= new Date());
-                        
-                        const getTabColor = () => {
-                          switch (activeTab) {
-                            case 'today':
-                              return isUrgent ? 'bg-red-50 border-red-200 hover:bg-red-100' : 'bg-blue-50 border-blue-200 hover:bg-blue-100';
-                            case 'week':
-                              return 'bg-green-50 border-green-200 hover:bg-green-100';
-                            case 'upcoming':
-                              return 'bg-purple-50 border-purple-200 hover:bg-purple-100';
-                            default:
-                              return 'bg-gray-50 border-gray-200 hover:bg-gray-100';
-                          }
-                        };
-                        
-                        return (
-                          <div key={entry.id} className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${getTabColor()}`}>
-                            <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
-                              {getTypeIcon(entry.type)}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-gray-900 truncate">{entry.content}</p>
-                              <div className="flex items-center gap-2 mt-1 flex-wrap">
-                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(entry.type)}`}>
-                                  {entry.type}
-                                </span>
-                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
-                                  {entry.priority === 'urgent' ? (
-                                    <span className="flex items-center gap-1">
-                                      <Zap className="w-3 h-3" />
-                                      {entry.priority}
-                                    </span>
-                                  ) : (
-                                    entry.priority
-                                  )}
-                                </span>
-                                {entry.tags && entry.tags.length > 0 && (
-                                  <>
-                                    {console.log('Entry tags before dedup:', entry.tags)}
-                                    {[...new Set(entry.tags)].map((tag, index) => (
-                                      <span key={`${entry.id}-${tag}-${index}`} className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
-                                        {tag}
-                                      </span>
-                                    ))}
-                                  </>
-                                )}
-                                <span className="text-xs text-gray-500">
-                                  {getRelativeTime(entry.createdAt)}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={() => adjustPriority(entry.id, 'up')}
-                                disabled={entry.priority === 'urgent'}
-                                className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                title="Increase priority"
-                              >
-                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                                </svg>
-                              </button>
-                              <button
-                                onClick={() => adjustPriority(entry.id, 'down')}
-                                disabled={entry.priority === 'low'}
-                                className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                title="Decrease priority"
-                              >
-                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
-                              </button>
-                              <button
-                                onClick={() => handleEditEntry(entry)}
-                                className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                              >
-                                <Edit3 className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => deleteEntry(entry.id)}
-                                className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                              <select
-                                value=""
-                                onChange={(e) => {
-                                  if (e.target.value) {
-                                    changeEntryTimePeriod(entry.id, e.target.value as 'today' | 'week' | 'upcoming');
-                                    e.target.value = ''; // Reset selection
-                                  }
-                                }}
-                                className="px-3 py-2 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer font-medium text-gray-700 hover:border-blue-300 shadow-sm"
-                              >
-                                <option value="" className="text-gray-500">📅 Move to...</option>
-                                <option value="today" className="text-green-700">🟢 Today</option>
-                                <option value="week" className="text-blue-700">🔵 This Week</option>
-                                <option value="upcoming" className="text-purple-700">🟣 Upcoming</option>
-                              </select>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                      <p className="text-lg font-medium">No entries in this time period</p>
-                      <p className="text-sm">Try switching to another tab or adjusting your filters</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
+        {/* Search and Filters */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search your thoughts..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm"
+            />
           </div>
+          
+          <div className="flex gap-2">
+            <select
+              value={activeFilters.type}
+              onChange={(e) => setActiveFilters({...activeFilters, type: e.target.value as EntryType | 'all'})}
+              className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm"
+            >
+              <option value="all">All Types</option>
+              <option value="task">Tasks</option>
+              <option value="event">Events</option>
+              <option value="idea">Ideas</option>
+              <option value="insight">Insights</option>
+              <option value="reflection">Reflections</option>
+              <option value="journal">Journal</option>
+              <option value="reminder">Reminders</option>
+              <option value="note">Notes</option>
+            </select>
+            
+            <select
+              value={activeFilters.priority}
+              onChange={(e) => setActiveFilters({...activeFilters, priority: e.target.value as Priority | 'all'})}
+              className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm"
+            >
+              <option value="all">All Priorities</option>
+              <option value="urgent">Urgent</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
 
-          {/* Right Column - Analytics & Tags */}
-          <div className="space-y-6">
-            {/* Quick Stats */}
+            <select
+              value={activeFilters.status}
+              onChange={(e) => setActiveFilters({...activeFilters, status: e.target.value as TaskStatus | 'all'})}
+              className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm"
+            >
+              <option value="all">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="in_progress">In Progress</option>
+              <option value="completed">Completed</option>
+              <option value="archived">Archived</option>
+            </select>
+
+            <label className="flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-xl bg-white shadow-sm cursor-pointer hover:bg-gray-50">
+              <input
+                type="checkbox"
+                checked={activeFilters.needsReview}
+                onChange={(e) => setActiveFilters({...activeFilters, needsReview: e.target.checked})}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-700">Review Only</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      {/* Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Urgent & Review */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Review Section */}
+          {reviewEntries.length > 0 && (
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-blue-500" />
-                Quick Stats
-              </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Tasks</span>
-                  <span className="font-medium text-gray-900">
-                    {allEntries.filter(e => e.type === 'task').length}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Ideas</span>
-                  <span className="font-medium text-gray-900">
-                    {allEntries.filter(e => e.type === 'idea').length}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Insights</span>
-                  <span className="font-medium text-gray-900">
-                    {allEntries.filter(e => e.type === 'insight').length}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Completed</span>
-                  <span className="font-medium text-gray-900">
-                    {allEntries.filter(e => e.status === 'completed').length}
-                  </span>
-                </div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-orange-500" />
+                  Needs Review
+                </h2>
+                <span className="text-sm text-gray-500">{reviewEntries.length} items</span>
               </div>
-            </div>
-
-            {/* Top Tags */}
-            {topTags.length > 0 && (
-              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <Tag className="w-5 h-5 text-purple-500" />
-                  Top Tags
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {topTags.slice(0, 8).map((tag) => (
-                    <span
-                      key={tag.tag}
-                      className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium border border-purple-200"
-                    >
-                      #{tag.tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Recent Activity */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-green-500" />
-                Recent Activity
-              </h3>
               <div className="space-y-3">
-                {allEntries.slice(0, 3).map((entry) => (
-                  <div key={entry.id} className="flex items-center gap-3">
+                {sortEntries(reviewEntries).slice(0, 3).map((entry) => (
+                  <div key={entry.id} className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
                     <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
                       {getTypeIcon(entry.type)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{entry.content}</p>
-                      <p className="text-xs text-gray-500">{getRelativeTime(entry.createdAt)}</p>
+                      <p className="font-medium text-gray-900 truncate">{entry.content}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(entry.type)}`}>
+                          {entry.type}
+                        </span>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
+                          {entry.priority === 'urgent' ? (
+                            <span className="flex items-center gap-1">
+                              <Zap className="w-3 h-3" />
+                              {entry.priority}
+                            </span>
+                          ) : (
+                            entry.priority
+                          )}
+                        </span>
+                        {entry.tags && entry.tags.length > 0 && (
+                          <>
+                            {console.log('Entry tags before dedup:', entry.tags)}
+                            {[...new Set(entry.tags)].map((tag, index) => (
+                              <span key={`${entry.id}-${tag}-${index}`} className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                                {tag}
+                              </span>
+                            ))}
+                          </>
+                        )}
+                        <span className="text-xs text-gray-500">
+                          {getRelativeTime(entry.createdAt)}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => adjustPriority(entry.id, 'up')}
+                        disabled={entry.priority === 'urgent'}
+                        className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Increase priority"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => adjustPriority(entry.id, 'down')}
+                        disabled={entry.priority === 'low'}
+                        className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Decrease priority"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => handleEditEntry(entry)}
+                        className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => deleteEntry(entry.id)}
+                        className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => markReviewed(entry.id)}
+                        className="p-2 text-orange-600 hover:bg-orange-100 rounded-lg transition-colors"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <select
+                        value=""
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            changeEntryTimePeriod(entry.id, e.target.value as 'today' | 'week' | 'upcoming');
+                            e.target.value = ''; // Reset selection
+                          }
+                        }}
+                        className="px-3 py-2 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer font-medium text-gray-700 hover:border-blue-300 shadow-sm"
+                      >
+                        <option value="" className="text-gray-500">📅 Move to...</option>
+                        <option value="today" className="text-green-700">🟢 Today</option>
+                        <option value="week" className="text-blue-700">🔵 This Week</option>
+                        <option value="upcoming" className="text-purple-700">🟣 Upcoming</option>
+                      </select>
                     </div>
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Time-based Tabs */}
+          {(todayEntries.length > 0 || thisWeekEntries.length > 0 || upcomingEntries.length > 0) && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+              {/* Tab Navigation */}
+              <div className="flex border-b border-gray-200">
+                {todayEntries.length > 0 && (
+                  <button
+                    onClick={() => setActiveTab('today')}
+                    className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+                      activeTab === 'today'
+                        ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
+                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      <span>Today</span>
+                      <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+                        {todayEntries.length}
+                      </span>
+                    </div>
+                  </button>
+                )}
+                
+                {thisWeekEntries.length > 0 && (
+                  <button
+                    onClick={() => setActiveTab('week')}
+                    className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+                      activeTab === 'week'
+                        ? 'text-green-600 border-b-2 border-green-600 bg-green-50'
+                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      <span>This Week</span>
+                      <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">
+                        {thisWeekEntries.length}
+                      </span>
+                    </div>
+                  </button>
+                )}
+                
+                {upcomingEntries.length > 0 && (
+                  <button
+                    onClick={() => setActiveTab('upcoming')}
+                    className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+                      activeTab === 'upcoming'
+                        ? 'text-purple-600 border-b-2 border-purple-600 bg-purple-50'
+                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      <span>Upcoming</span>
+                      <span className="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-full">
+                        {upcomingEntries.length}
+                      </span>
+                    </div>
+                  </button>
+                )}
+              </div>
+
+              {/* Tab Content */}
+              <div className="p-6">
+                {getCurrentTabEntries().length > 0 ? (
+                  <div className="space-y-3">
+                    {sortEntries(getCurrentTabEntries()).slice(0, 6).map((entry) => {
+                      const isUrgent = entry.priority === 'urgent' || 
+                        (entry.dueDate && entry.dueDate <= new Date());
+                      
+                      const getTabColor = () => {
+                        switch (activeTab) {
+                          case 'today':
+                            return isUrgent ? 'bg-red-50 border-red-200 hover:bg-red-100' : 'bg-blue-50 border-blue-200 hover:bg-blue-100';
+                          case 'week':
+                            return 'bg-green-50 border-green-200 hover:bg-green-100';
+                          case 'upcoming':
+                            return 'bg-purple-50 border-purple-200 hover:bg-purple-100';
+                          default:
+                            return 'bg-gray-50 border-gray-200 hover:bg-gray-100';
+                        }
+                      };
+                      
+                      return (
+                        <div key={entry.id} className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${getTabColor()}`}>
+                          <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
+                            {getTypeIcon(entry.type)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-gray-900 truncate">{entry.content}</p>
+                            <div className="flex items-center gap-2 mt-1 flex-wrap">
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(entry.type)}`}>
+                                {entry.type}
+                              </span>
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
+                                {entry.priority === 'urgent' ? (
+                                  <span className="flex items-center gap-1">
+                                    <Zap className="w-3 h-3" />
+                                    {entry.priority}
+                                  </span>
+                                ) : (
+                                  entry.priority
+                                )}
+                              </span>
+                              {entry.tags && entry.tags.length > 0 && (
+                                <>
+                                  {console.log('Entry tags before dedup:', entry.tags)}
+                                  {[...new Set(entry.tags)].map((tag, index) => (
+                                    <span key={`${entry.id}-${tag}-${index}`} className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </>
+                              )}
+                              <span className="text-xs text-gray-500">
+                                {getRelativeTime(entry.createdAt)}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => adjustPriority(entry.id, 'up')}
+                              disabled={entry.priority === 'urgent'}
+                              className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              title="Increase priority"
+                            >
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => adjustPriority(entry.id, 'down')}
+                              disabled={entry.priority === 'low'}
+                              className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              title="Decrease priority"
+                            >
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => handleEditEntry(entry)}
+                              className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => deleteEntry(entry.id)}
+                              className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                            <select
+                              value=""
+                              onChange={(e) => {
+                                if (e.target.value) {
+                                  changeEntryTimePeriod(entry.id, e.target.value as 'today' | 'week' | 'upcoming');
+                                  e.target.value = ''; // Reset selection
+                                }
+                              }}
+                              className="px-3 py-2 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer font-medium text-gray-700 hover:border-blue-300 shadow-sm"
+                            >
+                              <option value="" className="text-gray-500">📅 Move to...</option>
+                              <option value="today" className="text-green-700">🟢 Today</option>
+                              <option value="week" className="text-blue-700">🔵 This Week</option>
+                              <option value="upcoming" className="text-purple-700">🟣 Upcoming</option>
+                            </select>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                    <p className="text-lg font-medium">No entries in this time period</p>
+                    <p className="text-sm">Try switching to another tab or adjusting your filters</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Right Column - Analytics & Tags */}
+        <div className="space-y-6">
+          {/* Quick Stats */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-blue-500" />
+              Quick Stats
+            </h3>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Tasks</span>
+                <span className="font-medium text-gray-900">
+                  {allEntries.filter(e => e.type === 'task').length}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Ideas</span>
+                <span className="font-medium text-gray-900">
+                  {allEntries.filter(e => e.type === 'idea').length}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Insights</span>
+                <span className="font-medium text-gray-900">
+                  {allEntries.filter(e => e.type === 'insight').length}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Completed</span>
+                <span className="font-medium text-gray-900">
+                  {allEntries.filter(e => e.status === 'completed').length}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Top Tags */}
+          {topTags.length > 0 && (
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <Tag className="w-5 h-5 text-purple-500" />
+                Top Tags
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {topTags.slice(0, 8).map((tag) => (
+                  <span
+                    key={tag.tag}
+                    className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium border border-purple-200"
+                  >
+                    #{tag.tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Recent Activity */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <Clock className="w-5 h-5 text-green-500" />
+              Recent Activity
+            </h3>
+            <div className="space-y-3">
+              {allEntries.slice(0, 3).map((entry) => (
+                <div key={entry.id} className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
+                    {getTypeIcon(entry.type)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">{entry.content}</p>
+                    <p className="text-xs text-gray-500">{getRelativeTime(entry.createdAt)}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

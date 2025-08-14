@@ -100,10 +100,17 @@ export const CaptureView: React.FC = () => {
     return directives;
   };
 
-  // Extract ALL hashtags as tags
+  // Extract ALL hashtags as tags, but exclude directive hashtags to avoid duplication
   const extractUserTags = (text: string) => {
+    const directiveTags = [
+      'today', 'tomorrow', 'thisweek', 'week', 'nextweek',
+      'urgent', 'high', 'medium', 'low',
+      'journal', 'task', 'idea', 'insight', 'reflection', 'event', 'reminder', 'note'
+    ];
+    
     const hashtags = text.match(/#\w+/g)?.map(tag => tag.slice(1)) || [];
-    return hashtags;
+    // Only return non-directive hashtags to avoid duplication
+    return hashtags.filter(tag => !directiveTags.includes(tag.toLowerCase()));
   };
 
   // Clean content by removing ALL hashtags and normalizing
