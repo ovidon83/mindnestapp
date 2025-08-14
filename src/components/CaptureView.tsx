@@ -44,73 +44,75 @@ export const CaptureView: React.FC = () => {
       directives.pinnedForDate = new Date();
     }
     
-    const directivePatterns = [
-      // Date directives
-      { pattern: /#today\b/i, action: () => { directives.pinnedForDate = new Date(); } },
-      { pattern: /#tomorrow\b/i, action: () => { 
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setHours(9, 0, 0, 0);
-        directives.dueDate = tomorrow;
-      }},
-      { pattern: /#thisweek\b/i, action: () => { directives.targetWeek = 'currentWeek'; } },
-      { pattern: /#week\b/i, action: () => { directives.targetWeek = 'currentWeek'; } },
-      { pattern: /#nextweek\b/i, action: () => { directives.targetWeek = 'nextWeek'; } },
-      
-      // Priority directives
-      { pattern: /#urgent\b/i, action: () => { directives.priority = 'urgent'; } },
-      { pattern: /#high\b/i, action: () => { directives.priority = 'high'; } },
-      { pattern: /#medium\b/i, action: () => { directives.priority = 'medium'; } },
-      { pattern: /#low\b/i, action: () => { directives.priority = 'low'; } },
-      
-      // Type directives
-      { pattern: /#journal\b/i, action: () => { directives.type = 'journal'; } },
-      { pattern: /#task\b/i, action: () => { directives.type = 'task'; } },
-      { pattern: /#idea\b/i, action: () => { directives.type = 'idea'; } },
-      { pattern: /#insight\b/i, action: () => { directives.type = 'insight'; } },
-      { pattern: /#reflection\b/i, action: () => { directives.type = 'reflection'; } },
-      { pattern: /#event\b/i, action: () => { directives.type = 'event'; } },
-      { pattern: /#reminder\b/i, action: () => { directives.type = 'reminder'; } },
-      { pattern: /#note\b/i, action: () => { directives.type = 'note'; } },
-    ];
-
-    // Apply all directive patterns
-    directivePatterns.forEach(({ pattern, action }) => {
-      if (pattern.test(text)) {
-        action();
-      }
-    });
+    // Check for hashtag directives
+    if (text.includes('#today')) {
+      directives.pinnedForDate = new Date();
+    }
+    if (text.includes('#tomorrow')) {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(9, 0, 0, 0);
+      directives.dueDate = tomorrow;
+    }
+    if (text.includes('#thisweek') || text.includes('#week')) {
+      directives.targetWeek = 'currentWeek';
+    }
+    if (text.includes('#nextweek')) {
+      directives.targetWeek = 'nextWeek';
+    }
+    if (text.includes('#urgent')) {
+      directives.priority = 'urgent';
+    }
+    if (text.includes('#high')) {
+      directives.priority = 'high';
+    }
+    if (text.includes('#medium')) {
+      directives.priority = 'medium';
+    }
+    if (text.includes('#low')) {
+      directives.priority = 'low';
+    }
+    if (text.includes('#journal')) {
+      directives.type = 'journal';
+    }
+    if (text.includes('#task')) {
+      directives.type = 'task';
+    }
+    if (text.includes('#idea')) {
+      directives.type = 'idea';
+    }
+    if (text.includes('#insight')) {
+      directives.type = 'insight';
+    }
+    if (text.includes('#reflection')) {
+      directives.type = 'reflection';
+    }
+    if (text.includes('#event')) {
+      directives.type = 'event';
+    }
+    if (text.includes('#reminder')) {
+      directives.type = 'reminder';
+    }
+    if (text.includes('#note')) {
+      directives.type = 'note';
+    }
 
     return directives;
   };
 
-  // Extract user tags (non-directive hashtags)
+  // Extract ALL hashtags as user tags
   const extractUserTags = (text: string) => {
-    const directiveTags = [
-      'today', 'tomorrow', 'thisweek', 'week', 'nextweek',
-      'urgent', 'high', 'medium', 'low',
-      'journal', 'task', 'idea', 'insight', 'reflection', 'event', 'reminder', 'note'
-    ];
-    
     const hashtags = text.match(/#\w+/g)?.map(tag => tag.slice(1)) || [];
-    return hashtags.filter(tag => !directiveTags.includes(tag.toLowerCase()));
+    return hashtags;
   };
 
-  // Clean content by removing directive hashtags and normalizing
+  // Clean content by removing ALL hashtags and normalizing
   const cleanContent = (text: string) => {
     let cleaned = text;
     
-    // Remove directive hashtags
-    const directivePatterns = [
-      /#today\b/gi, /#tomorrow\b/gi, /#thisweek\b/gi, /#week\b/gi, /#nextweek\b/gi,
-      /#urgent\b/gi, /#high\b/gi, /#medium\b/gi, /#low\b/gi,
-      /#journal\b/gi, /#task\b/gi, /#idea\b/gi, /#insight\b/gi, 
-      /#reflection\b/gi, /#event\b/gi, /#reminder\b/gi, /#note\b/gi
-    ];
-    
-    directivePatterns.forEach(pattern => {
-      cleaned = cleaned.replace(pattern, '');
-    });
+    // Remove ALL hashtags (both directive and user tags)
+    const allHashtagPattern = /#\w+/g;
+    cleaned = cleaned.replace(allHashtagPattern, '');
     
     // Clean up the text
     cleaned = cleaned
