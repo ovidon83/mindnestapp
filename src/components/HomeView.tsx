@@ -39,8 +39,7 @@ export const HomeView: React.FC = () => {
     getTopTags,
     changeEntryTimePeriod,
     adjustPriority,
-    markReviewed,
-    cleanupDirectiveTags
+    markReviewed
   } = useGenieNotesStore();
 
   // Auto-cleanup on mount to ensure data consistency
@@ -289,19 +288,6 @@ export const HomeView: React.FC = () => {
               <p className="text-gray-600 text-lg">
                 Your personal thought sanctuary and productivity hub
               </p>
-            </div>
-            
-            {/* Cleanup Button */}
-            <div className="mb-4 sm:mb-0">
-              <button
-                onClick={() => {
-                  cleanupDirectiveTags();
-                }}
-                className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                title="Remove directive tags (like 'urgent', 'today') from existing entries"
-              >
-                🧹 Clean Directive Tags
-              </button>
             </div>
           </div>
 
