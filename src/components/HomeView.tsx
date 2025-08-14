@@ -35,7 +35,6 @@ export const HomeView: React.FC = () => {
     entries,
     deleteEntry,
     updateEntry,
-    getFilteredEntries,
     getTopTags,
     changeEntryTimePeriod,
     adjustPriority,
@@ -47,21 +46,21 @@ export const HomeView: React.FC = () => {
     // No cleanup needed - user doesn't want this functionality
   }, []);
 
-  const allEntries = getFilteredEntries();
-  const reviewEntries = entries.filter(entry => entry.needsReview);
-  const urgentEntries = entries.filter(entry => entry.priority === 'urgent' || (entry.dueDate && entry.dueDate <= new Date()));
-  const topTags = getTopTags(allEntries);
+  // Get raw entries from store and apply all filtering consistently
+  const rawEntries = entries; // Use raw entries from store
+  const reviewEntries = rawEntries.filter(entry => entry.needsReview);
+  const topTags = getTopTags(rawEntries);
 
   // Apply search filter
   const searchFilteredEntries = searchQuery.trim() 
-    ? allEntries.filter(entry => 
+    ? rawEntries.filter(entry => 
         entry.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
         entry.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
         entry.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
         entry.priority.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (entry.location && entry.location.toLowerCase().includes(searchQuery.toLowerCase()))
       )
-    : allEntries;
+    : rawEntries;
 
   // Apply active filters
   const filteredEntries = searchFilteredEntries.filter(entry => {
@@ -141,16 +140,18 @@ export const HomeView: React.FC = () => {
     return false;
   });
 
-  // Debug logging
+  // Debug logging with detailed counts
   console.log('=== HomeView Debug ===');
-  console.log('All entries:', allEntries);
-  console.log('Filtered entries:', filteredEntries);
-  console.log('Today entries:', todayEntries);
-  console.log('This week entries:', thisWeekEntries);
-  console.log('Upcoming entries:', upcomingEntries);
-  console.log('Review entries:', reviewEntries);
-  console.log('Urgent entries:', urgentEntries);
-  console.log('Top tags:', topTags);
+  console.log('Raw entries from store:', rawEntries.length);
+  console.log('Filtered entries (after search + filters):', filteredEntries.length);
+  console.log('Today entries:', todayEntries.length);
+  console.log('This week entries:', thisWeekEntries.length);
+  console.log('Upcoming entries:', upcomingEntries.length);
+  console.log('Review entries:', reviewEntries.length);
+  
+  // Log individual entries for debugging
+  console.log('Today entries details:', todayEntries.map(e => ({ id: e.id, content: e.content, type: e.type, pinnedForDate: e.pinnedForDate, dueDate: e.dueDate, createdAt: e.createdAt })));
+  console.log('This week entries details:', thisWeekEntries.map(e => ({ id: e.id, content: e.content, type: e.type, targetWeek: e.targetWeek, dueDate: e.dueDate, createdAt: e.createdAt })));
 
   const getTypeIcon = (type: EntryType) => {
     switch (type) {
