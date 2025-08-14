@@ -30,7 +30,7 @@ export const HomeView: React.FC = () => {
   });
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [activeTab, setActiveTab] = useState<'today' | 'week' | 'upcoming' | 'completed'>('today');
+  const [activeTab, setActiveTab] = useState<'today' | 'week' | 'upcoming' | 'completed' | 'other'>('today');
 
   const {
     entries,
@@ -160,6 +160,15 @@ export const HomeView: React.FC = () => {
 
   // Get completed entries separately
   const completedEntries = filteredEntries.filter(entry => entry.status === 'completed');
+  
+  // Get entries that don't fit any time-based category (fallback)
+  const otherEntries = filteredEntries.filter(entry => {
+    if (entry.status === 'completed') return false;
+    if (todayEntries.some(todayEntry => todayEntry.id === entry.id)) return false;
+    if (thisWeekEntries.some(weekEntry => weekEntry.id === entry.id)) return false;
+    if (upcomingEntries.some(upcomingEntry => upcomingEntry.id === entry.id)) return false;
+    return true;
+  });
 
   // Debug logging with detailed counts
   console.log('=== HomeView Debug ===');
@@ -170,6 +179,7 @@ export const HomeView: React.FC = () => {
   console.log('Upcoming entries:', upcomingEntries.length);
   console.log('Review entries:', reviewEntries.length);
   console.log('Completed entries:', completedEntries.length);
+  console.log('Other entries:', otherEntries.length);
   
   // Show ALL raw entries to find the missing one
   console.log('=== ALL RAW ENTRIES ===');
@@ -203,6 +213,7 @@ export const HomeView: React.FC = () => {
   // Log individual entries for debugging
   console.log('Today entries details:', todayEntries.map(e => ({ id: e.id, content: e.content, type: e.type, pinnedForDate: e.pinnedForDate, dueDate: e.dueDate, createdAt: e.createdAt })));
   console.log('This week entries details:', thisWeekEntries.map(e => ({ id: e.id, content: e.content, type: e.type, targetWeek: e.targetWeek, dueDate: e.dueDate, createdAt: e.createdAt })));
+  console.log('Other entries details:', otherEntries.map(e => ({ id: e.id, content: e.content, type: e.type, pinnedForDate: e.pinnedForDate, dueDate: e.dueDate, createdAt: e.createdAt })));
   
   // Debug the missing entry specifically
   console.log('=== DEBUGGING MISSING ENTRY ===');
@@ -341,6 +352,8 @@ export const HomeView: React.FC = () => {
         return upcomingEntries;
       case 'completed':
         return completedEntries;
+      case 'other':
+        return otherEntries;
       default:
         return todayEntries;
     }
@@ -352,13 +365,15 @@ export const HomeView: React.FC = () => {
     if (thisWeekEntries.length > 0 && activeTab === 'week') return;
     if (upcomingEntries.length > 0 && activeTab === 'upcoming') return;
     if (completedEntries.length > 0 && activeTab === 'completed') return;
+    if (otherEntries.length > 0 && activeTab === 'other') return;
     
     // Set to first tab with entries
     if (todayEntries.length > 0) setActiveTab('today');
     else if (thisWeekEntries.length > 0) setActiveTab('week');
     else if (upcomingEntries.length > 0) setActiveTab('upcoming');
     else if (completedEntries.length > 0) setActiveTab('completed');
-  }, [todayEntries.length, thisWeekEntries.length, upcomingEntries.length, completedEntries.length, activeTab]);
+    else if (otherEntries.length > 0) setActiveTab('other');
+  }, [todayEntries.length, thisWeekEntries.length, upcomingEntries.length, completedEntries.length, otherEntries.length, activeTab]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -634,7 +649,7 @@ export const HomeView: React.FC = () => {
                           <option value="" className="text-gray-500">📅 Move to...</option>
                           <option value="today" className="text-green-700">🟢 Today</option>
                           <option value="week" className="text-blue-700">🔵 This Week</option>
-                          <option value="upcoming" className="text-purple-700">🟣 Upcoming</option>
+                          <option value="upcoming" className="text-purple-700">�� Upcoming</option>
                         </select>
                       </div>
                     </div>
@@ -648,81 +663,95 @@ export const HomeView: React.FC = () => {
               <div className="bg-white rounded-xl shadow-sm border border-gray-200">
                 {/* Tab Navigation */}
                 <div className="flex border-b border-gray-200">
-                  {todayEntries.length > 0 && (
-                    <button
-                      onClick={() => setActiveTab('today')}
-                      className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
-                        activeTab === 'today'
-                          ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center justify-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        <span>Today</span>
-                        <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
-                          {todayEntries.length}
-                        </span>
-                      </div>
-                    </button>
-                  )}
+                  {/* Always show Today tab */}
+                  <button
+                    onClick={() => setActiveTab('today')}
+                    className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+                      activeTab === 'today'
+                        ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
+                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      <span>Today</span>
+                      <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+                        {todayEntries.length}
+                      </span>
+                    </div>
+                  </button>
                   
-                  {thisWeekEntries.length > 0 && (
-                    <button
-                      onClick={() => setActiveTab('week')}
-                      className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
-                        activeTab === 'week'
-                          ? 'text-green-600 border-b-2 border-green-600 bg-green-50'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center justify-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        <span>This Week</span>
-                        <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">
-                          {thisWeekEntries.length}
-                        </span>
-                      </div>
-                    </button>
-                  )}
+                  {/* Always show This Week tab */}
+                  <button
+                    onClick={() => setActiveTab('week')}
+                    className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+                      activeTab === 'week'
+                        ? 'text-green-600 border-b-2 border-green-600 bg-green-50'
+                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      <span>This Week</span>
+                      <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">
+                        {thisWeekEntries.length}
+                      </span>
+                    </div>
+                  </button>
                   
-                  {upcomingEntries.length > 0 && (
-                    <button
-                      onClick={() => setActiveTab('upcoming')}
-                      className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
-                        activeTab === 'upcoming'
-                          ? 'text-purple-600 border-b-2 border-purple-600 bg-purple-50'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center justify-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        <span>Upcoming</span>
-                        <span className="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-full">
-                          {upcomingEntries.length}
-                        </span>
-                      </div>
-                    </button>
-                  )}
+                  {/* Always show Upcoming tab */}
+                  <button
+                    onClick={() => setActiveTab('upcoming')}
+                    className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+                      activeTab === 'upcoming'
+                        ? 'text-purple-600 border-b-2 border-purple-600 bg-purple-50'
+                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      <span>Upcoming</span>
+                      <span className="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-full">
+                        {upcomingEntries.length}
+                      </span>
+                    </div>
+                  </button>
                   
-                  {completedEntries.length > 0 && (
-                    <button
-                      onClick={() => setActiveTab('completed')}
-                      className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
-                        activeTab === 'completed'
-                          ? 'text-green-600 border-b-2 border-green-600 bg-green-50'
-                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center justify-center gap-2">
-                        <CheckCircle className="w-4 h-4" />
-                        <span>Completed</span>
-                        <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">
-                          {completedEntries.length}
-                        </span>
-                      </div>
-                    </button>
-                  )}
+                  {/* Always show Completed tab */}
+                  <button
+                    onClick={() => setActiveTab('completed')}
+                    className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+                      activeTab === 'completed'
+                        ? 'text-green-600 border-b-2 border-green-600 bg-green-50'
+                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <CheckCircle className="w-4 h-4" />
+                      <span>Completed</span>
+                      <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">
+                        {completedEntries.length}
+                      </span>
+                    </div>
+                  </button>
+                  
+                  {/* Always show Other tab */}
+                  <button
+                    onClick={() => setActiveTab('other')}
+                    className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+                      activeTab === 'other'
+                        ? 'text-gray-600 border-b-2 border-gray-600 bg-gray-50'
+                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <FileText className="w-4 h-4" />
+                      <span>Other</span>
+                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                        {otherEntries.length}
+                      </span>
+                    </div>
+                  </button>
                 </div>
 
                 {/* Tab Content */}
@@ -743,6 +772,8 @@ export const HomeView: React.FC = () => {
                               return 'bg-purple-50 border-purple-200 hover:bg-purple-100';
                             case 'completed':
                               return 'bg-green-50 border-green-200 hover:bg-green-100';
+                            case 'other':
+                              return 'bg-gray-50 border-gray-200 hover:bg-gray-100';
                             default:
                               return 'bg-gray-50 border-gray-200 hover:bg-gray-100';
                           }
