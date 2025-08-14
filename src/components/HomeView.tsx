@@ -39,13 +39,15 @@ export const HomeView: React.FC = () => {
     markReviewed,
     getTopTags,
     updateEntry,
-    cleanupDuplicateTags
+    cleanupDuplicateTags,
+    migrateEntriesToCleanFormat
   } = useGenieNotesStore();
 
-  // Clean up duplicate tags on mount
+  // Clean up duplicate tags and migrate to clean format on mount
   React.useEffect(() => {
     cleanupDuplicateTags();
-  }, [cleanupDuplicateTags]);
+    migrateEntriesToCleanFormat();
+  }, [cleanupDuplicateTags, migrateEntriesToCleanFormat]);
 
   const allEntries = getFilteredEntries();
   const reviewEntries = getEntriesNeedingReview();

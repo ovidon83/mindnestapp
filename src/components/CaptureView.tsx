@@ -100,7 +100,7 @@ export const CaptureView: React.FC = () => {
     return directives;
   };
 
-  // Extract ALL hashtags as user tags
+  // Extract ALL hashtags as tags
   const extractUserTags = (text: string) => {
     const hashtags = text.match(/#\w+/g)?.map(tag => tag.slice(1)) || [];
     return hashtags;
@@ -182,7 +182,7 @@ export const CaptureView: React.FC = () => {
     const defaultTimes = setDefaultTimes(directives, chronoResults);
     console.log('Default times set:', defaultTimes);
     
-    // Extract user tags (non-directive)
+    // Extract ALL hashtags as tags
     const userTags = extractUserTags(text);
     console.log('User tags extracted:', userTags);
     

@@ -57,6 +57,8 @@ interface GenieNotesStore {
   getEntriesByPriority: (priority: Priority) => Entry[];
   // Clean up duplicate tags in existing entries
   cleanupDuplicateTags: () => void;
+  // Migrate existing entries to clean format (remove hashtags from titles, ensure all hashtags are tags)
+  migrateEntriesToCleanFormat: () => void;
 }
 
 export const useGenieNotesStore = create<GenieNotesStore>()(
@@ -400,7 +402,34 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
           tags: [...new Set(entry.tags)],
           updatedAt: new Date()
         }))
-      }))
+      })),
+
+      // Migrate existing entries to clean format (remove hashtags from titles, ensure all hashtags are tags)
+      migrateEntriesToCleanFormat: () => set((state) => {
+        const migratedEntries = state.entries.map((entry) => {
+          // Extract all hashtags from the content
+          const hashtagPattern = /#\w+/g;
+          const hashtags = entry.content.match(hashtagPattern)?.map(tag => tag.slice(1)) || [];
+          
+          // Clean the content by removing hashtags
+          const cleanContent = entry.content.replace(hashtagPattern, '').replace(/\s+/g, ' ').trim();
+          
+          // Merge existing tags with extracted hashtags, remove duplicates
+          const allTags = [...new Set([...(entry.tags || []), ...hashtags])];
+          
+          return {
+            ...entry,
+            content: cleanContent,
+            tags: allTags,
+            updatedAt: new Date()
+          };
+        });
+        
+        console.log('=== Store: Migrating entries to clean format ===');
+        console.log('Migrated entries:', migratedEntries);
+        
+        return { entries: migratedEntries };
+      })
     }),
     {
       name: "genienotes-storage",
