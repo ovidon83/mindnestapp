@@ -105,6 +105,9 @@ export const HomeView: React.FC = () => {
   });
 
   const thisWeekEntries = filteredEntries.filter(entry => {
+    // EXCLUDE entries that are already in today
+    if (todayEntries.some(todayEntry => todayEntry.id === entry.id)) return false;
+    
     // Check if entry targets current week
     if (entry.targetWeek === 'currentWeek') return true;
     
@@ -124,6 +127,10 @@ export const HomeView: React.FC = () => {
   });
 
   const upcomingEntries = filteredEntries.filter(entry => {
+    // EXCLUDE entries that are already in today or this week
+    if (todayEntries.some(todayEntry => todayEntry.id === entry.id)) return false;
+    if (thisWeekEntries.some(weekEntry => weekEntry.id === entry.id)) return false;
+    
     // Check if entry targets next week
     if (entry.targetWeek === 'nextWeek') return true;
     
