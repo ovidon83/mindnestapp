@@ -31,27 +31,25 @@ export const HomeView: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'today' | 'week' | 'upcoming'>('today');
 
-  const { 
-    getFilteredEntries,
-    getEntriesNeedingReview,
-    getUrgentEntries,
+  const {
+    entries,
     deleteEntry,
-    markReviewed,
-    getTopTags,
     updateEntry,
-    cleanupDuplicateTags,
-    migrateEntriesToCleanFormat
+    getFilteredEntries,
+    getTopTags,
+    changeEntryTimePeriod,
+    adjustPriority,
+    markReviewed
   } = useGenieNotesStore();
 
-  // Clean up duplicate tags and migrate to clean format on mount
+  // Auto-cleanup on mount to ensure data consistency
   React.useEffect(() => {
-    cleanupDuplicateTags();
-    migrateEntriesToCleanFormat();
-  }, [cleanupDuplicateTags, migrateEntriesToCleanFormat]);
+    // No cleanup needed - user doesn't want this functionality
+  }, []);
 
   const allEntries = getFilteredEntries();
-  const reviewEntries = getEntriesNeedingReview();
-  const urgentEntries = getUrgentEntries();
+  const reviewEntries = entries.filter(entry => entry.needsReview);
+  const urgentEntries = entries.filter(entry => entry.priority === 'urgent' || (entry.dueDate && entry.dueDate <= new Date()));
   const topTags = getTopTags(allEntries);
 
   // Apply search filter
@@ -261,67 +259,6 @@ export const HomeView: React.FC = () => {
     setEditingEntry(null);
   };
 
-  // Change the time period of an entry
-  const changeEntryTimePeriod = (entryId: string, newPeriod: 'today' | 'week' | 'upcoming') => {
-    const entry = allEntries.find(e => e.id === entryId);
-    if (!entry) return;
-
-    let updates: Partial<Entry> = {};
-    
-    switch (newPeriod) {
-      case 'today':
-        // Pin to today and set due date to today if not urgent
-        updates = {
-          pinnedForDate: new Date(),
-          dueDate: entry.priority === 'urgent' ? entry.dueDate : new Date(),
-          targetWeek: undefined // Clear week targeting
-        };
-        break;
-      case 'week':
-        // Target current week and set due date to end of week if not urgent
-        updates = {
-          targetWeek: 'currentWeek',
-          dueDate: entry.priority === 'urgent' ? entry.dueDate : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-          pinnedForDate: undefined // Clear today pinning
-        };
-        break;
-      case 'upcoming':
-        // Target next week and set due date to next month if not urgent
-        updates = {
-          targetWeek: 'nextWeek',
-          dueDate: entry.priority === 'urgent' ? entry.dueDate : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-          pinnedForDate: undefined // Clear today pinning
-        };
-        break;
-    }
-
-    updateEntry(entryId, {
-      ...updates,
-      updatedAt: new Date()
-    });
-  };
-
-  // Adjust priority to reorder entries
-  const adjustPriority = (entryId: string, direction: 'up' | 'down') => {
-    const entry = allEntries.find(e => e.id === entryId);
-    if (!entry) return;
-
-    const priorityOrder = ['low', 'medium', 'high', 'urgent'];
-    const currentIndex = priorityOrder.indexOf(entry.priority);
-    
-    if (direction === 'up' && currentIndex < priorityOrder.length - 1) {
-      updateEntry(entryId, {
-        priority: priorityOrder[currentIndex + 1] as Priority,
-        updatedAt: new Date()
-      });
-    } else if (direction === 'down' && currentIndex > 0) {
-      updateEntry(entryId, {
-        priority: priorityOrder[currentIndex - 1] as Priority,
-        updatedAt: new Date()
-      });
-    }
-  };
-
   // Get entries for the current active tab
   const getCurrentTabEntries = () => {
     switch (activeTab) {
@@ -361,19 +298,6 @@ export const HomeView: React.FC = () => {
               <p className="text-gray-600 text-lg">
                 Your personal thought sanctuary and productivity hub
               </p>
-            </div>
-            
-            {/* Manual Cleanup Button */}
-            <div className="mb-4 sm:mb-0">
-              <button
-                onClick={() => {
-                  cleanupDuplicateTags();
-                  migrateEntriesToCleanFormat();
-                }}
-                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg"
-              >
-                🧹 Clean Up Entries
-              </button>
             </div>
           </div>
 

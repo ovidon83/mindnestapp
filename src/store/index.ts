@@ -27,6 +27,8 @@ interface GenieNotesStore {
   // Entry operations
   changeEntryType: (id: string, newType: EntryType) => void;
   changeEntryPriority: (id: string, newPriority: Priority) => void;
+  changeEntryTimePeriod: (id: string, period: 'today' | 'week' | 'upcoming') => void;
+  adjustPriority: (id: string, direction: 'up' | 'down') => void;
   addEntryTag: (id: string, tag: string) => void;
   removeEntryTag: (id: string, tag: string) => void;
   setEntryDueDate: (id: string, dueDate: Date | null) => void;
@@ -139,6 +141,60 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
       // Entry operations
       changeEntryType: (id, newType) => get().updateEntry(id, { type: newType }),
       changeEntryPriority: (id, newPriority) => get().updateEntry(id, { priority: newPriority }),
+      changeEntryTimePeriod: (id, period) => {
+        const entry = get().entries.find(e => e.id === id);
+        if (!entry) return;
+        
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const dayOfWeek = today.getDay();
+        
+        let updates: Partial<Entry> = {};
+        
+        switch (period) {
+          case 'today':
+            updates = { 
+              pinnedForDate: today,
+              targetWeek: undefined
+            };
+            break;
+          case 'week':
+            // Set to current week (Monday)
+            const monday = new Date(today);
+            const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+            monday.setDate(today.getDate() - daysToMonday);
+            updates = { 
+              pinnedForDate: monday,
+              targetWeek: 'currentWeek'
+            };
+            break;
+          case 'upcoming':
+            // Set to next week (Monday)
+            const nextMonday = new Date(today);
+            nextMonday.setDate(today.getDate() + (7 - dayOfWeek) + 1);
+            updates = { 
+              pinnedForDate: nextMonday,
+              targetWeek: 'nextWeek'
+            };
+            break;
+        }
+        
+        get().updateEntry(id, updates);
+      },
+      adjustPriority: (id, direction) => {
+        const entry = get().entries.find(e => e.id === id);
+        if (!entry) return;
+
+        const currentPriority = entry.priority;
+        let newPriority: Priority;
+
+        if (direction === 'up') {
+          newPriority = currentPriority === 'low' ? 'medium' : currentPriority === 'medium' ? 'high' : 'urgent';
+        } else { // down
+          newPriority = currentPriority === 'urgent' ? 'high' : currentPriority === 'high' ? 'medium' : 'low';
+        }
+        get().updateEntry(id, { priority: newPriority });
+      },
       
       addEntryTag: (id, tag) => set((state) => ({
         entries: state.entries.map((entry) =>
