@@ -521,6 +521,16 @@ export const HomeView: React.FC = () => {
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(entry.type)}`}>
                             {entry.type}
                           </span>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
+                            {entry.priority === 'urgent' ? (
+                              <span className="flex items-center gap-1">
+                                <Zap className="w-3 h-3" />
+                                {entry.priority}
+                              </span>
+                            ) : (
+                              entry.priority
+                            )}
+                          </span>
                           <span className="text-xs text-gray-500">
                             {getRelativeTime(entry.createdAt)}
                           </span>
@@ -683,14 +693,15 @@ export const HomeView: React.FC = () => {
                                   {entry.type}
                                 </span>
                                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
-                                  {entry.priority}
+                                  {entry.priority === 'urgent' ? (
+                                    <span className="flex items-center gap-1">
+                                      <Zap className="w-3 h-3" />
+                                      {entry.priority}
+                                    </span>
+                                  ) : (
+                                    entry.priority
+                                  )}
                                 </span>
-                                {isUrgent && (
-                                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 border border-red-200 flex items-center gap-1">
-                                    <Zap className="w-3 h-3" />
-                                    Urgent
-                                  </span>
-                                )}
                                 {entry.tags && entry.tags.length > 0 && (
                                   <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
                                     {entry.tags[0]}
