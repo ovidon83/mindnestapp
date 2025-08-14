@@ -14,7 +14,8 @@ import {
   BookOpen,
   Bell,
   FileText,
-  BarChart3
+  BarChart3,
+  CheckCircle
 } from 'lucide-react';
 import { useGenieNotesStore } from '../store';
 import { EntryType, Priority, TaskStatus, Entry } from '../types';
@@ -29,7 +30,7 @@ export const HomeView: React.FC = () => {
   });
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [activeTab, setActiveTab] = useState<'today' | 'week' | 'upcoming'>('today');
+  const [activeTab, setActiveTab] = useState<'today' | 'week' | 'upcoming' | 'completed'>('today');
 
   const {
     entries,
@@ -86,6 +87,9 @@ export const HomeView: React.FC = () => {
   endOfWeek.setDate(today.getDate() + 7);
 
   const todayEntries = filteredEntries.filter(entry => {
+    // EXCLUDE completed entries from time-based views
+    if (entry.status === 'completed') return false;
+    
     // Check if entry is pinned to today
     if (entry.pinnedForDate && entry.pinnedForDate instanceof Date && entry.pinnedForDate.toDateString() === today.toDateString()) return true;
     
@@ -105,6 +109,9 @@ export const HomeView: React.FC = () => {
   });
 
   const thisWeekEntries = filteredEntries.filter(entry => {
+    // EXCLUDE completed entries from time-based views
+    if (entry.status === 'completed') return false;
+    
     // EXCLUDE entries that are already in today
     if (todayEntries.some(todayEntry => todayEntry.id === entry.id)) return false;
     
@@ -127,6 +134,9 @@ export const HomeView: React.FC = () => {
   });
 
   const upcomingEntries = filteredEntries.filter(entry => {
+    // EXCLUDE completed entries from time-based views
+    if (entry.status === 'completed') return false;
+    
     // EXCLUDE entries that are already in today or this week
     if (todayEntries.some(todayEntry => todayEntry.id === entry.id)) return false;
     if (thisWeekEntries.some(weekEntry => weekEntry.id === entry.id)) return false;
@@ -147,6 +157,9 @@ export const HomeView: React.FC = () => {
     return false;
   });
 
+  // Get completed entries separately
+  const completedEntries = filteredEntries.filter(entry => entry.status === 'completed');
+
   // Debug logging with detailed counts
   console.log('=== HomeView Debug ===');
   console.log('Raw entries from store:', rawEntries.length);
@@ -155,6 +168,7 @@ export const HomeView: React.FC = () => {
   console.log('This week entries:', thisWeekEntries.length);
   console.log('Upcoming entries:', upcomingEntries.length);
   console.log('Review entries:', reviewEntries.length);
+  console.log('Completed entries:', completedEntries.length);
   
   // Show ALL raw entries to find the missing one
   console.log('=== ALL RAW ENTRIES ===');
@@ -324,6 +338,8 @@ export const HomeView: React.FC = () => {
         return thisWeekEntries;
       case 'upcoming':
         return upcomingEntries;
+      case 'completed':
+        return completedEntries;
       default:
         return todayEntries;
     }
@@ -334,12 +350,14 @@ export const HomeView: React.FC = () => {
     if (todayEntries.length > 0 && activeTab === 'today') return;
     if (thisWeekEntries.length > 0 && activeTab === 'week') return;
     if (upcomingEntries.length > 0 && activeTab === 'upcoming') return;
+    if (completedEntries.length > 0 && activeTab === 'completed') return;
     
     // Set to first tab with entries
     if (todayEntries.length > 0) setActiveTab('today');
     else if (thisWeekEntries.length > 0) setActiveTab('week');
     else if (upcomingEntries.length > 0) setActiveTab('upcoming');
-  }, [todayEntries.length, thisWeekEntries.length, upcomingEntries.length, activeTab]);
+    else if (completedEntries.length > 0) setActiveTab('completed');
+  }, [todayEntries.length, thisWeekEntries.length, upcomingEntries.length, completedEntries.length, activeTab]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -678,6 +696,25 @@ export const HomeView: React.FC = () => {
                       </div>
                     </button>
                   )}
+                  
+                  {completedEntries.length > 0 && (
+                    <button
+                      onClick={() => setActiveTab('completed')}
+                      className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+                        activeTab === 'completed'
+                          ? 'text-green-600 border-b-2 border-green-600 bg-green-50'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <CheckCircle className="w-4 h-4" />
+                        <span>Completed</span>
+                        <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">
+                          {completedEntries.length}
+                        </span>
+                      </div>
+                    </button>
+                  )}
                 </div>
 
                 {/* Tab Content */}
@@ -696,6 +733,8 @@ export const HomeView: React.FC = () => {
                               return 'bg-green-50 border-green-200 hover:bg-green-100';
                             case 'upcoming':
                               return 'bg-purple-50 border-purple-200 hover:bg-purple-100';
+                            case 'completed':
+                              return 'bg-green-50 border-green-200 hover:bg-green-100';
                             default:
                               return 'bg-gray-50 border-gray-200 hover:bg-gray-100';
                           }

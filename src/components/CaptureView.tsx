@@ -150,7 +150,23 @@ export const CaptureView: React.FC = () => {
     if (results.length === 0) return {};
     
     const firstResult = results[0];
-    const startDate = firstResult.start.date();
+    let startDate = firstResult.start.date();
+    
+    // Fix: Ensure dates like "10/18" default to current year, not 2001
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    
+    // If the parsed date is in the past (like 2001), assume it's meant for current year
+    if (startDate.getFullYear() < currentYear) {
+      console.log(`Date ${startDate.toDateString()} is in the past, adjusting to current year ${currentYear}`);
+      startDate = new Date(currentYear, startDate.getMonth(), startDate.getDate());
+    }
+    
+    // Validate: Don't set dates in the past
+    if (startDate < now) {
+      console.log(`Adjusted date ${startDate.toDateString()} is still in the past, skipping date parsing`);
+      return {};
+    }
     
     // If it's a time expression, set as due date
     if (firstResult.start.isCertain('hour')) {
