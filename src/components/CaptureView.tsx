@@ -37,6 +37,13 @@ export const CaptureView: React.FC = () => {
       type?: EntryType;
     } = {};
     
+    const lowerText = text.toLowerCase();
+    
+    // Check for "today" mentioned in content (not just hashtags)
+    if (lowerText.includes('today') && !lowerText.includes('#today')) {
+      directives.pinnedForDate = new Date();
+    }
+    
     const directivePatterns = [
       // Date directives
       { pattern: /#today\b/i, action: () => { directives.pinnedForDate = new Date(); } },
@@ -183,21 +190,87 @@ export const CaptureView: React.FC = () => {
     
     // Determine final values (chrono results override directives)
     const finalDueDate = chronoResults.dueDate || directives.dueDate || defaultTimes.dueDate;
-    const finalPinnedDate = directives.pinnedForDate || chronoResults.pinnedForDate;
+    let finalPinnedDate = directives.pinnedForDate || chronoResults.pinnedForDate;
     const finalPriority = directives.priority || 'medium';
-    const finalType = directives.type || 'note';
+    let finalType = directives.type;
     const finalTargetWeek = directives.targetWeek;
+    
+    // Enhanced type detection if no directive specified
+    if (!finalType) {
+      const lowerText = text.toLowerCase();
+      
+      // TASK DETECTION - Look for actionable language
+      if (lowerText.includes('finish') || lowerText.includes('complete') || 
+          lowerText.includes('do') || lowerText.includes('work on') ||
+          lowerText.includes('start') || lowerText.includes('prepare') ||
+          lowerText.includes('email') || lowerText.includes('call') || 
+          lowerText.includes('meet') || lowerText.includes('buy') || 
+          lowerText.includes('get') || lowerText.includes('find') ||
+          lowerText.includes('review') || lowerText.includes('check') || 
+          lowerText.includes('update') || lowerText.includes('create') || 
+          lowerText.includes('build') || lowerText.includes('design') ||
+          lowerText.includes('write') || lowerText.includes('read') || 
+          lowerText.includes('study') || lowerText.includes('organize') || 
+          lowerText.includes('clean') || lowerText.includes('fix') ||
+          lowerText.includes('solve') || lowerText.includes('plan') || 
+          lowerText.includes('schedule') || lowerText.includes('asap') ||
+          lowerText.includes('urgent') || lowerText.includes('deadline') ||
+          lowerText.includes('need to') || lowerText.includes('must') ||
+          lowerText.includes('have to') || lowerText.includes('should')) {
+        finalType = 'task';
+      }
+      // IDEA DETECTION - Look for concept/innovation language
+      else if (lowerText.includes('could be') || lowerText.includes('would be great') || 
+               lowerText.includes('imagine if') || lowerText.includes('what if') ||
+               lowerText.includes('maybe we could') || lowerText.includes('innovation') || 
+               lowerText.includes('concept') || lowerText.includes('brainstorm') ||
+               lowerText.includes('possibility') || lowerText.includes('potential') ||
+               lowerText.includes('opportunity') || lowerText.includes('think about')) {
+        finalType = 'idea';
+      }
+      // EVENT DETECTION - Look for scheduling/meeting language
+      else if (lowerText.includes('meeting') || lowerText.includes('event') || 
+               lowerText.includes('appointment') || lowerText.includes('conference') ||
+               lowerText.includes('party') || lowerText.includes('dinner') || 
+               lowerText.includes('lunch') || lowerText.includes('interview') ||
+               lowerText.includes('presentation') || lowerText.includes('workshop') || 
+               lowerText.includes('class')) {
+        finalType = 'event';
+      }
+      // Default to note if no clear type detected
+      else {
+        finalType = 'note';
+      }
+    }
+    
+    // Enhanced urgency detection - check for time-sensitive words in content
+    let enhancedPriority = finalPriority;
+    const lowerText = text.toLowerCase();
+    if (lowerText.includes('today') || lowerText.includes('now') || 
+        lowerText.includes('asap') || lowerText.includes('urgent') ||
+        lowerText.includes('immediate') || lowerText.includes('deadline')) {
+      enhancedPriority = 'urgent';
+    } else if (lowerText.includes('tomorrow') || lowerText.includes('soon') ||
+               lowerText.includes('quick') || lowerText.includes('fast')) {
+      enhancedPriority = 'high';
+    }
     
     // Determine if entry should be pinned to today
     const shouldPinToToday = finalPinnedDate || 
       (finalDueDate && finalDueDate.toDateString() === new Date().toDateString()) ||
-      finalTargetWeek === 'currentWeek';
+      finalTargetWeek === 'currentWeek' ||
+      lowerText.includes('today'); // Auto-pin if "today" mentioned
+    
+    // If "today" is mentioned, automatically pin to today
+    if (lowerText.includes('today') && !finalPinnedDate) {
+      finalPinnedDate = new Date();
+    }
     
     console.log('Final parsed values:', {
       dueDate: finalDueDate,
       pinnedForDate: finalPinnedDate,
       targetWeek: finalTargetWeek,
-      priority: finalPriority,
+      priority: enhancedPriority,
       type: finalType,
       shouldPinToToday
     });
@@ -206,7 +279,7 @@ export const CaptureView: React.FC = () => {
       content: cleanDisplayContent,
       rawContent,
       type: finalType,
-      priority: finalPriority,
+      priority: enhancedPriority,
       tags: userTags,
       dueDate: finalDueDate,
       pinnedForDate: finalPinnedDate,
@@ -214,7 +287,7 @@ export const CaptureView: React.FC = () => {
       status: finalType === 'task' ? 'pending' as TaskStatus : 'pending' as TaskStatus,
       needsReview: false,
       confidence: 0.95,
-      reasoning: `Parsed with enhanced AI: Type=${finalType}, Priority=${finalPriority}, Due=${finalDueDate}, Pinned=${finalPinnedDate}`,
+      reasoning: `Parsed with enhanced AI: Type=${finalType}, Priority=${enhancedPriority}, Due=${finalDueDate}, Pinned=${finalPinnedDate}`,
       relatedIds: []
     };
   };
@@ -425,14 +498,29 @@ export const CaptureView: React.FC = () => {
                 </div>
               )}
 
-              {/* AI Reasoning */}
-              <div className="p-4 bg-gradient-to-r from-green-50 to-teal-50 border border-green-200 rounded-xl">
-                <div className="flex items-center gap-3 mb-2">
-                  <Sparkles className="w-5 h-5 text-green-600" />
-                  <span className="font-medium text-green-800">AI Reasoning</span>
+              {/* Due Date */}
+              {editableEntry.dueDate && (
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Clock className="w-4 h-4" />
+                  <span>Due Date: {editableEntry.dueDate.toLocaleDateString()}</span>
                 </div>
-                <p className="text-green-700 leading-relaxed">{parsedEntry.reasoning}</p>
-              </div>
+              )}
+
+              {/* Pinned Date */}
+              {editableEntry.pinnedForDate && (
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Calendar className="w-4 h-4" />
+                  <span>Pinned to: {editableEntry.pinnedForDate.toLocaleDateString()}</span>
+                </div>
+              )}
+
+              {/* Target Week */}
+              {editableEntry.targetWeek && (
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <CalendarDays className="w-4 h-4" />
+                  <span>Target: {editableEntry.targetWeek === 'currentWeek' ? 'This Week' : 'Next Week'}</span>
+                </div>
+              )}
             </div>
           </div>
 
