@@ -38,8 +38,14 @@ export const HomeView: React.FC = () => {
     deleteEntry,
     markReviewed,
     getTopTags,
-    updateEntry
+    updateEntry,
+    cleanupDuplicateTags
   } = useGenieNotesStore();
+
+  // Clean up duplicate tags on mount
+  React.useEffect(() => {
+    cleanupDuplicateTags();
+  }, [cleanupDuplicateTags]);
 
   const allEntries = getFilteredEntries();
   const reviewEntries = getEntriesNeedingReview();
@@ -533,8 +539,9 @@ export const HomeView: React.FC = () => {
                           </span>
                           {entry.tags && entry.tags.length > 0 && (
                             <>
+                              {console.log('Entry tags before dedup:', entry.tags)}
                               {[...new Set(entry.tags)].map((tag, index) => (
-                                <span key={index} className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                                <span key={`${entry.id}-${tag}-${index}`} className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
                                   {tag}
                                 </span>
                               ))}
@@ -713,8 +720,9 @@ export const HomeView: React.FC = () => {
                                 </span>
                                 {entry.tags && entry.tags.length > 0 && (
                                   <>
+                                    {console.log('Entry tags before dedup:', entry.tags)}
                                     {[...new Set(entry.tags)].map((tag, index) => (
-                                      <span key={index} className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                                      <span key={`${entry.id}-${tag}-${index}`} className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
                                         {tag}
                                       </span>
                                     ))}

@@ -55,6 +55,8 @@ interface GenieNotesStore {
   getTopTags: (entries: Entry[]) => Array<{ tag: string; count: number }>;
   getEntriesByType: (type: EntryType) => Entry[];
   getEntriesByPriority: (priority: Priority) => Entry[];
+  // Clean up duplicate tags in existing entries
+  cleanupDuplicateTags: () => void;
 }
 
 export const useGenieNotesStore = create<GenieNotesStore>()(
@@ -85,15 +87,21 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
       
       // Entry management
       addEntry: (entryData) => {
+        // Ensure tags are unique when creating entry
+        const uniqueTags = entryData.tags ? [...new Set(entryData.tags)] : [];
+        
         const entry: Entry = {
           ...entryData,
+          tags: uniqueTags, // Use deduplicated tags
           id: crypto.randomUUID(),
           createdAt: new Date(),
           updatedAt: new Date()
         };
         
         console.log('=== Store Debug: Adding Entry ===');
-        console.log('Entry data:', entryData);
+        console.log('Original entry data:', entryData);
+        console.log('Tags before dedup:', entryData.tags);
+        console.log('Tags after dedup:', uniqueTags);
         console.log('Created entry:', entry);
         
         set((state) => {
@@ -133,7 +141,11 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
       addEntryTag: (id, tag) => set((state) => ({
         entries: state.entries.map((entry) =>
           entry.id === id 
-            ? { ...entry, tags: [...entry.tags, tag], updatedAt: new Date() }
+            ? { 
+                ...entry, 
+                tags: entry.tags.includes(tag) ? entry.tags : [...entry.tags, tag], 
+                updatedAt: new Date() 
+              }
             : entry
         )
       })),
@@ -379,7 +391,16 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
       getEntriesByPriority: (priority) => {
         const { entries } = get();
         return entries.filter(entry => entry.priority === priority);
-      }
+      },
+
+      // Clean up duplicate tags in existing entries
+      cleanupDuplicateTags: () => set((state) => ({
+        entries: state.entries.map((entry) => ({
+          ...entry,
+          tags: [...new Set(entry.tags)],
+          updatedAt: new Date()
+        }))
+      }))
     }),
     {
       name: "genienotes-storage",
