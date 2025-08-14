@@ -355,31 +355,77 @@ export const HomeView: React.FC = () => {
               </p>
             </div>
             
-            {/* Stats Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
-                <div className="text-2xl font-bold text-gray-900">{allEntries.length}</div>
-                <div className="text-sm text-gray-500">Total</div>
+            {/* Stats Cards - Beautiful Design */}
+            {filteredEntries.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                {/* Total Entries */}
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl p-6 shadow-lg border border-blue-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-3xl font-bold text-blue-700">{filteredEntries.length}</div>
+                      <div className="text-sm font-medium text-blue-600">Total</div>
+                    </div>
+                    <div className="p-3 bg-blue-200 rounded-xl">
+                      <FileText className="w-6 h-6 text-blue-700" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Today */}
+                <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl p-6 shadow-lg border border-green-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-3xl font-bold text-green-700">{todayEntries.length}</div>
+                      <div className="text-sm font-medium text-green-600">Today</div>
+                    </div>
+                    <div className="p-3 bg-green-200 rounded-xl">
+                      <Calendar className="w-6 h-6 text-green-700" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* This Week */}
+                <div className="bg-gradient-to-br from-purple-50 to-violet-100 rounded-2xl p-6 shadow-lg border border-purple-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-3xl font-bold text-purple-700">{thisWeekEntries.length}</div>
+                      <div className="text-sm font-medium text-purple-600">This Week</div>
+                    </div>
+                    <div className="p-3 bg-purple-200 rounded-xl">
+                      <Target className="w-6 h-6 text-purple-700" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Needs Review */}
+                <div className="bg-gradient-to-br from-orange-50 to-amber-100 rounded-2xl p-6 shadow-lg border border-orange-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-3xl font-bold text-orange-700">{reviewEntries.length}</div>
+                      <div className="text-sm font-medium text-orange-600">Review</div>
+                    </div>
+                    <div className="p-3 bg-orange-200 rounded-xl">
+                      <Eye className="w-6 h-6 text-orange-700" />
+                    </div>
+                  </div>
+                </div>
               </div>
-              {todayEntries.length > 0 && (
-                <div className="bg-white rounded-xl p-4 shadow-sm border border-blue-200 bg-blue-50">
-                  <div className="text-2xl font-bold text-blue-600">{todayEntries.length}</div>
-                  <div className="text-sm text-blue-500">Today</div>
+            ) : (
+              /* Empty State - Beautiful Design */
+              <div className="bg-gradient-to-br from-gray-50 to-slate-100 rounded-2xl p-8 mb-6 shadow-lg border border-gray-200 text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Lightbulb className="w-8 h-8 text-white" />
                 </div>
-              )}
-              {thisWeekEntries.length > 0 && (
-                <div className="bg-white rounded-xl p-4 shadow-sm border border-green-200 bg-green-50">
-                  <div className="text-2xl font-bold text-green-600">{thisWeekEntries.length}</div>
-                  <div className="text-sm text-green-500">This Week</div>
-                </div>
-              )}
-              {upcomingEntries.length > 0 && (
-                <div className="bg-white rounded-xl p-4 shadow-sm border border-purple-200 bg-purple-50">
-                  <div className="text-2xl font-bold text-purple-600">{upcomingEntries.length}</div>
-                  <div className="text-sm text-purple-500">Upcoming</div>
-                </div>
-              )}
-            </div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">No thoughts captured yet</h3>
+                <p className="text-gray-600 mb-4">Start by capturing your first thought, idea, or task</p>
+                <button 
+                  onClick={() => window.location.href = '/#capture'}
+                  className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                >
+                  Capture Your First Thought
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Search and Filters */}
