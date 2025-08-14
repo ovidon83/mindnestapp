@@ -188,6 +188,34 @@ export const HomeView: React.FC = () => {
   // Log individual entries for debugging
   console.log('Today entries details:', todayEntries.map(e => ({ id: e.id, content: e.content, type: e.type, pinnedForDate: e.pinnedForDate, dueDate: e.dueDate, createdAt: e.createdAt })));
   console.log('This week entries details:', thisWeekEntries.map(e => ({ id: e.id, content: e.content, type: e.type, targetWeek: e.targetWeek, dueDate: e.dueDate, createdAt: e.createdAt })));
+  
+  // Debug the missing entry specifically
+  console.log('=== DEBUGGING MISSING ENTRY ===');
+  const missingEntry = rawEntries.find(entry => 
+    entry.content.includes('Review 2013s classic schedule and talk to Lauren about changing the game on 10/18 for later')
+  );
+  if (missingEntry) {
+    console.log('Missing entry found:', missingEntry);
+    console.log('Why not in Today?');
+    console.log('- Has today tag?', missingEntry.tags?.some(tag => tag.toLowerCase().includes('today')));
+    console.log('- Mentions today?', missingEntry.content.toLowerCase().includes('today'));
+    console.log('- Due date today?', missingEntry.dueDate && missingEntry.dueDate instanceof Date && missingEntry.dueDate >= today && missingEntry.dueDate < new Date(today.getTime() + 24 * 60 * 60 * 1000));
+    console.log('- Created today?', missingEntry.createdAt && missingEntry.createdAt instanceof Date && missingEntry.createdAt >= today && missingEntry.createdAt < new Date(today.getTime() + 24 * 60 * 60 * 1000));
+    console.log('- Pinned to today?', missingEntry.pinnedForDate && missingEntry.pinnedForDate instanceof Date && missingEntry.pinnedForDate.toDateString() === today.toDateString());
+    
+    console.log('Why not in This Week?');
+    console.log('- Has week tag?', missingEntry.tags?.some(tag => tag.toLowerCase().includes('week') || tag.toLowerCase().includes('weekly')));
+    console.log('- Mentions week?', missingEntry.content.toLowerCase().includes('this week') || missingEntry.content.toLowerCase().includes('week'));
+    console.log('- Due date this week?', missingEntry.dueDate && missingEntry.dueDate instanceof Date && missingEntry.dueDate >= today && missingEntry.dueDate < endOfWeek);
+    console.log('- Created this week?', missingEntry.createdAt && missingEntry.createdAt instanceof Date && missingEntry.createdAt >= today && missingEntry.createdAt < endOfWeek);
+    console.log('- Target week?', missingEntry.targetWeek);
+    
+    console.log('Why not in Upcoming?');
+    console.log('- Has upcoming tag?', missingEntry.tags?.some(tag => tag.toLowerCase().includes('upcoming') || tag.toLowerCase().includes('future')));
+    console.log('- Mentions future?', missingEntry.content.toLowerCase().includes('next week') || missingEntry.content.toLowerCase().includes('next month') || missingEntry.content.toLowerCase().includes('tomorrow') || missingEntry.content.toLowerCase().includes('upcoming'));
+    console.log('- Due date future?', missingEntry.dueDate && missingEntry.dueDate instanceof Date && missingEntry.dueDate > endOfWeek);
+    console.log('- Target week next?', missingEntry.targetWeek);
+  }
 
   const getTypeIcon = (type: EntryType) => {
     switch (type) {
