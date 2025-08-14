@@ -156,6 +156,22 @@ export const HomeView: React.FC = () => {
   console.log('Upcoming entries:', upcomingEntries.length);
   console.log('Review entries:', reviewEntries.length);
   
+  // Show ALL raw entries to find the missing one
+  console.log('=== ALL RAW ENTRIES ===');
+  rawEntries.forEach((entry, index) => {
+    console.log(`Entry ${index + 1}:`, {
+      id: entry.id,
+      content: entry.content,
+      type: entry.type,
+      status: entry.status,
+      priority: entry.priority,
+      pinnedForDate: entry.pinnedForDate,
+      dueDate: entry.dueDate,
+      createdAt: entry.createdAt,
+      tags: entry.tags
+    });
+  });
+  
   // Check for duplicate counting
   const todayIds = todayEntries.map(e => e.id);
   const weekIds = thisWeekEntries.map(e => e.id);
