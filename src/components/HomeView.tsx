@@ -82,7 +82,7 @@ export const HomeView: React.FC = () => {
 
   const todayEntries = filteredEntries.filter(entry => {
     // Check if entry is pinned to today
-    if (entry.pinnedForDate && entry.pinnedForDate.toDateString() === today.toDateString()) return true;
+    if (entry.pinnedForDate && entry.pinnedForDate instanceof Date && entry.pinnedForDate.toDateString() === today.toDateString()) return true;
     
     // Check if entry has "today" tag (legacy support)
     if (entry.tags?.some(tag => tag.toLowerCase().includes('today'))) return true;
@@ -91,10 +91,10 @@ export const HomeView: React.FC = () => {
     if (entry.content.toLowerCase().includes('today')) return true;
     
     // Check if due date is today
-    if (entry.dueDate && entry.dueDate >= today && entry.dueDate < new Date(today.getTime() + 24 * 60 * 60 * 1000)) return true;
+    if (entry.dueDate && entry.dueDate instanceof Date && entry.dueDate >= today && entry.dueDate < new Date(today.getTime() + 24 * 60 * 60 * 1000)) return true;
     
     // Check if created today
-    if (entry.createdAt >= today && entry.createdAt < new Date(today.getTime() + 24 * 60 * 60 * 1000)) return true;
+    if (entry.createdAt && entry.createdAt instanceof Date && entry.createdAt >= today && entry.createdAt < new Date(today.getTime() + 24 * 60 * 60 * 1000)) return true;
     
     return false;
   });
@@ -110,10 +110,10 @@ export const HomeView: React.FC = () => {
     if (entry.content.toLowerCase().includes('this week') || entry.content.toLowerCase().includes('week')) return true;
     
     // Check if due date is this week
-    if (entry.dueDate && entry.dueDate >= today && entry.dueDate < endOfWeek) return true;
+    if (entry.dueDate && entry.dueDate instanceof Date && entry.dueDate >= today && entry.dueDate < endOfWeek) return true;
     
     // Check if created this week
-    if (entry.createdAt >= today && entry.createdAt < endOfWeek) return true;
+    if (entry.createdAt && entry.createdAt instanceof Date && entry.createdAt >= today && entry.createdAt < endOfWeek) return true;
     
     return false;
   });
@@ -130,7 +130,7 @@ export const HomeView: React.FC = () => {
         entry.content.toLowerCase().includes('tomorrow') || entry.content.toLowerCase().includes('upcoming')) return true;
     
     // Check if due date is in the future
-    if (entry.dueDate && entry.dueDate > endOfWeek) return true;
+    if (entry.dueDate && entry.dueDate instanceof Date && entry.dueDate > endOfWeek) return true;
     
     return false;
   });
@@ -885,7 +885,7 @@ export const HomeView: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
                   <input
                     type="datetime-local"
-                    value={editingEntry.dueDate ? new Date(editingEntry.dueDate.getTime() - editingEntry.dueDate.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''}
+                    value={editingEntry.dueDate && editingEntry.dueDate instanceof Date ? new Date(editingEntry.dueDate.getTime() - editingEntry.dueDate.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''}
                     onChange={(e) => setEditingEntry({...editingEntry, dueDate: e.target.value ? new Date(e.target.value) : undefined})}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
@@ -898,7 +898,7 @@ export const HomeView: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Pin to Date</label>
                   <input
                     type="date"
-                    value={editingEntry.pinnedForDate ? editingEntry.pinnedForDate.toISOString().split('T')[0] : ''}
+                    value={editingEntry.pinnedForDate && editingEntry.pinnedForDate instanceof Date ? editingEntry.pinnedForDate.toISOString().split('T')[0] : ''}
                     onChange={(e) => setEditingEntry({...editingEntry, pinnedForDate: e.target.value ? new Date(e.target.value) : undefined})}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />

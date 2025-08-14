@@ -388,21 +388,63 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         appState: state.appState,
         uiState: state.uiState
       }),
-      onRehydrateStorage: () => (state) => {
-        if (state) {
-          // Convert date strings back to Date objects
-          state.entries = state.entries.map(entry => ({
-            ...entry,
-            createdAt: new Date(entry.createdAt),
-            updatedAt: new Date(entry.updatedAt),
-            dueDate: entry.dueDate ? new Date(entry.dueDate) : undefined,
-            startDate: entry.startDate ? new Date(entry.startDate) : undefined,
-            endDate: entry.endDate ? new Date(entry.endDate) : undefined,
-            reminderDate: entry.reminderDate ? new Date(entry.reminderDate) : undefined,
-            completedAt: entry.completedAt ? new Date(entry.completedAt) : undefined,
-            lastReviewedAt: entry.lastReviewedAt ? new Date(entry.lastReviewedAt) : undefined
-          }));
-        }
+      onRehydrateStorage: () => {
+        console.log('=== Store: Rehydrating from localStorage ===');
+        
+        // Convert date strings back to Date objects for all entries
+        const entries = useGenieNotesStore.getState().entries;
+        const updatedEntries = entries.map(entry => {
+          const updatedEntry = { ...entry };
+          
+          // Convert createdAt and updatedAt
+          if (entry.createdAt && !(entry.createdAt instanceof Date)) {
+            updatedEntry.createdAt = new Date(entry.createdAt);
+          }
+          if (entry.updatedAt && !(entry.updatedAt instanceof Date)) {
+            updatedEntry.updatedAt = new Date(entry.updatedAt);
+          }
+          
+          // Convert dueDate
+          if (entry.dueDate && !(entry.dueDate instanceof Date)) {
+            updatedEntry.dueDate = new Date(entry.dueDate);
+          }
+          
+          // Convert startDate and endDate
+          if (entry.startDate && !(entry.startDate instanceof Date)) {
+            updatedEntry.startDate = new Date(entry.startDate);
+          }
+          if (entry.endDate && !(entry.endDate instanceof Date)) {
+            updatedEntry.endDate = new Date(entry.endDate);
+          }
+          
+          // Convert reminderDate
+          if (entry.reminderDate && !(entry.reminderDate instanceof Date)) {
+            updatedEntry.reminderDate = new Date(entry.reminderDate);
+          }
+          
+          // Convert completedAt
+          if (entry.completedAt && !(entry.completedAt instanceof Date)) {
+            updatedEntry.completedAt = new Date(entry.completedAt);
+          }
+          
+          // Convert lastReviewedAt
+          if (entry.lastReviewedAt && !(entry.lastReviewedAt instanceof Date)) {
+            updatedEntry.lastReviewedAt = new Date(entry.lastReviewedAt);
+          }
+          
+          // Convert pinnedForDate (new field)
+          if (entry.pinnedForDate && !(entry.pinnedForDate instanceof Date)) {
+            updatedEntry.pinnedForDate = new Date(entry.pinnedForDate);
+          }
+          
+          return updatedEntry;
+        });
+        
+        // Update the store with converted entries
+        useGenieNotesStore.setState({ entries: updatedEntries });
+        
+        console.log('=== Store: Date conversion complete ===');
+        console.log('Updated entries:', updatedEntries);
       }
     }
   )
