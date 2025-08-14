@@ -531,6 +531,15 @@ export const HomeView: React.FC = () => {
                               entry.priority
                             )}
                           </span>
+                          {entry.tags && entry.tags.length > 0 && (
+                            <>
+                              {[...new Set(entry.tags)].map((tag, index) => (
+                                <span key={index} className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                                  {tag}
+                                </span>
+                              ))}
+                            </>
+                          )}
                           <span className="text-xs text-gray-500">
                             {getRelativeTime(entry.createdAt)}
                           </span>
@@ -583,12 +592,12 @@ export const HomeView: React.FC = () => {
                               e.target.value = ''; // Reset selection
                             }
                           }}
-                          className="px-2 py-1 text-xs border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition-colors"
+                          className="px-3 py-2 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer font-medium text-gray-700 hover:border-blue-300 shadow-sm"
                         >
-                          <option value="">Move to...</option>
-                          <option value="today">Today</option>
-                          <option value="week">This Week</option>
-                          <option value="upcoming">Upcoming</option>
+                          <option value="" className="text-gray-500">📅 Move to...</option>
+                          <option value="today" className="text-green-700">🟢 Today</option>
+                          <option value="week" className="text-blue-700">🔵 This Week</option>
+                          <option value="upcoming" className="text-purple-700">🟣 Upcoming</option>
                         </select>
                       </div>
                     </div>
@@ -703,9 +712,13 @@ export const HomeView: React.FC = () => {
                                   )}
                                 </span>
                                 {entry.tags && entry.tags.length > 0 && (
-                                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
-                                    {entry.tags[0]}
-                                  </span>
+                                  <>
+                                    {[...new Set(entry.tags)].map((tag, index) => (
+                                      <span key={index} className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                                        {tag}
+                                      </span>
+                                    ))}
+                                  </>
                                 )}
                                 <span className="text-xs text-gray-500">
                                   {getRelativeTime(entry.createdAt)}
@@ -753,12 +766,12 @@ export const HomeView: React.FC = () => {
                                     e.target.value = ''; // Reset selection
                                   }
                                 }}
-                                className="px-2 py-1 text-xs border border-gray-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition-colors"
+                                className="px-3 py-2 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer font-medium text-gray-700 hover:border-blue-300 shadow-sm"
                               >
-                                <option value="">Move to...</option>
-                                <option value="today">Today</option>
-                                <option value="week">This Week</option>
-                                <option value="upcoming">Upcoming</option>
+                                <option value="" className="text-gray-500">📅 Move to...</option>
+                                <option value="today" className="text-green-700">🟢 Today</option>
+                                <option value="week" className="text-blue-700">🔵 This Week</option>
+                                <option value="upcoming" className="text-purple-700">🟣 Upcoming</option>
                               </select>
                             </div>
                           </div>
