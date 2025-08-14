@@ -439,379 +439,377 @@ export const HomeView: React.FC = () => {
             </label>
           </div>
         </div>
-      </div>
 
-      {/* Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Urgent & Review */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Review Section */}
-          {reviewEntries.length > 0 && (
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                  <Eye className="w-5 h-5 text-orange-500" />
-                  Needs Review
-                </h2>
-                <span className="text-sm text-gray-500">{reviewEntries.length} items</span>
+        {/* Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Urgent & Review */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Review Section */}
+            {reviewEntries.length > 0 && (
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                    <Eye className="w-5 h-5 text-orange-500" />
+                    Needs Review
+                  </h2>
+                  <span className="text-sm text-gray-500">{reviewEntries.length} items</span>
+                </div>
+                <div className="space-y-3">
+                  {sortEntries(reviewEntries).slice(0, 3).map((entry) => (
+                    <div key={entry.id} className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
+                      <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
+                        {getTypeIcon(entry.type)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-900 truncate">{entry.content}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(entry.type)}`}>
+                            {entry.type}
+                          </span>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
+                            {entry.priority === 'urgent' ? (
+                              <span className="flex items-center gap-1">
+                                <Zap className="w-3 h-3" />
+                                {entry.priority}
+                              </span>
+                            ) : (
+                              entry.priority
+                            )}
+                          </span>
+                          {entry.tags && entry.tags.length > 0 && (
+                            <>
+                              {[...new Set(entry.tags)].map((tag, index) => (
+                                <span key={`${entry.id}-${tag}-${index}`} className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                                  {tag}
+                                </span>
+                              ))}
+                            </>
+                          )}
+                          <span className="text-xs text-gray-500">
+                            {getRelativeTime(entry.createdAt)}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => adjustPriority(entry.id, 'up')}
+                          disabled={entry.priority === 'urgent'}
+                          className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Increase priority"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => adjustPriority(entry.id, 'down')}
+                          disabled={entry.priority === 'low'}
+                          className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Decrease priority"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleEditEntry(entry)}
+                          className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => deleteEntry(entry.id)}
+                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => markReviewed(entry.id)}
+                          className="p-2 text-orange-600 hover:bg-orange-100 rounded-lg transition-colors"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <select
+                          value=""
+                          onChange={(e) => {
+                            if (e.target.value) {
+                              changeEntryTimePeriod(entry.id, e.target.value as 'today' | 'week' | 'upcoming');
+                              e.target.value = ''; // Reset selection
+                            }
+                          }}
+                          className="px-3 py-2 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer font-medium text-gray-700 hover:border-blue-300 shadow-sm"
+                        >
+                          <option value="" className="text-gray-500">📅 Move to...</option>
+                          <option value="today" className="text-green-700">🟢 Today</option>
+                          <option value="week" className="text-blue-700">🔵 This Week</option>
+                          <option value="upcoming" className="text-purple-700">🟣 Upcoming</option>
+                        </select>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
+            )}
+
+            {/* Time-based Tabs */}
+            {(todayEntries.length > 0 || thisWeekEntries.length > 0 || upcomingEntries.length > 0) && (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+                {/* Tab Navigation */}
+                <div className="flex border-b border-gray-200">
+                  {todayEntries.length > 0 && (
+                    <button
+                      onClick={() => setActiveTab('today')}
+                      className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+                        activeTab === 'today'
+                          ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        <span>Today</span>
+                        <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+                          {todayEntries.length}
+                        </span>
+                      </div>
+                    </button>
+                  )}
+                  
+                  {thisWeekEntries.length > 0 && (
+                    <button
+                      onClick={() => setActiveTab('week')}
+                      className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+                        activeTab === 'week'
+                          ? 'text-green-600 border-b-2 border-green-600 bg-green-50'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        <span>This Week</span>
+                        <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">
+                          {thisWeekEntries.length}
+                        </span>
+                      </div>
+                    </button>
+                  )}
+                  
+                  {upcomingEntries.length > 0 && (
+                    <button
+                      onClick={() => setActiveTab('upcoming')}
+                      className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
+                        activeTab === 'upcoming'
+                          ? 'text-purple-600 border-b-2 border-purple-600 bg-purple-50'
+                          : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        <span>Upcoming</span>
+                        <span className="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-full">
+                          {upcomingEntries.length}
+                        </span>
+                      </div>
+                    </button>
+                  )}
+                </div>
+
+                {/* Tab Content */}
+                <div className="p-6">
+                  {getCurrentTabEntries().length > 0 ? (
+                    <div className="space-y-3">
+                      {sortEntries(getCurrentTabEntries()).slice(0, 6).map((entry) => {
+                        const isUrgent = entry.priority === 'urgent' || 
+                          (entry.dueDate && entry.dueDate <= new Date());
+                        
+                        const getTabColor = () => {
+                          switch (activeTab) {
+                            case 'today':
+                              return isUrgent ? 'bg-red-50 border-red-200 hover:bg-red-100' : 'bg-blue-50 border-blue-200 hover:bg-blue-100';
+                            case 'week':
+                              return 'bg-green-50 border-green-200 hover:bg-green-100';
+                            case 'upcoming':
+                              return 'bg-purple-50 border-purple-200 hover:bg-purple-100';
+                            default:
+                              return 'bg-gray-50 border-gray-200 hover:bg-gray-100';
+                          }
+                        };
+                        
+                        return (
+                          <div key={entry.id} className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${getTabColor()}`}>
+                            <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
+                              {getTypeIcon(entry.type)}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-gray-900 truncate">{entry.content}</p>
+                              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(entry.type)}`}>
+                                  {entry.type}
+                                </span>
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
+                                  {entry.priority === 'urgent' ? (
+                                    <span className="flex items-center gap-1">
+                                      <Zap className="w-3 h-3" />
+                                      {entry.priority}
+                                    </span>
+                                  ) : (
+                                    entry.priority
+                                  )}
+                                </span>
+                                {entry.tags && entry.tags.length > 0 && (
+                                  <>
+                                    {[...new Set(entry.tags)].map((tag, index) => (
+                                      <span key={`${entry.id}-${tag}-${index}`} className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                                        {tag}
+                                      </span>
+                                    ))}
+                                  </>
+                                )}
+                                <span className="text-xs text-gray-500">
+                                  {getRelativeTime(entry.createdAt)}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="flex gap-1">
+                              <button
+                                onClick={() => adjustPriority(entry.id, 'up')}
+                                disabled={entry.priority === 'urgent'}
+                                className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                title="Increase priority"
+                              >
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                </svg>
+                              </button>
+                              <button
+                                onClick={() => adjustPriority(entry.id, 'down')}
+                                disabled={entry.priority === 'low'}
+                                className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                title="Decrease priority"
+                              >
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                              </button>
+                              <button
+                                onClick={() => handleEditEntry(entry)}
+                                className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                              >
+                                <Edit3 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => deleteEntry(entry.id)}
+                                className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                              <select
+                                value=""
+                                onChange={(e) => {
+                                  if (e.target.value) {
+                                    changeEntryTimePeriod(entry.id, e.target.value as 'today' | 'week' | 'upcoming');
+                                    e.target.value = ''; // Reset selection
+                                  }
+                                }}
+                                className="px-3 py-2 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer font-medium text-gray-700 hover:border-blue-300 shadow-sm"
+                              >
+                                <option value="" className="text-gray-500">📅 Move to...</option>
+                                <option value="today" className="text-green-700">🟢 Today</option>
+                                <option value="week" className="text-blue-700">🔵 This Week</option>
+                                <option value="upcoming" className="text-purple-700">🟣 Upcoming</option>
+                              </select>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                      <p className="text-lg font-medium">No entries in this time period</p>
+                      <p className="text-sm">Try switching to another tab or adjusting your filters</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Right Column - Analytics & Tags */}
+          <div className="space-y-6">
+            {/* Quick Stats */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-blue-500" />
+                Quick Stats
+              </h3>
               <div className="space-y-3">
-                {sortEntries(reviewEntries).slice(0, 3).map((entry) => (
-                  <div key={entry.id} className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Tasks</span>
+                  <span className="font-medium text-gray-900">
+                    {allEntries.filter(e => e.type === 'task').length}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Ideas</span>
+                  <span className="font-medium text-gray-900">
+                    {allEntries.filter(e => e.type === 'idea').length}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Insights</span>
+                  <span className="font-medium text-gray-900">
+                    {allEntries.filter(e => e.type === 'insight').length}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Completed</span>
+                  <span className="font-medium text-gray-700">
+                    {allEntries.filter(e => e.status === 'completed').length}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Top Tags */}
+            {topTags.length > 0 && (
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <Tag className="w-5 h-5 text-purple-500" />
+                  Top Tags
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {topTags.slice(0, 8).map((tag) => (
+                    <span
+                      key={tag.tag}
+                      className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium border border-purple-200"
+                    >
+                      #{tag.tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Recent Activity */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <Clock className="w-5 h-5 text-green-500" />
+                Recent Activity
+              </h3>
+              <div className="space-y-3">
+                {allEntries.slice(0, 3).map((entry) => (
+                  <div key={entry.id} className="flex items-center gap-3">
                     <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
                       {getTypeIcon(entry.type)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">{entry.content}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(entry.type)}`}>
-                          {entry.type}
-                        </span>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
-                          {entry.priority === 'urgent' ? (
-                            <span className="flex items-center gap-1">
-                              <Zap className="w-3 h-3" />
-                              {entry.priority}
-                            </span>
-                          ) : (
-                            entry.priority
-                          )}
-                        </span>
-                        {entry.tags && entry.tags.length > 0 && (
-                          <>
-                            {console.log('Entry tags before dedup:', entry.tags)}
-                            {[...new Set(entry.tags)].map((tag, index) => (
-                              <span key={`${entry.id}-${tag}-${index}`} className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
-                                {tag}
-                              </span>
-                            ))}
-                          </>
-                        )}
-                        <span className="text-xs text-gray-500">
-                          {getRelativeTime(entry.createdAt)}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex gap-1">
-                      <button
-                        onClick={() => adjustPriority(entry.id, 'up')}
-                        disabled={entry.priority === 'urgent'}
-                        className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        title="Increase priority"
-                      >
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => adjustPriority(entry.id, 'down')}
-                        disabled={entry.priority === 'low'}
-                        className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        title="Decrease priority"
-                      >
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => handleEditEntry(entry)}
-                        className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => deleteEntry(entry.id)}
-                        className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => markReviewed(entry.id)}
-                        className="p-2 text-orange-600 hover:bg-orange-100 rounded-lg transition-colors"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <select
-                        value=""
-                        onChange={(e) => {
-                          if (e.target.value) {
-                            changeEntryTimePeriod(entry.id, e.target.value as 'today' | 'week' | 'upcoming');
-                            e.target.value = ''; // Reset selection
-                          }
-                        }}
-                        className="px-3 py-2 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer font-medium text-gray-700 hover:border-blue-300 shadow-sm"
-                      >
-                        <option value="" className="text-gray-500">📅 Move to...</option>
-                        <option value="today" className="text-green-700">🟢 Today</option>
-                        <option value="week" className="text-blue-700">🔵 This Week</option>
-                        <option value="upcoming" className="text-purple-700">🟣 Upcoming</option>
-                      </select>
+                      <p className="text-sm font-medium text-gray-900 truncate">{entry.content}</p>
+                      <p className="text-xs text-gray-500">{getRelativeTime(entry.createdAt)}</p>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
-          )}
-
-          {/* Time-based Tabs */}
-          {(todayEntries.length > 0 || thisWeekEntries.length > 0 || upcomingEntries.length > 0) && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-              {/* Tab Navigation */}
-              <div className="flex border-b border-gray-200">
-                {todayEntries.length > 0 && (
-                  <button
-                    onClick={() => setActiveTab('today')}
-                    className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
-                      activeTab === 'today'
-                        ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      <span>Today</span>
-                      <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
-                        {todayEntries.length}
-                      </span>
-                    </div>
-                  </button>
-                )}
-                
-                {thisWeekEntries.length > 0 && (
-                  <button
-                    onClick={() => setActiveTab('week')}
-                    className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
-                      activeTab === 'week'
-                        ? 'text-green-600 border-b-2 border-green-600 bg-green-50'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      <span>This Week</span>
-                      <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">
-                        {thisWeekEntries.length}
-                      </span>
-                    </div>
-                  </button>
-                )}
-                
-                {upcomingEntries.length > 0 && (
-                  <button
-                    onClick={() => setActiveTab('upcoming')}
-                    className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
-                      activeTab === 'upcoming'
-                        ? 'text-purple-600 border-b-2 border-purple-600 bg-purple-50'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      <span>Upcoming</span>
-                      <span className="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-full">
-                        {upcomingEntries.length}
-                      </span>
-                    </div>
-                  </button>
-                )}
-              </div>
-
-              {/* Tab Content */}
-              <div className="p-6">
-                {getCurrentTabEntries().length > 0 ? (
-                  <div className="space-y-3">
-                    {sortEntries(getCurrentTabEntries()).slice(0, 6).map((entry) => {
-                      const isUrgent = entry.priority === 'urgent' || 
-                        (entry.dueDate && entry.dueDate <= new Date());
-                      
-                      const getTabColor = () => {
-                        switch (activeTab) {
-                          case 'today':
-                            return isUrgent ? 'bg-red-50 border-red-200 hover:bg-red-100' : 'bg-blue-50 border-blue-200 hover:bg-blue-100';
-                          case 'week':
-                            return 'bg-green-50 border-green-200 hover:bg-green-100';
-                          case 'upcoming':
-                            return 'bg-purple-50 border-purple-200 hover:bg-purple-100';
-                          default:
-                            return 'bg-gray-50 border-gray-200 hover:bg-gray-100';
-                        }
-                      };
-                      
-                      return (
-                        <div key={entry.id} className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${getTabColor()}`}>
-                          <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
-                            {getTypeIcon(entry.type)}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-gray-900 truncate">{entry.content}</p>
-                            <div className="flex items-center gap-2 mt-1 flex-wrap">
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(entry.type)}`}>
-                                {entry.type}
-                              </span>
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(entry.priority)}`}>
-                                {entry.priority === 'urgent' ? (
-                                  <span className="flex items-center gap-1">
-                                    <Zap className="w-3 h-3" />
-                                    {entry.priority}
-                                  </span>
-                                ) : (
-                                  entry.priority
-                                )}
-                              </span>
-                              {entry.tags && entry.tags.length > 0 && (
-                                <>
-                                  {console.log('Entry tags before dedup:', entry.tags)}
-                                  {[...new Set(entry.tags)].map((tag, index) => (
-                                    <span key={`${entry.id}-${tag}-${index}`} className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
-                                      {tag}
-                                    </span>
-                                  ))}
-                                </>
-                              )}
-                              <span className="text-xs text-gray-500">
-                                {getRelativeTime(entry.createdAt)}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="flex gap-1">
-                            <button
-                              onClick={() => adjustPriority(entry.id, 'up')}
-                              disabled={entry.priority === 'urgent'}
-                              className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                              title="Increase priority"
-                            >
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                              </svg>
-                            </button>
-                            <button
-                              onClick={() => adjustPriority(entry.id, 'down')}
-                              disabled={entry.priority === 'low'}
-                              className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                              title="Decrease priority"
-                            >
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                              </svg>
-                            </button>
-                            <button
-                              onClick={() => handleEditEntry(entry)}
-                              className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                            >
-                              <Edit3 className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => deleteEntry(entry.id)}
-                              className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                            <select
-                              value=""
-                              onChange={(e) => {
-                                if (e.target.value) {
-                                  changeEntryTimePeriod(entry.id, e.target.value as 'today' | 'week' | 'upcoming');
-                                  e.target.value = ''; // Reset selection
-                                }
-                              }}
-                              className="px-3 py-2 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition-all duration-200 cursor-pointer font-medium text-gray-700 hover:border-blue-300 shadow-sm"
-                            >
-                              <option value="" className="text-gray-500">📅 Move to...</option>
-                              <option value="today" className="text-green-700">🟢 Today</option>
-                              <option value="week" className="text-blue-700">🔵 This Week</option>
-                              <option value="upcoming" className="text-purple-700">🟣 Upcoming</option>
-                            </select>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                    <p className="text-lg font-medium">No entries in this time period</p>
-                    <p className="text-sm">Try switching to another tab or adjusting your filters</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Right Column - Analytics & Tags */}
-        <div className="space-y-6">
-          {/* Quick Stats */}
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-blue-500" />
-              Quick Stats
-            </h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Tasks</span>
-                <span className="font-medium text-gray-900">
-                  {allEntries.filter(e => e.type === 'task').length}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Ideas</span>
-                <span className="font-medium text-gray-900">
-                  {allEntries.filter(e => e.type === 'idea').length}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Insights</span>
-                <span className="font-medium text-gray-900">
-                  {allEntries.filter(e => e.type === 'insight').length}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Completed</span>
-                <span className="font-medium text-gray-900">
-                  {allEntries.filter(e => e.status === 'completed').length}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Top Tags */}
-          {topTags.length > 0 && (
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Tag className="w-5 h-5 text-purple-500" />
-                Top Tags
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {topTags.slice(0, 8).map((tag) => (
-                  <span
-                    key={tag.tag}
-                    className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium border border-purple-200"
-                  >
-                    #{tag.tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Recent Activity */}
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Clock className="w-5 h-5 text-green-500" />
-              Recent Activity
-            </h3>
-            <div className="space-y-3">
-              {allEntries.slice(0, 3).map((entry) => (
-                <div key={entry.id} className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${getTypeColor(entry.type)}`}>
-                    {getTypeIcon(entry.type)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{entry.content}</p>
-                    <p className="text-xs text-gray-500">{getRelativeTime(entry.createdAt)}</p>
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         </div>
@@ -820,30 +818,24 @@ export const HomeView: React.FC = () => {
       {/* Edit Modal */}
       {showEditModal && editingEntry && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
             <div className="p-6 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-gray-900">Edit Entry</h3>
-                <button
-                  onClick={handleCancelEdit}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
+              <h2 className="text-xl font-semibold text-gray-900">Edit Entry</h2>
+              <p className="text-sm text-gray-600 mt-1">Update your thought, task, or idea</p>
             </div>
 
+            {/* Modal Content */}
             <div className="p-6 space-y-6">
-              {/* Content */}
+              {/* Title */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
-                <textarea
+                <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                <input
+                  type="text"
                   value={editingEntry.content}
                   onChange={(e) => setEditingEntry({...editingEntry, content: e.target.value})}
-                  className="w-full h-24 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                  placeholder="Enter your thought content..."
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter title"
                 />
               </div>
 
@@ -874,16 +866,26 @@ export const HomeView: React.FC = () => {
                     onChange={(e) => setEditingEntry({...editingEntry, priority: e.target.value as Priority})}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="urgent">Urgent</option>
-                    <option value="high">High</option>
-                    <option value="medium">Medium</option>
                     <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="urgent">Urgent</option>
                   </select>
                 </div>
               </div>
 
-              {/* Status and Due Date Row */}
+              {/* Due Date and Status Row */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
+                  <input
+                    type="date"
+                    value={editingEntry.dueDate && editingEntry.dueDate instanceof Date ? editingEntry.dueDate.toISOString().split('T')[0] : ''}
+                    onChange={(e) => setEditingEntry({...editingEntry, dueDate: e.target.value ? new Date(e.target.value) : undefined})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
                   <select
@@ -896,16 +898,6 @@ export const HomeView: React.FC = () => {
                     <option value="completed">Completed</option>
                     <option value="archived">Archived</option>
                   </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
-                  <input
-                    type="datetime-local"
-                    value={editingEntry.dueDate && editingEntry.dueDate instanceof Date ? new Date(editingEntry.dueDate.getTime() - editingEntry.dueDate.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''}
-                    onChange={(e) => setEditingEntry({...editingEntry, dueDate: e.target.value ? new Date(e.target.value) : undefined})}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
                 </div>
               </div>
 
