@@ -29,7 +29,7 @@ export const HomeView: React.FC = () => {
   });
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
   const [insightsDrawerOpen, setInsightsDrawerOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overdue' | 'today' | 'thisWeek' | 'upcoming'>('today');
+  const [activeTab, setActiveTab] = useState<'overdue' | 'today' | 'thisWeek' | 'upcoming' | 'completed'>('today');
   const [selectedEntries, setSelectedEntries] = useState<Set<string>>(new Set());
   const [showBatchBar, setShowBatchBar] = useState(false);
   const [draggedEntry, setDraggedEntry] = useState<string | null>(null);
@@ -114,6 +114,9 @@ export const HomeView: React.FC = () => {
     return true;
   });
 
+  // Completed: all completed entries
+  const completedEntries = filteredEntries.filter(entry => entry.status === 'completed');
+
   // Get current tab entries
   const getCurrentTabEntries = () => {
     switch (activeTab) {
@@ -121,6 +124,7 @@ export const HomeView: React.FC = () => {
       case 'today': return todayEntries;
       case 'thisWeek': return thisWeekEntries;
       case 'upcoming': return upcomingEntries;
+      case 'completed': return completedEntries;
       default: return todayEntries;
     }
   };
@@ -305,17 +309,18 @@ export const HomeView: React.FC = () => {
     const isOverdue = entry.dueDate && new Date(entry.dueDate) < new Date() && entry.status !== 'completed';
     const isDragging = draggedEntry === entry.id;
     const isDragOver = dragOverEntry === entry.id;
+    const isCompleted = entry.status === 'completed';
 
     return (
       <div 
         className={`bg-white rounded-lg border transition-all duration-200 hover:shadow-sm ${
           isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
-        } ${isDragging ? 'opacity-50' : ''} ${isDragOver ? 'border-blue-400 bg-blue-50' : ''}`}
-        draggable
-        onDragStart={(e) => handleDragStart(e, entry.id)}
-        onDragOver={(e) => handleDragOver(e, entry.id)}
-        onDragLeave={handleDragLeave}
-        onDrop={(e) => handleDrop(e, entry.id)}
+        } ${isDragging ? 'opacity-50' : ''} ${isDragOver ? 'border-blue-400 bg-blue-50' : ''} ${isCompleted ? 'bg-green-50 border-green-200' : ''}`}
+        draggable={!isCompleted}
+        onDragStart={!isCompleted ? (e) => handleDragStart(e, entry.id) : undefined}
+        onDragOver={!isCompleted ? (e) => handleDragOver(e, entry.id) : undefined}
+        onDragLeave={!isCompleted ? handleDragLeave : undefined}
+        onDrop={!isCompleted ? (e) => handleDrop(e, entry.id) : undefined}
       >
         <div className="p-4">
           <div className="flex items-start gap-3">
@@ -329,7 +334,14 @@ export const HomeView: React.FC = () => {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">
                 {getTypeIcon(entry.type)}
-                <h3 className="font-medium text-gray-900 truncate">{entry.content}</h3>
+                <h3 className={`font-medium truncate ${isCompleted ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                  {entry.content}
+                </h3>
+                {isCompleted && (
+                  <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                    Completed
+                  </span>
+                )}
               </div>
               
               <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -367,45 +379,50 @@ export const HomeView: React.FC = () => {
                 )}
                 
                 <span className="text-gray-400">
-                  {formatTimeAgo(entry.createdAt)}
+                  {isCompleted && entry.completedAt 
+                    ? `Completed ${formatTimeAgo(entry.completedAt)}`
+                    : formatTimeAgo(entry.createdAt)
+                  }
                 </span>
               </div>
             </div>
             
             <div className="flex items-center gap-1">
-              {/* Time Period Change Actions - Always Available */}
-              <div className="flex gap-1 mr-2">
-                <button
-                  onClick={() => moveToToday(entry.id)}
-                  className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
-                  title="Move to Today"
-                >
-                  <Calendar className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => moveToThisWeek(entry.id)}
-                  className="p-1 text-purple-600 hover:bg-purple-100 rounded transition-colors"
-                  title="Move to This Week"
-                >
-                  <CalendarDays className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => moveToUpcoming(entry.id)}
-                  className="p-1 text-gray-600 hover:bg-gray-100 rounded transition-colors"
-                  title="Move to Upcoming"
-                >
-                  <Clock className="w-4 h-4" />
-                </button>
-                {!isOverdue && (
+              {/* Time Period Change Actions - Only for non-completed items */}
+              {!isCompleted && (
+                <div className="flex gap-1 mr-2">
                   <button
-                    onClick={() => moveToOverdue(entry.id)}
-                    className="p-1 text-red-600 hover:bg-red-100 rounded transition-colors"
-                    title="Move to Overdue"
+                    onClick={() => moveToToday(entry.id)}
+                    className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                    title="Move to Today"
                   >
-                    <X className="w-4 h-4" />
+                    <Calendar className="w-4 h-4" />
                   </button>
-                )}
-              </div>
+                  <button
+                    onClick={() => moveToThisWeek(entry.id)}
+                    className="p-1 text-purple-600 hover:bg-purple-100 rounded transition-colors"
+                    title="Move to This Week"
+                  >
+                    <CalendarDays className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => moveToUpcoming(entry.id)}
+                    className="p-1 text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                    title="Move to Upcoming"
+                  >
+                    <Clock className="w-4 h-4" />
+                  </button>
+                  {!isOverdue && (
+                    <button
+                      onClick={() => moveToOverdue(entry.id)}
+                      className="p-1 text-red-600 hover:bg-red-100 rounded transition-colors"
+                      title="Move to Overdue"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              )}
               
               {/* Standard Actions */}
               <button
@@ -416,13 +433,23 @@ export const HomeView: React.FC = () => {
                 <Edit className="w-4 h-4" />
               </button>
               
-              <button
-                onClick={() => completeEntry(entry.id)}
-                className="p-1 text-green-600 hover:bg-green-100 rounded transition-colors"
-                title="Mark as completed"
-              >
-                <CheckCircle className="w-4 h-4" />
-              </button>
+              {!isCompleted ? (
+                <button
+                  onClick={() => completeEntry(entry.id)}
+                  className="p-1 text-green-600 hover:bg-green-100 rounded transition-colors"
+                  title="Mark as completed"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                </button>
+              ) : (
+                <button
+                  onClick={() => updateEntry(entry.id, { status: 'pending' })}
+                  className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                  title="Mark as pending"
+                >
+                  <CheckCircle className="w-4 h-4 fill-current" />
+                </button>
+              )}
               
               <button
                 onClick={() => deleteEntry(entry.id)}
@@ -611,6 +638,12 @@ export const HomeView: React.FC = () => {
               className={`px-4 py-2 text-sm font-medium ${activeTab === 'upcoming' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600 hover:text-gray-800'}`}
             >
               Upcoming {upcomingEntries.length > 0 && `(${upcomingEntries.length})`}
+            </button>
+            <button
+              onClick={() => setActiveTab('completed')}
+              className={`px-4 py-2 text-sm font-medium ${activeTab === 'completed' ? 'border-b-2 border-green-600 text-green-600' : 'text-gray-600 hover:text-gray-800'}`}
+            >
+              Completed {completedEntries.length > 0 && `(${completedEntries.length})`}
             </button>
           </div>
           
