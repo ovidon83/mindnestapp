@@ -10,11 +10,7 @@ import {
   FileText, 
   BarChart3, 
   CheckCircle,
-  ChevronDown,
-  ChevronUp,
-  Clock,
   X,
-  CalendarDays,
   Edit,
   Trash2
 } from 'lucide-react';
@@ -31,12 +27,7 @@ export const HomeView: React.FC = () => {
   });
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
   const [insightsDrawerOpen, setInsightsDrawerOpen] = useState(false);
-  const [collapsedSections, setCollapsedSections] = useState({
-    overdue: false,
-    today: false,
-    thisWeek: false,
-    upcoming: false
-  });
+  const [activeTab, setActiveTab] = useState<'overdue' | 'today' | 'thisWeek' | 'upcoming'>('today');
   const [selectedEntries, setSelectedEntries] = useState<Set<string>>(new Set());
   const [showBatchBar, setShowBatchBar] = useState(false);
 
@@ -94,30 +85,24 @@ export const HomeView: React.FC = () => {
     return false;
   });
 
-  // Today: due today OR pinnedForDate=today
+  // Today: due today OR pinned for today
   const todayEntries = filteredEntries.filter(entry => {
     if (entry.status === 'completed') return false;
-    
-    // Check if pinned to today
+    if (entry.dueDate && entry.dueDate instanceof Date && entry.dueDate.toDateString() === today.toDateString()) return true;
     if (entry.pinnedForDate && entry.pinnedForDate instanceof Date && entry.pinnedForDate.toDateString() === today.toDateString()) return true;
-    
-    // Check if due today
-    if (entry.dueDate && entry.dueDate instanceof Date && entry.dueDate >= today && entry.dueDate < new Date(today.getTime() + 24 * 60 * 60 * 1000)) return true;
-    
     return false;
   });
 
-  // This Week: within next 7 days (group by weekday)
+  // This Week: within next 7 days (exclude today entries)
   const thisWeekEntries = filteredEntries.filter(entry => {
     if (entry.status === 'completed') return false;
     if (todayEntries.some(todayEntry => todayEntry.id === entry.id)) return false;
-    
-    if (entry.dueDate && entry.dueDate instanceof Date && entry.dueDate >= today && entry.dueDate < endOfWeek) return true;
-    if (entry.targetWeek === 'currentWeek') return true;
+    if (entry.dueDate && entry.dueDate instanceof Date && entry.dueDate >= today && entry.dueDate <= endOfWeek) return true;
+    if (entry.pinnedForDate && entry.pinnedForDate instanceof Date && entry.pinnedForDate >= today && entry.pinnedForDate <= endOfWeek) return true;
     return false;
   });
 
-  // Upcoming: everything else
+  // Upcoming: everything else (exclude today and this week entries)
   const upcomingEntries = filteredEntries.filter(entry => {
     if (entry.status === 'completed') return false;
     if (todayEntries.some(todayEntry => todayEntry.id === entry.id)) return false;
@@ -125,7 +110,18 @@ export const HomeView: React.FC = () => {
     return true;
   });
 
+  // Get current tab entries
+  const getCurrentTabEntries = () => {
+    switch (activeTab) {
+      case 'overdue': return overdueEntries;
+      case 'today': return todayEntries;
+      case 'thisWeek': return thisWeekEntries;
+      case 'upcoming': return upcomingEntries;
+      default: return todayEntries;
+    }
+  };
 
+  const currentTabEntries = getCurrentTabEntries();
 
   // Batch actions
   const toggleEntrySelection = (entryId: string) => {
@@ -139,9 +135,9 @@ export const HomeView: React.FC = () => {
     setShowBatchBar(newSelected.size > 0);
   };
 
-  const selectAllInSection = (sectionEntries: Entry[]) => {
+  const selectAllInTab = () => {
     const newSelected = new Set(selectedEntries);
-    sectionEntries.forEach(entry => newSelected.add(entry.id));
+    currentTabEntries.forEach(entry => newSelected.add(entry.id));
     setSelectedEntries(newSelected);
     setShowBatchBar(true);
   };
@@ -174,14 +170,6 @@ export const HomeView: React.FC = () => {
     }
   };
 
-  // Toggle section collapse
-  const toggleSection = (section: keyof typeof collapsedSections) => {
-    setCollapsedSections(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
-  };
-
   // Helper functions
   const getTypeIcon = (type: EntryType) => {
     switch (type) {
@@ -196,10 +184,6 @@ export const HomeView: React.FC = () => {
       default: return <FileText className="w-4 h-4" />;
     }
   };
-
-
-
-
 
   const getTypeColor = (type: EntryType) => {
     switch (type) {
@@ -219,7 +203,7 @@ export const HomeView: React.FC = () => {
     if (!date) return '';
     const today = new Date();
     const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setDate(today.getDate() + 1);
 
     if (date.toDateString() === today.toDateString()) return 'Today';
     if (date.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
@@ -238,12 +222,6 @@ export const HomeView: React.FC = () => {
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays < 7) return `${diffDays}d ago`;
     return date.toLocaleDateString();
-  };
-
-  const getNextWeekStart = () => {
-    const nextWeek = new Date(today);
-    nextWeek.setDate(today.getDate() + 7);
-    return nextWeek;
   };
 
   const handleEditEntry = (entry: Entry) => {
@@ -322,33 +300,6 @@ export const HomeView: React.FC = () => {
             </div>
             
             <div className="flex items-center gap-1">
-              {/* Quick Actions for Overdue Items */}
-              {isOverdue && (
-                <div className="flex gap-1 mr-2">
-                  <button
-                    onClick={() => updateEntry(entry.id, { pinnedForDate: today })}
-                    className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
-                    title="Move to Today"
-                  >
-                    <Calendar className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => updateEntry(entry.id, { pinnedForDate: getNextWeekStart() })}
-                    className="p-1 text-purple-600 hover:bg-purple-100 rounded transition-colors"
-                    title="Move to This Week"
-                  >
-                    <CalendarDays className="w-4 h-4" />
-                  </button>
-                                     <button
-                     onClick={() => updateEntry(entry.id, { pinnedForDate: undefined, dueDate: undefined })}
-                     className="p-1 text-gray-600 hover:bg-gray-100 rounded transition-colors"
-                     title="Move to Upcoming"
-                   >
-                     <Clock className="w-4 h-4" />
-                   </button>
-                </div>
-              )}
-              
               {/* Standard Actions */}
               <button
                 onClick={() => handleEditEntry(entry)}
@@ -443,71 +394,6 @@ export const HomeView: React.FC = () => {
     );
   };
 
-  // Section component
-  const Section = ({ 
-    title, 
-    entries, 
-    accentColor, 
-    collapsible = true, 
-    collapsed = false, 
-    onToggle,
-    showSelectAll = false,
-    children 
-  }: {
-    title: string;
-    entries: Entry[];
-    accentColor: string;
-    collapsible?: boolean;
-    collapsed?: boolean;
-    onToggle?: () => void;
-    showSelectAll?: boolean;
-    children?: React.ReactNode;
-  }) => {
-    if (entries.length === 0 && !children) return null;
-    
-    return (
-      <div className="mb-8">
-        <div className={`flex items-center justify-between mb-4 p-4 rounded-lg ${accentColor}`}>
-          <div className="flex items-center gap-3">
-            <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-            <span className="px-2 py-1 text-sm font-medium bg-white/80 text-gray-700 rounded-full">
-              {entries.length}
-            </span>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            {showSelectAll && entries.length > 0 && (
-              <button
-                onClick={() => selectAllInSection(entries)}
-                className="px-3 py-1 text-sm font-medium text-gray-700 bg-white/80 rounded-lg hover:bg-white transition-colors"
-              >
-                Select All
-              </button>
-            )}
-            
-            {collapsible && (
-              <button
-                onClick={onToggle}
-                className="p-1 text-gray-600 hover:text-gray-800 rounded transition-colors"
-              >
-                {collapsed ? <ChevronDown className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
-              </button>
-            )}
-          </div>
-        </div>
-        
-        {!collapsed && (
-          <div className="space-y-3">
-            {children}
-            {entries.map(entry => (
-              <EntryCard key={entry.id} entry={entry} />
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Sticky Top Bar */}
@@ -592,73 +478,76 @@ export const HomeView: React.FC = () => {
 
       {/* Main content */}
       <div className="max-w-5xl mx-auto px-6 py-8">
-        {/* Overdue Section */}
-        {overdueEntries.length > 0 && (
-          <Section
-            title="Overdue"
-            entries={overdueEntries}
-            accentColor="bg-gray-50 border-l-2 border-gray-300"
-            collapsed={collapsedSections.overdue}
-            onToggle={() => toggleSection('overdue')}
-            showSelectAll={true}
-          />
-        )}
+        {/* Tabs */}
+        <div className="flex items-center justify-between border-b border-gray-200 mb-4">
+          <div className="flex">
+            <button
+              onClick={() => setActiveTab('overdue')}
+              className={`px-4 py-2 text-sm font-medium ${activeTab === 'overdue' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600 hover:text-gray-800'}`}
+            >
+              Overdue {overdueEntries.length > 0 && `(${overdueEntries.length})`}
+            </button>
+            <button
+              onClick={() => setActiveTab('today')}
+              className={`px-4 py-2 text-sm font-medium ${activeTab === 'today' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600 hover:text-gray-800'}`}
+            >
+              Today {todayEntries.length > 0 && `(${todayEntries.length})`}
+            </button>
+            <button
+              onClick={() => setActiveTab('thisWeek')}
+              className={`px-4 py-2 text-sm font-medium ${activeTab === 'thisWeek' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600 hover:text-gray-800'}`}
+            >
+              This Week {thisWeekEntries.length > 0 && `(${thisWeekEntries.length})`}
+            </button>
+            <button
+              onClick={() => setActiveTab('upcoming')}
+              className={`px-4 py-2 text-sm font-medium ${activeTab === 'upcoming' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600 hover:text-gray-800'}`}
+            >
+              Upcoming {upcomingEntries.length > 0 && `(${upcomingEntries.length})`}
+            </button>
+          </div>
+          
+          {currentTabEntries.length > 0 && (
+            <button
+              onClick={selectAllInTab}
+              className="px-3 py-1.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              Select All
+            </button>
+          )}
+        </div>
 
-        {/* Today Section */}
-        <Section
-          title="Today"
-          entries={todayEntries}
-          accentColor="bg-blue-50 border-l-2 border-blue-300"
-          collapsed={collapsedSections.today}
-          onToggle={() => toggleSection('today')}
-          showSelectAll={true}
-        >
-          {todayEntries.length === 0 && (
+        {/* Tab Content */}
+        <div className="space-y-4">
+          {currentTabEntries.length === 0 && (
             <div className="text-center py-8 text-gray-500">
-              <p className="text-sm">No tasks for today</p>
+              <p className="text-sm">No {activeTab} entries</p>
               <button
                 onClick={() => setCurrentView('capture')}
                 className="mt-2 text-blue-600 hover:text-blue-700 text-sm font-medium"
               >
-                + Add a task
+                + Add a {activeTab} entry
               </button>
             </div>
           )}
-        </Section>
-
-        {/* This Week Section */}
-        <Section
-          title="This Week"
-          entries={thisWeekEntries}
-          accentColor="bg-purple-50 border-l-2 border-purple-300"
-          collapsed={collapsedSections.thisWeek}
-          onToggle={() => toggleSection('thisWeek')}
-          showSelectAll={true}
-        />
-
-        {/* Upcoming Section */}
-        <Section
-          title="Upcoming"
-          entries={upcomingEntries}
-          accentColor="bg-gray-50 border-l-2 border-gray-300"
-          collapsed={collapsedSections.upcoming}
-          onToggle={() => toggleSection('upcoming')}
-          showSelectAll={true}
-        />
+          {currentTabEntries.map(entry => (
+            <EntryCard key={entry.id} entry={entry} />
+          ))}
+        </div>
       </div>
 
-      {/* Batch actions bar */}
+      {/* Batch Actions Bar */}
       {showBatchBar && (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-20">
-          <div className="max-w-5xl mx-auto px-6 py-4">
+          <div className="max-w-5xl mx-auto px-6 py-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-medium text-gray-700">
-                  {selectedEntries.size} items selected
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-gray-600">
+                  {selectedEntries.size} item{selectedEntries.size !== 1 ? 's' : ''} selected
                 </span>
                 <button
                   onClick={clearSelection}
-                  className="text-sm text-gray-500 hover:text-gray-700"
+                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                 >
                   Clear selection
                 </button>
@@ -667,19 +556,19 @@ export const HomeView: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={batchPinToToday}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  className="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors"
                 >
                   Pin to Today
                 </button>
                 <button
                   onClick={batchComplete}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                  className="px-3 py-1.5 text-sm font-medium text-green-700 bg-green-100 rounded-lg hover:bg-green-200 transition-colors"
                 >
-                  Mark Complete
+                  Complete
                 </button>
                 <button
                   onClick={batchDelete}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                  className="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
                 >
                   Delete
                 </button>
