@@ -8,14 +8,6 @@ import {
   Edit,
   CheckCircle,
   Trash2,
-  Target,
-  Lightbulb,
-  TrendingUp,
-  Eye,
-  BookOpen,
-  Bell,
-  FileText,
-  X,
   BarChart3
 } from 'lucide-react';
 import { useGenieNotesStore } from '../store';
@@ -167,20 +159,6 @@ export const HomeView: React.FC = () => {
   };
 
   // Helper functions
-  const getTypeIcon = (type: EntryType) => {
-    switch (type) {
-      case 'task': return <Target className="w-4 h-4" />;
-      case 'event': return <Calendar className="w-4 h-4" />;
-      case 'idea': return <Lightbulb className="w-4 h-4" />;
-      case 'insight': return <TrendingUp className="w-4 h-4" />;
-      case 'reflection': return <Eye className="w-4 h-4" />;
-      case 'journal': return <BookOpen className="w-4 h-4" />;
-      case 'reminder': return <Bell className="w-4 h-4" />;
-      case 'note': return <FileText className="w-4 h-4" />;
-      default: return <FileText className="w-4 h-4" />;
-    }
-  };
-
   const formatDate = (date: Date) => {
     if (!date) return '';
     const today = new Date();
@@ -216,12 +194,6 @@ export const HomeView: React.FC = () => {
 
   const moveToUpcoming = (entryId: string) => {
     updateEntry(entryId, { pinnedForDate: undefined, dueDate: undefined });
-  };
-
-  const moveToOverdue = (entryId: string) => {
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-    updateEntry(entryId, { dueDate: yesterday });
   };
 
   // Simple up/down reordering instead of broken drag and drop
@@ -268,13 +240,25 @@ export const HomeView: React.FC = () => {
     const isCompleted = entry.status === 'completed';
     const isUrgent = entry.priority === 'urgent' || isOverdue;
 
+    // Get type display text and color
+    const getTypeDisplay = (type: EntryType) => {
+      switch (type) {
+        case 'task': return { text: 'Task', color: 'bg-blue-100 text-blue-700' };
+        case 'event': return { text: 'Event', color: 'bg-green-100 text-green-700' };
+        case 'idea': return { text: 'Idea', color: 'bg-purple-100 text-purple-700' };
+        case 'insight': return { text: 'Insight', color: 'bg-yellow-100 text-yellow-700' };
+        case 'reflection': return { text: 'Reflection', color: 'bg-orange-100 text-orange-700' };
+        case 'journal': return { text: 'Journal', color: 'bg-indigo-100 text-indigo-700' };
+        case 'reminder': return { text: 'Reminder', color: 'bg-red-100 text-red-700' };
+        case 'note': return { text: 'Note', color: 'bg-gray-100 text-gray-700' };
+        default: return { text: 'Note', color: 'bg-gray-100 text-gray-700' };
+      }
+    };
+
+    const typeDisplay = getTypeDisplay(entry.type);
+
     return (
       <>
-        {/* Drag indicator above the card */}
-        {/* draggedEntry && !isCompleted && index === 0 && (
-          <div className="h-2 bg-blue-400 rounded-full mb-2 opacity-60 animate-pulse" />
-        ) */}
-        
         <div 
           className={`bg-white rounded-lg border transition-all duration-200 hover:shadow-sm ${
             isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
@@ -324,15 +308,21 @@ export const HomeView: React.FC = () => {
               
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-2">
-                  {getTypeIcon(entry.type)}
+                  {/* Type pill instead of icon */}
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${typeDisplay.color}`}>
+                    {typeDisplay.text}
+                  </span>
+                  
                   <h3 className={`font-medium truncate ${isCompleted ? 'line-through text-gray-500' : 'text-gray-900'}`}>
                     {entry.content}
                   </h3>
+                  
                   {isCompleted && (
                     <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
                       Completed
                     </span>
                   )}
+                  
                   {isUrgent && !isCompleted && (
                     <div className="flex items-center gap-1">
                       <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium font-semibold">
@@ -346,6 +336,7 @@ export const HomeView: React.FC = () => {
                 </div>
                 
                 <div className="flex items-center gap-2 text-sm text-gray-500">
+                  {/* Only show due date if it's different from current tab context */}
                   {entry.dueDate && (
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       isOverdue 
@@ -356,6 +347,7 @@ export const HomeView: React.FC = () => {
                     </span>
                   )}
                   
+                  {/* Only show user tags, not context tags */}
                   {entry.tags.length > 0 && (
                     <div className="flex gap-1">
                       {entry.tags.slice(0, 3).map((tag, index) => (
@@ -373,73 +365,68 @@ export const HomeView: React.FC = () => {
                 </div>
               </div>
               
-              <div className="flex items-center gap-1 flex-shrink-0">
-                {/* Time Period Change Actions - Only for non-completed items */}
+              {/* Clean, organized action buttons */}
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {/* Primary actions - most important */}
+                <div className="flex items-center gap-1 border-r border-gray-200 pr-2">
+                  <button
+                    onClick={() => handleEditEntry(entry)}
+                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    title="Edit"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </button>
+                  
+                  {!isCompleted ? (
+                    <button
+                      onClick={() => completeEntry(entry.id)}
+                      className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors"
+                      title="Mark as completed"
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => updateEntry(entry.id, { status: 'pending' })}
+                      className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                      title="Mark as pending"
+                    >
+                      <CheckCircle className="w-4 h-4 fill-current" />
+                    </button>
+                  )}
+                </div>
+                
+                {/* Secondary actions - time period changes */}
                 {!isCompleted && (
-                  <div className="flex gap-1 mr-2">
+                  <div className="flex items-center gap-1 border-r border-gray-200 pr-2">
                     <button
                       onClick={() => moveToToday(entry.id)}
-                      className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                      className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
                       title="Move to Today"
                     >
                       <Calendar className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => moveToThisWeek(entry.id)}
-                      className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                      className="p-2 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors"
                       title="Move to This Week"
                     >
                       <CalendarDays className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => moveToUpcoming(entry.id)}
-                      className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                      className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                       title="Move to Upcoming"
                     >
                       <Clock className="w-4 h-4" />
                     </button>
-                    {!isOverdue && (
-                      <button
-                        onClick={() => moveToOverdue(entry.id)}
-                        className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
-                        title="Move to Overdue"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    )}
                   </div>
                 )}
                 
-                {/* Standard Actions */}
-                <button
-                  onClick={() => handleEditEntry(entry)}
-                  className="p-1 text-gray-600 hover:bg-gray-100 rounded transition-colors"
-                  title="Edit"
-                >
-                  <Edit className="w-4 h-4" />
-                </button>
-                
-                {!isCompleted ? (
-                  <button
-                    onClick={() => completeEntry(entry.id)}
-                    className="p-1 text-green-600 hover:bg-green-100 rounded transition-colors"
-                    title="Mark as completed"
-                  >
-                    <CheckCircle className="w-4 h-4" />
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => updateEntry(entry.id, { status: 'pending' })}
-                    className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
-                    title="Mark as pending"
-                  >
-                    <CheckCircle className="w-4 h-4 fill-current" />
-                  </button>
-                )}
-                
+                {/* Destructive action - separated */}
                 <button
                   onClick={() => deleteEntry(entry.id)}
-                  className="p-1 text-red-600 hover:bg-red-100 rounded transition-colors"
+                  className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
                   title="Delete"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -497,11 +484,6 @@ export const HomeView: React.FC = () => {
             )}
           </div>
         </div>
-        
-        {/* Drag indicator below the card */}
-        {/* draggedEntry && !isCompleted && (
-          <div className="h-2 bg-blue-400 rounded-full mt-2 opacity-60 animate-pulse" />
-        ) */}
       </>
     );
   };
