@@ -269,10 +269,12 @@ export const HomeView: React.FC = () => {
   const handleDragStart = (e: React.DragEvent, entryId: string) => {
     setDraggedEntry(entryId);
     e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', entryId);
   };
 
   const handleDragOver = (e: React.DragEvent, entryId: string) => {
     e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
     if (draggedEntry && draggedEntry !== entryId) {
       setDragOverEntry(entryId);
     }
@@ -297,7 +299,6 @@ export const HomeView: React.FC = () => {
         newOrder.splice(targetIndex, 0, draggedItem);
         
         // Update the order by modifying timestamps to maintain the new order
-        // This is a simple approach - in a real app you might want a dedicated order field
         const baseTime = new Date().getTime();
         newOrder.forEach((entry, index) => {
           if (entry.id === draggedEntry) {
@@ -691,32 +692,19 @@ export const HomeView: React.FC = () => {
           )}
           
           {currentTabEntries.length > 0 && (
-            <>
-              {/* Drag and Drop Instructions */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                <div className="flex items-center gap-2 text-blue-700">
-                  <GripVertical className="w-4 h-4" />
-                  <span className="text-sm font-medium">Drag & Drop to Reorder</span>
+            <div className="space-y-3">
+              {currentTabEntries.map((entry, index) => (
+                <div key={entry.id} className="relative">
+                  <EntryCard entry={entry} />
+                  {/* Enhanced Drag and Drop Visual Indicator */}
+                  {index < currentTabEntries.length - 1 && (
+                    <div className="h-3 flex items-center justify-center group">
+                      <div className="w-12 h-1 bg-gray-200 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-blue-300 hover:h-1.5 cursor-ns-resize" />
+                    </div>
+                  )}
                 </div>
-                <p className="text-xs text-blue-600 mt-1">
-                  Use the grip handle (⋮⋮) to drag entries and reorder them. Urgent items are automatically pinned at the top.
-                </p>
-              </div>
-              
-              <div className="space-y-3">
-                {currentTabEntries.map((entry, index) => (
-                  <div key={entry.id} className="relative">
-                    <EntryCard entry={entry} />
-                    {/* Enhanced Drag and Drop Visual Indicator */}
-                    {index < currentTabEntries.length - 1 && (
-                      <div className="h-3 flex items-center justify-center group">
-                        <div className="w-12 h-1 bg-gray-200 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-blue-300 hover:h-1.5 cursor-ns-resize" />
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </>
+              ))}
+            </div>
           )}
         </div>
       </div>
