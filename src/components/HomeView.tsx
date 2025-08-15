@@ -493,7 +493,8 @@ export const HomeView: React.FC = () => {
         
         {!collapsed && (
           <div className="space-y-3">
-            {children || entries.map(entry => (
+            {children}
+            {entries.map(entry => (
               <EntryCard key={entry.id} entry={entry} />
             ))}
           </div>
