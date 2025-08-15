@@ -12,7 +12,9 @@ import {
   CheckCircle,
   X,
   Edit,
-  Trash2
+  Trash2,
+  Clock,
+  CalendarDays
 } from 'lucide-react';
 import { useGenieNotesStore } from '../store';
 import { Entry, EntryType, Priority, TaskStatus } from '../types';
@@ -30,6 +32,8 @@ export const HomeView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overdue' | 'today' | 'thisWeek' | 'upcoming'>('today');
   const [selectedEntries, setSelectedEntries] = useState<Set<string>>(new Set());
   const [showBatchBar, setShowBatchBar] = useState(false);
+  const [draggedEntry, setDraggedEntry] = useState<string | null>(null);
+  const [dragOverEntry, setDragOverEntry] = useState<string | null>(null);
 
   const {
     entries,
@@ -235,15 +239,84 @@ export const HomeView: React.FC = () => {
     }
   };
 
+  // Drag and Drop functionality
+  const handleDragStart = (e: React.DragEvent, entryId: string) => {
+    setDraggedEntry(entryId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent, entryId: string) => {
+    e.preventDefault();
+    if (draggedEntry && draggedEntry !== entryId) {
+      setDragOverEntry(entryId);
+    }
+  };
+
+  const handleDragLeave = () => {
+    setDragOverEntry(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetEntryId: string) => {
+    e.preventDefault();
+    if (draggedEntry && draggedEntry !== targetEntryId) {
+      // Reorder entries within the same tab
+      const draggedEntryData = currentTabEntries.find(entry => entry.id === draggedEntry);
+      const targetEntryData = currentTabEntries.find(entry => entry.id === targetEntryId);
+      
+      if (draggedEntryData && targetEntryData) {
+        // For now, we'll just swap their order by updating timestamps
+        // In a real app, you might want to add an 'order' field to entries
+        const draggedTime = draggedEntryData.createdAt.getTime();
+        const targetTime = targetEntryData.createdAt.getTime();
+        
+        // Update the dragged entry to have a timestamp between the target and the next entry
+        const newTime = new Date(targetTime + (targetTime - draggedTime) / 2);
+        updateEntry(draggedEntry, { createdAt: newTime });
+      }
+    }
+    setDraggedEntry(null);
+    setDragOverEntry(null);
+  };
+
+  // Time period change functions
+  const moveToToday = (entryId: string) => {
+    updateEntry(entryId, { pinnedForDate: today });
+  };
+
+  const moveToThisWeek = (entryId: string) => {
+    const nextWeek = new Date(today);
+    nextWeek.setDate(today.getDate() + 7);
+    updateEntry(entryId, { pinnedForDate: nextWeek });
+  };
+
+  const moveToUpcoming = (entryId: string) => {
+    updateEntry(entryId, { pinnedForDate: undefined, dueDate: undefined });
+  };
+
+  const moveToOverdue = (entryId: string) => {
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    updateEntry(entryId, { dueDate: yesterday });
+  };
+
   // Entry card component
   const EntryCard: React.FC<{ entry: Entry }> = ({ entry }) => {
     const isSelected = selectedEntries.has(entry.id);
     const isOverdue = entry.dueDate && new Date(entry.dueDate) < new Date() && entry.status !== 'completed';
+    const isDragging = draggedEntry === entry.id;
+    const isDragOver = dragOverEntry === entry.id;
 
     return (
-      <div className={`bg-white rounded-lg border transition-all duration-200 hover:shadow-sm ${
-        isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
-      }`}>
+      <div 
+        className={`bg-white rounded-lg border transition-all duration-200 hover:shadow-sm ${
+          isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
+        } ${isDragging ? 'opacity-50' : ''} ${isDragOver ? 'border-blue-400 bg-blue-50' : ''}`}
+        draggable
+        onDragStart={(e) => handleDragStart(e, entry.id)}
+        onDragOver={(e) => handleDragOver(e, entry.id)}
+        onDragLeave={handleDragLeave}
+        onDrop={(e) => handleDrop(e, entry.id)}
+      >
         <div className="p-4">
           <div className="flex items-start gap-3">
             <input
@@ -300,6 +373,40 @@ export const HomeView: React.FC = () => {
             </div>
             
             <div className="flex items-center gap-1">
+              {/* Time Period Change Actions - Always Available */}
+              <div className="flex gap-1 mr-2">
+                <button
+                  onClick={() => moveToToday(entry.id)}
+                  className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                  title="Move to Today"
+                >
+                  <Calendar className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => moveToThisWeek(entry.id)}
+                  className="p-1 text-purple-600 hover:bg-purple-100 rounded transition-colors"
+                  title="Move to This Week"
+                >
+                  <CalendarDays className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => moveToUpcoming(entry.id)}
+                  className="p-1 text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                  title="Move to Upcoming"
+                >
+                  <Clock className="w-4 h-4" />
+                </button>
+                {!isOverdue && (
+                  <button
+                    onClick={() => moveToOverdue(entry.id)}
+                    className="p-1 text-red-600 hover:bg-red-100 rounded transition-colors"
+                    title="Move to Overdue"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+              
               {/* Standard Actions */}
               <button
                 onClick={() => handleEditEntry(entry)}
@@ -530,9 +637,22 @@ export const HomeView: React.FC = () => {
               </button>
             </div>
           )}
-          {currentTabEntries.map(entry => (
-            <EntryCard key={entry.id} entry={entry} />
-          ))}
+          
+          {currentTabEntries.length > 0 && (
+            <div className="space-y-3">
+              {currentTabEntries.map((entry, index) => (
+                <div key={entry.id} className="relative">
+                  <EntryCard entry={entry} />
+                  {/* Drag and Drop Visual Indicator */}
+                  {index < currentTabEntries.length - 1 && (
+                    <div className="h-2 flex items-center justify-center">
+                      <div className="w-8 h-0.5 bg-gray-200 rounded-full opacity-0 hover:opacity-100 transition-opacity cursor-ns-resize" />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
