@@ -112,16 +112,42 @@ export const HomeView: React.FC = () => {
   // Completed: all completed entries
   const completedEntries = filteredEntries.filter(entry => entry.status === 'completed');
 
-  // Get current tab entries
+  // Get current tab entries with proper sorting
   const getCurrentTabEntries = () => {
+    let entries: Entry[] = [];
+    
     switch (activeTab) {
-      case 'overdue': return overdueEntries;
-      case 'today': return todayEntries;
-      case 'thisWeek': return thisWeekEntries;
-      case 'upcoming': return upcomingEntries;
-      case 'completed': return completedEntries;
-      default: return todayEntries;
+      case 'overdue': 
+        entries = overdueEntries;
+        break;
+      case 'today': 
+        entries = todayEntries;
+        break;
+      case 'thisWeek': 
+        entries = thisWeekEntries;
+        break;
+      case 'upcoming': 
+        entries = upcomingEntries;
+        break;
+      case 'completed': 
+        entries = completedEntries;
+        break;
+      default: 
+        entries = todayEntries;
     }
+    
+    // Sort entries: urgent first, then by creation date (newest first)
+    return entries.sort((a, b) => {
+      // First priority: urgent items (high priority or overdue)
+      const aIsUrgent = a.priority === 'urgent' || (a.dueDate && new Date(a.dueDate) < new Date());
+      const bIsUrgent = b.priority === 'urgent' || (b.dueDate && new Date(b.dueDate) < new Date());
+      
+      if (aIsUrgent && !bIsUrgent) return -1;
+      if (!aIsUrgent && bIsUrgent) return 1;
+      
+      // Second priority: creation date (newest first)
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
   };
 
   const currentTabEntries = getCurrentTabEntries();
@@ -258,19 +284,27 @@ export const HomeView: React.FC = () => {
   const handleDrop = (e: React.DragEvent, targetEntryId: string) => {
     e.preventDefault();
     if (draggedEntry && draggedEntry !== targetEntryId) {
-      // Reorder entries within the same tab
-      const draggedEntryData = currentTabEntries.find(entry => entry.id === draggedEntry);
-      const targetEntryData = currentTabEntries.find(entry => entry.id === targetEntryId);
+      // Get the current order of entries
+      const currentEntries = getCurrentTabEntries();
+      const draggedIndex = currentEntries.findIndex(entry => entry.id === draggedEntry);
+      const targetIndex = currentEntries.findIndex(entry => entry.id === targetEntryId);
       
-      if (draggedEntryData && targetEntryData) {
-        // For now, we'll just swap their order by updating timestamps
-        // In a real app, you might want to add an 'order' field to entries
-        const draggedTime = draggedEntryData.createdAt.getTime();
-        const targetTime = targetEntryData.createdAt.getTime();
+      if (draggedIndex !== -1 && targetIndex !== -1) {
+        // Create a new order array
+        const newOrder = [...currentEntries];
+        const [draggedItem] = newOrder.splice(draggedIndex, 1);
+        newOrder.splice(targetIndex, 0, draggedItem);
         
-        // Update the dragged entry to have a timestamp between the target and the next entry
-        const newTime = new Date(targetTime + (targetTime - draggedTime) / 2);
-        updateEntry(draggedEntry, { createdAt: newTime });
+        // Update the order by modifying timestamps to maintain the new order
+        // This is a simple approach - in a real app you might want a dedicated order field
+        const baseTime = new Date().getTime();
+        newOrder.forEach((entry, index) => {
+          if (entry.id === draggedEntry) {
+            // Update the dragged entry's timestamp to maintain its new position
+            const newTimestamp = baseTime - (index * 1000); // 1 second intervals
+            updateEntry(entry.id, { createdAt: new Date(newTimestamp) });
+          }
+        });
       }
     }
     setDraggedEntry(null);
@@ -305,12 +339,13 @@ export const HomeView: React.FC = () => {
     const isDragging = draggedEntry === entry.id;
     const isDragOver = dragOverEntry === entry.id;
     const isCompleted = entry.status === 'completed';
+    const isUrgent = entry.priority === 'urgent' || isOverdue;
 
     return (
       <div 
         className={`bg-white rounded-lg border transition-all duration-200 hover:shadow-sm ${
           isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
-        } ${isDragging ? 'opacity-50' : ''} ${isDragOver ? 'border-blue-400 bg-blue-50' : ''} ${isCompleted ? 'bg-green-50 border-green-200' : ''}`}
+        } ${isDragging ? 'opacity-50' : ''} ${isDragOver ? 'border-blue-400 bg-blue-50' : ''} ${isCompleted ? 'bg-green-50 border-green-200' : ''} ${isUrgent ? 'border-l-4 border-l-orange-400' : ''}`}
         draggable={!isCompleted}
         onDragStart={!isCompleted ? (e) => handleDragStart(e, entry.id) : undefined}
         onDragOver={!isCompleted ? (e) => handleDragOver(e, entry.id) : undefined}
@@ -335,6 +370,11 @@ export const HomeView: React.FC = () => {
                 {isCompleted && (
                   <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
                     Completed
+                  </span>
+                )}
+                {isUrgent && !isCompleted && (
+                  <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">
+                    Urgent
                   </span>
                 )}
               </div>
@@ -364,13 +404,6 @@ export const HomeView: React.FC = () => {
                     )}
                   </div>
                 )}
-                
-                <span className="text-gray-400">
-                  {isCompleted && entry.completedAt 
-                    ? `Completed ${formatTimeAgo(entry.completedAt)}`
-                    : formatTimeAgo(entry.createdAt)
-                  }
-                </span>
               </div>
             </div>
             
@@ -579,7 +612,7 @@ export const HomeView: React.FC = () => {
           <div className="flex">
             <button
               onClick={() => setActiveTab('overdue')}
-              className={`px-4 py-2 text-sm font-medium ${activeTab === 'overdue' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600 hover:text-gray-800'}`}
+              className={`px-4 py-2 text-sm font-medium ${activeTab === 'overdue' ? 'border-b-2 border-red-500 text-red-600' : 'text-gray-600 hover:text-gray-800'}`}
             >
               Overdue {overdueEntries.length > 0 && `(${overdueEntries.length})`}
             </button>
@@ -591,13 +624,13 @@ export const HomeView: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('thisWeek')}
-              className={`px-4 py-2 text-sm font-medium ${activeTab === 'thisWeek' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600 hover:text-gray-800'}`}
+              className={`px-4 py-2 text-sm font-medium ${activeTab === 'thisWeek' ? 'border-b-2 border-purple-600 text-purple-600' : 'text-gray-600 hover:text-gray-800'}`}
             >
               This Week {thisWeekEntries.length > 0 && `(${thisWeekEntries.length})`}
             </button>
             <button
               onClick={() => setActiveTab('upcoming')}
-              className={`px-4 py-2 text-sm font-medium ${activeTab === 'upcoming' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600 hover:text-gray-800'}`}
+              className={`px-4 py-2 text-sm font-medium ${activeTab === 'upcoming' ? 'border-b-2 border-gray-600 text-gray-600' : 'text-gray-600 hover:text-gray-800'}`}
             >
               Upcoming {upcomingEntries.length > 0 && `(${upcomingEntries.length})`}
             </button>
