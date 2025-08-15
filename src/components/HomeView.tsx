@@ -264,16 +264,36 @@ export const HomeView: React.FC = () => {
     }
   };
 
-  // Drag and Drop functionality - Simplified and reliable
+  // Drag and Drop functionality - Fixed and enhanced with visual feedback
   const handleDragStart = (e: React.DragEvent, entryId: string) => {
     setDraggedEntry(entryId);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', entryId);
+    
+    // Add visual feedback immediately
+    const target = e.currentTarget as HTMLElement;
+    target.style.opacity = '0.5';
+    target.style.transform = 'rotate(2deg) scale(1.02)';
+    target.style.zIndex = '1000';
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: React.DragEvent, entryId: string) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
+    
+    // Visual feedback for drop target
+    if (draggedEntry && draggedEntry !== entryId) {
+      const target = e.currentTarget as HTMLElement;
+      target.style.borderColor = '#3b82f6';
+      target.style.backgroundColor = '#eff6ff';
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    // Remove visual feedback when leaving drop target
+    const target = e.currentTarget as HTMLElement;
+    target.style.borderColor = '';
+    target.style.backgroundColor = '';
   };
 
   const handleDrop = (e: React.DragEvent, targetEntryId: string) => {
@@ -300,11 +320,28 @@ export const HomeView: React.FC = () => {
       }
     }
     
+    // Clean up visual states
+    cleanupDragVisuals();
     setDraggedEntry(null);
   };
 
   const handleDragEnd = () => {
+    // Clean up visual states
+    cleanupDragVisuals();
     setDraggedEntry(null);
+  };
+
+  // Helper function to clean up all drag visual states
+  const cleanupDragVisuals = () => {
+    const allCards = document.querySelectorAll('[data-entry-card]');
+    allCards.forEach((card) => {
+      const htmlCard = card as HTMLElement;
+      htmlCard.style.opacity = '';
+      htmlCard.style.transform = '';
+      htmlCard.style.zIndex = '';
+      htmlCard.style.borderColor = '';
+      htmlCard.style.backgroundColor = '';
+    });
   };
 
   // Time period change functions
@@ -329,225 +366,244 @@ export const HomeView: React.FC = () => {
   };
 
   // Entry card component
-  const EntryCard: React.FC<{ entry: Entry }> = ({ entry }) => {
+  const EntryCard: React.FC<{ entry: Entry; index: number }> = ({ entry, index }) => {
     const isSelected = selectedEntries.has(entry.id);
     const isOverdue = entry.dueDate && new Date(entry.dueDate) < new Date() && entry.status !== 'completed';
     const isCompleted = entry.status === 'completed';
     const isUrgent = entry.priority === 'urgent' || isOverdue;
+    const isDragging = draggedEntry === entry.id;
 
     return (
-      <div 
-        className={`bg-white rounded-lg border transition-all duration-200 hover:shadow-sm ${
-          isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
-        } ${isCompleted ? 'bg-green-50 border-green-200' : ''} ${isUrgent ? 'border-l-4 border-l-orange-400 bg-orange-50' : ''}`}
-        draggable={!isCompleted}
-        onDragStart={!isCompleted ? (e) => handleDragStart(e, entry.id) : undefined}
-        onDragOver={!isCompleted ? (e) => handleDragOver(e) : undefined}
-        onDrop={!isCompleted ? (e) => handleDrop(e, entry.id) : undefined}
-        onDragEnd={!isCompleted ? handleDragEnd : undefined}
-      >
-        <div className="p-4">
-          <div className="flex items-start gap-3">
-            {/* Drag Handle - Only for non-completed items */}
-            {!isCompleted && (
-              <div className="flex flex-col items-center gap-1 flex-shrink-0">
-                <div className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 transition-colors p-1">
-                  <GripVertical className="w-4 h-4" />
+      <>
+        {/* Drag indicator above the card */}
+        {draggedEntry && !isCompleted && index === 0 && (
+          <div className="h-2 bg-blue-400 rounded-full mb-2 opacity-60 animate-pulse" />
+        )}
+        
+        <div 
+          className={`bg-white rounded-lg border transition-all duration-200 hover:shadow-sm ${
+            isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
+          } ${isCompleted ? 'bg-green-50 border-green-200' : ''} ${isUrgent ? 'border-l-4 border-l-orange-400 bg-orange-50' : ''} ${
+            isDragging ? 'shadow-xl' : ''
+          }`}
+          draggable={!isCompleted}
+          onDragStart={!isCompleted ? (e) => handleDragStart(e, entry.id) : undefined}
+          onDragOver={!isCompleted ? (e) => handleDragOver(e, entry.id) : undefined}
+          onDragLeave={!isCompleted ? handleDragLeave : undefined}
+          onDrop={!isCompleted ? (e) => handleDrop(e, entry.id) : undefined}
+          onDragEnd={!isCompleted ? handleDragEnd : undefined}
+          data-entry-card
+        >
+          <div className="p-4">
+            <div className="flex items-start gap-3">
+              {/* Drag Handle - Only for non-completed items */}
+              {!isCompleted && (
+                <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                  <div className={`cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 transition-colors p-1 ${
+                    isDragging ? 'text-blue-600' : ''
+                  }`}>
+                    <GripVertical className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => toggleEntrySelection(entry.id)}
+                    className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  />
                 </div>
+              )}
+              
+              {/* Checkbox only for completed items */}
+              {isCompleted && (
                 <input
                   type="checkbox"
                   checked={isSelected}
                   onChange={() => toggleEntrySelection(entry.id)}
-                  className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  className="mt-1 h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                 />
-              </div>
-            )}
-            
-            {/* Checkbox only for completed items */}
-            {isCompleted && (
-              <input
-                type="checkbox"
-                checked={isSelected}
-                onChange={() => toggleEntrySelection(entry.id)}
-                className="mt-1 h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-              />
-            )}
-            
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-2">
-                {getTypeIcon(entry.type)}
-                <h3 className={`font-medium truncate ${isCompleted ? 'line-through text-gray-500' : 'text-gray-900'}`}>
-                  {entry.content}
-                </h3>
-                {isCompleted && (
-                  <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-                    Completed
-                  </span>
-                )}
-                {isUrgent && !isCompleted && (
-                  <div className="flex items-center gap-1">
-                    <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium font-semibold">
-                      ⭐ PINNED
+              )}
+              
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-2">
+                  {getTypeIcon(entry.type)}
+                  <h3 className={`font-medium truncate ${isCompleted ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                    {entry.content}
+                  </h3>
+                  {isCompleted && (
+                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                      Completed
                     </span>
-                    <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">
-                      Urgent
+                  )}
+                  {isUrgent && !isCompleted && (
+                    <div className="flex items-center gap-1">
+                      <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium font-semibold">
+                        ⭐ PINNED
+                      </span>
+                      <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">
+                        Urgent
+                      </span>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  {entry.dueDate && (
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      isOverdue 
+                        ? 'bg-red-100 text-red-700' 
+                        : 'bg-blue-100 text-blue-700'
+                    }`}>
+                      {formatDate(entry.dueDate)}
                     </span>
-                  </div>
-                )}
+                  )}
+                  
+                  {entry.tags.length > 0 && (
+                    <div className="flex gap-1">
+                      {entry.tags.slice(0, 3).map((tag, index) => (
+                        <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
+                          {tag}
+                        </span>
+                      ))}
+                      {entry.tags.length > 3 && (
+                        <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
+                          +{entry.tags.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
               
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                {entry.dueDate && (
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    isOverdue 
-                      ? 'bg-red-100 text-red-700' 
-                      : 'bg-blue-100 text-blue-700'
-                  }`}>
-                    {formatDate(entry.dueDate)}
-                  </span>
-                )}
-                
-                {entry.tags.length > 0 && (
-                  <div className="flex gap-1">
-                    {entry.tags.slice(0, 3).map((tag, index) => (
-                      <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
-                        {tag}
-                      </span>
-                    ))}
-                    {entry.tags.length > 3 && (
-                      <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
-                        +{entry.tags.length - 3}
-                      </span>
+              <div className="flex items-center gap-1 flex-shrink-0">
+                {/* Time Period Change Actions - Only for non-completed items */}
+                {!isCompleted && (
+                  <div className="flex gap-1 mr-2">
+                    <button
+                      onClick={() => moveToToday(entry.id)}
+                      className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                      title="Move to Today"
+                    >
+                      <Calendar className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => moveToThisWeek(entry.id)}
+                      className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                      title="Move to This Week"
+                    >
+                      <CalendarDays className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => moveToUpcoming(entry.id)}
+                      className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                      title="Move to Upcoming"
+                    >
+                      <Clock className="w-4 h-4" />
+                    </button>
+                    {!isOverdue && (
+                      <button
+                        onClick={() => moveToOverdue(entry.id)}
+                        className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                        title="Move to Overdue"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
                     )}
                   </div>
                 )}
+                
+                {/* Standard Actions */}
+                <button
+                  onClick={() => handleEditEntry(entry)}
+                  className="p-1 text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                  title="Edit"
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+                
+                {!isCompleted ? (
+                  <button
+                    onClick={() => completeEntry(entry.id)}
+                    className="p-1 text-green-600 hover:bg-green-100 rounded transition-colors"
+                    title="Mark as completed"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => updateEntry(entry.id, { status: 'pending' })}
+                    className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                    title="Mark as pending"
+                  >
+                    <CheckCircle className="w-4 h-4 fill-current" />
+                  </button>
+                )}
+                
+                <button
+                  onClick={() => deleteEntry(entry.id)}
+                  className="p-1 text-red-600 hover:bg-red-100 rounded transition-colors"
+                  title="Delete"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
             </div>
             
-            <div className="flex items-center gap-1 flex-shrink-0">
-              {/* Time Period Change Actions - Only for non-completed items */}
-              {!isCompleted && (
-                <div className="flex gap-1 mr-2">
-                  <button
-                    onClick={() => moveToToday(entry.id)}
-                    className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
-                    title="Move to Today"
-                  >
-                    <Calendar className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => moveToThisWeek(entry.id)}
-                    className="p-1 text-purple-600 hover:bg-purple-100 rounded transition-colors"
-                    title="Move to This Week"
-                  >
-                    <CalendarDays className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => moveToUpcoming(entry.id)}
-                    className="p-1 text-gray-600 hover:bg-gray-100 rounded transition-colors"
-                    title="Move to Upcoming"
-                  >
-                    <Clock className="w-4 h-4" />
-                  </button>
-                  {!isOverdue && (
-                    <button
-                      onClick={() => moveToOverdue(entry.id)}
-                      className="p-1 text-red-600 hover:bg-red-100 rounded transition-colors"
-                      title="Move to Overdue"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              )}
-              
-              {/* Standard Actions */}
-              <button
-                onClick={() => handleEditEntry(entry)}
-                className="p-1 text-gray-600 hover:bg-gray-100 rounded transition-colors"
-                title="Edit"
-              >
-                <Edit className="w-4 h-4" />
-              </button>
-              
-              {!isCompleted ? (
-                <button
-                  onClick={() => completeEntry(entry.id)}
-                  className="p-1 text-green-600 hover:bg-green-100 rounded transition-colors"
-                  title="Mark as completed"
-                >
-                  <CheckCircle className="w-4 h-4" />
-                </button>
-              ) : (
-                <button
-                  onClick={() => updateEntry(entry.id, { status: 'pending' })}
-                  className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
-                  title="Mark as pending"
-                >
-                  <CheckCircle className="w-4 h-4 fill-current" />
-                </button>
-              )}
-              
-              <button
-                onClick={() => deleteEntry(entry.id)}
-                className="p-1 text-red-600 hover:bg-red-100 rounded transition-colors"
-                title="Delete"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-          
-          {/* Expanded Details */}
-          {editingEntry?.id === entry.id && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
-                  <textarea
-                    value={editingEntry.content}
-                    onChange={(e) => setEditingEntry({ ...editingEntry, content: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    rows={3}
-                  />
-                </div>
-                
-                <div className="grid grid-cols-1 gap-4">
+            {/* Expanded Details */}
+            {editingEntry?.id === entry.id && (
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="space-y-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                    <select
-                      value={editingEntry.type}
-                      onChange={(e) => setEditingEntry({ ...editingEntry, type: e.target.value as EntryType })}
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                    <textarea
+                      value={editingEntry.content}
+                      onChange={(e) => setEditingEntry({ ...editingEntry, content: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      rows={3}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                      <select
+                        value={editingEntry.type}
+                        onChange={(e) => setEditingEntry({ ...editingEntry, type: e.target.value as EntryType })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="task">Task</option>
+                        <option value="idea">Idea</option>
+                        <option value="event">Event</option>
+                        <option value="note">Note</option>
+                        <option value="journal">Journal</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleSaveEntry()}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
-                      <option value="task">Task</option>
-                      <option value="idea">Idea</option>
-                      <option value="event">Event</option>
-                      <option value="note">Note</option>
-                      <option value="journal">Journal</option>
-                    </select>
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setEditingEntry(null)}
+                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                    >
+                      Cancel
+                    </button>
                   </div>
                 </div>
-                
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleSaveEntry()}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={() => setEditingEntry(null)}
-                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+        
+        {/* Drag indicator below the card */}
+        {draggedEntry && !isCompleted && (
+          <div className="h-2 bg-blue-400 rounded-full mt-2 opacity-60 animate-pulse" />
+        )}
+      </>
     );
   };
 
@@ -687,7 +743,7 @@ export const HomeView: React.FC = () => {
             <div className="space-y-3">
               {currentTabEntries.map((entry, index) => (
                 <div key={entry.id} className="relative">
-                  <EntryCard entry={entry} />
+                  <EntryCard entry={entry} index={index} />
                   {/* Enhanced Drag and Drop Visual Indicator */}
                   {index < currentTabEntries.length - 1 && (
                     <div className="h-3 flex items-center justify-center group">
