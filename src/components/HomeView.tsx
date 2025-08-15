@@ -264,55 +264,34 @@ export const HomeView: React.FC = () => {
     }
   };
 
-  // Drag and Drop functionality - Fixed and enhanced with visual feedback
+  // Simple, reliable drag and drop functionality
   const handleDragStart = (e: React.DragEvent, entryId: string) => {
     setDraggedEntry(entryId);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', entryId);
-    
-    // Add visual feedback immediately
-    const target = e.currentTarget as HTMLElement;
-    target.style.opacity = '0.5';
-    target.style.transform = 'rotate(2deg) scale(1.02)';
-    target.style.zIndex = '1000';
   };
 
-  const handleDragOver = (e: React.DragEvent, entryId: string) => {
+  const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    
-    // Visual feedback for drop target
-    if (draggedEntry && draggedEntry !== entryId) {
-      const target = e.currentTarget as HTMLElement;
-      target.style.borderColor = '#3b82f6';
-      target.style.backgroundColor = '#eff6ff';
-    }
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    // Remove visual feedback when leaving drop target
-    const target = e.currentTarget as HTMLElement;
-    target.style.borderColor = '';
-    target.style.backgroundColor = '';
   };
 
   const handleDrop = (e: React.DragEvent, targetEntryId: string) => {
     e.preventDefault();
     
     if (draggedEntry && draggedEntry !== targetEntryId) {
-      // Simple reordering: move the dragged item to the target position
       const currentEntries = getCurrentTabEntries();
       const draggedIndex = currentEntries.findIndex(entry => entry.id === draggedEntry);
       const targetIndex = currentEntries.findIndex(entry => entry.id === targetEntryId);
       
       if (draggedIndex !== -1 && targetIndex !== -1) {
-        // Create new array with reordered items
+        // Simple reordering by updating timestamps
+        const now = new Date();
         const newEntries = [...currentEntries];
         const [draggedItem] = newEntries.splice(draggedIndex, 1);
         newEntries.splice(targetIndex, 0, draggedItem);
         
-        // Update timestamps to maintain the new order
-        const now = new Date();
+        // Update timestamps to maintain order
         newEntries.forEach((entry, index) => {
           const newTimestamp = new Date(now.getTime() - (index * 1000));
           updateEntry(entry.id, { createdAt: newTimestamp });
@@ -320,28 +299,11 @@ export const HomeView: React.FC = () => {
       }
     }
     
-    // Clean up visual states
-    cleanupDragVisuals();
     setDraggedEntry(null);
   };
 
   const handleDragEnd = () => {
-    // Clean up visual states
-    cleanupDragVisuals();
     setDraggedEntry(null);
-  };
-
-  // Helper function to clean up all drag visual states
-  const cleanupDragVisuals = () => {
-    const allCards = document.querySelectorAll('[data-entry-card]');
-    allCards.forEach((card) => {
-      const htmlCard = card as HTMLElement;
-      htmlCard.style.opacity = '';
-      htmlCard.style.transform = '';
-      htmlCard.style.zIndex = '';
-      htmlCard.style.borderColor = '';
-      htmlCard.style.backgroundColor = '';
-    });
   };
 
   // Time period change functions
@@ -371,7 +333,6 @@ export const HomeView: React.FC = () => {
     const isOverdue = entry.dueDate && new Date(entry.dueDate) < new Date() && entry.status !== 'completed';
     const isCompleted = entry.status === 'completed';
     const isUrgent = entry.priority === 'urgent' || isOverdue;
-    const isDragging = draggedEntry === entry.id;
 
     return (
       <>
@@ -383,13 +344,10 @@ export const HomeView: React.FC = () => {
         <div 
           className={`bg-white rounded-lg border transition-all duration-200 hover:shadow-sm ${
             isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
-          } ${isCompleted ? 'bg-green-50 border-green-200' : ''} ${isUrgent ? 'border-l-4 border-l-orange-400 bg-orange-50' : ''} ${
-            isDragging ? 'shadow-xl' : ''
-          }`}
+          } ${isCompleted ? 'bg-green-50 border-green-200' : ''} ${isUrgent ? 'border-l-4 border-l-orange-400 bg-orange-50' : ''}`}
           draggable={!isCompleted}
           onDragStart={!isCompleted ? (e) => handleDragStart(e, entry.id) : undefined}
-          onDragOver={!isCompleted ? (e) => handleDragOver(e, entry.id) : undefined}
-          onDragLeave={!isCompleted ? handleDragLeave : undefined}
+          onDragOver={!isCompleted ? handleDragOver : undefined}
           onDrop={!isCompleted ? (e) => handleDrop(e, entry.id) : undefined}
           onDragEnd={!isCompleted ? handleDragEnd : undefined}
           data-entry-card
@@ -399,9 +357,7 @@ export const HomeView: React.FC = () => {
               {/* Drag Handle - Only for non-completed items */}
               {!isCompleted && (
                 <div className="flex flex-col items-center gap-1 flex-shrink-0">
-                  <div className={`cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 transition-colors p-1 ${
-                    isDragging ? 'text-blue-600' : ''
-                  }`}>
+                  <div className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 transition-colors p-1">
                     <GripVertical className="w-4 h-4" />
                   </div>
                   <input
@@ -568,7 +524,7 @@ export const HomeView: React.FC = () => {
                       <select
                         value={editingEntry.type}
                         onChange={(e) => setEditingEntry({ ...editingEntry, type: e.target.value as EntryType })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-3 py-2 border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       >
                         <option value="task">Task</option>
                         <option value="idea">Idea</option>
