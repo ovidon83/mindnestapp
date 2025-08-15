@@ -323,7 +323,7 @@ export const HomeView: React.FC = () => {
                   )}
                   
                   {/* Only show due date if it's different from current tab context */}
-                  {entry.dueDate && !isPinned && (
+                  {entry.dueDate && !isPinned && activeTab !== 'today' && (
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       isOverdue 
                         ? 'bg-red-100 text-red-700' 
