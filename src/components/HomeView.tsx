@@ -274,15 +274,15 @@ export const HomeView: React.FC = () => {
     // Get type display text and color
     const getTypeDisplay = (type: EntryType) => {
       switch (type) {
-        case 'task': return { text: 'Task', color: 'bg-blue-100 text-blue-700' };
-        case 'event': return { text: 'Event', color: 'bg-green-100 text-green-700' };
-        case 'idea': return { text: 'Idea', color: 'bg-purple-100 text-purple-700' };
-        case 'insight': return { text: 'Insight', color: 'bg-yellow-100 text-yellow-700' };
-        case 'reflection': return { text: 'Reflection', color: 'bg-orange-100 text-orange-700' };
-        case 'journal': return { text: 'Journal', color: 'bg-indigo-100 text-indigo-700' };
-        case 'reminder': return { text: 'Reminder', color: 'bg-red-100 text-red-700' };
-        case 'note': return { text: 'Note', color: 'bg-gray-100 text-gray-700' };
-        default: return { text: 'Note', color: 'bg-gray-100 text-gray-700' };
+        case 'task': return { text: 'Task', color: 'bg-blue-50 text-blue-700 border-blue-200' };
+        case 'event': return { text: 'Event', color: 'bg-green-50 text-green-700 border-green-200' };
+        case 'idea': return { text: 'Idea', color: 'bg-purple-50 text-purple-700 border-purple-200' };
+        case 'insight': return { text: 'Insight', color: 'bg-yellow-50 text-yellow-700 border-yellow-200' };
+        case 'reflection': return { text: 'Reflection', color: 'bg-orange-50 text-orange-700 border-orange-200' };
+        case 'journal': return { text: 'Journal', color: 'bg-indigo-50 text-indigo-700 border-indigo-200' };
+        case 'reminder': return { text: 'Reminder', color: 'bg-red-50 text-red-700 border-red-200' };
+        case 'note': return { text: 'Note', color: 'bg-gray-50 text-gray-700 border-gray-200' };
+        default: return { text: 'Note', color: 'bg-gray-50 text-gray-700 border-gray-200' };
       }
     };
 
@@ -291,90 +291,92 @@ export const HomeView: React.FC = () => {
     return (
       <>
         <div 
-          className={`bg-white rounded-lg border transition-all duration-200 hover:shadow-sm ${
+          className={`bg-white rounded-xl border border-gray-200 shadow-sm transition-all duration-200 hover:shadow-md ${
             isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
           } ${isCompleted ? 'bg-green-50 border-green-200' : ''} ${isUrgent ? 'border-l-4 border-l-orange-400 bg-orange-50' : ''}`}
           data-entry-card
           data-entry-id={entry.id}
         >
-          <div className="p-4">
-            <div className="flex items-center gap-3">
+          <div className="p-6">
+            <div className="flex items-center gap-4">
               {/* Radio button for completion */}
-              <input
-                type="radio"
-                checked={isCompleted}
-                onChange={() => handleCompleteEntry(entry)}
-                className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                disabled={isCompleted}
-              />
+              <div className="flex-shrink-0">
+                <input
+                  type="radio"
+                  checked={isCompleted}
+                  onChange={() => handleCompleteEntry(entry)}
+                  className="h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                  disabled={isCompleted}
+                />
+              </div>
               
-              {/* Main content - title vertically centered, pills/tags positioned around it */}
-              <div className="flex-1 min-w-0 flex flex-col justify-center relative">
-                {/* Type pill - positioned above title */}
-                <div className="flex items-center gap-2 mb-2">
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${typeDisplay.color}`}>
+              {/* Main content - perfectly organized and centered */}
+              <div className="flex-1 min-w-0 flex flex-col justify-center">
+                {/* Top row: Type and status indicators */}
+                <div className="flex items-center gap-2 mb-3">
+                  <span className={`px-3 py-1.5 text-xs font-medium rounded-full border ${typeDisplay.color}`}>
                     {typeDisplay.text}
                   </span>
+                  
+                  {/* Status indicators - only show what's relevant */}
+                  {isPinned && !isCompleted && (
+                    <span className="px-3 py-1.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-xs font-medium flex items-center gap-1">
+                      <span className="text-amber-500">⭐</span> Pinned
+                    </span>
+                  )}
+                  
+                  {isOverdue && !isCompleted && (
+                    <span className="px-3 py-1.5 bg-red-50 text-red-700 border border-red-200 rounded-full text-xs font-medium">
+                      Overdue
+                    </span>
+                  )}
                 </div>
                 
-                {/* Title - vertically centered in card */}
-                <div className="flex items-center justify-center mb-2">
-                  <h3 className={`font-medium text-gray-900 text-center ${isCompleted ? 'line-through text-gray-500' : ''}`}>
+                {/* Title - perfectly centered vertically, left-aligned text */}
+                <div className="mb-4">
+                  <h3 className={`text-lg font-semibold text-gray-900 leading-tight ${isCompleted ? 'line-through text-gray-500' : ''}`}>
                     {entry.content}
                   </h3>
                 </div>
                 
-                {/* Status and priority row - positioned below title */}
-                <div className="flex items-center gap-2 mb-2">
-                  {isUrgent && !isCompleted && (
-                    <div className="flex items-center gap-1">
-                      {isPinned && (
-                        <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium font-semibold">
-                          ⭐ PINNED
+                {/* Bottom row: Tags and due date */}
+                <div className="flex items-center justify-between">
+                  {/* Tags */}
+                  {entry.tags.length > 0 && (
+                    <div className="flex items-center gap-2">
+                      {entry.tags.slice(0, 3).map((tag, index) => (
+                        <span key={index} className="px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium border border-gray-200">
+                          #{tag}
+                        </span>
+                      ))}
+                      {entry.tags.length > 3 && (
+                        <span className="px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium border border-gray-200">
+                          +{entry.tags.length - 3}
                         </span>
                       )}
-                      <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">
-                        {isOverdue ? 'Overdue' : 'Urgent'}
-                      </span>
                     </div>
                   )}
                   
-                  {/* Only show due date if it's different from current tab context */}
+                  {/* Due date - only show if different from current tab context */}
                   {entry.dueDate && !isPinned && activeTab !== 'today' && (
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    <span className={`px-3 py-1.5 rounded-full text-xs font-medium border ${
                       isOverdue 
-                        ? 'bg-red-100 text-red-700' 
-                        : 'bg-blue-100 text-blue-700'
+                        ? 'bg-red-50 text-red-700 border-red-200' 
+                        : 'bg-blue-50 text-blue-700 border-blue-200'
                     }`}>
                       {formatDate(entry.dueDate)}
                     </span>
                   )}
                 </div>
-                
-                {/* Tags row - positioned at bottom */}
-                {entry.tags.length > 0 && (
-                  <div className="flex items-center gap-1">
-                    {entry.tags.slice(0, 3).map((tag, index) => (
-                      <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
-                        #{tag}
-                      </span>
-                    ))}
-                    {entry.tags.length > 3 && (
-                      <span key="more" className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
-                        +{entry.tags.length - 3}
-                      </span>
-                    )}
-                  </div>
-                )}
               </div>
               
-              {/* Action buttons and ordering arrows on the right */}
+              {/* Action buttons - clean and organized */}
               <div className="flex items-center gap-2 flex-shrink-0">
                 {/* Primary actions */}
-                <div className="flex items-center gap-1 border-r border-gray-200 pr-2">
+                <div className="flex items-center gap-1 border-r border-gray-200 pr-3">
                   <button
                     onClick={() => handleEditEntry(entry)}
-                    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2.5 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                     title="Edit"
                   >
                     <Edit className="w-4 h-4" />
@@ -383,7 +385,7 @@ export const HomeView: React.FC = () => {
                   {!isCompleted ? (
                     <button
                       onClick={() => handleCompleteEntry(entry)}
-                      className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors"
+                      className="p-2.5 text-green-600 hover:bg-green-100 rounded-lg transition-colors"
                       title="Mark as completed"
                     >
                       <CheckCircle className="w-4 h-4" />
@@ -391,7 +393,7 @@ export const HomeView: React.FC = () => {
                   ) : (
                     <button
                       onClick={() => updateEntry(entry.id, { status: 'pending' })}
-                      className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                      className="p-2.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
                       title="Mark as pending"
                     >
                       <CheckCircle className="w-4 h-4 fill-current" />
@@ -403,32 +405,32 @@ export const HomeView: React.FC = () => {
                 {!isCompleted && (
                   <div className="relative group">
                     <button
-                      className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors border border-blue-200 hover:border-blue-300"
+                      className="p-2.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors border border-blue-200 hover:border-blue-300"
                       title="Change time period"
                     >
                       <Calendar className="w-4 h-4" />
                     </button>
                     
                     {/* Dropdown menu */}
-                    <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-20 min-w-32">
-                      <div className="py-1">
+                    <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-20 min-w-40">
+                      <div className="py-2">
                         <button
                           onClick={() => moveToToday(entry.id)}
-                          className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors flex items-center gap-2"
+                          className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors flex items-center gap-3"
                         >
                           <Calendar className="w-4 h-4 text-blue-500" />
                           Move to Today
                         </button>
                         <button
                           onClick={() => moveToThisWeek(entry.id)}
-                          className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors flex items-center gap-2"
+                          className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors flex items-center gap-3"
                         >
                           <CalendarDays className="w-4 h-4 text-purple-500" />
                           Move to This Week
                         </button>
                         <button
                           onClick={() => moveToLater(entry.id)}
-                          className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-700 transition-colors flex items-center gap-2"
+                          className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-700 transition-colors flex items-center gap-3"
                         >
                           <Clock className="w-4 h-4 text-gray-500" />
                           Move to Later
@@ -440,11 +442,11 @@ export const HomeView: React.FC = () => {
                 
                 {/* Ordering arrows */}
                 {!isCompleted && (
-                  <div className="flex flex-col items-center gap-1 border-r border-gray-200 pr-2">
+                  <div className="flex flex-col items-center gap-1 border-r border-gray-200 pr-3">
                     <button
                       onClick={() => moveEntryUp(entry.id)}
                       disabled={index === 0}
-                      className="p-1 text-gray-400 hover:text-gray-600 disabled:text-gray-200 disabled:cursor-not-allowed transition-colors"
+                      className="p-1.5 text-gray-400 hover:text-gray-600 disabled:text-gray-200 disabled:cursor-not-allowed transition-colors"
                       title="Move up"
                     >
                       <ChevronUp className="w-4 h-4" />
@@ -452,7 +454,7 @@ export const HomeView: React.FC = () => {
                     <button
                       onClick={() => moveEntryDown(entry.id)}
                       disabled={index === currentTabEntries.length - 1}
-                      className="p-1 text-gray-400 hover:text-gray-600 disabled:text-gray-200 disabled:cursor-not-allowed transition-colors"
+                      className="p-1.5 text-gray-400 hover:text-gray-600 disabled:text-gray-200 disabled:cursor-not-allowed transition-colors"
                       title="Move down"
                     >
                       <ChevronDown className="w-4 h-4" />
@@ -463,7 +465,7 @@ export const HomeView: React.FC = () => {
                 {/* Destructive action */}
                 <button
                   onClick={() => deleteEntry(entry.id)}
-                  className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                  className="p-2.5 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
                   title="Delete"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -473,25 +475,25 @@ export const HomeView: React.FC = () => {
             
             {/* Expanded Details */}
             {editingEntry?.id === entry.id && (
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <div className="space-y-3">
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
                     <textarea
                       value={editingEntry.content}
                       onChange={(e) => setEditingEntry({ ...editingEntry, content: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       rows={3}
                     />
                   </div>
                   
                   <div className="grid grid-cols-1 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
                       <select
                         value={editingEntry.type}
                         onChange={(e) => setEditingEntry({ ...editingEntry, type: e.target.value as EntryType })}
-                        className="w-full px-3 py-2 border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-4 py-3 border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-lg"
                       >
                         <option value="task">Task</option>
                         <option value="idea">Idea</option>
@@ -502,16 +504,16 @@ export const HomeView: React.FC = () => {
                     </div>
                   </div>
                   
-                  <div className="flex gap-2">
+                  <div className="flex gap-3">
                     <button
                       onClick={() => handleSaveEntry()}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                     >
                       Save
                     </button>
                     <button
                       onClick={() => setEditingEntry(null)}
-                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                      className="px-6 py-2.5 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
                     >
                       Cancel
                     </button>
