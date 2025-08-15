@@ -9,7 +9,8 @@ import {
   CheckCircle,
   Trash2,
   BarChart3,
-  Tag
+  Tag,
+  Undo2
 } from 'lucide-react';
 import { useGenieNotesStore } from '../store';
 import { Entry, EntryType, TaskStatus } from '../types';
@@ -26,6 +27,7 @@ export const HomeView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'today' | 'thisWeek' | 'later' | 'completed'>('today');
   const [selectedEntries, setSelectedEntries] = useState<Set<string>>(new Set());
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [undoEntry, setUndoEntry] = useState<{ id: string; previousStatus: TaskStatus } | null>(null);
 
   const {
     entries,
@@ -150,19 +152,15 @@ export const HomeView: React.FC = () => {
   };
 
   // Batch actions
-  const toggleEntrySelection = (entryId: string) => {
-    const newSelected = new Set(selectedEntries);
-    if (newSelected.has(entryId)) {
-      newSelected.delete(entryId);
-    } else {
-      newSelected.add(entryId);
-    }
-    setSelectedEntries(newSelected);
-  };
-
   const selectAllInTab = () => {
     const newSelected = new Set(selectedEntries);
     currentTabEntries.forEach(entry => newSelected.add(entry.id));
+    setSelectedEntries(newSelected);
+  };
+
+  const deselectAllInTab = () => {
+    const newSelected = new Set(selectedEntries);
+    currentTabEntries.forEach(entry => newSelected.delete(entry.id));
     setSelectedEntries(newSelected);
   };
 
@@ -186,6 +184,27 @@ export const HomeView: React.FC = () => {
     if (editingEntry) {
       updateEntry(editingEntry.id, editingEntry);
       setEditingEntry(null);
+    }
+  };
+
+  // Handle completion with undo functionality
+  const handleCompleteEntry = (entry: Entry) => {
+    const previousStatus = entry.status;
+    completeEntry(entry.id);
+    
+    // Show undo dialog
+    setUndoEntry({ id: entry.id, previousStatus });
+    
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+      setUndoEntry(null);
+    }, 3000);
+  };
+
+  const handleUndo = () => {
+    if (undoEntry) {
+      updateEntry(undoEntry.id, { status: undoEntry.previousStatus });
+      setUndoEntry(null);
     }
   };
 
@@ -280,35 +299,33 @@ export const HomeView: React.FC = () => {
         >
           <div className="p-4">
             <div className="flex items-center gap-3">
-              {/* Checkbox */}
+              {/* Radio button for completion */}
               <input
-                type="checkbox"
-                checked={isSelected}
-                onChange={() => toggleEntrySelection(entry.id)}
-                className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                type="radio"
+                checked={isCompleted}
+                onChange={() => handleCompleteEntry(entry)}
+                className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                disabled={isCompleted}
               />
               
-              {/* Main content - left-aligned, vertically centered */}
-              <div className="flex-1 min-w-0 flex flex-col justify-center">
-                {/* Type pill and title row */}
-                <div className="flex items-center gap-2 mb-3">
+              {/* Main content - title vertically centered, pills/tags positioned around it */}
+              <div className="flex-1 min-w-0 flex flex-col justify-center relative">
+                {/* Type pill - positioned above title */}
+                <div className="flex items-center gap-2 mb-2">
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${typeDisplay.color}`}>
                     {typeDisplay.text}
                   </span>
-                  
-                  <h3 className={`font-medium text-gray-900 ${isCompleted ? 'line-through text-gray-500' : ''}`}>
-                    {entry.content}
-                  </h3>
-                  
-                  {isCompleted && (
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-                      Completed
-                    </span>
-                  )}
                 </div>
                 
-                {/* Status and priority row */}
-                <div className="flex items-center gap-2 mb-3">
+                {/* Title - vertically centered in card */}
+                <div className="flex items-center justify-center mb-2">
+                  <h3 className={`font-medium text-gray-900 text-center ${isCompleted ? 'line-through text-gray-500' : ''}`}>
+                    {entry.content}
+                  </h3>
+                </div>
+                
+                {/* Status and priority row - positioned below title */}
+                <div className="flex items-center gap-2 mb-2">
                   {isUrgent && !isCompleted && (
                     <div className="flex items-center gap-1">
                       {isPinned && (
@@ -334,7 +351,7 @@ export const HomeView: React.FC = () => {
                   )}
                 </div>
                 
-                {/* Tags row - cleaner layout */}
+                {/* Tags row - positioned at bottom */}
                 {entry.tags.length > 0 && (
                   <div className="flex items-center gap-1">
                     {entry.tags.slice(0, 3).map((tag, index) => (
@@ -343,7 +360,7 @@ export const HomeView: React.FC = () => {
                       </span>
                     ))}
                     {entry.tags.length > 3 && (
-                      <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
+                      <span key="more" className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
                         +{entry.tags.length - 3}
                       </span>
                     )}
@@ -365,7 +382,7 @@ export const HomeView: React.FC = () => {
                   
                   {!isCompleted ? (
                     <button
-                      onClick={() => completeEntry(entry.id)}
+                      onClick={() => handleCompleteEntry(entry)}
                       className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors"
                       title="Mark as completed"
                     >
@@ -645,15 +662,42 @@ export const HomeView: React.FC = () => {
             </button>
           </div>
           
-          {currentTabEntries.length > 0 && (
-            <button
-              onClick={selectAllInTab}
-              className="px-3 py-1.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              Select All
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {currentTabEntries.length > 0 && (
+              <>
+                <button
+                  onClick={selectAllInTab}
+                  className="px-3 py-1.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  Select All
+                </button>
+                <button
+                  onClick={deselectAllInTab}
+                  className="px-3 py-1.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  Deselect All
+                </button>
+              </>
+            )}
+          </div>
         </div>
+
+        {/* Undo Dialog */}
+        {undoEntry && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-blue-600" />
+              <span className="text-blue-800">Entry completed successfully!</span>
+            </div>
+            <button
+              onClick={handleUndo}
+              className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+            >
+              <Undo2 className="w-4 h-4" />
+              Undo
+            </button>
+          </div>
+        )}
 
         {/* Tab Content */}
         <div className="space-y-4">
