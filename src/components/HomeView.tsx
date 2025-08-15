@@ -17,13 +17,12 @@ import {
   CalendarDays
 } from 'lucide-react';
 import { useGenieNotesStore } from '../store';
-import { Entry, EntryType, Priority, TaskStatus } from '../types';
+import { Entry, EntryType, TaskStatus } from '../types';
 
 export const HomeView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState({
     type: 'all',
-    priority: 'all',
     status: 'all',
     needsReview: false
   });
@@ -54,7 +53,6 @@ export const HomeView: React.FC = () => {
         entry.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
         entry.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
         entry.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        entry.priority.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (entry.location && entry.location.toLowerCase().includes(searchQuery.toLowerCase()))
       )
     : rawEntries;
@@ -63,9 +61,6 @@ export const HomeView: React.FC = () => {
   const filteredEntries = searchFilteredEntries.filter(entry => {
     // Filter by type
     if (activeFilters.type !== 'all' && entry.type !== activeFilters.type) return false;
-    
-    // Filter by priority
-    if (activeFilters.priority !== 'all' && entry.priority !== activeFilters.priority) return false;
     
     // Filter by status
     if (activeFilters.status !== 'all' && entry.status !== activeFilters.status) return false;
@@ -355,14 +350,6 @@ export const HomeView: React.FC = () => {
                   </span>
                 )}
                 
-                {entry.priority && entry.priority !== 'medium' && (
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    entry.priority === 'high' ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-700'
-                  }`}>
-                    {entry.priority}
-                  </span>
-                )}
-                
                 {entry.tags.length > 0 && (
                   <div className="flex gap-1">
                     {entry.tags.slice(0, 3).map((tag, index) => (
@@ -475,7 +462,7 @@ export const HomeView: React.FC = () => {
                   />
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
                     <select
@@ -488,20 +475,6 @@ export const HomeView: React.FC = () => {
                       <option value="event">Event</option>
                       <option value="note">Note</option>
                       <option value="journal">Journal</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
-                    <select
-                      value={editingEntry.priority}
-                      onChange={(e) => setEditingEntry({ ...editingEntry, priority: e.target.value as Priority })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="low">Low</option>
-                      <option value="medium">Medium</option>
-                      <option value="high">High</option>
-                      <option value="urgent">Urgent</option>
                     </select>
                   </div>
                 </div>
@@ -555,37 +528,26 @@ export const HomeView: React.FC = () => {
             
             {/* Filters */}
             <div className="flex items-center gap-2">
-                              <select
-                  value={activeFilters.type}
-                  onChange={(e) => setActiveFilters({ ...activeFilters, type: e.target.value as EntryType })}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                >
-                  <option value="task">Tasks</option>
-                  <option value="idea">Ideas</option>
-                  <option value="event">Events</option>
-                  <option value="note">Notes</option>
-                  <option value="journal">Journal</option>
-                </select>
-                
-                <select
-                  value={activeFilters.priority}
-                  onChange={(e) => setActiveFilters({ ...activeFilters, priority: e.target.value as Priority })}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                >
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                  <option value="urgent">Urgent</option>
-                </select>
-                
-                <select
-                  value={activeFilters.status}
-                  onChange={(e) => setActiveFilters({ ...activeFilters, status: e.target.value as TaskStatus })}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                >
-                  <option value="pending">Pending</option>
-                  <option value="completed">Completed</option>
-                </select>
+              <select
+                value={activeFilters.type}
+                onChange={(e) => setActiveFilters({ ...activeFilters, type: e.target.value as EntryType })}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              >
+                <option value="task">Tasks</option>
+                <option value="idea">Ideas</option>
+                <option value="event">Events</option>
+                <option value="note">Notes</option>
+                <option value="journal">Journal</option>
+              </select>
+              
+              <select
+                value={activeFilters.status}
+                onChange={(e) => setActiveFilters({ ...activeFilters, status: e.target.value as TaskStatus })}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              >
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+              </select>
               
               <label className="flex items-center gap-2 text-sm text-gray-600">
                 <input
@@ -827,7 +789,7 @@ export const HomeView: React.FC = () => {
                 />
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
                   <select
@@ -839,20 +801,6 @@ export const HomeView: React.FC = () => {
                     <option value="idea">Idea</option>
                     <option value="insight">Insight</option>
                     <option value="note">Note</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
-                  <select
-                    value={editingEntry.priority}
-                    onChange={(e) => setEditingEntry({ ...editingEntry, priority: e.target.value as Priority })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                    <option value="urgent">Urgent</option>
                   </select>
                 </div>
               </div>
