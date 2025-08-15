@@ -267,25 +267,38 @@ export const HomeView: React.FC = () => {
 
   // Drag and Drop functionality
   const handleDragStart = (e: React.DragEvent, entryId: string) => {
+    e.stopPropagation();
     setDraggedEntry(entryId);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', entryId);
+    
+    // Set a custom drag image to prevent visual jumping
+    const dragImage = e.currentTarget.cloneNode(true) as HTMLElement;
+    dragImage.style.opacity = '0.8';
+    dragImage.style.transform = 'rotate(2deg)';
+    e.dataTransfer.setDragImage(dragImage, 0, 0);
   };
 
   const handleDragOver = (e: React.DragEvent, entryId: string) => {
     e.preventDefault();
+    e.stopPropagation();
     e.dataTransfer.dropEffect = 'move';
+    
     if (draggedEntry && draggedEntry !== entryId) {
       setDragOverEntry(entryId);
     }
   };
 
-  const handleDragLeave = () => {
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setDragOverEntry(null);
   };
 
   const handleDrop = (e: React.DragEvent, targetEntryId: string) => {
     e.preventDefault();
+    e.stopPropagation();
+    
     if (draggedEntry && draggedEntry !== targetEntryId) {
       // Get the current order of entries
       const currentEntries = getCurrentTabEntries();
@@ -347,19 +360,27 @@ export const HomeView: React.FC = () => {
       <div 
         className={`bg-white rounded-lg border transition-all duration-200 hover:shadow-sm ${
           isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
-        } ${isDragging ? 'opacity-50 scale-95' : ''} ${isDragOver ? 'border-blue-400 bg-blue-50' : ''} ${isCompleted ? 'bg-green-50 border-green-200' : ''} ${isUrgent ? 'border-l-4 border-l-orange-400 bg-orange-50' : ''}`}
+        } ${isDragging ? 'opacity-50 scale-95 shadow-lg' : ''} ${isDragOver ? 'border-blue-400 bg-blue-50' : ''} ${isCompleted ? 'bg-green-50 border-green-200' : ''} ${isUrgent ? 'border-l-4 border-l-orange-400 bg-orange-50' : ''}`}
         draggable={!isCompleted}
         onDragStart={!isCompleted ? (e) => handleDragStart(e, entry.id) : undefined}
         onDragOver={!isCompleted ? (e) => handleDragOver(e, entry.id) : undefined}
-        onDragLeave={!isCompleted ? handleDragLeave : undefined}
+        onDragLeave={!isCompleted ? (e) => handleDragLeave(e) : undefined}
         onDrop={!isCompleted ? (e) => handleDrop(e, entry.id) : undefined}
+        style={{ 
+          position: 'relative',
+          zIndex: isDragging ? 1000 : 'auto'
+        }}
       >
         <div className="p-4">
           <div className="flex items-start gap-3">
             {/* Drag Handle - Only for non-completed items */}
             {!isCompleted && (
-              <div className="flex flex-col items-center gap-1">
-                <div className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 transition-colors">
+              <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                <div 
+                  className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 transition-colors p-1 -m-1"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
+                >
                   <GripVertical className="w-4 h-4" />
                 </div>
                 <input
@@ -367,6 +388,7 @@ export const HomeView: React.FC = () => {
                   checked={isSelected}
                   onChange={() => toggleEntrySelection(entry.id)}
                   className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  onClick={(e) => e.stopPropagation()}
                 />
               </div>
             )}
@@ -432,7 +454,7 @@ export const HomeView: React.FC = () => {
               </div>
             </div>
             
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 flex-shrink-0">
               {/* Time Period Change Actions - Only for non-completed items */}
               {!isCompleted && (
                 <div className="flex gap-1 mr-2">
