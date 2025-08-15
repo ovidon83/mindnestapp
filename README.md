@@ -362,17 +362,27 @@ interface Entry {
 
 ## 📚 **Documentation & Resources**
 
-### **Code Documentation**
-- **Comprehensive TypeScript** interfaces
-- **Inline code comments** for complex logic
-- **Component documentation** for reusability
-- **API documentation** for functions
+### **Living Documentation System**
+GenieNotes uses a comprehensive, living documentation system that automatically stays in sync with development:
 
-### **User Documentation**
-- **Feature guides** and tutorials
-- **Best practices** for usage
-- **Troubleshooting** guides
-- **FAQ sections** for common questions
+- **[📋 Features & Functionality](./docs/FEATURES.md)** - Detailed feature descriptions and user flows
+- **[🏗️ Technical Architecture](./docs/ARCHITECTURE.md)** - System architecture and implementation details
+- **[🎨 UI/UX Design System](./docs/UI-UX.md)** - Design principles and component library
+- **[🔧 Development Guide](./docs/DEVELOPMENT.md)** - Development workflow and coding standards
+- **[📊 Changelog](./docs/CHANGELOG.md)** - Version history and updates
+- **[🗺️ Development Roadmap](./docs/ROADMAP.md)** - Future plans and milestones
+
+### **Quick Start**
+- **New Users**: Start with [Features](./docs/FEATURES.md) to understand capabilities
+- **Developers**: Begin with [Development Guide](./docs/DEVELOPMENT.md) for setup
+- **Contributors**: Review [Architecture](./docs/ARCHITECTURE.md) for technical details
+- **Designers**: Check [UI/UX Guide](./docs/UI-UX.md) for design system
+
+### **Documentation Standards**
+- **Always Current**: Updated with every feature change
+- **Living System**: Automatically reflects current state
+- **Comprehensive Coverage**: Every aspect documented in detail
+- **Easy Navigation**: Cross-referenced and well-organized
 
 ## 🌟 **Conclusion**
 
