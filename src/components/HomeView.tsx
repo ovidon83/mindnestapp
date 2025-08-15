@@ -396,30 +396,42 @@ export const HomeView: React.FC = () => {
                   )}
                 </div>
                 
-                {/* Secondary actions - time period changes */}
+                {/* Smart time period dropdown - single button for all changes */}
                 {!isCompleted && (
-                  <div className="flex items-center gap-1 border-r border-gray-200 pr-2">
+                  <div className="relative group">
                     <button
-                      onClick={() => moveToToday(entry.id)}
-                      className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                      title="Move to Today"
+                      className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors border border-blue-200 hover:border-blue-300"
+                      title="Change time period"
                     >
                       <Calendar className="w-4 h-4" />
                     </button>
-                    <button
-                      onClick={() => moveToThisWeek(entry.id)}
-                      className="p-2 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors"
-                      title="Move to This Week"
-                    >
-                      <CalendarDays className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => moveToUpcoming(entry.id)}
-                      className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                      title="Move to Upcoming"
-                    >
-                      <Clock className="w-4 h-4" />
-                    </button>
+                    
+                    {/* Dropdown menu */}
+                    <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-20 min-w-32">
+                      <div className="py-1">
+                        <button
+                          onClick={() => moveToToday(entry.id)}
+                          className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors flex items-center gap-2"
+                        >
+                          <Calendar className="w-4 h-4 text-blue-500" />
+                          Move to Today
+                        </button>
+                        <button
+                          onClick={() => moveToThisWeek(entry.id)}
+                          className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors flex items-center gap-2"
+                        >
+                          <CalendarDays className="w-4 h-4 text-purple-500" />
+                          Move to This Week
+                        </button>
+                        <button
+                          onClick={() => moveToUpcoming(entry.id)}
+                          className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-700 transition-colors flex items-center gap-2"
+                        >
+                          <Clock className="w-4 h-4 text-gray-500" />
+                          Move to Upcoming
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 )}
                 
