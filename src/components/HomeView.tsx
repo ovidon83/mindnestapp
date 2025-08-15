@@ -14,7 +14,8 @@ import {
   Edit,
   Trash2,
   Clock,
-  CalendarDays
+  CalendarDays,
+  GripVertical
 } from 'lucide-react';
 import { useGenieNotesStore } from '../store';
 import { Entry, EntryType, TaskStatus } from '../types';
@@ -345,7 +346,7 @@ export const HomeView: React.FC = () => {
       <div 
         className={`bg-white rounded-lg border transition-all duration-200 hover:shadow-sm ${
           isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
-        } ${isDragging ? 'opacity-50' : ''} ${isDragOver ? 'border-blue-400 bg-blue-50' : ''} ${isCompleted ? 'bg-green-50 border-green-200' : ''} ${isUrgent ? 'border-l-4 border-l-orange-400' : ''}`}
+        } ${isDragging ? 'opacity-50 scale-95' : ''} ${isDragOver ? 'border-blue-400 bg-blue-50' : ''} ${isCompleted ? 'bg-green-50 border-green-200' : ''} ${isUrgent ? 'border-l-4 border-l-orange-400 bg-orange-50' : ''}`}
         draggable={!isCompleted}
         onDragStart={!isCompleted ? (e) => handleDragStart(e, entry.id) : undefined}
         onDragOver={!isCompleted ? (e) => handleDragOver(e, entry.id) : undefined}
@@ -354,12 +355,30 @@ export const HomeView: React.FC = () => {
       >
         <div className="p-4">
           <div className="flex items-start gap-3">
-            <input
-              type="checkbox"
-              checked={isSelected}
-              onChange={() => toggleEntrySelection(entry.id)}
-              className="mt-1 h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-            />
+            {/* Drag Handle - Only for non-completed items */}
+            {!isCompleted && (
+              <div className="flex flex-col items-center gap-1">
+                <div className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 transition-colors">
+                  <GripVertical className="w-4 h-4" />
+                </div>
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  onChange={() => toggleEntrySelection(entry.id)}
+                  className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                />
+              </div>
+            )}
+            
+            {/* Checkbox only for completed items */}
+            {isCompleted && (
+              <input
+                type="checkbox"
+                checked={isSelected}
+                onChange={() => toggleEntrySelection(entry.id)}
+                className="mt-1 h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+              />
+            )}
             
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-2">
@@ -373,9 +392,14 @@ export const HomeView: React.FC = () => {
                   </span>
                 )}
                 {isUrgent && !isCompleted && (
-                  <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">
-                    Urgent
-                  </span>
+                  <div className="flex items-center gap-1">
+                    <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium font-semibold">
+                      ⭐ PINNED
+                    </span>
+                    <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">
+                      Urgent
+                    </span>
+                  </div>
                 )}
               </div>
               
@@ -667,19 +691,32 @@ export const HomeView: React.FC = () => {
           )}
           
           {currentTabEntries.length > 0 && (
-            <div className="space-y-3">
-              {currentTabEntries.map((entry, index) => (
-                <div key={entry.id} className="relative">
-                  <EntryCard entry={entry} />
-                  {/* Drag and Drop Visual Indicator */}
-                  {index < currentTabEntries.length - 1 && (
-                    <div className="h-2 flex items-center justify-center">
-                      <div className="w-8 h-0.5 bg-gray-200 rounded-full opacity-0 hover:opacity-100 transition-opacity cursor-ns-resize" />
-                    </div>
-                  )}
+            <>
+              {/* Drag and Drop Instructions */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                <div className="flex items-center gap-2 text-blue-700">
+                  <GripVertical className="w-4 h-4" />
+                  <span className="text-sm font-medium">Drag & Drop to Reorder</span>
                 </div>
-              ))}
-            </div>
+                <p className="text-xs text-blue-600 mt-1">
+                  Use the grip handle (⋮⋮) to drag entries and reorder them. Urgent items are automatically pinned at the top.
+                </p>
+              </div>
+              
+              <div className="space-y-3">
+                {currentTabEntries.map((entry, index) => (
+                  <div key={entry.id} className="relative">
+                    <EntryCard entry={entry} />
+                    {/* Enhanced Drag and Drop Visual Indicator */}
+                    {index < currentTabEntries.length - 1 && (
+                      <div className="h-3 flex items-center justify-center group">
+                        <div className="w-12 h-1 bg-gray-200 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-blue-300 hover:h-1.5 cursor-ns-resize" />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </div>
