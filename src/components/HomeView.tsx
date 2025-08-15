@@ -9,8 +9,7 @@ import {
   CheckCircle,
   Trash2,
   BarChart3,
-  Tag,
-  Filter
+  Tag
 } from 'lucide-react';
 import { useGenieNotesStore } from '../store';
 import { Entry, EntryType, TaskStatus } from '../types';
