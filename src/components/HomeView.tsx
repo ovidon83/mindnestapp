@@ -279,17 +279,17 @@ export const HomeView: React.FC = () => {
           data-entry-id={entry.id}
         >
           <div className="p-4">
-            <div className="flex items-start gap-3">
+            <div className="flex items-center gap-3">
               {/* Checkbox */}
               <input
                 type="checkbox"
                 checked={isSelected}
                 onChange={() => toggleEntrySelection(entry.id)}
-                className="mt-1 h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
               />
               
-              {/* Main content - centered */}
-              <div className="flex-1 min-w-0 text-center">
+              {/* Main content - vertically centered */}
+              <div className="flex-1 min-w-0 text-center flex flex-col justify-center">
                 {/* Type pill and title row */}
                 <div className="flex items-center justify-center gap-2 mb-3">
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${typeDisplay.color}`}>
@@ -336,7 +336,7 @@ export const HomeView: React.FC = () => {
                 
                 {/* Tags row - cleaner layout */}
                 {entry.tags.length > 0 && (
-                  <div className="flex items-center justify-center gap-1 mb-3">
+                  <div className="flex items-center justify-center gap-1">
                     {entry.tags.slice(0, 3).map((tag, index) => (
                       <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
                         #{tag}
