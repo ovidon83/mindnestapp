@@ -288,8 +288,8 @@ export const HomeView: React.FC = () => {
                 className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
               />
               
-              {/* Main content - vertically centered */}
-              <div className="flex-1 min-w-0 text-center flex flex-col justify-center">
+              {/* Main content - horizontally centered, positioned at top */}
+              <div className="flex-1 min-w-0 text-center">
                 {/* Type pill and title row */}
                 <div className="flex items-center justify-center gap-2 mb-3">
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${typeDisplay.color}`}>
