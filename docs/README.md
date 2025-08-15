@@ -1,117 +1,163 @@
-# GenieNotes - Living Documentation System
+# GenieNotes Documentation
 
-Welcome to the comprehensive, living documentation for GenieNotes. This system automatically stays in sync with your development and provides detailed information about every aspect of the application.
+## 📚 Documentation Structure
 
-## 📚 **Documentation Structure**
+This documentation is organized to be **code-connected** and **feature-focused**, making it easier for developers to understand how features map to actual code and for users to understand the complete functionality.
 
-### **🏠 [README.md](../README.md)**
-- **Purpose**: High-level overview, project introduction, setup instructions
-- **Update Frequency**: When core architecture or setup changes
-- **Audience**: New users, developers, stakeholders
+## 🗂️ Organization
 
-### **📋 [FEATURES.md](./FEATURES.md)**
-- **Purpose**: Detailed feature descriptions, user flows, and functionality
-- **Update Frequency**: Every feature change or addition
-- **Audience**: Users, developers, product managers
+### Features (`/features/`)
+**Purpose:** High-level feature documentation that maps directly to components
 
-### **🏗️ [ARCHITECTURE.md](./ARCHITECTURE.md)**
-- **Purpose**: Technical architecture, data models, component structure
-- **Update Frequency**: When architecture or data models change
-- **Audience**: Developers, architects, maintainers
+**Files:**
+- [`note-capture.md`](./features/note-capture.md) - Maps to `CaptureView.tsx`
+- [`thought-management.md`](./features/thought-management.md) - Maps to `ThoughtsView.tsx`
+- [`home-dashboard.md`](./features/home-dashboard.md) - Maps to `HomeView.tsx`
 
-### **🎨 [UI-UX.md](./UI-UX.md)**
-- **Purpose**: Design system, UI components, user experience flows
-- **Update Frequency**: When UI/UX changes or new components added
-- **Audience**: Designers, developers, UX researchers
+**What's Included:**
+- Feature overview and purpose
+- Key capabilities and user workflows
+- Technical implementation details
+- Related components and dependencies
+- Future enhancement plans
 
-### **🔧 [DEVELOPMENT.md](./DEVELOPMENT.md)**
-- **Purpose**: Development workflow, coding standards, deployment
-- **Update Frequency**: When development process changes
-- **Audience**: Developers, maintainers
+### Components (`/components/`)
+**Purpose:** Detailed component documentation with implementation specifics
 
-### **📊 [CHANGELOG.md](./CHANGELOG.md)**
-- **Purpose**: Version history, what changed and when
-- **Update Frequency**: Every commit (auto-generated)
-- **Audience**: Users, developers, stakeholders
+**Files:**
+- [`CaptureView.md`](./components/CaptureView.md) - Complete component breakdown
+- [`ThoughtsView.md`](./components/ThoughtsView.md) - Component implementation details
+- [`HomeView.md`](./components/HomeView.md) - Dashboard component documentation
 
-### **🗺️ [ROADMAP.md](./ROADMAP.md)**
-- **Purpose**: Future plans, upcoming features, development timeline
-- **Update Frequency**: When plans change or milestones reached
-- **Audience**: Users, developers, stakeholders
+**What's Included:**
+- Props and state management
+- Key functions and their purposes
+- UI states and user flows
+- Dependencies and related files
+- Performance considerations
 
-## 🚀 **How to Use This System**
+### API (`/api/`)
+**Purpose:** Technical documentation for data layer and types
 
-### **For Developers**
-1. **Before making changes**: Check relevant docs to understand current state
-2. **During development**: Update docs as you implement features
-3. **After changes**: Ensure all affected docs are updated
-4. **Before PR**: Verify docs reflect your changes
+**Files:**
+- [`store.md`](./api/store.md) - Zustand store API documentation
+- [`types.md`](./api/types.md) - TypeScript interfaces and types
 
-### **For Users**
-1. **Start with README.md** for overview and setup
-2. **Check FEATURES.md** for detailed functionality
-3. **Review CHANGELOG.md** for recent updates
-4. **Look at ROADMAP.md** for upcoming features
+**What's Included:**
+- Store interface and functions
+- State structure and management
+- Type definitions and usage examples
+- Performance features and error handling
 
-### **For Stakeholders**
-1. **README.md** for project overview
-2. **FEATURES.md** for current capabilities
-3. **ROADMAP.md** for future direction
-4. **CHANGELOG.md** for progress tracking
+## 🔗 Code Connections
 
-## 📝 **Documentation Update Workflow**
+### Direct File References
+Each document includes:
+- **File paths** to actual source code
+- **Component names** that implement features
+- **Function names** from the codebase
+- **Type references** from TypeScript files
 
-### **Automatic Updates**
-- **CHANGELOG.md**: Auto-generated from commit messages
-- **Version numbers**: Auto-updated in package.json and docs
-- **Build status**: Auto-updated in README badges
+### Implementation Details
+- **State management** patterns used
+- **Data flow** between components
+- **Performance optimizations** implemented
+- **Error handling** strategies
 
-### **Manual Updates Required**
-- **FEATURES.md**: Update when adding/removing features
-- **ARCHITECTURE.md**: Update when changing data models or components
-- **UI-UX.md**: Update when changing design or user flows
-- **DEVELOPMENT.md**: Update when changing development process
-- **ROADMAP.md**: Update when plans change
+### Related Components
+- **Dependencies** between features
+- **Data sharing** patterns
+- **Component communication** methods
+- **Store usage** examples
 
-### **Update Checklist**
-Before every PR, ensure:
-- [ ] README.md reflects current state
-- [ ] FEATURES.md documents new/changed features
-- [ ] ARCHITECTURE.md reflects technical changes
-- [ ] UI-UX.md shows design updates
-- [ ] CHANGELOG.md is auto-generated
-- [ ] ROADMAP.md is current
+## 📖 How to Use This Documentation
 
-## 🔄 **Keeping Docs in Sync**
+### For Developers
+1. **Start with Features:** Understand what each feature does
+2. **Check Components:** See how features are implemented
+3. **Review API:** Understand data flow and types
+4. **Follow Code Links:** Jump directly to source code
 
-### **Git Hooks**
-- Pre-commit: Check if docs need updates
-- Pre-push: Verify docs are current
-- Post-merge: Auto-update related docs
+### For Users
+1. **Read Features:** Learn what the app can do
+2. **Follow Workflows:** Understand user journeys
+3. **Check Examples:** See how to use features effectively
+4. **Explore Future:** See what's coming next
 
-### **CI/CD Integration**
-- Build docs as part of CI pipeline
-- Validate doc links and references
-- Auto-generate changelog on release
+### For Contributors
+1. **Understand Architecture:** See how components fit together
+2. **Follow Patterns:** Use established implementation approaches
+3. **Update Docs:** Keep documentation in sync with code changes
+4. **Add Examples:** Include code samples for new features
 
-### **Documentation Standards**
-- Use consistent formatting and structure
-- Include examples and screenshots
-- Link between related sections
-- Keep content current and accurate
+## 🚀 Keeping Documentation Current
 
-## 📖 **Quick Navigation**
+### When Adding Features
+1. **Create Feature Doc:** Document the feature in `/features/`
+2. **Update Component Doc:** Add component documentation in `/components/`
+3. **Update API Docs:** Document new types or store functions
+4. **Link Everything:** Ensure cross-references are accurate
 
-| Document | Purpose | Last Updated |
-|----------|---------|--------------|
-| [README.md](../README.md) | Project overview & setup | ✅ Current |
-| [FEATURES.md](./FEATURES.md) | Detailed functionality | ✅ Current |
-| [ARCHITECTURE.md](./ARCHITECTURE.md) | Technical structure | ✅ Current |
-| [UI-UX.md](./UI-UX.md) | Design & user experience | ✅ Current |
-| [DEVELOPMENT.md](./DEVELOPMENT.md) | Development workflow | ✅ Current |
-| [CHANGELOG.md](./CHANGELOG.md) | Version history | ✅ Auto-generated |
-| [ROADMAP.md](./ROADMAP.md) | Future plans | ✅ Current |
+### When Modifying Code
+1. **Update Related Docs:** Keep documentation in sync
+2. **Check Examples:** Ensure code samples still work
+3. **Verify Links:** Test all file references
+4. **Update Changelog:** Document changes in `CHANGELOG.md`
+
+## 📋 Documentation Standards
+
+### File Structure
+- **Clear headings** with consistent hierarchy
+- **Code blocks** with proper syntax highlighting
+- **File references** using relative paths
+- **Cross-references** to related documentation
+
+### Content Guidelines
+- **Feature-focused** rather than technical implementation
+- **User-centered** language and examples
+- **Code-connected** with actual file references
+- **Future-oriented** with enhancement plans
+
+### Maintenance
+- **Regular updates** with code changes
+- **Version tracking** for major changes
+- **Link validation** to ensure references work
+- **Example testing** to verify accuracy
+
+## 🔍 Finding Information
+
+### Quick Reference
+- **Features:** Start with `FEATURES.md` for overview
+- **Components:** Check `/components/` for implementation details
+- **API:** Use `/api/` for technical specifications
+- **Search:** Use your editor's search across all `.md` files
+
+### Navigation
+- **Cross-references** between related documents
+- **File paths** to jump to source code
+- **Component mapping** to understand relationships
+- **Type references** for data structures
+
+## 📝 Contributing to Documentation
+
+### Adding New Features
+1. Create feature documentation in `/features/`
+2. Add component documentation in `/components/`
+3. Update API documentation if needed
+4. Add cross-references to existing docs
+
+### Improving Existing Docs
+1. Update outdated information
+2. Add missing examples
+3. Improve clarity and organization
+4. Fix broken links or references
+
+### Documentation Tools
+- **Markdown** for all documentation
+- **Relative paths** for file references
+- **Code blocks** with language specification
+- **Consistent formatting** throughout
 
 ---
 
-**This living documentation system ensures that GenieNotes always has accurate, up-to-date information about every aspect of the application. Keep it current, and it will serve as the single source of truth for your project!** 🎉
+**This documentation structure makes GenieNotes easier to understand, develop, and contribute to by connecting features directly to their code implementations.** 🎉

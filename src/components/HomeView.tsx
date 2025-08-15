@@ -8,7 +8,9 @@ import {
   Edit,
   CheckCircle,
   Trash2,
-  BarChart3
+  BarChart3,
+  Tag,
+  Filter
 } from 'lucide-react';
 import { useGenieNotesStore } from '../store';
 import { Entry, EntryType, TaskStatus } from '../types';
@@ -22,8 +24,9 @@ export const HomeView: React.FC = () => {
   });
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
   const [insightsDrawerOpen, setInsightsDrawerOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overdue' | 'today' | 'thisWeek' | 'upcoming' | 'completed'>('today');
+  const [activeTab, setActiveTab] = useState<'today' | 'thisWeek' | 'later' | 'completed'>('today');
   const [selectedEntries, setSelectedEntries] = useState<Set<string>>(new Set());
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
   const {
     entries,
@@ -60,29 +63,29 @@ export const HomeView: React.FC = () => {
     return true;
   });
 
+  // Apply tag filter
+  const tagFilteredEntries = selectedTag 
+    ? filteredEntries.filter(entry => entry.tags.includes(selectedTag))
+    : filteredEntries;
+
   // Date-based organization using new directive system
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const endOfWeek = new Date(today);
   endOfWeek.setDate(today.getDate() + 7);
 
-  // Overdue: tasks with dueDate < today and not completed
-  const overdueEntries = filteredEntries.filter(entry => {
+  // Today: due today OR pinned for today (including overdue items)
+  const todayEntries = tagFilteredEntries.filter(entry => {
     if (entry.status === 'completed') return false;
+    if (entry.dueDate && entry.dueDate instanceof Date && entry.dueDate.toDateString() === today.toDateString()) return true;
+    if (entry.pinnedForDate && entry.pinnedForDate instanceof Date && entry.pinnedForDate.toDateString() === today.toDateString()) return true;
+    // Include overdue items in today view
     if (entry.dueDate && entry.dueDate instanceof Date && entry.dueDate < today) return true;
     return false;
   });
 
-  // Today: due today OR pinned for today
-  const todayEntries = filteredEntries.filter(entry => {
-    if (entry.status === 'completed') return false;
-    if (entry.dueDate && entry.dueDate instanceof Date && entry.dueDate.toDateString() === today.toDateString()) return true;
-    if (entry.pinnedForDate && entry.pinnedForDate instanceof Date && entry.pinnedForDate.toDateString() === today.toDateString()) return true;
-    return false;
-  });
-
   // This Week: within next 7 days (exclude today entries)
-  const thisWeekEntries = filteredEntries.filter(entry => {
+  const thisWeekEntries = tagFilteredEntries.filter(entry => {
     if (entry.status === 'completed') return false;
     if (todayEntries.some(todayEntry => todayEntry.id === entry.id)) return false;
     if (entry.dueDate && entry.dueDate instanceof Date && entry.dueDate >= today && entry.dueDate <= endOfWeek) return true;
@@ -90,8 +93,8 @@ export const HomeView: React.FC = () => {
     return false;
   });
 
-  // Upcoming: everything else (exclude today and this week entries)
-  const upcomingEntries = filteredEntries.filter(entry => {
+  // Later: everything else (exclude today and this week entries)
+  const laterEntries = tagFilteredEntries.filter(entry => {
     if (entry.status === 'completed') return false;
     if (todayEntries.some(todayEntry => todayEntry.id === entry.id)) return false;
     if (thisWeekEntries.some(weekEntry => weekEntry.id === entry.id)) return false;
@@ -99,24 +102,21 @@ export const HomeView: React.FC = () => {
   });
 
   // Completed: all completed entries
-  const completedEntries = filteredEntries.filter(entry => entry.status === 'completed');
+  const completedEntries = tagFilteredEntries.filter(entry => entry.status === 'completed');
 
   // Get current tab entries with proper sorting
   const getCurrentTabEntries = () => {
     let entries: Entry[] = [];
     
     switch (activeTab) {
-      case 'overdue': 
-        entries = overdueEntries;
-        break;
       case 'today': 
         entries = todayEntries;
         break;
       case 'thisWeek': 
         entries = thisWeekEntries;
         break;
-      case 'upcoming': 
-        entries = upcomingEntries;
+      case 'later': 
+        entries = laterEntries;
         break;
       case 'completed': 
         entries = completedEntries;
@@ -140,6 +140,15 @@ export const HomeView: React.FC = () => {
   };
 
   const currentTabEntries = getCurrentTabEntries();
+
+  // Get all unique tags for grouping
+  const getAllTags = () => {
+    const allTags = new Set<string>();
+    filteredEntries.forEach(entry => {
+      entry.tags.forEach(tag => allTags.add(tag));
+    });
+    return Array.from(allTags).sort();
+  };
 
   // Batch actions
   const toggleEntrySelection = (entryId: string) => {
@@ -181,18 +190,21 @@ export const HomeView: React.FC = () => {
     }
   };
 
-  // Time period change functions
+  // Time period change functions - FIXED
   const moveToToday = (entryId: string) => {
-    updateEntry(entryId, { pinnedForDate: today });
+    const today = new Date();
+    today.setHours(9, 0, 0, 0); // Set to 9 AM
+    updateEntry(entryId, { pinnedForDate: today, dueDate: today });
   };
 
   const moveToThisWeek = (entryId: string) => {
-    const nextWeek = new Date(today);
-    nextWeek.setDate(today.getDate() + 7);
-    updateEntry(entryId, { pinnedForDate: nextWeek });
+    const nextMonday = new Date();
+    nextMonday.setDate(nextMonday.getDate() + (8 - nextMonday.getDay()) % 7);
+    nextMonday.setHours(9, 0, 0, 0); // Set to Monday 9 AM
+    updateEntry(entryId, { pinnedForDate: nextMonday, dueDate: nextMonday });
   };
 
-  const moveToUpcoming = (entryId: string) => {
+  const moveToLater = (entryId: string) => {
     updateEntry(entryId, { pinnedForDate: undefined, dueDate: undefined });
   };
 
@@ -239,6 +251,7 @@ export const HomeView: React.FC = () => {
     const isOverdue = entry.dueDate && new Date(entry.dueDate) < new Date() && entry.status !== 'completed';
     const isCompleted = entry.status === 'completed';
     const isUrgent = entry.priority === 'urgent' || isOverdue;
+    const isPinned = entry.pinnedForDate && entry.pinnedForDate.toDateString() === today.toDateString();
 
     // Get type display text and color
     const getTypeDisplay = (type: EntryType) => {
@@ -268,52 +281,23 @@ export const HomeView: React.FC = () => {
         >
           <div className="p-4">
             <div className="flex items-start gap-3">
-              {/* Up/Down buttons instead of broken drag handle */}
-              {!isCompleted && (
-                <div className="flex flex-col items-center gap-1 flex-shrink-0">
-                  <button
-                    onClick={() => moveEntryUp(entry.id)}
-                    disabled={index === 0}
-                    className="p-1 text-gray-400 hover:text-gray-600 disabled:text-gray-200 disabled:cursor-not-allowed transition-colors"
-                    title="Move up"
-                  >
-                    <ChevronUp className="w-4 h-4" />
-                  </button>
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => toggleEntrySelection(entry.id)}
-                    className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                  />
-                  <button
-                    onClick={() => moveEntryDown(entry.id)}
-                    disabled={index === currentTabEntries.length - 1}
-                    className="p-1 text-gray-400 hover:text-gray-600 disabled:text-gray-200 disabled:cursor-not-allowed transition-colors"
-                    title="Move down"
-                  >
-                    <ChevronDown className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
+              {/* Checkbox */}
+              <input
+                type="checkbox"
+                checked={isSelected}
+                onChange={() => toggleEntrySelection(entry.id)}
+                className="mt-1 h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+              />
               
-              {/* Checkbox only for completed items */}
-              {isCompleted && (
-                <input
-                  type="checkbox"
-                  checked={isSelected}
-                  onChange={() => toggleEntrySelection(entry.id)}
-                  className="mt-1 h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                />
-              )}
-              
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-2">
-                  {/* Type pill instead of icon */}
+              {/* Main content - centered */}
+              <div className="flex-1 min-w-0 text-center">
+                {/* Type pill and title row */}
+                <div className="flex items-center justify-center gap-2 mb-3">
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${typeDisplay.color}`}>
                     {typeDisplay.text}
                   </span>
                   
-                  <h3 className={`font-medium truncate ${isCompleted ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                  <h3 className={`font-medium text-gray-900 ${isCompleted ? 'line-through text-gray-500' : ''}`}>
                     {entry.content}
                   </h3>
                   
@@ -322,22 +306,25 @@ export const HomeView: React.FC = () => {
                       Completed
                     </span>
                   )}
-                  
+                </div>
+                
+                {/* Status and priority row */}
+                <div className="flex items-center justify-center gap-2 mb-3">
                   {isUrgent && !isCompleted && (
                     <div className="flex items-center gap-1">
-                      <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium font-semibold">
-                        ⭐ PINNED
-                      </span>
+                      {isPinned && (
+                        <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium font-semibold">
+                          ⭐ PINNED
+                        </span>
+                      )}
                       <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">
-                        Urgent
+                        {isOverdue ? 'Overdue' : 'Urgent'}
                       </span>
                     </div>
                   )}
-                </div>
-                
-                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  
                   {/* Only show due date if it's different from current tab context */}
-                  {entry.dueDate && (
+                  {entry.dueDate && !isPinned && (
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       isOverdue 
                         ? 'bg-red-100 text-red-700' 
@@ -346,28 +333,28 @@ export const HomeView: React.FC = () => {
                       {formatDate(entry.dueDate)}
                     </span>
                   )}
-                  
-                  {/* Only show user tags, not context tags */}
-                  {entry.tags.length > 0 && (
-                    <div className="flex gap-1">
-                      {entry.tags.slice(0, 3).map((tag, index) => (
-                        <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
-                          {tag}
-                        </span>
-                      ))}
-                      {entry.tags.length > 3 && (
-                        <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
-                          +{entry.tags.length - 3}
-                        </span>
-                      )}
-                    </div>
-                  )}
                 </div>
+                
+                {/* Tags row - cleaner layout */}
+                {entry.tags.length > 0 && (
+                  <div className="flex items-center justify-center gap-1 mb-3">
+                    {entry.tags.slice(0, 3).map((tag, index) => (
+                      <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
+                        #{tag}
+                      </span>
+                    ))}
+                    {entry.tags.length > 3 && (
+                      <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
+                        +{entry.tags.length - 3}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
               
-              {/* Clean, organized action buttons */}
+              {/* Action buttons and ordering arrows on the right */}
               <div className="flex items-center gap-2 flex-shrink-0">
-                {/* Primary actions - most important */}
+                {/* Primary actions */}
                 <div className="flex items-center gap-1 border-r border-gray-200 pr-2">
                   <button
                     onClick={() => handleEditEntry(entry)}
@@ -396,7 +383,7 @@ export const HomeView: React.FC = () => {
                   )}
                 </div>
                 
-                {/* Smart time period dropdown - single button for all changes */}
+                {/* Time period management */}
                 {!isCompleted && (
                   <div className="relative group">
                     <button
@@ -424,18 +411,40 @@ export const HomeView: React.FC = () => {
                           Move to This Week
                         </button>
                         <button
-                          onClick={() => moveToUpcoming(entry.id)}
+                          onClick={() => moveToLater(entry.id)}
                           className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-700 transition-colors flex items-center gap-2"
                         >
                           <Clock className="w-4 h-4 text-gray-500" />
-                          Move to Upcoming
+                          Move to Later
                         </button>
                       </div>
                     </div>
                   </div>
                 )}
                 
-                {/* Destructive action - separated */}
+                {/* Ordering arrows */}
+                {!isCompleted && (
+                  <div className="flex flex-col items-center gap-1 border-r border-gray-200 pr-2">
+                    <button
+                      onClick={() => moveEntryUp(entry.id)}
+                      disabled={index === 0}
+                      className="p-1 text-gray-400 hover:text-gray-600 disabled:text-gray-200 disabled:cursor-not-allowed transition-colors"
+                      title="Move up"
+                    >
+                      <ChevronUp className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => moveEntryDown(entry.id)}
+                      disabled={index === currentTabEntries.length - 1}
+                      className="p-1 text-gray-400 hover:text-gray-600 disabled:text-gray-200 disabled:cursor-not-allowed transition-colors"
+                      title="Move down"
+                    >
+                      <ChevronDown className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+                
+                {/* Destructive action */}
                 <button
                   onClick={() => deleteEntry(entry.id)}
                   className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
@@ -574,15 +583,43 @@ export const HomeView: React.FC = () => {
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-6 py-8">
+        {/* Tag Grouping */}
+        <div className="mb-6">
+          <div className="flex items-center gap-3 mb-3">
+            <Tag className="w-5 h-5 text-gray-600" />
+            <span className="text-sm font-medium text-gray-700">Group by Tag:</span>
+            <button
+              onClick={() => setSelectedTag(null)}
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                selectedTag === null 
+                  ? 'bg-blue-100 text-blue-700' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              All Tags
+            </button>
+          </div>
+          
+          <div className="flex flex-wrap gap-2">
+            {getAllTags().map(tag => (
+              <button
+                key={tag}
+                onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                  selectedTag === tag 
+                    ? 'bg-blue-100 text-blue-700' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                #{tag}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Tab Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex space-x-1">
-            <button
-              onClick={() => setActiveTab('overdue')}
-              className={`px-4 py-2 text-sm font-medium ${activeTab === 'overdue' ? 'border-b-2 border-red-500 text-red-600' : 'text-gray-600 hover:text-gray-800'}`}
-            >
-              Overdue {overdueEntries.length > 0 && `(${overdueEntries.length})`}
-            </button>
             <button
               onClick={() => setActiveTab('today')}
               className={`px-4 py-2 text-sm font-medium ${activeTab === 'today' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600 hover:text-gray-800'}`}
@@ -596,10 +633,10 @@ export const HomeView: React.FC = () => {
               This Week {thisWeekEntries.length > 0 && `(${thisWeekEntries.length})`}
             </button>
             <button
-              onClick={() => setActiveTab('upcoming')}
-              className={`px-4 py-2 text-sm font-medium ${activeTab === 'upcoming' ? 'border-b-2 border-gray-600 text-gray-600' : 'text-gray-600 hover:text-gray-800'}`}
+              onClick={() => setActiveTab('later')}
+              className={`px-4 py-2 text-sm font-medium ${activeTab === 'later' ? 'border-b-2 border-gray-600 text-gray-600' : 'text-gray-600 hover:text-gray-800'}`}
             >
-              Upcoming {upcomingEntries.length > 0 && `(${upcomingEntries.length})`}
+              Later {laterEntries.length > 0 && `(${laterEntries.length})`}
             </button>
             <button
               onClick={() => setActiveTab('completed')}
