@@ -508,36 +508,36 @@ export const HomeView: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Sticky Top Bar */}
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-200">
-        <div className="max-w-5xl mx-auto px-6 py-4">
-          <div className="flex items-center gap-4">
-            {/* Capture Button */}
-            <button
-              onClick={() => setCurrentView('capture')}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-            >
-              + Capture
-            </button>
-            
-            {/* Search */}
-            <div className="flex-1 max-w-md">
-              <input
-                type="text"
-                placeholder="Search your thoughts..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
+      {/* Top Bar */}
+      <div className="bg-white/95 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setCurrentView('capture')}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                + Capture
+              </button>
+              
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search your thoughts..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-80 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                />
+              </div>
             </div>
             
-            {/* Filters */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
               <select
                 value={activeFilters.type}
-                onChange={(e) => setActiveFilters({ ...activeFilters, type: e.target.value as EntryType })}
+                onChange={(e) => setActiveFilters({ ...activeFilters, type: e.target.value as EntryType | 'all' })}
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
               >
+                <option value="all">All Types</option>
                 <option value="task">Tasks</option>
                 <option value="idea">Ideas</option>
                 <option value="event">Events</option>
@@ -547,41 +547,42 @@ export const HomeView: React.FC = () => {
               
               <select
                 value={activeFilters.status}
-                onChange={(e) => setActiveFilters({ ...activeFilters, status: e.target.value as TaskStatus })}
+                onChange={(e) => setActiveFilters({ ...activeFilters, status: e.target.value as TaskStatus | 'all' })}
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
               >
+                <option value="all">All Statuses</option>
                 <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
                 <option value="completed">Completed</option>
               </select>
               
               <label className="flex items-center gap-2 text-sm text-gray-600">
                 <input
                   type="checkbox"
-                  checked={activeFilters.needsReview || false}
+                  checked={activeFilters.needsReview}
                   onChange={(e) => setActiveFilters({ ...activeFilters, needsReview: e.target.checked })}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                 />
                 Review Only
               </label>
+              
+              <button
+                onClick={() => setInsightsDrawerOpen(!insightsDrawerOpen)}
+                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                title="Insights"
+              >
+                <BarChart3 className="w-5 h-5" />
+              </button>
             </div>
-            
-            {/* Insights Toggle */}
-            <button
-              onClick={() => setInsightsDrawerOpen(!insightsDrawerOpen)}
-              className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Toggle Insights"
-            >
-              <BarChart3 className="w-5 h-5" />
-            </button>
           </div>
         </div>
       </div>
 
-      {/* Main content */}
-      <div className="max-w-5xl mx-auto px-6 py-8">
-        {/* Tabs */}
-        <div className="flex items-center justify-between border-b border-gray-200 mb-4">
-          <div className="flex">
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        {/* Tab Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex space-x-1">
             <button
               onClick={() => setActiveTab('overdue')}
               className={`px-4 py-2 text-sm font-medium ${activeTab === 'overdue' ? 'border-b-2 border-red-500 text-red-600' : 'text-gray-600 hover:text-gray-800'}`}
@@ -608,46 +609,46 @@ export const HomeView: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('completed')}
-              className={`px-4 py-2 text-sm font-medium ${activeTab === 'completed' ? 'border-b-2 border-green-600 text-green-600' : 'text-gray-600 hover:text-gray-800'}`}
+              className={`px-4 py-2 text-sm font-medium ${activeTab === 'completed' ? 'border-b-2 border-green-600 text-green-600' : 'text-gray-800 hover:text-gray-800'}`}
             >
               Completed {completedEntries.length > 0 && `(${completedEntries.length})`}
             </button>
           </div>
-        </div>
-        
-        {currentTabEntries.length > 0 && (
-          <button
-            onClick={selectAllInTab}
-            className="px-3 py-1.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-          >
-            Select All
-          </button>
-        )}
-      </div>
-
-      {/* Tab Content */}
-      <div className="space-y-4">
-        {currentTabEntries.length === 0 && (
-          <div className="text-center py-8 text-gray-500">
-            <p className="text-sm">No {activeTab} entries</p>
+          
+          {currentTabEntries.length > 0 && (
             <button
-              onClick={() => setCurrentView('capture')}
-              className="mt-2 text-blue-600 hover:text-blue-700 text-sm font-medium"
+              onClick={selectAllInTab}
+              className="px-3 py-1.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
             >
-              + Add a {activeTab} entry
+              Select All
             </button>
-          </div>
-        )}
-        
-        {currentTabEntries.length > 0 && (
-          <div className="space-y-3">
-            {currentTabEntries.map((entry, index) => (
-              <div key={entry.id} className="relative">
-                <EntryCard entry={entry} index={index} />
-              </div>
-            ))}
-          </div>
-        )}
+          )}
+        </div>
+
+        {/* Tab Content */}
+        <div className="space-y-4">
+          {currentTabEntries.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              <p className="text-sm">No {activeTab} entries</p>
+              <button
+                onClick={() => setCurrentView('capture')}
+                className="mt-2 text-blue-600 hover:text-blue-700 text-sm font-medium"
+              >
+                + Add a {activeTab} entry
+              </button>
+            </div>
+          )}
+          
+          {currentTabEntries.length > 0 && (
+            <div className="space-y-3">
+              {currentTabEntries.map((entry, index) => (
+                <div key={entry.id} className="relative">
+                  <EntryCard entry={entry} index={index} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
