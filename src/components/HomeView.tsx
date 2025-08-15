@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
 import { 
   Calendar, 
-  Target, 
-  Lightbulb, 
-  TrendingUp, 
-  Eye, 
-  BookOpen, 
-  Bell, 
-  FileText, 
-  BarChart3, 
-  CheckCircle,
-  X,
-  Edit,
-  Trash2,
-  Clock,
   CalendarDays,
-  GripVertical
+  ChevronUp,
+  ChevronDown,
+  Clock,
+  Edit,
+  CheckCircle,
+  Trash2,
+  Target,
+  Lightbulb,
+  TrendingUp,
+  Eye,
+  BookOpen,
+  Bell,
+  FileText,
+  X,
+  BarChart3
 } from 'lucide-react';
 import { useGenieNotesStore } from '../store';
 import { Entry, EntryType, TaskStatus } from '../types';
@@ -31,62 +32,17 @@ export const HomeView: React.FC = () => {
   const [insightsDrawerOpen, setInsightsDrawerOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'overdue' | 'today' | 'thisWeek' | 'upcoming' | 'completed'>('today');
   const [selectedEntries, setSelectedEntries] = useState<Set<string>>(new Set());
-  const [showBatchBar, setShowBatchBar] = useState(false);
-  // Very simple, working drag and drop
-  const [draggedEntry, setDraggedEntry] = useState<string | null>(null);
-
-  const handleDragStart = (e: React.DragEvent, entryId: string) => {
-    setDraggedEntry(entryId);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleDrop = (e: React.DragEvent, targetEntryId: string) => {
-    e.preventDefault();
-    
-    if (draggedEntry && draggedEntry !== targetEntryId) {
-      const currentEntries = getCurrentTabEntries();
-      const draggedIndex = currentEntries.findIndex(entry => entry.id === draggedEntry);
-      const targetIndex = currentEntries.findIndex(entry => entry.id === targetEntryId);
-      
-      if (draggedIndex !== -1 && targetIndex !== -1) {
-        // Simple reordering
-        const now = new Date();
-        const newEntries = [...currentEntries];
-        const [draggedItem] = newEntries.splice(draggedIndex, 1);
-        newEntries.splice(targetIndex, 0, draggedItem);
-        
-        // Update timestamps to maintain order
-        newEntries.forEach((entry, index) => {
-          const newTimestamp = new Date(now.getTime() - (index * 1000));
-          updateEntry(entry.id, { createdAt: newTimestamp });
-        });
-      }
-    }
-    
-    setDraggedEntry(null);
-  };
-
-  const handleDragEnd = () => {
-    setDraggedEntry(null);
-  };
 
   const {
     entries,
     updateEntry,
     deleteEntry,
     completeEntry,
-    setCurrentView,
-    getTopTags
+    setCurrentView
   } = useGenieNotesStore();
 
   // Get raw entries from store and apply all filtering consistently
   const rawEntries = entries;
-  const topTags = getTopTags(rawEntries);
 
   // Apply search filter
   const searchFilteredEntries = searchQuery.trim() 
@@ -202,42 +158,12 @@ export const HomeView: React.FC = () => {
       newSelected.add(entryId);
     }
     setSelectedEntries(newSelected);
-    setShowBatchBar(newSelected.size > 0);
   };
 
   const selectAllInTab = () => {
     const newSelected = new Set(selectedEntries);
     currentTabEntries.forEach(entry => newSelected.add(entry.id));
     setSelectedEntries(newSelected);
-    setShowBatchBar(true);
-  };
-
-  const clearSelection = () => {
-    setSelectedEntries(new Set());
-    setShowBatchBar(false);
-  };
-
-  const batchPinToToday = () => {
-    selectedEntries.forEach(entryId => {
-      updateEntry(entryId, { pinnedForDate: today });
-    });
-    clearSelection();
-  };
-
-  const batchComplete = () => {
-    selectedEntries.forEach(entryId => {
-      completeEntry(entryId);
-    });
-    clearSelection();
-  };
-
-  const batchDelete = () => {
-    if (confirm(`Delete ${selectedEntries.size} selected entries?`)) {
-      selectedEntries.forEach(entryId => {
-        deleteEntry(entryId);
-      });
-      clearSelection();
-    }
   };
 
   // Helper functions
@@ -255,20 +181,6 @@ export const HomeView: React.FC = () => {
     }
   };
 
-  const getTypeColor = (type: EntryType) => {
-    switch (type) {
-      case 'task': return 'bg-blue-100';
-      case 'event': return 'bg-green-100';
-      case 'idea': return 'bg-purple-100';
-      case 'insight': return 'bg-yellow-100';
-      case 'reflection': return 'bg-orange-100';
-      case 'journal': return 'bg-indigo-100';
-      case 'reminder': return 'bg-red-100';
-      case 'note': return 'bg-gray-100';
-      default: return 'bg-gray-100';
-    }
-  };
-
   const formatDate = (date: Date) => {
     if (!date) return '';
     const today = new Date();
@@ -278,20 +190,6 @@ export const HomeView: React.FC = () => {
     if (date.toDateString() === today.toDateString()) return 'Today';
     if (date.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
     return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-  };
-
-  const formatTimeAgo = (date: Date) => {
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return 'just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
-    return date.toLocaleDateString();
   };
 
   const handleEditEntry = (entry: Entry) => {
@@ -326,6 +224,43 @@ export const HomeView: React.FC = () => {
     updateEntry(entryId, { dueDate: yesterday });
   };
 
+  // Simple up/down reordering instead of broken drag and drop
+  const moveEntryUp = (entryId: string) => {
+    const currentEntries = getCurrentTabEntries();
+    const currentIndex = currentEntries.findIndex(entry => entry.id === entryId);
+    
+    if (currentIndex > 0) {
+      const now = new Date();
+      const newEntries = [...currentEntries];
+      const [movedItem] = newEntries.splice(currentIndex, 1);
+      newEntries.splice(currentIndex - 1, 0, movedItem);
+      
+      // Update timestamps to maintain order
+      newEntries.forEach((entry, index) => {
+        const newTimestamp = new Date(now.getTime() - (index * 1000));
+        updateEntry(entry.id, { createdAt: newTimestamp });
+      });
+    }
+  };
+
+  const moveEntryDown = (entryId: string) => {
+    const currentEntries = getCurrentTabEntries();
+    const currentIndex = currentEntries.findIndex(entry => entry.id === entryId);
+    
+    if (currentIndex < currentEntries.length - 1) {
+      const now = new Date();
+      const newEntries = [...currentEntries];
+      const [movedItem] = newEntries.splice(currentIndex, 1);
+      newEntries.splice(currentIndex + 1, 0, movedItem);
+      
+      // Update timestamps to maintain order
+      newEntries.forEach((entry, index) => {
+        const newTimestamp = new Date(now.getTime() - (index * 1000));
+        updateEntry(entry.id, { createdAt: newTimestamp });
+      });
+    }
+  };
+
   // Entry card component
   const EntryCard: React.FC<{ entry: Entry; index: number }> = ({ entry, index }) => {
     const isSelected = selectedEntries.has(entry.id);
@@ -336,9 +271,9 @@ export const HomeView: React.FC = () => {
     return (
       <>
         {/* Drag indicator above the card */}
-        {draggedEntry && !isCompleted && index === 0 && (
+        {/* draggedEntry && !isCompleted && index === 0 && (
           <div className="h-2 bg-blue-400 rounded-full mb-2 opacity-60 animate-pulse" />
-        )}
+        ) */}
         
         <div 
           className={`bg-white rounded-lg border transition-all duration-200 hover:shadow-sm ${
@@ -346,28 +281,34 @@ export const HomeView: React.FC = () => {
           } ${isCompleted ? 'bg-green-50 border-green-200' : ''} ${isUrgent ? 'border-l-4 border-l-orange-400 bg-orange-50' : ''}`}
           data-entry-card
           data-entry-id={entry.id}
-          draggable
-          onDragStart={(e) => handleDragStart(e, entry.id)}
-          onDragOver={handleDragOver}
-          onDrop={(e) => handleDrop(e, entry.id)}
-          onDragEnd={handleDragEnd}
         >
           <div className="p-4">
             <div className="flex items-start gap-3">
-              {/* Drag Handle - Only for non-completed items */}
+              {/* Up/Down buttons instead of broken drag handle */}
               {!isCompleted && (
                 <div className="flex flex-col items-center gap-1 flex-shrink-0">
-                  <div 
-                    className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 transition-colors p-1"
+                  <button
+                    onClick={() => moveEntryUp(entry.id)}
+                    disabled={index === 0}
+                    className="p-1 text-gray-400 hover:text-gray-600 disabled:text-gray-200 disabled:cursor-not-allowed transition-colors"
+                    title="Move up"
                   >
-                    <GripVertical className="w-4 h-4" />
-                  </div>
+                    <ChevronUp className="w-4 h-4" />
+                  </button>
                   <input
                     type="checkbox"
                     checked={isSelected}
                     onChange={() => toggleEntrySelection(entry.id)}
                     className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                   />
+                  <button
+                    onClick={() => moveEntryDown(entry.id)}
+                    disabled={index === currentTabEntries.length - 1}
+                    className="p-1 text-gray-400 hover:text-gray-600 disabled:text-gray-200 disabled:cursor-not-allowed transition-colors"
+                    title="Move down"
+                  >
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
                 </div>
               )}
               
@@ -558,9 +499,9 @@ export const HomeView: React.FC = () => {
         </div>
         
         {/* Drag indicator below the card */}
-        {draggedEntry && !isCompleted && (
+        {/* draggedEntry && !isCompleted && (
           <div className="h-2 bg-blue-400 rounded-full mt-2 opacity-60 animate-pulse" />
-        )}
+        ) */}
       </>
     );
   };
@@ -672,224 +613,42 @@ export const HomeView: React.FC = () => {
               Completed {completedEntries.length > 0 && `(${completedEntries.length})`}
             </button>
           </div>
-          
-          {currentTabEntries.length > 0 && (
-            <button
-              onClick={selectAllInTab}
-              className="px-3 py-1.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              Select All
-            </button>
-          )}
         </div>
-
-        {/* Tab Content */}
-        <div className="space-y-4">
-          {currentTabEntries.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              <p className="text-sm">No {activeTab} entries</p>
-              <button
-                onClick={() => setCurrentView('capture')}
-                className="mt-2 text-blue-600 hover:text-blue-700 text-sm font-medium"
-              >
-                + Add a {activeTab} entry
-              </button>
-            </div>
-          )}
-          
-          {currentTabEntries.length > 0 && (
-            <div className="space-y-3">
-              {currentTabEntries.map((entry, index) => (
-                <div key={entry.id} className="relative">
-                  <EntryCard entry={entry} index={index} />
-                  {/* Enhanced Drag and Drop Visual Indicator */}
-                  {index < currentTabEntries.length - 1 && (
-                    <div className="h-3 flex items-center justify-center group">
-                      <div className="w-12 h-1 bg-gray-200 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-blue-300 hover:h-1.5 cursor-ns-resize" />
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        
+        {currentTabEntries.length > 0 && (
+          <button
+            onClick={selectAllInTab}
+            className="px-3 py-1.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+          >
+            Select All
+          </button>
+        )}
       </div>
 
-      {/* Batch Actions Bar */}
-      {showBatchBar && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-20">
-          <div className="max-w-5xl mx-auto px-6 py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-gray-600">
-                  {selectedEntries.size} item{selectedEntries.size !== 1 ? 's' : ''} selected
-                </span>
-                <button
-                  onClick={clearSelection}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                >
-                  Clear selection
-                </button>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={batchPinToToday}
-                  className="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors"
-                >
-                  Pin to Today
-                </button>
-                <button
-                  onClick={batchComplete}
-                  className="px-3 py-1.5 text-sm font-medium text-green-700 bg-green-100 rounded-lg hover:bg-green-200 transition-colors"
-                >
-                  Complete
-                </button>
-                <button
-                  onClick={batchDelete}
-                  className="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
+      {/* Tab Content */}
+      <div className="space-y-4">
+        {currentTabEntries.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            <p className="text-sm">No {activeTab} entries</p>
+            <button
+              onClick={() => setCurrentView('capture')}
+              className="mt-2 text-blue-600 hover:text-blue-700 text-sm font-medium"
+            >
+              + Add a {activeTab} entry
+            </button>
           </div>
-        </div>
-      )}
-
-      {/* Insights drawer */}
-      {insightsDrawerOpen && (
-        <div className="fixed right-0 top-0 h-full w-80 bg-white border-l border-gray-200 shadow-lg z-30 overflow-y-auto">
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-gray-900">Insights</h2>
-              <button
-                onClick={() => setInsightsDrawerOpen(false)}
-                className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            {/* Quick Stats */}
-            <div className="mb-6">
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Quick Stats</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Tasks</span>
-                  <span className="font-medium text-gray-900">
-                    {filteredEntries.filter(e => e.type === 'task').length}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Ideas</span>
-                  <span className="font-medium text-gray-900">
-                    {filteredEntries.filter(e => e.type === 'idea').length}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Insights</span>
-                  <span className="font-medium text-gray-900">
-                    {filteredEntries.filter(e => e.type === 'insight').length}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Completed</span>
-                  <span className="font-medium text-gray-700">
-                    {filteredEntries.filter(e => e.status === 'completed').length}
-                  </span>
-                </div>
+        )}
+        
+        {currentTabEntries.length > 0 && (
+          <div className="space-y-3">
+            {currentTabEntries.map((entry, index) => (
+              <div key={entry.id} className="relative">
+                <EntryCard entry={entry} index={index} />
               </div>
-            </div>
-            
-            {/* Top Tags */}
-            {topTags.length > 0 && (
-              <div className="mb-6">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">Top Tags</h3>
-                <div className="flex flex-wrap gap-2">
-                  {topTags.map((tag, index) => (
-                    <span key={index} className="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-700 rounded-full">
-                      #{tag.tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            {/* Recent Activity */}
-            <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Recent Activity</h3>
-              <div className="space-y-2">
-                {filteredEntries.slice(0, 3).map((entry) => (
-                  <div key={entry.id} className="flex items-center gap-2 text-sm">
-                    <div className={`p-1 rounded ${getTypeColor(entry.type)}`}>
-                      {getTypeIcon(entry.type)}
-                    </div>
-                    <span className="text-gray-900 truncate">{entry.content}</span>
-                    <span className="text-gray-500 text-xs">
-                      {formatTimeAgo(entry.createdAt)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
-        </div>
-      )}
-
-      {/* Edit Modal */}
-      {editingEntry && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-            <h2 className="text-lg font-semibold mb-4">Edit Entry</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
-                <textarea
-                  value={editingEntry.content}
-                  onChange={(e) => setEditingEntry({ ...editingEntry, content: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  rows={3}
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                  <select
-                    value={editingEntry.type}
-                    onChange={(e) => setEditingEntry({ ...editingEntry, type: e.target.value as EntryType })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="task">Task</option>
-                    <option value="idea">Idea</option>
-                    <option value="insight">Insight</option>
-                    <option value="note">Note</option>
-                  </select>
-                </div>
-              </div>
-              
-              <div className="flex justify-end gap-2">
-                <button
-                  onClick={() => setEditingEntry(null)}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => {
-                    updateEntry(editingEntry.id, editingEntry);
-                    setEditingEntry(null);
-                  }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Save
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
-}
+};
