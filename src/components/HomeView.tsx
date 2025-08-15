@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Calendar, 
   Target, 
@@ -32,7 +32,10 @@ export const HomeView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overdue' | 'today' | 'thisWeek' | 'upcoming' | 'completed'>('today');
   const [selectedEntries, setSelectedEntries] = useState<Set<string>>(new Set());
   const [showBatchBar, setShowBatchBar] = useState(false);
+  // Completely different drag and drop approach - using mouse events for reliability
   const [draggedEntry, setDraggedEntry] = useState<string | null>(null);
+  const [dragOffset, setDragOffset] = useState<{ x: number; y: number } | null>(null);
+  const [dragPosition, setDragPosition] = useState<{ x: number; y: number } | null>(null);
 
   const {
     entries,
@@ -264,47 +267,72 @@ export const HomeView: React.FC = () => {
     }
   };
 
-  // Simple, reliable drag and drop functionality
-  const handleDragStart = (e: React.DragEvent, entryId: string) => {
+  // Completely different drag and drop approach - using mouse events for reliability
+  const handleMouseDown = (e: React.MouseEvent, entryId: string) => {
+    e.preventDefault();
+    const rect = e.currentTarget.getBoundingClientRect();
+    setDragOffset({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    });
     setDraggedEntry(entryId);
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', entryId);
+    setDragPosition({ x: e.clientX, y: e.clientY });
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
+  const handleMouseMove = (e: MouseEvent) => {
+    if (draggedEntry && dragOffset) {
+      setDragPosition({ x: e.clientX, y: e.clientY });
+    }
   };
 
-  const handleDrop = (e: React.DragEvent, targetEntryId: string) => {
-    e.preventDefault();
-    
-    if (draggedEntry && draggedEntry !== targetEntryId) {
-      const currentEntries = getCurrentTabEntries();
-      const draggedIndex = currentEntries.findIndex(entry => entry.id === draggedEntry);
-      const targetIndex = currentEntries.findIndex(entry => entry.id === targetEntryId);
-      
-      if (draggedIndex !== -1 && targetIndex !== -1) {
-        // Simple reordering by updating timestamps
-        const now = new Date();
-        const newEntries = [...currentEntries];
-        const [draggedItem] = newEntries.splice(draggedIndex, 1);
-        newEntries.splice(targetIndex, 0, draggedItem);
-        
-        // Update timestamps to maintain order
-        newEntries.forEach((entry, index) => {
-          const newTimestamp = new Date(now.getTime() - (index * 1000));
-          updateEntry(entry.id, { createdAt: newTimestamp });
-        });
+  const handleMouseUp = (e: MouseEvent) => {
+    if (draggedEntry && dragPosition) {
+      // Find the element under the mouse
+      const elementBelow = document.elementFromPoint(e.clientX, e.clientY);
+      if (elementBelow) {
+        const cardElement = elementBelow.closest('[data-entry-card]');
+        if (cardElement) {
+          const targetEntryId = cardElement.getAttribute('data-entry-id');
+          if (targetEntryId && targetEntryId !== draggedEntry) {
+            // Perform the reorder
+            const currentEntries = getCurrentTabEntries();
+            const draggedIndex = currentEntries.findIndex(entry => entry.id === draggedEntry);
+            const targetIndex = currentEntries.findIndex(entry => entry.id === targetEntryId);
+            
+            if (draggedIndex !== -1 && targetIndex !== -1) {
+              const now = new Date();
+              const newEntries = [...currentEntries];
+              const [draggedItem] = newEntries.splice(draggedIndex, 1);
+              newEntries.splice(targetIndex, 0, draggedItem);
+              
+              newEntries.forEach((entry, index) => {
+                const newTimestamp = new Date(now.getTime() - (index * 1000));
+                updateEntry(entry.id, { createdAt: newTimestamp });
+              });
+            }
+          }
+        }
       }
     }
     
+    // Clean up
     setDraggedEntry(null);
+    setDragOffset(null);
+    setDragPosition(null);
   };
 
-  const handleDragEnd = () => {
-    setDraggedEntry(null);
-  };
+  // Add global mouse event listeners
+  useEffect(() => {
+    if (draggedEntry) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [draggedEntry, dragOffset, dragPosition]);
 
   // Time period change functions
   const moveToToday = (entryId: string) => {
@@ -345,19 +373,18 @@ export const HomeView: React.FC = () => {
           className={`bg-white rounded-lg border transition-all duration-200 hover:shadow-sm ${
             isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
           } ${isCompleted ? 'bg-green-50 border-green-200' : ''} ${isUrgent ? 'border-l-4 border-l-orange-400 bg-orange-50' : ''}`}
-          draggable={!isCompleted}
-          onDragStart={!isCompleted ? (e) => handleDragStart(e, entry.id) : undefined}
-          onDragOver={!isCompleted ? handleDragOver : undefined}
-          onDrop={!isCompleted ? (e) => handleDrop(e, entry.id) : undefined}
-          onDragEnd={!isCompleted ? handleDragEnd : undefined}
           data-entry-card
+          data-entry-id={entry.id}
         >
           <div className="p-4">
             <div className="flex items-start gap-3">
               {/* Drag Handle - Only for non-completed items */}
               {!isCompleted && (
                 <div className="flex flex-col items-center gap-1 flex-shrink-0">
-                  <div className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 transition-colors p-1">
+                  <div 
+                    className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 transition-colors p-1"
+                    onMouseDown={(e) => handleMouseDown(e, entry.id)}
+                  >
                     <GripVertical className="w-4 h-4" />
                   </div>
                   <input
