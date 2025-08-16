@@ -363,9 +363,9 @@ export const HomeView: React.FC = () => {
                   </div>
                 )}
                 
-                {/* Action buttons - better UX than dropdown */}
+                {/* Action buttons - clean and simple */}
                 <div className="flex items-center gap-1 border-l border-gray-200 pl-3">
-                  {/* Quick actions */}
+                  {/* Essential actions */}
                   <button
                     onClick={() => handleEditEntry(entry)}
                     className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
@@ -374,43 +374,33 @@ export const HomeView: React.FC = () => {
                     <Edit className="w-4 h-4" />
                   </button>
                   
-                  {!isCompleted ? (
-                    <button
-                      onClick={() => handleCompleteEntry(entry)}
-                      className="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
-                      title="Mark Complete"
-                    >
-                      <CheckCircle className="w-4 h-4" />
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => updateEntry(entry.id, { status: 'pending' })}
-                      className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                      title="Mark Pending"
-                    >
-                      <CheckCircle className="w-4 h-4 fill-current" />
-                    </button>
-                  )}
-                  
-                  {/* Time period quick actions */}
+                  {/* Move to dropdown - clean single button */}
                   {!isCompleted && (
-                    <>
-                      <button
-                        onClick={() => moveToToday(entry.id)}
-                        className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                        title="Move to Today"
-                      >
+                    <div className="relative group">
+                      <button className="p-1.5 text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors">
                         <Calendar className="w-4 h-4" />
                       </button>
                       
-                      <button
-                        onClick={() => moveToThisWeek(entry.id)}
-                        className="p-1.5 text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors"
-                        title="Move to This Week"
-                      >
-                        <CalendarDays className="w-4 h-4" />
-                      </button>
-                    </>
+                      {/* Clean dropdown for move actions */}
+                      <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-20 min-w-36">
+                        <div className="py-1">
+                          <button
+                            onClick={() => moveToToday(entry.id)}
+                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors flex items-center gap-2"
+                          >
+                            <Calendar className="w-4 h-4 text-blue-500" />
+                            Move to Today
+                          </button>
+                          <button
+                            onClick={() => moveToThisWeek(entry.id)}
+                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors flex items-center gap-2"
+                          >
+                            <CalendarDays className="w-4 h-4 text-purple-500" />
+                            Move to This Week
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   )}
                   
                   {/* Ordering arrows */}
