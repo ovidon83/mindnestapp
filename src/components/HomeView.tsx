@@ -248,7 +248,7 @@ export const HomeView: React.FC = () => {
   // Entry card component
   const EntryCard: React.FC<{ entry: Entry; index: number }> = ({ entry, index }) => {
     const isSelected = false; // Removed selectedEntries state, so no selection here
-    const isOverdue = entry.dueDate && new Date(entry.dueDate) < new Date() && entry.status !== 'completed';
+    const isOverdue = entry.dueDate && entry.isDeadline !== false && new Date(entry.dueDate) < new Date() && entry.status !== 'completed';
     const isCompleted = entry.status === 'completed';
     const isUrgent = entry.priority === 'urgent' || isOverdue;
     const isPinned = entry.pinnedForDate && entry.pinnedForDate.toDateString() === today.toDateString();
@@ -374,6 +374,32 @@ export const HomeView: React.FC = () => {
                   >
                     <Edit className="w-4 h-4" />
                   </button>
+                  
+                  {/* Deadline toggle - user controlled */}
+                  {entry.dueDate && (
+                    <button
+                      onClick={() => {
+                        const isCurrentlyDeadline = entry.isDeadline !== false; // Default to true if not set
+                        updateEntry(entry.id, { isDeadline: !isCurrentlyDeadline });
+                      }}
+                      className={`p-1.5 rounded transition-colors ${
+                        entry.isDeadline !== false 
+                          ? 'text-orange-500 hover:text-orange-600 hover:bg-orange-50' 
+                          : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+                      }`}
+                      title={entry.isDeadline !== false ? "Remove deadline (keep as dated note)" : "Set as deadline"}
+                    >
+                      {entry.isDeadline !== false ? (
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      )}
+                    </button>
+                  )}
                   
                   {/* Move to dropdown - clean single button */}
                   {!isCompleted && (

@@ -35,6 +35,7 @@ export interface Entry {
   endDate?: Date;
   location?: string;
   people?: string[]; // Extracted people names
+  isDeadline?: boolean; // User-controlled: whether this entry should be treated as a deadline
   
   // Additional Context
   notes?: string;
