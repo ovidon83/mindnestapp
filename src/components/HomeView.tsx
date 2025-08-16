@@ -4,7 +4,6 @@ import {
   CalendarDays,
   ChevronUp,
   ChevronDown,
-  Clock,
   Edit,
   CheckCircle,
   Trash2,
@@ -24,8 +23,7 @@ export const HomeView: React.FC = () => {
   });
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
   const [insightsDrawerOpen, setInsightsDrawerOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'today' | 'thisWeek' | 'later' | 'completed'>('today');
-  const [selectedEntries, setSelectedEntries] = useState<Set<string>>(new Set());
+  const [activeTab, setActiveTab] = useState<'today' | 'thisWeek' | 'later' | 'done'>('today');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [undoEntry, setUndoEntry] = useState<{ id: string; previousStatus: TaskStatus } | null>(null);
 
@@ -102,8 +100,8 @@ export const HomeView: React.FC = () => {
     return true;
   });
 
-  // Completed: all completed entries
-  const completedEntries = tagFilteredEntries.filter(entry => entry.status === 'completed');
+  // Done: all completed entries
+  const doneEntries = tagFilteredEntries.filter(entry => entry.status === 'completed');
 
   // Get current tab entries with proper sorting
   const getCurrentTabEntries = () => {
@@ -119,8 +117,8 @@ export const HomeView: React.FC = () => {
       case 'later': 
         entries = laterEntries;
         break;
-      case 'completed': 
-        entries = completedEntries;
+      case 'done': 
+        entries = doneEntries;
         break;
       default: 
         entries = todayEntries;
@@ -149,19 +147,6 @@ export const HomeView: React.FC = () => {
       entry.tags.forEach(tag => allTags.add(tag));
     });
     return Array.from(allTags).sort();
-  };
-
-  // Batch actions
-  const selectAllInTab = () => {
-    const newSelected = new Set(selectedEntries);
-    currentTabEntries.forEach(entry => newSelected.add(entry.id));
-    setSelectedEntries(newSelected);
-  };
-
-  const deselectAllInTab = () => {
-    const newSelected = new Set(selectedEntries);
-    currentTabEntries.forEach(entry => newSelected.delete(entry.id));
-    setSelectedEntries(newSelected);
   };
 
   // Helper functions
@@ -222,10 +207,6 @@ export const HomeView: React.FC = () => {
     updateEntry(entryId, { pinnedForDate: nextMonday, dueDate: nextMonday });
   };
 
-  const moveToLater = (entryId: string) => {
-    updateEntry(entryId, { pinnedForDate: undefined, dueDate: undefined });
-  };
-
   // Simple up/down reordering instead of broken drag and drop
   const moveEntryUp = (entryId: string) => {
     const currentEntries = getCurrentTabEntries();
@@ -265,7 +246,7 @@ export const HomeView: React.FC = () => {
 
   // Entry card component
   const EntryCard: React.FC<{ entry: Entry; index: number }> = ({ entry, index }) => {
-    const isSelected = selectedEntries.has(entry.id);
+    const isSelected = false; // Removed selectedEntries state, so no selection here
     const isOverdue = entry.dueDate && new Date(entry.dueDate) < new Date() && entry.status !== 'completed';
     const isCompleted = entry.status === 'completed';
     const isUrgent = entry.priority === 'urgent' || isOverdue;
@@ -382,104 +363,86 @@ export const HomeView: React.FC = () => {
                   </div>
                 )}
                 
-                {/* Action menu */}
-                <div className="relative group">
-                  <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                    </svg>
+                {/* Action buttons - better UX than dropdown */}
+                <div className="flex items-center gap-1 border-l border-gray-200 pl-3">
+                  {/* Quick actions */}
+                  <button
+                    onClick={() => handleEditEntry(entry)}
+                    className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                    title="Edit"
+                  >
+                    <Edit className="w-4 h-4" />
                   </button>
                   
-                  {/* Dropdown menu */}
-                  <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-20 min-w-32">
-                    <div className="py-1">
+                  {!isCompleted ? (
+                    <button
+                      onClick={() => handleCompleteEntry(entry)}
+                      className="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
+                      title="Mark Complete"
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => updateEntry(entry.id, { status: 'pending' })}
+                      className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                      title="Mark Pending"
+                    >
+                      <CheckCircle className="w-4 h-4 fill-current" />
+                    </button>
+                  )}
+                  
+                  {/* Time period quick actions */}
+                  {!isCompleted && (
+                    <>
                       <button
-                        onClick={() => handleEditEntry(entry)}
-                        className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+                        onClick={() => moveToToday(entry.id)}
+                        className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                        title="Move to Today"
                       >
-                        <Edit className="w-4 h-4" />
-                        Edit
+                        <Calendar className="w-4 h-4" />
                       </button>
                       
-                      {!isCompleted ? (
-                        <button
-                          onClick={() => handleCompleteEntry(entry)}
-                          className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
-                        >
-                          <CheckCircle className="w-4 h-4" />
-                          Mark Complete
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => updateEntry(entry.id, { status: 'pending' })}
-                          className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
-                        >
-                          <CheckCircle className="w-4 h-4 fill-current" />
-                          Mark Pending
-                        </button>
-                      )}
-                      
-                      {/* Time period management */}
-                      {!isCompleted && (
-                        <>
-                          <div className="border-t border-gray-100 my-1"></div>
-                          <button
-                            onClick={() => moveToToday(entry.id)}
-                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-blue-50 transition-colors flex items-center gap-2"
-                          >
-                            <Calendar className="w-4 h-4 text-blue-500" />
-                            Move to Today
-                          </button>
-                          <button
-                            onClick={() => moveToThisWeek(entry.id)}
-                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-purple-50 transition-colors flex items-center gap-2"
-                          >
-                            <CalendarDays className="w-4 h-4 text-purple-500" />
-                            Move to This Week
-                          </button>
-                          <button
-                            onClick={() => moveToLater(entry.id)}
-                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
-                          >
-                            <Clock className="w-4 h-4 text-gray-500" />
-                            Move to Later
-                          </button>
-                        </>
-                      )}
-                      
-                      {/* Ordering */}
-                      {!isCompleted && (
-                        <>
-                          <div className="border-t border-gray-100 my-1"></div>
-                          <button
-                            onClick={() => moveEntryUp(entry.id)}
-                            disabled={index === 0}
-                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 disabled:text-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-                          >
-                            <ChevronUp className="w-4 h-4" />
-                            Move Up
-                          </button>
-                          <button
-                            onClick={() => moveEntryDown(entry.id)}
-                            disabled={index === currentTabEntries.length - 1}
-                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 disabled:text-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-                          >
-                            <ChevronDown className="w-4 h-4" />
-                            Move Down
-                          </button>
-                        </>
-                      )}
-                      
-                      <div className="border-t border-gray-100 my-1"></div>
                       <button
-                        onClick={() => deleteEntry(entry.id)}
-                        className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
+                        onClick={() => moveToThisWeek(entry.id)}
+                        className="p-1.5 text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors"
+                        title="Move to This Week"
                       >
-                        <Trash2 className="w-4 h-4" />
-                        Delete
+                        <CalendarDays className="w-4 h-4" />
                       </button>
-                    </div>
-                  </div>
+                    </>
+                  )}
+                  
+                  {/* Ordering arrows */}
+                  {!isCompleted && (
+                    <>
+                      <button
+                        onClick={() => moveEntryUp(entry.id)}
+                        disabled={index === 0}
+                        className="p-1.5 text-gray-400 hover:text-gray-600 disabled:text-gray-200 disabled:cursor-not-allowed transition-colors"
+                        title="Move Up"
+                      >
+                        <ChevronUp className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => moveEntryDown(entry.id)}
+                        disabled={index === currentTabEntries.length - 1}
+                        className="p-1.5 text-gray-400 hover:text-gray-600 disabled:text-gray-200 disabled:cursor-not-allowed transition-colors"
+                        title="Move Down"
+                      >
+                        <ChevronDown className="w-4 h-4" />
+                      </button>
+                    </>
+                  )}
+                  
+                  {/* Delete action */}
+                  <button
+                    onClick={() => deleteEntry(entry.id)}
+                    className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             </div>
@@ -668,10 +631,10 @@ export const HomeView: React.FC = () => {
               Later {laterEntries.length > 0 && `(${laterEntries.length})`}
             </button>
             <button
-              onClick={() => setActiveTab('completed')}
-              className={`px-4 py-2 text-sm font-medium ${activeTab === 'completed' ? 'border-b-2 border-green-600 text-green-600' : 'text-gray-800 hover:text-gray-800'}`}
+              onClick={() => setActiveTab('done')}
+              className={`px-4 py-2 text-sm font-medium ${activeTab === 'done' ? 'border-b-2 border-green-600 text-green-600' : 'text-gray-800 hover:text-gray-800'}`}
             >
-              Completed {completedEntries.length > 0 && `(${completedEntries.length})`}
+              Done {doneEntries.length > 0 && `(${doneEntries.length})`}
             </button>
           </div>
           
@@ -679,16 +642,10 @@ export const HomeView: React.FC = () => {
             {currentTabEntries.length > 0 && (
               <>
                 <button
-                  onClick={selectAllInTab}
+                  onClick={() => setCurrentView('capture')}
                   className="px-3 py-1.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                 >
-                  Select All
-                </button>
-                <button
-                  onClick={deselectAllInTab}
-                  className="px-3 py-1.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                >
-                  Deselect All
+                  + Add Entry
                 </button>
               </>
             )}
