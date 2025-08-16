@@ -9,7 +9,8 @@ import {
   Trash2,
   BarChart3,
   Tag,
-  Undo2
+  Undo2,
+  Clock
 } from 'lucide-react';
 import { useGenieNotesStore } from '../store';
 import { Entry, EntryType, TaskStatus } from '../types';
@@ -397,6 +398,15 @@ export const HomeView: React.FC = () => {
                           >
                             <CalendarDays className="w-4 h-4 text-purple-500" />
                             Move to This Week
+                          </button>
+                          <button
+                            onClick={() => {
+                              updateEntry(entry.id, { pinnedForDate: undefined, dueDate: undefined });
+                            }}
+                            className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-700 transition-colors flex items-center gap-2"
+                          >
+                            <Clock className="w-4 h-4 text-gray-500" />
+                            Move to Later
                           </button>
                         </div>
                       </div>
