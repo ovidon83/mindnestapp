@@ -35,9 +35,29 @@ export const CaptureView: React.FC = () => {
       targetWeek?: string;
       priority?: Priority;
       type?: EntryType;
+      isDeadline?: boolean;
     } = {};
     
     const lowerText = text.toLowerCase();
+    
+    // Natural language date detection using chrono-node
+    const chronoResults = chrono.parse(text, new Date());
+    
+    if (chronoResults.length > 0) {
+      const parsedDate = chronoResults[0];
+      
+      // Determine if this should be a deadline or just a pinned date
+      const isDeadline = isDeadlinePhrase(text);
+      
+      if (isDeadline) {
+        directives.dueDate = parsedDate.start.date();
+        directives.isDeadline = true;
+      } else {
+        // If not a deadline phrase, pin it to that date for reference
+        directives.pinnedForDate = parsedDate.start.date();
+        directives.isDeadline = false;
+      }
+    }
     
     // Check for "today" mentioned in content (not just hashtags)
     if (lowerText.includes('today') && !lowerText.includes('#today')) {
@@ -53,6 +73,7 @@ export const CaptureView: React.FC = () => {
       tomorrow.setDate(tomorrow.getDate() + 1);
       tomorrow.setHours(9, 0, 0, 0);
       directives.dueDate = tomorrow;
+      directives.isDeadline = true;
     }
     if (text.includes('#thisweek') || text.includes('#week')) {
       directives.targetWeek = 'currentWeek';
@@ -98,6 +119,18 @@ export const CaptureView: React.FC = () => {
     }
 
     return directives;
+  };
+
+  // Helper function to determine if text contains deadline phrases
+  const isDeadlinePhrase = (text: string): boolean => {
+    const lowerText = text.toLowerCase();
+    const deadlinePhrases = [
+      'due', 'deadline', 'by', 'before', 'until', 'must', 'need to', 'have to',
+      'should', 'will', 'going to', 'plan to', 'intend to', 'aim to', 'target',
+      'finish', 'complete', 'submit', 'deliver', 'hand in', 'turn in'
+    ];
+    
+    return deadlinePhrases.some(phrase => lowerText.includes(phrase));
   };
 
   // Extract user hashtags, excluding directive hashtags to avoid duplication
@@ -512,7 +545,7 @@ export const CaptureView: React.FC = () => {
               </div>
 
               {/* Parsed Details */}
-              {(editableEntry.dueDate || editableEntry.location) && (
+              {(editableEntry.dueDate || editableEntry.location || editableEntry.pinnedForDate) && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 p-4 bg-gray-50 rounded-xl">
                   {editableEntry.dueDate && (
                     <div className="flex items-center gap-3 text-gray-700">
@@ -520,19 +553,57 @@ export const CaptureView: React.FC = () => {
                       <div>
                         <p className="text-sm font-medium">Due Date</p>
                         <p className="text-sm text-gray-600">{editableEntry.dueDate.toLocaleDateString()}</p>
+                        {editableEntry.dueDate.toLocaleTimeString && (
+                          <p className="text-xs text-gray-500">{editableEntry.dueDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {editableEntry.pinnedForDate && !editableEntry.dueDate && (
+                    <div className="flex items-center gap-3 text-gray-700">
+                      <Calendar className="w-5 h-5 text-blue-600" />
+                      <div>
+                        <p className="text-sm font-medium">Pinned for Date</p>
+                        <p className="text-sm text-gray-600">{editableEntry.pinnedForDate.toLocaleDateString()}</p>
+                        <p className="text-xs text-gray-500">Reference date (not a deadline)</p>
                       </div>
                     </div>
                   )}
                   
                   {editableEntry.location && (
                     <div className="flex items-center gap-3 text-gray-700">
-                      <MapPin className="w-5 h-5 text-green-600" />
+                      <MapPin className="w-5 h-5 text-purple-600" />
                       <div>
                         <p className="text-sm font-medium">Location</p>
                         <p className="text-sm text-gray-600">{editableEntry.location}</p>
                       </div>
                     </div>
                   )}
+                </div>
+              )}
+              
+              {/* Deadline Status */}
+              {editableEntry.dueDate && (
+                <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <Target className="w-5 h-5 text-orange-600" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-orange-800">Deadline Detected</p>
+                      <p className="text-sm text-orange-700">
+                        This entry will be treated as a deadline and may show as "Overdue" if not completed on time.
+                      </p>
+                    </div>
+                    <label className="flex items-center gap-2 text-sm text-orange-700">
+                      <input
+                        type="checkbox"
+                        checked={editableEntry.isDeadline !== false}
+                        onChange={(e) => setEditableEntry({...editableEntry, isDeadline: e.target.checked})}
+                        className="h-4 w-4 text-orange-600 rounded border-orange-300 focus:ring-orange-500"
+                      />
+                      Treat as deadline
+                    </label>
+                  </div>
                 </div>
               )}
 
