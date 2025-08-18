@@ -63,7 +63,27 @@ export const CaptureView: React.FC = () => {
         const isDeadline = isDeadlinePhrase(text);
         
         if (isDeadline) {
-          directives.dueDate = parsedDate.start.date();
+          // For deadline phrases, ensure the date is in the future
+          const parsedDateObj = parsedDate.start.date();
+          const now = new Date();
+          
+          if (parsedDateObj < now) {
+            // If parsed date is in the past, try to get next occurrence
+            if (parsedDate.start.isCertain('weekday')) {
+              // It's a weekday reference, get next occurrence
+              const weekday = parsedDateObj.getDay();
+              const nextOccurrence = getNextWeekday(weekday);
+              directives.dueDate = nextOccurrence;
+            } else {
+              // For other past dates, set to today + 1 day
+              const tomorrow = new Date();
+              tomorrow.setDate(tomorrow.getDate() + 1);
+              tomorrow.setHours(9, 0, 0, 0);
+              directives.dueDate = tomorrow;
+            }
+          } else {
+            directives.dueDate = parsedDateObj;
+          }
           directives.isDeadline = true;
         } else {
           // If not a deadline phrase, pin it to that date for reference
@@ -178,7 +198,67 @@ export const CaptureView: React.FC = () => {
       return tomorrow;
     }
     
+    // Handle relative weekday references
+    if (lowerText.includes('friday') || lowerText.includes('fri')) {
+      const friday = getNextWeekday(5); // 5 = Friday
+      friday.setHours(17, 0, 0, 0); // 5 PM
+      return friday;
+    }
+    
+    if (lowerText.includes('monday') || lowerText.includes('mon')) {
+      const monday = getNextWeekday(1); // 1 = Monday
+      monday.setHours(9, 0, 0, 0); // 9 AM
+      return monday;
+    }
+    
+    if (lowerText.includes('tuesday') || lowerText.includes('tue')) {
+      const tuesday = getNextWeekday(2); // 2 = Tuesday
+      tuesday.setHours(9, 0, 0, 0); // 9 AM
+      return tuesday;
+    }
+    
+    if (lowerText.includes('wednesday') || lowerText.includes('wed')) {
+      const wednesday = getNextWeekday(3); // 3 = Wednesday
+      wednesday.setHours(9, 0, 0, 0); // 9 AM
+      return wednesday;
+    }
+    
+    if (lowerText.includes('thursday') || lowerText.includes('thu')) {
+      const thursday = getNextWeekday(4); // 4 = Thursday
+      thursday.setHours(9, 0, 0, 0); // 9 AM
+      return thursday;
+    }
+    
+    if (lowerText.includes('saturday') || lowerText.includes('sat')) {
+      const saturday = getNextWeekday(6); // 6 = Saturday
+      saturday.setHours(10, 0, 0, 0); // 10 AM
+      return saturday;
+    }
+    
+    if (lowerText.includes('sunday') || lowerText.includes('sun')) {
+      const sunday = getNextWeekday(0); // 0 = Sunday
+      sunday.setHours(10, 0, 0, 0); // 10 AM
+      return sunday;
+    }
+    
     return null;
+  };
+
+  // Helper function to get the next occurrence of a weekday
+  const getNextWeekday = (targetDay: number): Date => {
+    const today = new Date();
+    const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    
+    let daysUntilTarget = targetDay - currentDay;
+    
+    // If target day is today or in the past, get next week's occurrence
+    if (daysUntilTarget <= 0) {
+      daysUntilTarget += 7;
+    }
+    
+    const targetDate = new Date();
+    targetDate.setDate(today.getDate() + daysUntilTarget);
+    return targetDate;
   };
 
   // Function to split text into multiple entries
