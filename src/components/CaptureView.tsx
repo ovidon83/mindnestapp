@@ -40,22 +40,35 @@ export const CaptureView: React.FC = () => {
     
     const lowerText = text.toLowerCase();
     
-    // Natural language date detection using chrono-node
-    const chronoResults = chrono.parse(text, new Date());
+    // Check for urgency indicators first
+    const urgencyDueDate = getUrgencyDueDate(text);
+    if (urgencyDueDate) {
+      directives.dueDate = urgencyDueDate;
+      directives.isDeadline = true;
+      // Set priority to high for urgent tasks
+      if (lowerText.includes('asap') || lowerText.includes('urgent') || lowerText.includes('immediately')) {
+        directives.priority = 'high';
+      }
+    }
     
-    if (chronoResults.length > 0) {
-      const parsedDate = chronoResults[0];
+    // Natural language date detection using chrono-node (only if no urgency detected)
+    if (!urgencyDueDate) {
+      const chronoResults = chrono.parse(text, new Date());
       
-      // Determine if this should be a deadline or just a pinned date
-      const isDeadline = isDeadlinePhrase(text);
-      
-      if (isDeadline) {
-        directives.dueDate = parsedDate.start.date();
-        directives.isDeadline = true;
-      } else {
-        // If not a deadline phrase, pin it to that date for reference
-        directives.pinnedForDate = parsedDate.start.date();
-        directives.isDeadline = false;
+      if (chronoResults.length > 0) {
+        const parsedDate = chronoResults[0];
+        
+        // Determine if this should be a deadline or just a pinned date
+        const isDeadline = isDeadlinePhrase(text);
+        
+        if (isDeadline) {
+          directives.dueDate = parsedDate.start.date();
+          directives.isDeadline = true;
+        } else {
+          // If not a deadline phrase, pin it to that date for reference
+          directives.pinnedForDate = parsedDate.start.date();
+          directives.isDeadline = false;
+        }
       }
     }
     
@@ -127,10 +140,44 @@ export const CaptureView: React.FC = () => {
     const deadlinePhrases = [
       'due', 'deadline', 'by', 'before', 'until', 'must', 'need to', 'have to',
       'should', 'will', 'going to', 'plan to', 'intend to', 'aim to', 'target',
-      'finish', 'complete', 'submit', 'deliver', 'hand in', 'turn in'
+      'finish', 'complete', 'submit', 'deliver', 'hand in', 'turn in',
+      'asap', 'as soon as possible', 'urgent', 'immediately', 'right away',
+      'now', 'today', 'tonight', 'this evening', 'this afternoon'
     ];
     
     return deadlinePhrases.some(phrase => lowerText.includes(phrase));
+  };
+
+  // Helper function to get urgency-based due date
+  const getUrgencyDueDate = (text: string): Date | null => {
+    const lowerText = text.toLowerCase();
+    
+    if (lowerText.includes('asap') || lowerText.includes('as soon as possible') || 
+        lowerText.includes('urgent') || lowerText.includes('immediately') ||
+        lowerText.includes('right away') || lowerText.includes('now')) {
+      // Set to today at 5 PM (end of workday)
+      const today = new Date();
+      today.setHours(17, 0, 0, 0);
+      return today;
+    }
+    
+    if (lowerText.includes('today') || lowerText.includes('tonight') || 
+        lowerText.includes('this evening') || lowerText.includes('this afternoon')) {
+      // Set to today at 5 PM
+      const today = new Date();
+      today.setHours(17, 0, 0, 0);
+      return today;
+    }
+    
+    if (lowerText.includes('tomorrow')) {
+      // Set to tomorrow at 9 AM
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(9, 0, 0, 0);
+      return tomorrow;
+    }
+    
+    return null;
   };
 
   // Extract user hashtags, excluding directive hashtags to avoid duplication
