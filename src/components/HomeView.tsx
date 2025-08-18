@@ -24,9 +24,17 @@ export const HomeView: React.FC = () => {
   });
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
   const [insightsDrawerOpen, setInsightsDrawerOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'today' | 'thisWeek' | 'later' | 'done'>('today');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [undoEntry, setUndoEntry] = useState<{ id: string; previousStatus: TaskStatus } | null>(null);
+  
+  // Toggle states for different time periods
+  const [expandedSections, setExpandedSections] = useState({
+    today: true,      // Today is expanded by default
+    thisWeek: true,   // This Week is expanded by default
+    next7Days: false, // Next 7 Days collapsed by default
+    later: false,     // Later collapsed by default
+    done: false       // Done collapsed by default
+  });
 
   const {
     entries,
@@ -73,6 +81,8 @@ export const HomeView: React.FC = () => {
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const endOfWeek = new Date(today);
   endOfWeek.setDate(today.getDate() + 7);
+  const endOfNextWeek = new Date(today);
+  endOfNextWeek.setDate(today.getDate() + 14);
 
   // Today: due today OR pinned for today (including overdue items)
   const todayEntries = tagFilteredEntries.filter(entry => {
@@ -93,53 +103,27 @@ export const HomeView: React.FC = () => {
     return false;
   });
 
-  // Later: everything else (exclude today and this week entries)
+  // Next 7 Days: 7-14 days from now
+  const next7DaysEntries = tagFilteredEntries.filter(entry => {
+    if (entry.status === 'completed') return false;
+    if (todayEntries.some(todayEntry => todayEntry.id === entry.id)) return false;
+    if (thisWeekEntries.some(weekEntry => weekEntry.id === entry.id)) return false;
+    if (entry.dueDate && entry.dueDate instanceof Date && entry.dueDate > endOfWeek && entry.dueDate <= endOfNextWeek) return true;
+    if (entry.pinnedForDate && entry.pinnedForDate instanceof Date && entry.pinnedForDate > endOfWeek && entry.pinnedForDate <= endOfNextWeek) return true;
+    return false;
+  });
+
+  // Later: everything else (exclude today, this week, and next 7 days entries)
   const laterEntries = tagFilteredEntries.filter(entry => {
     if (entry.status === 'completed') return false;
     if (todayEntries.some(todayEntry => todayEntry.id === entry.id)) return false;
     if (thisWeekEntries.some(weekEntry => weekEntry.id === entry.id)) return false;
+    if (next7DaysEntries.some(nextEntry => nextEntry.id === entry.id)) return false;
     return true;
   });
 
   // Done: all completed entries
   const doneEntries = tagFilteredEntries.filter(entry => entry.status === 'completed');
-
-  // Get current tab entries with proper sorting
-  const getCurrentTabEntries = () => {
-    let entries: Entry[] = [];
-    
-    switch (activeTab) {
-      case 'today': 
-        entries = todayEntries;
-        break;
-      case 'thisWeek': 
-        entries = thisWeekEntries;
-        break;
-      case 'later': 
-        entries = laterEntries;
-        break;
-      case 'done': 
-        entries = doneEntries;
-        break;
-      default: 
-        entries = todayEntries;
-    }
-    
-    // Sort entries: urgent first, then by creation date (newest first)
-    return entries.sort((a, b) => {
-      // First priority: urgent items (high priority or overdue)
-      const aIsUrgent = a.priority === 'urgent' || (a.dueDate && new Date(a.dueDate) < new Date());
-      const bIsUrgent = b.priority === 'urgent' || (b.dueDate && new Date(b.dueDate) < new Date());
-      
-      if (aIsUrgent && !bIsUrgent) return -1;
-      if (!aIsUrgent && bIsUrgent) return 1;
-      
-      // Second priority: creation date (newest first)
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
-  };
-
-  const currentTabEntries = getCurrentTabEntries();
 
   // Get all unique tags for grouping
   const getAllTags = () => {
@@ -210,7 +194,7 @@ export const HomeView: React.FC = () => {
 
   // Simple up/down reordering instead of broken drag and drop
   const moveEntryUp = (entryId: string) => {
-    const currentEntries = getCurrentTabEntries();
+    const currentEntries = tagFilteredEntries; // Use tagFilteredEntries directly
     const currentIndex = currentEntries.findIndex(entry => entry.id === entryId);
     
     if (currentIndex > 0) {
@@ -228,7 +212,7 @@ export const HomeView: React.FC = () => {
   };
 
   const moveEntryDown = (entryId: string) => {
-    const currentEntries = getCurrentTabEntries();
+    const currentEntries = tagFilteredEntries; // Use tagFilteredEntries directly
     const currentIndex = currentEntries.findIndex(entry => entry.id === entryId);
     
     if (currentIndex < currentEntries.length - 1) {
@@ -335,7 +319,7 @@ export const HomeView: React.FC = () => {
                 )}
                 
                 {/* Due date - only show if different from current tab context */}
-                {entry.dueDate && !isPinned && activeTab !== 'today' && (
+                {entry.dueDate && !isPinned && expandedSections.today && (
                   <span className={`px-2 py-1 text-xs font-medium rounded-full flex-shrink-0 ${
                     isOverdue 
                       ? 'bg-red-100 text-red-800' 
@@ -452,7 +436,7 @@ export const HomeView: React.FC = () => {
                       </button>
                       <button
                         onClick={() => moveEntryDown(entry.id)}
-                        disabled={index === currentTabEntries.length - 1}
+                        disabled={index === tagFilteredEntries.length - 1}
                         className="p-1.5 text-gray-400 hover:text-gray-600 disabled:text-gray-200 disabled:cursor-not-allowed transition-colors"
                         title="Move Down"
                       >
@@ -639,33 +623,39 @@ export const HomeView: React.FC = () => {
         <div className="flex items-center justify-between mb-6">
           <div className="flex space-x-1">
             <button
-              onClick={() => setActiveTab('today')}
-              className={`px-4 py-2 text-sm font-medium ${activeTab === 'today' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600 hover:text-gray-800'}`}
+              onClick={() => setExpandedSections({ ...expandedSections, today: !expandedSections.today })}
+              className={`px-4 py-2 text-sm font-medium ${expandedSections.today ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-600 hover:text-gray-800'}`}
             >
               Today {todayEntries.length > 0 && `(${todayEntries.length})`}
             </button>
             <button
-              onClick={() => setActiveTab('thisWeek')}
-              className={`px-4 py-2 text-sm font-medium ${activeTab === 'thisWeek' ? 'border-b-2 border-purple-600 text-purple-600' : 'text-gray-600 hover:text-gray-800'}`}
+              onClick={() => setExpandedSections({ ...expandedSections, thisWeek: !expandedSections.thisWeek })}
+              className={`px-4 py-2 text-sm font-medium ${expandedSections.thisWeek ? 'border-b-2 border-purple-600 text-purple-600' : 'text-gray-600 hover:text-gray-800'}`}
             >
               This Week {thisWeekEntries.length > 0 && `(${thisWeekEntries.length})`}
             </button>
             <button
-              onClick={() => setActiveTab('later')}
-              className={`px-4 py-2 text-sm font-medium ${activeTab === 'later' ? 'border-b-2 border-gray-600 text-gray-600' : 'text-gray-600 hover:text-gray-800'}`}
+              onClick={() => setExpandedSections({ ...expandedSections, next7Days: !expandedSections.next7Days })}
+              className={`px-4 py-2 text-sm font-medium ${expandedSections.next7Days ? 'border-b-2 border-gray-600 text-gray-600' : 'text-gray-600 hover:text-gray-800'}`}
+            >
+              Next 7 Days {next7DaysEntries.length > 0 && `(${next7DaysEntries.length})`}
+            </button>
+            <button
+              onClick={() => setExpandedSections({ ...expandedSections, later: !expandedSections.later })}
+              className={`px-4 py-2 text-sm font-medium ${expandedSections.later ? 'border-b-2 border-gray-600 text-gray-600' : 'text-gray-600 hover:text-gray-800'}`}
             >
               Later {laterEntries.length > 0 && `(${laterEntries.length})`}
             </button>
             <button
-              onClick={() => setActiveTab('done')}
-              className={`px-4 py-2 text-sm font-medium ${activeTab === 'done' ? 'border-b-2 border-green-600 text-green-600' : 'text-gray-800 hover:text-gray-800'}`}
+              onClick={() => setExpandedSections({ ...expandedSections, done: !expandedSections.done })}
+              className={`px-4 py-2 text-sm font-medium ${expandedSections.done ? 'border-b-2 border-green-600 text-green-600' : 'text-gray-800 hover:text-gray-800'}`}
             >
               Done {doneEntries.length > 0 && `(${doneEntries.length})`}
             </button>
           </div>
           
           <div className="flex items-center gap-2">
-            {currentTabEntries.length > 0 && (
+            {tagFilteredEntries.length > 0 && (
               <>
                 <button
                   onClick={() => setCurrentView('capture')}
@@ -696,26 +686,166 @@ export const HomeView: React.FC = () => {
         )}
 
         {/* Tab Content */}
-        <div className="space-y-4">
-          {currentTabEntries.length === 0 && (
+        <div className="space-y-6">
+          {tagFilteredEntries.length === 0 && (
             <div className="text-center py-8 text-gray-500">
-              <p className="text-sm">No {activeTab} entries</p>
+              <p className="text-sm">No entries</p>
               <button
                 onClick={() => setCurrentView('capture')}
                 className="mt-2 text-blue-600 hover:text-blue-700 text-sm font-medium"
               >
-                + Add a {activeTab} entry
+                + Add an entry
               </button>
             </div>
           )}
           
-          {currentTabEntries.length > 0 && (
+          {/* Today Section */}
+          {expandedSections.today && (
             <div className="space-y-3">
-              {currentTabEntries.map((entry, index) => (
-                <div key={entry.id} className="relative">
-                  <EntryCard entry={entry} index={index} />
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  📅 Today ({todayEntries.length})
+                </h3>
+                <button
+                  onClick={() => setExpandedSections({ ...expandedSections, today: false })}
+                  className="text-gray-400 hover:text-gray-600 p-1"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
+              {todayEntries.length > 0 ? (
+                todayEntries.map((entry, index) => (
+                  <div key={entry.id} className="relative">
+                    <EntryCard entry={entry} index={index} />
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-4 text-gray-500">
+                  <p className="text-sm">No entries for today</p>
                 </div>
-              ))}
+              )}
+            </div>
+          )}
+
+          {/* This Week Section */}
+          {expandedSections.thisWeek && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  📅 This Week ({thisWeekEntries.length})
+                </h3>
+                <button
+                  onClick={() => setExpandedSections({ ...expandedSections, thisWeek: false })}
+                  className="text-gray-400 hover:text-gray-600 p-1"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
+              {thisWeekEntries.length > 0 ? (
+                thisWeekEntries.map((entry, index) => (
+                  <div key={entry.id} className="relative">
+                    <EntryCard entry={entry} index={index} />
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-4 text-gray-500">
+                  <p className="text-sm">No entries for this week</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Next 7 Days Section */}
+          {expandedSections.next7Days && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  📅 Next 7 Days ({next7DaysEntries.length})
+                </h3>
+                <button
+                  onClick={() => setExpandedSections({ ...expandedSections, next7Days: false })}
+                  className="text-gray-400 hover:text-gray-600 p-1"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
+              {next7DaysEntries.length > 0 ? (
+                next7DaysEntries.map((entry, index) => (
+                  <div key={entry.id} className="relative">
+                    <EntryCard entry={entry} index={index} />
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-4 text-gray-500">
+                  <p className="text-sm">No entries for next 7 days</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Later Section */}
+          {expandedSections.later && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  📅 Later ({laterEntries.length})
+                </h3>
+                <button
+                  onClick={() => setExpandedSections({ ...expandedSections, later: false })}
+                  className="text-gray-400 hover:text-gray-600 p-1"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
+              {laterEntries.length > 0 ? (
+                laterEntries.map((entry, index) => (
+                  <div key={entry.id} className="relative">
+                    <EntryCard entry={entry} index={index} />
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-4 text-gray-500">
+                  <p className="text-sm">No entries for later</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Done Section */}
+          {expandedSections.done && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  ✅ Done ({doneEntries.length})
+                </h3>
+                <button
+                  onClick={() => setExpandedSections({ ...expandedSections, done: false })}
+                  className="text-gray-400 hover:text-gray-600 p-1"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
+              {doneEntries.length > 0 ? (
+                doneEntries.map((entry, index) => (
+                  <div key={entry.id} className="relative">
+                    <EntryCard entry={entry} index={index} />
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-4 text-gray-500">
+                  <p className="text-sm">No completed entries</p>
+                </div>
+              )}
             </div>
           )}
         </div>
