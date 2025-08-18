@@ -201,8 +201,26 @@ export const CaptureView: React.FC = () => {
     // Try different splitting strategies
     let segments: string[] = [text];
     
-    for (const pattern of splitPatterns) {
-      if (segments.length === 1) { // Only try if we haven't split yet
+    // First, try to split by commas (most common separator)
+    const commaSegments = text.split(/,\s+/);
+    if (commaSegments.length > 1) {
+      // Check if comma segments look like separate thoughts
+      const validSegments = commaSegments.filter(segment => {
+        const trimmed = segment.trim();
+        return trimmed.length > 5 && // Must be substantial
+               !trimmed.toLowerCase().startsWith('and') && // Not just "and..."
+               !trimmed.toLowerCase().startsWith('or') &&  // Not just "or..."
+               !trimmed.toLowerCase().startsWith('but');  // Not just "but..."
+      });
+      
+      if (validSegments.length > 1) {
+        segments = validSegments;
+      }
+    }
+    
+    // If comma splitting didn't work, try other patterns
+    if (segments.length === 1) {
+      for (const pattern of splitPatterns) {
         const newSegments = segments[0].split(pattern);
         if (newSegments.length > 1) {
           segments = newSegments.filter(segment => segment.trim().length > 0);
@@ -211,7 +229,7 @@ export const CaptureView: React.FC = () => {
       }
     }
     
-    // If no natural splits found, try to split by action verbs
+    // If still no splits, try to split by action verbs
     if (segments.length === 1) {
       const actionVerbs = [
         'finish', 'complete', 'start', 'work on', 'prepare', 'email', 'call',
