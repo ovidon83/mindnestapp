@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Brain, 
   Sparkles,
@@ -11,7 +11,12 @@ import {
   CalendarDays,
   Calendar,
   Bell,
-  Lightbulb
+  Lightbulb,
+  Mic,
+  MicOff,
+  Volume2,
+  Pause,
+  Play
 } from 'lucide-react';
 import { useGenieNotesStore } from '../store';
 import { Entry, EntryType, Priority, TaskStatus } from '../types';
@@ -26,7 +31,131 @@ export const CaptureView: React.FC = () => {
   const [multipleEntries, setMultipleEntries] = useState<Partial<Entry>[]>([]);
   const [editableMultipleEntries, setEditableMultipleEntries] = useState<Partial<Entry>[]>([]);
   
+  // Voice capture states
+  const [isRecording, setIsRecording] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  
+  // Refs for voice recording
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
   const { addEntry, setCurrentView } = useGenieNotesStore();
+
+  // Cleanup effects for voice recording
+  useEffect(() => {
+    return () => {
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+      }
+      if (mediaRecorderRef.current && isRecording) {
+        mediaRecorderRef.current.stop();
+      }
+    };
+  }, [isRecording]);
+
+  // Voice Recording Functions
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'audio/webm;codecs=opus'
+      });
+      
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+      
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+      
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        setAudioBlob(audioBlob);
+        stream.getTracks().forEach(track => track.stop());
+      };
+      
+      mediaRecorder.start();
+      setIsRecording(true);
+      setRecordingTime(0);
+      
+      // Start recording timer
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Error starting recording:', error);
+      alert('Unable to access microphone. Please check permissions.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      setIsPaused(false);
+      
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+      }
+    }
+  };
+
+  const pauseRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.pause();
+      setIsPaused(true);
+      
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+      }
+    }
+  };
+
+  const resumeRecording = () => {
+    if (mediaRecorderRef.current && isPaused) {
+      mediaRecorderRef.current.resume();
+      setIsPaused(false);
+      
+      // Resume timer
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+    }
+  };
+
+  const transcribeAudio = async () => {
+    if (!audioBlob) return;
+    
+    setIsTranscribing(true);
+    try {
+      // Convert audio to base64 for API call
+      // const arrayBuffer = await audioBlob.arrayBuffer();
+      // const base64Audio = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+      
+      // Call transcription API (you'll need to implement this)
+      // For now, we'll simulate transcription
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Simulated transcript - replace with actual API call
+      const simulatedTranscript = "Finish the project by Friday, also need to call John about the meeting, and I had an idea for a new app feature";
+      setTranscript(simulatedTranscript);
+      setInputText(simulatedTranscript);
+      
+    } catch (error) {
+      console.error('Error transcribing audio:', error);
+      alert('Error transcribing audio. Please try again.');
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
 
   // Directive parser - maps hashtags to structured fields
   const parseDirectives = (text: string) => {
@@ -261,61 +390,68 @@ export const CaptureView: React.FC = () => {
     return targetDate;
   };
 
-  // Function to split text into multiple entries
+  // Enhanced Multi-Thought Recognition
   const splitIntoMultipleEntries = (text: string): Partial<Entry>[] => {
     const entries: Partial<Entry>[] = [];
     
-    // Split by common separators
+    // Advanced splitting patterns for better thought recognition
     const splitPatterns = [
-      /\n\s*\n/,           // Double line breaks
-      /\.\s+(?=[A-Z])/,    // Period followed by capital letter (new sentence)
-      /;\s+/,               // Semicolon
-      /,\s+(?=and\s)/,     // Comma followed by "and"
-      /(?<=\.)\s+(?=Also)/, // "Also" at start of sentence
-      /(?<=\.)\s+(?=Plus)/, // "Plus" at start of sentence
-      /(?<=\.)\s+(?=Additionally)/, // "Additionally" at start of sentence
-      /(?<=\.)\s+(?=Furthermore)/,  // "Furthermore" at start of sentence
-      /(?<=\.)\s+(?=Moreover)/,     // "Moreover" at start of sentence
+      // Natural speech patterns
+      /\s+(?:and|also|plus|additionally|furthermore|moreover|besides|in addition|as well as)\s+/i,
+      // Punctuation-based splits
+      /[.!?]\s+(?=[A-Z])/g,  // Sentence endings followed by capital
+      /\n\s*\n/,              // Double line breaks
+      /;\s+/,                 // Semicolons
+      /,\s+(?=(?:and|or|but)\s)/i, // Commas before conjunctions
+      // Thought transition words
+      /\s+(?:meanwhile|however|therefore|consequently|thus|hence|so|then)\s+/i,
+      // Action-based splits
+      /\s+(?:next|after that|then|subsequently|following that)\s+/i,
+      // Time-based splits
+      /\s+(?:later|afterwards|meanwhile|during|while)\s+/i,
+      // Context shifts
+      /\s+(?:speaking of|on another note|by the way|incidentally)\s+/i,
     ];
     
-    // Try different splitting strategies
     let segments: string[] = [text];
     
-    // First, try to split by commas (most common separator)
-    const commaSegments = text.split(/,\s+/);
-    if (commaSegments.length > 1) {
-      // Check if comma segments look like separate thoughts
-      const validSegments = commaSegments.filter(segment => {
-        const trimmed = segment.trim();
-        return trimmed.length > 5 && // Must be substantial
-               !trimmed.toLowerCase().startsWith('and') && // Not just "and..."
-               !trimmed.toLowerCase().startsWith('or') &&  // Not just "or..."
-               !trimmed.toLowerCase().startsWith('but');  // Not just "but..."
-      });
-      
-      if (validSegments.length > 1) {
-        segments = validSegments;
+    // First, try advanced pattern matching
+    for (const pattern of splitPatterns) {
+      const newSegments = segments[0].split(pattern);
+      if (newSegments.length > 1) {
+        segments = newSegments.filter(segment => segment.trim().length > 0);
+        break;
       }
     }
     
-    // If comma splitting didn't work, try other patterns
+    // If no advanced patterns worked, try comma-based splitting
     if (segments.length === 1) {
-      for (const pattern of splitPatterns) {
-        const newSegments = segments[0].split(pattern);
-        if (newSegments.length > 1) {
-          segments = newSegments.filter(segment => segment.trim().length > 0);
-          break;
+      const commaSegments = text.split(/,\s+/);
+      if (commaSegments.length > 1) {
+        const validSegments = commaSegments.filter(segment => {
+          const trimmed = segment.trim();
+          return trimmed.length > 8 && // Must be substantial
+                 !trimmed.toLowerCase().startsWith('and') &&
+                 !trimmed.toLowerCase().startsWith('or') &&
+                 !trimmed.toLowerCase().startsWith('but') &&
+                 !trimmed.toLowerCase().startsWith('also') &&
+                 !trimmed.toLowerCase().startsWith('plus');
+        });
+        
+        if (validSegments.length > 1) {
+          segments = validSegments;
         }
       }
     }
     
-    // If still no splits, try to split by action verbs
+    // If still no splits, try action verb detection
     if (segments.length === 1) {
       const actionVerbs = [
         'finish', 'complete', 'start', 'work on', 'prepare', 'email', 'call',
         'meet', 'buy', 'get', 'find', 'review', 'check', 'update', 'create',
         'build', 'design', 'write', 'read', 'study', 'organize', 'clean',
-        'fix', 'solve', 'plan', 'schedule', 'remember', 'think about'
+        'fix', 'solve', 'plan', 'schedule', 'remember', 'think about',
+        'need to', 'want to', 'should', 'must', 'have to', 'going to'
       ];
       
       const lowerText = text.toLowerCase();
@@ -329,19 +465,18 @@ export const CaptureView: React.FC = () => {
           const firstPart = text.substring(0, verbIndex).trim();
           const secondPart = text.substring(verbIndex).trim();
           
-          if (firstPart.length > 10 && secondPart.length > 10) {
+          if (firstPart.length > 12 && secondPart.length > 12) {
             segments = [firstPart, secondPart];
           }
         }
       }
     }
     
-    // Create entries for each segment
+    // Create entries for each segment with enhanced parsing
     segments.forEach((segment) => {
       const trimmedSegment = segment.trim();
       if (trimmedSegment.length > 0) {
         const entry = parseInput(trimmedSegment);
-        // Don't set id here - it will be generated when saved
         entries.push(entry);
       }
     });
@@ -1001,15 +1136,124 @@ export const CaptureView: React.FC = () => {
 
         {/* Input Form */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 sm:p-8 mb-8">
+          {/* Voice Recording Section */}
+          <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl border border-purple-200">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <Mic className="w-5 h-5 text-purple-600" />
+                Voice Capture
+              </h3>
+              <div className="text-sm text-gray-600">
+                {isRecording && (
+                  <span className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                    Recording... {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}
+                  </span>
+                )}
+              </div>
+            </div>
+            
+            {/* Voice Controls */}
+            <div className="flex items-center gap-3 mb-4">
+              {!isRecording && !audioBlob && (
+                <button
+                  onClick={startRecording}
+                  className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                >
+                  <Mic className="w-4 h-4" />
+                  Start Recording
+                </button>
+              )}
+              
+              {isRecording && (
+                <>
+                  {!isPaused ? (
+                    <button
+                      onClick={pauseRecording}
+                      className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
+                    >
+                      <Pause className="w-4 h-4" />
+                      Pause
+                    </button>
+                  ) : (
+                    <button
+                      onClick={resumeRecording}
+                      className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                    >
+                      <Play className="w-4 h-4" />
+                      Resume
+                    </button>
+                  )}
+                  
+                  <button
+                    onClick={stopRecording}
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                  >
+                    <MicOff className="w-4 h-4" />
+                    Stop
+                  </button>
+                </>
+              )}
+              
+              {audioBlob && !isRecording && (
+                <button
+                  onClick={transcribeAudio}
+                  disabled={isTranscribing}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+                >
+                  {isTranscribing ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Transcribing...
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 className="w-4 h-4" />
+                      Transcribe Audio
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+            
+            {/* Audio Preview */}
+            {audioBlob && (
+              <div className="flex items-center gap-3">
+                <audio controls className="flex-1">
+                  <source src={URL.createObjectURL(audioBlob)} type="audio/webm" />
+                  Your browser does not support audio playback.
+                </audio>
+                <button
+                  onClick={() => {
+                    setAudioBlob(null);
+                    setTranscript('');
+                    setInputText('');
+                  }}
+                  className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800"
+                >
+                  Clear
+                </button>
+              </div>
+            )}
+            
+            {/* Transcript Display */}
+            {transcript && (
+              <div className="mt-3 p-3 bg-white rounded-lg border border-gray-200">
+                <p className="text-sm text-gray-700 font-medium mb-2">Transcript:</p>
+                <p className="text-sm text-gray-600 italic">"{transcript}"</p>
+              </div>
+            )}
+          </div>
+
           <div className="mb-6">
             <label htmlFor="thought-input" className="block text-sm font-medium text-gray-700 mb-2">
-              What's on your mind?
+              What's on your mind? (Text or Voice)
             </label>
             <textarea
               id="thought-input"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              placeholder="Type your thought here... For example: 'Need to finish project by Friday #task' or 'AI Personal Assistant for parents #idea'"
+              placeholder="Type your thought here or use voice capture above... For example: 'Need to finish project by Friday, also call John about the meeting, and I had an idea for a new app feature'"
               className="w-full h-32 sm:h-40 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-900 placeholder-gray-500"
               disabled={isProcessing}
             />
@@ -1046,6 +1290,7 @@ export const CaptureView: React.FC = () => {
                   <li>• Include dates like "tomorrow", "next week", "Friday"</li>
                   <li>• Add urgency words like "urgent", "ASAP", "important"</li>
                   <li>• Mention locations with "at", "in", or "@"</li>
+                  <li>• You can also use voice capture to input your thoughts. Just click the microphone icon and speak your thought.</li>
                 </ul>
               </div>
             </div>
