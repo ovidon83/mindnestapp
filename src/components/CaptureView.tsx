@@ -2,18 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { 
   Brain, 
   Sparkles,
-  CheckCircle,
-  Clock,
-  MapPin,
-  Zap,
-  Target,
-  TrendingUp,
-  CalendarDays,
-  Calendar,
-  Bell,
-  Lightbulb,
   Mic,
-  MicOff
+  MicOff,
+  Lightbulb,
+  Target,
+  TrendingUp
 } from 'lucide-react';
 import { useGenieNotesStore } from '../store';
 import { Entry, EntryType, Priority, TaskStatus } from '../types';
@@ -22,11 +15,6 @@ import * as chrono from 'chrono-node';
 export const CaptureView: React.FC = () => {
   const [inputText, setInputText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
-  const [parsedEntry, setParsedEntry] = useState<Partial<Entry> | null>(null);
-  const [editableEntry, setEditableEntry] = useState<Partial<Entry> | null>(null);
-  const [multipleEntries, setMultipleEntries] = useState<Partial<Entry>[]>([]);
-  const [editableMultipleEntries, setEditableMultipleEntries] = useState<Partial<Entry>[]>([]);
   
   // Voice capture states
   const [isRecording, setIsRecording] = useState(false);
@@ -123,8 +111,6 @@ export const CaptureView: React.FC = () => {
     recognition.start();
   };
 
-
-
   // Directive parser - maps hashtags to structured fields
   const parseDirectives = (text: string) => {
     const directives: {
@@ -145,7 +131,7 @@ export const CaptureView: React.FC = () => {
       directives.isDeadline = true;
       // Set priority to high for urgent tasks
       if (lowerText.includes('asap') || lowerText.includes('urgent') || lowerText.includes('immediately')) {
-        directives.priority = 'high';
+        directives.priority = 'urgent';
       }
     }
     
@@ -693,16 +679,48 @@ export const CaptureView: React.FC = () => {
       const multipleEntries = splitIntoMultipleEntries(inputText);
       
       if (multipleEntries.length > 1) {
-        // Multiple entries detected - show multi-entry preview
-        setMultipleEntries(multipleEntries);
-        setEditableMultipleEntries([...multipleEntries]);
-        setShowPreview(true);
+        // Multiple entries detected - save all automatically
+        multipleEntries.forEach(entry => {
+          if (entry.content && entry.content.trim()) {
+            const fullEntry: Entry = {
+              ...entry,
+              id: crypto.randomUUID(),
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              status: entry.type === 'task' ? 'pending' : 'pending',
+              confidence: 0.95,
+              reasoning: `Auto-processed: Type=${entry.type}, Priority=${entry.priority}`,
+              needsReview: false,
+              relatedIds: []
+            } as Entry;
+            addEntry(fullEntry);
+          }
+        });
+        
+        // Show success message and redirect
+        setInputText('');
+        setTranscript('');
+        setCurrentView('home');
       } else {
-        // Single entry - use existing single entry flow
+        // Single entry - save automatically
         const parsed = parseInput(inputText);
-        setParsedEntry(parsed);
-        setEditableEntry(parsed);
-        setShowPreview(true);
+        const fullEntry: Entry = {
+          ...parsed,
+          id: crypto.randomUUID(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          status: parsed.type === 'task' ? 'pending' : 'pending',
+          confidence: 0.95,
+          reasoning: `Auto-processed: Type=${parsed.type}, Priority=${parsed.priority}`,
+          needsReview: false,
+          relatedIds: []
+        } as Entry;
+        addEntry(fullEntry);
+        
+        // Show success message and redirect
+        setInputText('');
+        setTranscript('');
+        setCurrentView('home');
       }
     } catch (error) {
       console.error('Error processing input:', error);
@@ -710,410 +728,6 @@ export const CaptureView: React.FC = () => {
       setIsProcessing(false);
     }
   };
-
-  const handleSaveEntry = () => {
-    if (editableEntry) {
-      addEntry(editableEntry as Entry);
-      setCurrentView('home');
-    }
-  };
-
-  const handleSaveMultipleEntries = () => {
-    editableMultipleEntries.forEach(entry => {
-      if (entry.content && entry.content.trim()) {
-        addEntry(entry as Entry);
-      }
-    });
-    setCurrentView('home');
-  };
-
-  const handleCancel = () => {
-    setShowPreview(false);
-    setParsedEntry(null);
-    setEditableEntry(null);
-    setMultipleEntries([]);
-    setEditableMultipleEntries([]);
-    setInputText('');
-  };
-
-  const getTypeIcon = (type: EntryType) => {
-    switch (type) {
-      case 'task': return <CheckCircle className="w-4 h-4" />;
-      case 'event': return <Calendar className="w-4 h-4" />;
-      case 'idea': return <Zap className="w-4 h-4" />;
-      case 'insight': return <Target className="w-4 h-4" />;
-      case 'reflection': return <TrendingUp className="w-4 h-4" />;
-      case 'journal': return <CalendarDays className="w-4 h-4" />;
-      case 'reminder': return <Bell className="w-4 h-4" />;
-      case 'note': return <Brain className="w-4 h-4" />;
-      default: return <Brain className="w-4 h-4" />;
-    }
-  };
-
-  const getTypeColor = (type: EntryType) => {
-    switch (type) {
-      case 'task': return 'bg-blue-100 text-blue-800';
-      case 'event': return 'bg-green-100 text-green-800';
-      case 'idea': return 'bg-purple-100 text-purple-800';
-      case 'insight': return 'bg-yellow-100 text-yellow-800';
-      case 'reflection': return 'bg-indigo-100 text-indigo-800';
-      case 'journal': return 'bg-gray-100 text-gray-800';
-      case 'reminder': return 'bg-orange-100 text-orange-800';
-      case 'note': return 'bg-pink-100 text-pink-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  if (showPreview && parsedEntry && editableEntry) {
-    return (
-      <div className="min-h-screen bg-gray-900 text-white">
-        <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-green-500 to-teal-600 rounded-full mb-4 shadow-lg">
-              <CheckCircle className="w-8 h-8 text-white" />
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3">
-              AI Intelligence Complete
-            </h1>
-            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-              Here's how I've organized and enhanced your thought. Review and save.
-            </p>
-          </div>
-
-          {/* Preview Card */}
-          <div className="bg-gray-800 rounded-3xl shadow-2xl border border-gray-700 p-6 sm:p-8 mb-8">
-            <div className="mb-6">
-              <div className="flex items-start gap-4 mb-6">
-                <div className={`p-4 rounded-2xl ${getTypeColor(editableEntry.type!)} shadow-sm`}>
-                  {getTypeIcon(editableEntry.type!)}
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-semibold text-white mb-4 leading-relaxed">{inputText}</h3>
-                  
-                  {/* AI Intelligence Summary */}
-                  <div className="mb-6 p-4 bg-gradient-to-r from-blue-900/20 to-purple-900/20 rounded-2xl border border-blue-500/30">
-                    <div className="flex items-center gap-3 mb-3">
-                      <Sparkles className="w-5 h-5 text-blue-400" />
-                      <h4 className="text-lg font-semibold text-blue-200">AI Intelligence Applied</h4>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                        <span className="text-blue-300">Type: <strong className="text-white">{editableEntry.type}</strong></span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                        <span className="text-purple-300">Priority: <strong className="text-white">{editableEntry.priority}</strong></span>
-                      </div>
-                      {editableEntry.dueDate && (
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                          <span className="text-green-300">Due: <strong className="text-white">{editableEntry.dueDate.toLocaleDateString()}</strong></span>
-                        </div>
-                      )}
-                      {editableEntry.tags && editableEntry.tags.length > 0 && (
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
-                          <span className="text-pink-300">Tags: <strong className="text-white">{editableEntry.tags.join(', ')}</strong></span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* Editable Fields Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Editable Type */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-200 mb-2">Type:</label>
-                      <select
-                        value={editableEntry.type}
-                        onChange={(e) => setEditableEntry({...editableEntry, type: e.target.value as EntryType})}
-                        className="w-full px-4 py-3 border border-gray-600 rounded-2xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-700 text-white hover:bg-gray-600 transition-colors"
-                      >
-                        <option value="task">Task</option>
-                        <option value="event">Event</option>
-                        <option value="idea">Idea</option>
-                        <option value="insight">Insight</option>
-                        <option value="reflection">Reflection</option>
-                        <option value="journal">Journal</option>
-                        <option value="reminder">Reminder</option>
-                        <option value="note">Note</option>
-                      </select>
-                    </div>
-                    
-                    {/* Editable Priority */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-200 mb-2">Priority:</label>
-                      <select
-                        value={editableEntry.priority}
-                        onChange={(e) => setEditableEntry({...editableEntry, priority: e.target.value as Priority})}
-                        className="w-full px-4 py-3 border border-gray-600 rounded-2xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-700 text-white hover:bg-gray-600 transition-colors"
-                      >
-                        <option value="urgent">Urgent</option>
-                        <option value="high">High</option>
-                        <option value="medium">Medium</option>
-                        <option value="low">Low</option>
-                      </select>
-                    </div>
-                  </div>
-                  
-                  {/* Editable Tags */}
-                  <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-200 mb-2">Tags:</label>
-                    <input
-                      type="text"
-                      value={editableEntry.tags?.join(', ') || ''}
-                      onChange={(e) => setEditableEntry({...editableEntry, tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)})}
-                      placeholder="Enter tags separated by commas"
-                      className="w-full px-4 py-3 border border-gray-600 rounded-2xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-700 text-white hover:bg-gray-600 transition-colors"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Parsed Details */}
-              {(editableEntry.dueDate || editableEntry.location || editableEntry.pinnedForDate) && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 p-4 bg-gray-700 rounded-2xl border border-gray-600">
-                  {editableEntry.dueDate && (
-                    <div className="flex items-center gap-3 text-gray-200">
-                      <Clock className="w-5 h-5 text-green-400" />
-                      <div>
-                        <p className="text-sm font-medium text-white">Due Date</p>
-                        <p className="text-sm text-gray-300">{editableEntry.dueDate.toLocaleDateString()}</p>
-                        {editableEntry.dueDate.toLocaleTimeString && (
-                          <p className="text-xs text-gray-400">{editableEntry.dueDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {editableEntry.pinnedForDate && !editableEntry.dueDate && (
-                    <div className="flex items-center gap-3 text-gray-200">
-                      <Calendar className="w-5 h-5 text-blue-400" />
-                      <div>
-                        <p className="text-sm font-medium text-white">Pinned for Date</p>
-                        <p className="text-sm text-gray-300">{editableEntry.pinnedForDate.toLocaleDateString()}</p>
-                        <p className="text-xs text-gray-400">Reference date (not a deadline)</p>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {editableEntry.location && (
-                    <div className="flex items-center gap-3 text-gray-200">
-                      <MapPin className="w-5 h-5 text-purple-400" />
-                      <div>
-                        <p className="text-sm font-medium text-white">Location</p>
-                        <p className="text-sm text-gray-300">{editableEntry.location}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-              
-              {/* Deadline Status */}
-              {editableEntry.dueDate && (
-                <div className="mb-6 p-4 bg-orange-900/20 border border-orange-500/30 rounded-2xl">
-                  <div className="flex items-center gap-3">
-                    <Target className="w-5 h-5 text-orange-400" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-orange-200">Deadline Detected</p>
-                      <p className="text-sm text-orange-300">
-                        This entry will be treated as a deadline and may show as "Overdue" if not completed on time.
-                      </p>
-                    </div>
-                    <label className="flex items-center gap-2 text-sm text-orange-300">
-                      <input
-                        type="checkbox"
-                        checked={editableEntry.isDeadline !== false}
-                        onChange={(e) => setEditableEntry({...editableEntry, isDeadline: e.target.checked})}
-                        className="h-4 w-4 text-orange-400 rounded border-orange-500 focus:ring-orange-500 focus:ring-offset-gray-800"
-                      />
-                      Treat as deadline
-                    </label>
-                  </div>
-                </div>
-              )}
-
-              {/* Due Date */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-200 mb-2">Due Date:</label>
-                <input
-                  type="datetime-local"
-                  value={editableEntry.dueDate ? editableEntry.dueDate.toISOString().slice(0, 16) : ''}
-                  onChange={(e) => setEditableEntry({...editableEntry, dueDate: e.target.value ? new Date(e.target.value) : undefined})}
-                  className="w-full px-4 py-3 border border-gray-600 rounded-2xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-700 text-white hover:bg-gray-600 transition-colors"
-                />
-              </div>
-
-              {/* Location */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-200 mb-2">Location:</label>
-                <input
-                  type="text"
-                  value={editableEntry.location || ''}
-                  onChange={(e) => setEditableEntry({...editableEntry, location: e.target.value})}
-                  placeholder="Enter location (optional)"
-                  className="w-full px-4 py-3 border border-gray-600 rounded-2xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-700 text-white hover:bg-gray-600 transition-colors"
-                />
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={handleCancel}
-                className="px-6 py-3 bg-gray-600 text-gray-200 rounded-2xl hover:bg-gray-500 transition-colors font-medium"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveEntry}
-                className="px-6 py-3 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-2xl hover:from-green-600 hover:to-teal-700 transition-all duration-200 font-medium shadow-lg hover:shadow-xl"
-              >
-                Save Entry
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Multi-entry preview
-  if (showPreview && multipleEntries.length > 1) {
-    return (
-      <div className="min-h-screen bg-gray-900 text-white">
-        <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-4 shadow-lg">
-              <Sparkles className="w-8 h-8 text-white" />
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3">
-              Multiple Entries Detected!
-            </h1>
-            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-              I found {multipleEntries.length} separate thoughts in your input. Each will be saved as a separate entry.
-            </p>
-          </div>
-
-          {/* Multiple Entries Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {editableMultipleEntries.map((entry, index) => (
-              <div key={index} className="bg-gray-800 rounded-3xl shadow-2xl border border-gray-700 p-6">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className={`p-3 rounded-xl ${getTypeColor(entry.type!)} shadow-sm`}>
-                    {getTypeIcon(entry.type!)}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3 leading-relaxed">
-                      {entry.content}
-                    </h3>
-                    
-                    {/* Editable Fields */}
-                    <div className="space-y-3">
-                      {/* Type */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Type:</label>
-                        <select
-                          value={entry.type}
-                          onChange={(e) => {
-                            const newEntries = [...editableMultipleEntries];
-                            newEntries[index] = {...newEntries[index], type: e.target.value as EntryType};
-                            setEditableMultipleEntries(newEntries);
-                          }}
-                          className="w-full px-3 py-2 border border-gray-600 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-white"
-                        >
-                          <option value="task">Task</option>
-                          <option value="event">Event</option>
-                          <option value="idea">Idea</option>
-                          <option value="insight">Insight</option>
-                          <option value="reflection">Reflection</option>
-                          <option value="journal">Journal</option>
-                          <option value="reminder">Reminder</option>
-                          <option value="note">Note</option>
-                        </select>
-                      </div>
-                      
-                      {/* Priority */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Priority:</label>
-                        <select
-                          value={entry.priority}
-                          onChange={(e) => {
-                            const newEntries = [...editableMultipleEntries];
-                            newEntries[index] = {...newEntries[index], priority: e.target.value as Priority};
-                            setEditableMultipleEntries(newEntries);
-                          }}
-                          className="w-full px-3 py-2 border border-gray-600 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-white"
-                        >
-                          <option value="urgent">Urgent</option>
-                          <option value="high">High</option>
-                          <option value="medium">Medium</option>
-                          <option value="low">Low</option>
-                        </select>
-                      </div>
-                      
-                      {/* Tags */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Tags:</label>
-                        <input
-                          type="text"
-                          value={entry.tags?.join(', ') || ''}
-                          onChange={(e) => {
-                            const newEntries = [...editableMultipleEntries];
-                            newEntries[index] = {...newEntries[index], tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)};
-                            setEditableMultipleEntries(newEntries);
-                          }}
-                          placeholder="Enter tags separated by commas"
-                          className="w-full px-3 py-2 border border-gray-600 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-white"
-                        />
-                      </div>
-                    </div>
-                    
-                    {/* Detected Details */}
-                    {(entry.dueDate || entry.pinnedForDate) && (
-                      <div className="mt-4 p-3 bg-gray-700 rounded-2xl border border-gray-600">
-                        {entry.dueDate && (
-                          <div className="flex items-center gap-2 text-sm text-gray-200 mb-2">
-                            <Clock className="w-4 h-4 text-green-400" />
-                            <span>Due: {entry.dueDate.toLocaleDateString()}</span>
-                          </div>
-                        )}
-                        {entry.pinnedForDate && !entry.dueDate && (
-                          <div className="flex items-center gap-2 text-sm text-gray-200">
-                            <Calendar className="w-4 h-4 text-blue-400" />
-                            <span>Pinned: {entry.pinnedForDate.toLocaleDateString()}</span>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex gap-3 justify-center">
-            <button
-              onClick={handleCancel}
-              className="px-6 py-3 bg-gray-300 text-gray-700 rounded-xl hover:bg-gray-400 transition-colors font-medium"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSaveMultipleEntries}
-              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-medium shadow-lg hover:shadow-xl"
-            >
-              Save All Entries ({editableMultipleEntries.length})
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
