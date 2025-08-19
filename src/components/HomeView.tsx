@@ -23,7 +23,7 @@ import {
   ArrowUp
 } from 'lucide-react';
 import { useGenieNotesStore } from '../store';
-import { Entry, EntryType, Priority } from '../types';
+import { Entry, EntryType, Priority, TaskStatus } from '../types';
 
 export const HomeView: React.FC = () => {
   const { 
@@ -35,6 +35,13 @@ export const HomeView: React.FC = () => {
     setSearchQuery,
     setActiveFilters
   } = useGenieNotesStore();
+
+  // Immediate debugging - let's see what's actually in the store
+  console.log('=== IMMEDIATE DEBUG ===');
+  console.log('Store entries:', entries);
+  console.log('Store entries length:', entries.length);
+  console.log('App state:', appState);
+  console.log('Current view:', appState.currentView);
 
   // Smart Home View State
   const [expandedSections, setExpandedSections] = useState({
@@ -633,6 +640,60 @@ export const HomeView: React.FC = () => {
 
         {/* Smart Sections */}
         <div className="space-y-8">
+          {/* ALL ENTRIES DEBUG SECTION - TEMPORARY */}
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6">
+            <h3 className="text-lg font-semibold text-red-800 mb-4">🔍 DEBUG: All Entries (Temporary)</h3>
+            <p className="text-red-700 mb-4">Total entries in store: {entries.length}</p>
+            <p className="text-red-700 mb-4">Filtered entries: {filteredEntries.length}</p>
+            <p className="text-red-700 mb-4">Search query: "{searchQuery}"</p>
+            <p className="text-red-700 mb-4">Active filters: {JSON.stringify(activeFilters)}</p>
+            <p className="text-red-700 mb-4">Selected tags: {JSON.stringify(selectedTags)}</p>
+            
+            {/* Test button to add entry */}
+            <button
+              onClick={() => {
+                const testEntry = {
+                  content: `Test entry ${Date.now()}`,
+                  rawContent: `Test entry ${Date.now()}`,
+                  type: 'note' as EntryType,
+                  priority: 'medium' as Priority,
+                  tags: ['test'],
+                  status: 'pending' as TaskStatus,
+                  needsReview: false,
+                  confidence: 0.95,
+                  reasoning: 'Test entry for debugging',
+                  relatedIds: []
+                };
+                console.log('Adding test entry:', testEntry);
+                // We need to access the store function directly
+                const { addEntry } = useGenieNotesStore.getState();
+                addEntry(testEntry);
+              }}
+              className="bg-red-600 text-white px-4 py-2 rounded-lg mb-4 hover:bg-red-700"
+            >
+              Add Test Entry
+            </button>
+            
+            {entries.length > 0 ? (
+              <div className="space-y-2">
+                <p className="text-red-700 font-medium">Raw entries from store:</p>
+                {entries.slice(0, 5).map((entry, index) => (
+                  <div key={entry.id} className="bg-white p-3 rounded border text-sm">
+                    <p><strong>Entry {index + 1}:</strong> {entry.content}</p>
+                    <p><strong>Type:</strong> {entry.type} | <strong>Priority:</strong> {entry.priority} | <strong>Status:</strong> {entry.status}</p>
+                    <p><strong>Created:</strong> {entry.createdAt?.toLocaleString()}</p>
+                    <p><strong>Tags:</strong> {entry.tags.join(', ')}</p>
+                  </div>
+                ))}
+                {entries.length > 5 && (
+                  <p className="text-red-600 text-sm">... and {entries.length - 5} more entries</p>
+                )}
+              </div>
+            ) : (
+              <p className="text-red-600">No entries found in store!</p>
+            )}
+          </div>
+
           {/* Recent Entries Section - Always show new entries */}
           {filteredEntries.length > 0 && (
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
