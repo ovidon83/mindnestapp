@@ -123,14 +123,7 @@ export const CaptureView: React.FC = () => {
     recognition.start();
   };
 
-  const stopSpeechRecognition = () => {
-    // This will trigger the onend event
-    setIsRecording(false);
-    
-    if (recordingTimerRef.current) {
-      clearInterval(recordingTimerRef.current);
-    }
-  };
+
 
   // Directive parser - maps hashtags to structured fields
   const parseDirectives = (text: string) => {
@@ -781,10 +774,10 @@ export const CaptureView: React.FC = () => {
               <CheckCircle className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3">
-              AI Analysis Complete
+              AI Intelligence Complete
             </h1>
             <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-              Here's how I categorized your thought. You can edit the details before saving.
+              Here's how I've organized and enhanced your thought. Review and save.
             </p>
           </div>
 
@@ -792,11 +785,41 @@ export const CaptureView: React.FC = () => {
           <div className="bg-gray-800 rounded-3xl shadow-2xl border border-gray-700 p-6 sm:p-8 mb-8">
             <div className="mb-6">
               <div className="flex items-start gap-4 mb-6">
-                <div className={`p-4 rounded-xl ${getTypeColor(editableEntry.type!)} shadow-sm`}>
+                <div className={`p-4 rounded-2xl ${getTypeColor(editableEntry.type!)} shadow-sm`}>
                   {getTypeIcon(editableEntry.type!)}
                 </div>
                 <div className="flex-1">
                   <h3 className="text-xl font-semibold text-white mb-4 leading-relaxed">{inputText}</h3>
+                  
+                  {/* AI Intelligence Summary */}
+                  <div className="mb-6 p-4 bg-gradient-to-r from-blue-900/20 to-purple-900/20 rounded-2xl border border-blue-500/30">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Sparkles className="w-5 h-5 text-blue-400" />
+                      <h4 className="text-lg font-semibold text-blue-200">AI Intelligence Applied</h4>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                        <span className="text-blue-300">Type: <strong className="text-white">{editableEntry.type}</strong></span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                        <span className="text-purple-300">Priority: <strong className="text-white">{editableEntry.priority}</strong></span>
+                      </div>
+                      {editableEntry.dueDate && (
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                          <span className="text-green-300">Due: <strong className="text-white">{editableEntry.dueDate.toLocaleDateString()}</strong></span>
+                        </div>
+                      )}
+                      {editableEntry.tags && editableEntry.tags.length > 0 && (
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
+                          <span className="text-pink-300">Tags: <strong className="text-white">{editableEntry.tags.join(', ')}</strong></span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                   
                   {/* Editable Fields Grid */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -960,17 +983,17 @@ export const CaptureView: React.FC = () => {
   // Multi-entry preview
   if (showPreview && multipleEntries.length > 1) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      <div className="min-h-screen bg-gray-900 text-white">
         <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-4 shadow-lg">
               <Sparkles className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
+            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3">
               Multiple Entries Detected!
             </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
               I found {multipleEntries.length} separate thoughts in your input. Each will be saved as a separate entry.
             </p>
           </div>
@@ -978,7 +1001,7 @@ export const CaptureView: React.FC = () => {
           {/* Multiple Entries Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             {editableMultipleEntries.map((entry, index) => (
-              <div key={index} className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6">
+              <div key={index} className="bg-gray-800 rounded-3xl shadow-2xl border border-gray-700 p-6">
                 <div className="flex items-start gap-4 mb-4">
                   <div className={`p-3 rounded-xl ${getTypeColor(entry.type!)} shadow-sm`}>
                     {getTypeIcon(entry.type!)}
@@ -1000,7 +1023,7 @@ export const CaptureView: React.FC = () => {
                             newEntries[index] = {...newEntries[index], type: e.target.value as EntryType};
                             setEditableMultipleEntries(newEntries);
                           }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-gray-600 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-white"
                         >
                           <option value="task">Task</option>
                           <option value="event">Event</option>
@@ -1023,7 +1046,7 @@ export const CaptureView: React.FC = () => {
                             newEntries[index] = {...newEntries[index], priority: e.target.value as Priority};
                             setEditableMultipleEntries(newEntries);
                           }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-gray-600 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-white"
                         >
                           <option value="urgent">Urgent</option>
                           <option value="high">High</option>
@@ -1044,23 +1067,23 @@ export const CaptureView: React.FC = () => {
                             setEditableMultipleEntries(newEntries);
                           }}
                           placeholder="Enter tags separated by commas"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-gray-600 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-700 text-white"
                         />
                       </div>
                     </div>
                     
                     {/* Detected Details */}
                     {(entry.dueDate || entry.pinnedForDate) && (
-                      <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                      <div className="mt-4 p-3 bg-gray-700 rounded-2xl border border-gray-600">
                         {entry.dueDate && (
-                          <div className="flex items-center gap-2 text-sm text-gray-700 mb-2">
-                            <Clock className="w-4 h-4 text-green-600" />
+                          <div className="flex items-center gap-2 text-sm text-gray-200 mb-2">
+                            <Clock className="w-4 h-4 text-green-400" />
                             <span>Due: {entry.dueDate.toLocaleDateString()}</span>
                           </div>
                         )}
                         {entry.pinnedForDate && !entry.dueDate && (
-                          <div className="flex items-center gap-2 text-sm text-gray-700">
-                            <Calendar className="w-4 h-4 text-blue-600" />
+                          <div className="flex items-center gap-2 text-sm text-gray-200">
+                            <Calendar className="w-4 h-4 text-blue-400" />
                             <span>Pinned: {entry.pinnedForDate.toLocaleDateString()}</span>
                           </div>
                         )}
@@ -1094,142 +1117,194 @@ export const CaptureView: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
+      <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full mb-4 shadow-lg">
-            <Brain className="w-8 h-8 text-white" />
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full mb-6 shadow-2xl">
+            <Brain className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3">
-            Capture Your Thoughts
+          <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+            GenieNotes
           </h1>
-          <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-            Just speak or type naturally. AI will organize everything for you.
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            Transform your thoughts into organized, actionable intelligence. 
+            One place for everything that matters.
           </p>
         </div>
 
-        {/* Voice Capture Section - Prominent Circular Design */}
-        <div className="bg-gray-800 rounded-3xl shadow-2xl border border-gray-700 p-8 mb-8">
-          <div className="text-center">
-            <h3 className="text-xl font-semibold text-white mb-6 flex items-center justify-center gap-3">
-              <Mic className="w-6 h-6 text-pink-400" />
-              Voice Capture
-            </h3>
-            
-            {/* Recording Status */}
-            {isRecording && (
-              <div className="mb-6 p-4 bg-pink-900/20 rounded-2xl border border-pink-500/30">
-                <div className="flex items-center justify-center gap-3 text-pink-300">
-                  <div className="w-3 h-3 bg-pink-500 rounded-full animate-pulse"></div>
-                  <span className="text-lg font-medium">
-                    Recording... {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}
-                  </span>
-                </div>
-              </div>
-            )}
-            
-            {/* Main Microphone Button */}
-            <div className="flex justify-center mb-6">
-              {!isRecording ? (
-                <button
-                  onClick={startSpeechRecognition}
-                  className="group relative"
-                >
-                  <div className="w-24 h-24 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full shadow-2xl hover:shadow-pink-500/25 transition-all duration-300 hover:scale-105 flex items-center justify-center">
-                    <Mic className="w-12 h-12 text-white" />
-                  </div>
-                  {/* Glow effect */}
-                  <div className="absolute inset-0 w-24 h-24 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-                </button>
-              ) : (
-                <button
-                  onClick={stopSpeechRecognition}
-                  className="group relative"
-                >
-                  <div className="w-24 h-24 bg-gradient-to-r from-red-500 to-pink-600 rounded-full shadow-2xl hover:shadow-red-500/25 transition-all duration-300 hover:scale-105 flex items-center justify-center animate-pulse">
-                    <MicOff className="w-12 h-12 text-white" />
-                  </div>
-                  {/* Glow effect */}
-                  <div className="absolute inset-0 w-24 h-24 bg-gradient-to-r from-red-500 to-pink-600 rounded-full blur-xl opacity-40 animate-pulse"></div>
-                </button>
-              )}
-            </div>
-            
-            {/* Instructions */}
-            <p className="text-gray-300 text-lg font-medium">
-              {isRecording ? "Release to stop recording" : "Hold to speak, release to send"}
+        {/* Core Input Section */}
+        <div className="bg-gray-800 rounded-3xl shadow-2xl border border-gray-700 p-8 mb-12">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-semibold text-white mb-3">
+              What's on your mind?
+            </h2>
+            <p className="text-gray-300">
+              Speak or type naturally. AI will organize and enhance everything.
             </p>
-            
-            {/* Transcript Display */}
-            {transcript && (
-              <div className="mt-6 p-4 bg-gray-700 rounded-2xl border border-gray-600">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-sm font-medium text-gray-200">Transcript:</p>
-                  <button
-                    onClick={() => {
-                      setTranscript('');
-                      setInputText('');
-                    }}
-                    className="px-3 py-1 text-sm text-gray-400 hover:text-white hover:bg-gray-600 rounded-lg transition-colors"
-                  >
-                    Clear
-                  </button>
-                </div>
-                <p className="text-gray-300 italic leading-relaxed">"{transcript}"</p>
-              </div>
-            )}
           </div>
-        </div>
 
-        {/* Text Input Section */}
-        <div className="bg-gray-800 rounded-3xl shadow-2xl border border-gray-700 p-8 mb-8">
-          <div className="mb-6">
-            <label htmlFor="thought-input" className="block text-sm font-medium text-gray-200 mb-3">
-              Or type your thoughts here:
-            </label>
+          {/* Input Area */}
+          <div className="mb-8">
             <textarea
               id="thought-input"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              placeholder="Type naturally... For example: 'Need to finish project by Friday, also call John about the meeting, and I had an idea for a new app feature'"
-              className="w-full h-32 sm:h-40 px-4 py-3 bg-gray-700 border border-gray-600 rounded-2xl focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none text-white placeholder-gray-400 transition-colors"
+              placeholder="Share your thoughts, tasks, ideas, or reflections... For example: 'Need to finish project by Friday, also call John about the meeting, and I had an idea for a new app feature'"
+              className="w-full h-32 px-6 py-4 bg-gray-700 border border-gray-600 rounded-2xl focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none text-white placeholder-gray-400 text-lg leading-relaxed transition-colors"
               disabled={isProcessing}
             />
           </div>
 
-          <div className="flex justify-center">
+          {/* Action Buttons Row */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            {/* Voice Button */}
+            <button
+              onClick={startSpeechRecognition}
+              disabled={isRecording || isProcessing}
+              className={`relative group transition-all duration-300 ${
+                isRecording ? 'scale-110' : 'hover:scale-105'
+              }`}
+            >
+              <div className={`w-16 h-16 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${
+                isRecording 
+                  ? 'bg-gradient-to-r from-red-500 to-pink-600 animate-pulse' 
+                  : 'bg-gradient-to-r from-pink-500 to-purple-600 hover:shadow-pink-500/25'
+              }`}>
+                {isRecording ? (
+                  <MicOff className="w-8 h-8 text-white" />
+                ) : (
+                  <Mic className="w-8 h-8 text-white" />
+                )}
+              </div>
+              {/* Glow effect */}
+              {!isRecording && (
+                <div className="absolute inset-0 w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+              )}
+            </button>
+
+            {/* Main Action Button */}
             <button
               onClick={handleSubmit}
               disabled={!inputText.trim() || isProcessing}
-              className="bg-gradient-to-r from-pink-600 to-purple-600 text-white px-8 py-3 rounded-2xl font-medium hover:from-pink-700 hover:to-purple-700 focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              className="bg-gradient-to-r from-pink-600 to-purple-600 text-white px-12 py-4 rounded-2xl font-semibold text-lg hover:from-pink-700 hover:to-purple-700 focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             >
               {isProcessing ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Analyzing...</span>
+                <div className="flex items-center justify-center gap-3">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Processing...</span>
                 </div>
               ) : (
-                <div className="flex items-center justify-center gap-2">
-                  <Sparkles className="w-4 h-4" />
-                  <span>Analyze & Categorize</span>
+                <div className="flex items-center justify-center gap-3">
+                  <Sparkles className="w-5 h-5" />
+                  <span>Process</span>
                 </div>
               )}
             </button>
           </div>
+
+          {/* Recording Status */}
+          {isRecording && (
+            <div className="mt-6 text-center">
+              <div className="inline-flex items-center gap-3 px-4 py-2 bg-pink-900/20 rounded-full border border-pink-500/30">
+                <div className="w-2 h-2 bg-pink-500 rounded-full animate-pulse"></div>
+                <span className="text-pink-300 font-medium">
+                  Recording... {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}
+                </span>
+              </div>
+              <p className="text-sm text-gray-400 mt-2">Release to stop recording</p>
+            </div>
+          )}
+
+          {/* Transcript Display */}
+          {transcript && (
+            <div className="mt-6 p-4 bg-gray-700 rounded-2xl border border-gray-600">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm font-medium text-gray-200">Voice Input:</p>
+                <button
+                  onClick={() => {
+                    setTranscript('');
+                    setInputText('');
+                  }}
+                  className="px-3 py-1 text-sm text-gray-400 hover:text-white hover:bg-gray-600 rounded-lg transition-colors"
+                >
+                  Clear
+                </button>
+              </div>
+              <p className="text-gray-300 italic leading-relaxed">"{transcript}"</p>
+            </div>
+          )}
         </div>
 
-        {/* Tips Section */}
+        {/* Core Features Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          {/* Thought Capture */}
+          <div className="bg-gray-800 rounded-3xl border border-gray-700 p-6 hover:border-pink-500/50 transition-colors">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center">
+                <Brain className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-white">Thought Capture</h3>
+            </div>
+            <p className="text-gray-300 leading-relaxed">
+              Automatically split your thoughts into actionable tasks, ideas, and reflections. 
+              No more manual categorization.
+            </p>
+          </div>
+
+          {/* Smart Assistant */}
+          <div className="bg-gray-800 rounded-3xl border border-gray-700 p-6 hover:border-purple-500/50 transition-colors">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center">
+                <Sparkles className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-white">Smart Assistant</h3>
+            </div>
+            <p className="text-gray-300 leading-relaxed">
+              AI adds due dates, urgency levels, and smart nudges. 
+              "Hey, you said you'd email John today!"
+            </p>
+          </div>
+
+          {/* Insight Engine */}
+          <div className="bg-gray-800 rounded-3xl border border-gray-700 p-6 hover:border-green-500/50 transition-colors">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-white">Insight Engine</h3>
+            </div>
+            <p className="text-gray-300 leading-relaxed">
+              Discover patterns in your thoughts and behaviors. 
+              "You've mentioned stress 3x this week; want to reflect?"
+            </p>
+          </div>
+
+          {/* Unified Flow */}
+          <div className="bg-gray-800 rounded-3xl border border-gray-700 p-6 hover:border-pink-500/50 transition-colors">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-pink-600 rounded-2xl flex items-center justify-center">
+                <Target className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-white">Unified Flow</h3>
+            </div>
+            <p className="text-gray-300 leading-relaxed">
+              Keep all thoughts and tasks in one place. 
+              No more scattered notes across multiple apps.
+            </p>
+          </div>
+        </div>
+
+        {/* Quick Tips */}
         <div className="bg-gray-800 rounded-3xl border border-gray-700 p-6">
           <div className="flex items-start gap-3">
             <Lightbulb className="w-6 h-6 text-pink-400 mt-1 flex-shrink-0" />
             <div className="text-gray-300">
-              <p className="font-medium mb-2 text-white">💡 Pro Tips:</p>
+              <p className="font-medium mb-3 text-white">💡 Quick Tips:</p>
               <ul className="space-y-2 text-sm">
-                <li>• Use hashtags like <code className="bg-gray-700 px-2 py-1 rounded text-pink-300">#idea</code>, <code className="bg-gray-700 px-2 py-1 rounded text-pink-300">#task</code>, <code className="bg-gray-700 px-2 py-1 rounded text-pink-300">#insight</code></li>
-                <li>• Include dates like "tomorrow", "next week", "Friday"</li>
-                <li>• Add urgency words like "urgent", "ASAP", "important"</li>
-                <li>• Mention locations with "at", "in", or "@"</li>
-                <li>• Voice capture works best in quiet environments</li>
+                <li>• <strong>Voice Input:</strong> Click the microphone and speak naturally</li>
+                <li>• <strong>Natural Language:</strong> "tomorrow 3pm", "urgent", "Friday deadline"</li>
+                <li>• <strong>Multiple Thoughts:</strong> Separate with commas or "and" - AI will split them</li>
+                <li>• <strong>Smart Detection:</strong> AI automatically detects tasks, ideas, and insights</li>
               </ul>
             </div>
           </div>
