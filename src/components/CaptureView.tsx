@@ -773,40 +773,40 @@ export const CaptureView: React.FC = () => {
 
   if (showPreview && parsedEntry && editableEntry) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
+      <div className="min-h-screen bg-gray-900 text-white">
         <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-green-500 to-teal-600 rounded-full mb-4 shadow-lg">
               <CheckCircle className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
+            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3">
               AI Analysis Complete
             </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
               Here's how I categorized your thought. You can edit the details before saving.
             </p>
           </div>
 
           {/* Preview Card */}
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 sm:p-8 mb-8">
+          <div className="bg-gray-800 rounded-3xl shadow-2xl border border-gray-700 p-6 sm:p-8 mb-8">
             <div className="mb-6">
               <div className="flex items-start gap-4 mb-6">
                 <div className={`p-4 rounded-xl ${getTypeColor(editableEntry.type!)} shadow-sm`}>
                   {getTypeIcon(editableEntry.type!)}
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4 leading-relaxed">{inputText}</h3>
+                  <h3 className="text-xl font-semibold text-white mb-4 leading-relaxed">{inputText}</h3>
                   
                   {/* Editable Fields Grid */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Editable Type */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Type:</label>
+                      <label className="block text-sm font-medium text-gray-200 mb-2">Type:</label>
                       <select
                         value={editableEntry.type}
                         onChange={(e) => setEditableEntry({...editableEntry, type: e.target.value as EntryType})}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors"
+                        className="w-full px-4 py-3 border border-gray-600 rounded-2xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-700 text-white hover:bg-gray-600 transition-colors"
                       >
                         <option value="task">Task</option>
                         <option value="event">Event</option>
@@ -821,11 +821,11 @@ export const CaptureView: React.FC = () => {
                     
                     {/* Editable Priority */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Priority:</label>
+                      <label className="block text-sm font-medium text-gray-200 mb-2">Priority:</label>
                       <select
                         value={editableEntry.priority}
                         onChange={(e) => setEditableEntry({...editableEntry, priority: e.target.value as Priority})}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors"
+                        className="w-full px-4 py-3 border border-gray-600 rounded-2xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-700 text-white hover:bg-gray-600 transition-colors"
                       >
                         <option value="urgent">Urgent</option>
                         <option value="high">High</option>
@@ -837,13 +837,13 @@ export const CaptureView: React.FC = () => {
                   
                   {/* Editable Tags */}
                   <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Tags:</label>
+                    <label className="block text-sm font-medium text-gray-200 mb-2">Tags:</label>
                     <input
                       type="text"
                       value={editableEntry.tags?.join(', ') || ''}
                       onChange={(e) => setEditableEntry({...editableEntry, tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)})}
                       placeholder="Enter tags separated by commas"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors"
+                      className="w-full px-4 py-3 border border-gray-600 rounded-2xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-700 text-white hover:bg-gray-600 transition-colors"
                     />
                   </div>
                 </div>
@@ -851,37 +851,37 @@ export const CaptureView: React.FC = () => {
 
               {/* Parsed Details */}
               {(editableEntry.dueDate || editableEntry.location || editableEntry.pinnedForDate) && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 p-4 bg-gray-50 rounded-xl">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 p-4 bg-gray-700 rounded-2xl border border-gray-600">
                   {editableEntry.dueDate && (
-                    <div className="flex items-center gap-3 text-gray-700">
-                      <Clock className="w-5 h-5 text-green-600" />
+                    <div className="flex items-center gap-3 text-gray-200">
+                      <Clock className="w-5 h-5 text-green-400" />
                       <div>
-                        <p className="text-sm font-medium">Due Date</p>
-                        <p className="text-sm text-gray-600">{editableEntry.dueDate.toLocaleDateString()}</p>
+                        <p className="text-sm font-medium text-white">Due Date</p>
+                        <p className="text-sm text-gray-300">{editableEntry.dueDate.toLocaleDateString()}</p>
                         {editableEntry.dueDate.toLocaleTimeString && (
-                          <p className="text-xs text-gray-500">{editableEntry.dueDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                          <p className="text-xs text-gray-400">{editableEntry.dueDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
                         )}
                       </div>
                     </div>
                   )}
                   
                   {editableEntry.pinnedForDate && !editableEntry.dueDate && (
-                    <div className="flex items-center gap-3 text-gray-700">
-                      <Calendar className="w-5 h-5 text-blue-600" />
+                    <div className="flex items-center gap-3 text-gray-200">
+                      <Calendar className="w-5 h-5 text-blue-400" />
                       <div>
-                        <p className="text-sm font-medium">Pinned for Date</p>
-                        <p className="text-sm text-gray-600">{editableEntry.pinnedForDate.toLocaleDateString()}</p>
-                        <p className="text-xs text-gray-500">Reference date (not a deadline)</p>
+                        <p className="text-sm font-medium text-white">Pinned for Date</p>
+                        <p className="text-sm text-gray-300">{editableEntry.pinnedForDate.toLocaleDateString()}</p>
+                        <p className="text-xs text-gray-400">Reference date (not a deadline)</p>
                       </div>
                     </div>
                   )}
                   
                   {editableEntry.location && (
-                    <div className="flex items-center gap-3 text-gray-700">
-                      <MapPin className="w-5 h-5 text-purple-600" />
+                    <div className="flex items-center gap-3 text-gray-200">
+                      <MapPin className="w-5 h-5 text-purple-400" />
                       <div>
-                        <p className="text-sm font-medium">Location</p>
-                        <p className="text-sm text-gray-600">{editableEntry.location}</p>
+                        <p className="text-sm font-medium text-white">Location</p>
+                        <p className="text-sm text-gray-300">{editableEntry.location}</p>
                       </div>
                     </div>
                   )}
@@ -890,21 +890,21 @@ export const CaptureView: React.FC = () => {
               
               {/* Deadline Status */}
               {editableEntry.dueDate && (
-                <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-xl">
+                <div className="mb-6 p-4 bg-orange-900/20 border border-orange-500/30 rounded-2xl">
                   <div className="flex items-center gap-3">
-                    <Target className="w-5 h-5 text-orange-600" />
+                    <Target className="w-5 h-5 text-orange-400" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-orange-800">Deadline Detected</p>
-                      <p className="text-sm text-orange-700">
+                      <p className="text-sm font-medium text-orange-200">Deadline Detected</p>
+                      <p className="text-sm text-orange-300">
                         This entry will be treated as a deadline and may show as "Overdue" if not completed on time.
                       </p>
                     </div>
-                    <label className="flex items-center gap-2 text-sm text-orange-700">
+                    <label className="flex items-center gap-2 text-sm text-orange-300">
                       <input
                         type="checkbox"
                         checked={editableEntry.isDeadline !== false}
                         onChange={(e) => setEditableEntry({...editableEntry, isDeadline: e.target.checked})}
-                        className="h-4 w-4 text-orange-600 rounded border-orange-300 focus:ring-orange-500"
+                        className="h-4 w-4 text-orange-400 rounded border-orange-500 focus:ring-orange-500 focus:ring-offset-gray-800"
                       />
                       Treat as deadline
                     </label>
@@ -914,24 +914,24 @@ export const CaptureView: React.FC = () => {
 
               {/* Due Date */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Due Date:</label>
+                <label className="block text-sm font-medium text-gray-200 mb-2">Due Date:</label>
                 <input
                   type="datetime-local"
                   value={editableEntry.dueDate ? editableEntry.dueDate.toISOString().slice(0, 16) : ''}
                   onChange={(e) => setEditableEntry({...editableEntry, dueDate: e.target.value ? new Date(e.target.value) : undefined})}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors"
+                  className="w-full px-4 py-3 border border-gray-600 rounded-2xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-700 text-white hover:bg-gray-600 transition-colors"
                 />
               </div>
 
               {/* Location */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Location:</label>
+                <label className="block text-sm font-medium text-gray-200 mb-2">Location:</label>
                 <input
                   type="text"
                   value={editableEntry.location || ''}
                   onChange={(e) => setEditableEntry({...editableEntry, location: e.target.value})}
                   placeholder="Enter location (optional)"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors"
+                  className="w-full px-4 py-3 border border-gray-600 rounded-2xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-gray-700 text-white hover:bg-gray-600 transition-colors"
                 />
               </div>
             </div>
@@ -940,13 +940,13 @@ export const CaptureView: React.FC = () => {
             <div className="flex gap-3 justify-end">
               <button
                 onClick={handleCancel}
-                className="px-6 py-3 bg-gray-300 text-gray-700 rounded-xl hover:bg-gray-400 transition-colors font-medium"
+                className="px-6 py-3 bg-gray-600 text-gray-200 rounded-2xl hover:bg-gray-500 transition-colors font-medium"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveEntry}
-                className="px-6 py-3 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-xl hover:from-green-600 hover:to-teal-700 transition-all duration-200 font-medium shadow-lg hover:shadow-xl"
+                className="px-6 py-3 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-2xl hover:from-green-600 hover:to-teal-700 transition-all duration-200 font-medium shadow-lg hover:shadow-xl"
               >
                 Save Entry
               </button>
@@ -1093,105 +1093,115 @@ export const CaptureView: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-gray-900 text-white">
       <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-4 shadow-lg">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full mb-4 shadow-lg">
             <Brain className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
+          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3">
             Capture Your Thoughts
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Let AI help you organize and categorize your ideas, tasks, and insights. 
-            Just type naturally and we'll figure out the rest.
+          <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+            Just speak or type naturally. AI will organize everything for you.
           </p>
         </div>
 
-        {/* Input Form */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 sm:p-8 mb-8">
-          {/* Voice Recording Section */}
-          <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl border border-purple-200">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Mic className="w-5 h-5 text-purple-600" />
-                Voice Capture
-              </h3>
-              <div className="text-sm text-gray-600">
-                {isRecording && (
-                  <span className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+        {/* Voice Capture Section - Prominent Circular Design */}
+        <div className="bg-gray-800 rounded-3xl shadow-2xl border border-gray-700 p-8 mb-8">
+          <div className="text-center">
+            <h3 className="text-xl font-semibold text-white mb-6 flex items-center justify-center gap-3">
+              <Mic className="w-6 h-6 text-pink-400" />
+              Voice Capture
+            </h3>
+            
+            {/* Recording Status */}
+            {isRecording && (
+              <div className="mb-6 p-4 bg-pink-900/20 rounded-2xl border border-pink-500/30">
+                <div className="flex items-center justify-center gap-3 text-pink-300">
+                  <div className="w-3 h-3 bg-pink-500 rounded-full animate-pulse"></div>
+                  <span className="text-lg font-medium">
                     Recording... {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}
                   </span>
-                )}
+                </div>
               </div>
-            </div>
+            )}
             
-            {/* Voice Controls */}
-            <div className="flex items-center gap-3 mb-4">
-              {!isRecording && (
+            {/* Main Microphone Button */}
+            <div className="flex justify-center mb-6">
+              {!isRecording ? (
                 <button
                   onClick={startSpeechRecognition}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                  className="group relative"
                 >
-                  <Mic className="w-4 h-4" />
-                  Start Speaking
+                  <div className="w-24 h-24 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full shadow-2xl hover:shadow-pink-500/25 transition-all duration-300 hover:scale-105 flex items-center justify-center">
+                    <Mic className="w-12 h-12 text-white" />
+                  </div>
+                  {/* Glow effect */}
+                  <div className="absolute inset-0 w-24 h-24 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
                 </button>
-              )}
-              
-              {isRecording && (
+              ) : (
                 <button
                   onClick={stopSpeechRecognition}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                  className="group relative"
                 >
-                  <MicOff className="w-4 h-4" />
-                  Stop Speaking
+                  <div className="w-24 h-24 bg-gradient-to-r from-red-500 to-pink-600 rounded-full shadow-2xl hover:shadow-red-500/25 transition-all duration-300 hover:scale-105 flex items-center justify-center animate-pulse">
+                    <MicOff className="w-12 h-12 text-white" />
+                  </div>
+                  {/* Glow effect */}
+                  <div className="absolute inset-0 w-24 h-24 bg-gradient-to-r from-red-500 to-pink-600 rounded-full blur-xl opacity-40 animate-pulse"></div>
                 </button>
               )}
             </div>
             
-
+            {/* Instructions */}
+            <p className="text-gray-300 text-lg font-medium">
+              {isRecording ? "Release to stop recording" : "Hold to speak, release to send"}
+            </p>
             
             {/* Transcript Display */}
             {transcript && (
-              <div className="mt-3 p-3 bg-white rounded-lg border border-gray-200">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm text-gray-700 font-medium">Transcript:</p>
+              <div className="mt-6 p-4 bg-gray-700 rounded-2xl border border-gray-600">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-sm font-medium text-gray-200">Transcript:</p>
                   <button
                     onClick={() => {
                       setTranscript('');
                       setInputText('');
                     }}
-                    className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800"
+                    className="px-3 py-1 text-sm text-gray-400 hover:text-white hover:bg-gray-600 rounded-lg transition-colors"
                   >
                     Clear
                   </button>
                 </div>
-                <p className="text-sm text-gray-600 italic">"{transcript}"</p>
+                <p className="text-gray-300 italic leading-relaxed">"{transcript}"</p>
               </div>
             )}
           </div>
+        </div>
 
+        {/* Text Input Section */}
+        <div className="bg-gray-800 rounded-3xl shadow-2xl border border-gray-700 p-8 mb-8">
           <div className="mb-6">
-            <label htmlFor="thought-input" className="block text-sm font-medium text-gray-700 mb-2">
-              What's on your mind? (Text or Voice)
+            <label htmlFor="thought-input" className="block text-sm font-medium text-gray-200 mb-3">
+              Or type your thoughts here:
             </label>
             <textarea
               id="thought-input"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              placeholder="Type your thought here or use voice capture above... For example: 'Need to finish project by Friday, also call John about the meeting, and I had an idea for a new app feature'"
-              className="w-full h-32 sm:h-40 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-900 placeholder-gray-500"
+              placeholder="Type naturally... For example: 'Need to finish project by Friday, also call John about the meeting, and I had an idea for a new app feature'"
+              className="w-full h-32 sm:h-40 px-4 py-3 bg-gray-700 border border-gray-600 rounded-2xl focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none text-white placeholder-gray-400 transition-colors"
               disabled={isProcessing}
             />
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex justify-center">
             <button
               onClick={handleSubmit}
               disabled={!inputText.trim() || isProcessing}
-              className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              className="bg-gradient-to-r from-pink-600 to-purple-600 text-white px-8 py-3 rounded-2xl font-medium hover:from-pink-700 hover:to-purple-700 focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             >
               {isProcessing ? (
                 <div className="flex items-center justify-center gap-2">
@@ -1206,21 +1216,21 @@ export const CaptureView: React.FC = () => {
               )}
             </button>
           </div>
+        </div>
 
-          {/* Tips */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-            <div className="flex items-start gap-3">
-              <Lightbulb className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-blue-800">
-                <p className="font-medium mb-1">💡 Pro Tips:</p>
-                <ul className="space-y-1 text-blue-700">
-                  <li>• Use hashtags like <code className="bg-blue-200 px-1 rounded">#idea</code>, <code className="bg-blue-200 px-1 rounded">#task</code>, <code className="bg-blue-200 px-1 rounded">#insight</code></li>
-                  <li>• Include dates like "tomorrow", "next week", "Friday"</li>
-                  <li>• Add urgency words like "urgent", "ASAP", "important"</li>
-                  <li>• Mention locations with "at", "in", or "@"</li>
-                  <li>• You can also use voice capture to input your thoughts. Just click the microphone icon and speak your thought.</li>
-                </ul>
-              </div>
+        {/* Tips Section */}
+        <div className="bg-gray-800 rounded-3xl border border-gray-700 p-6">
+          <div className="flex items-start gap-3">
+            <Lightbulb className="w-6 h-6 text-pink-400 mt-1 flex-shrink-0" />
+            <div className="text-gray-300">
+              <p className="font-medium mb-2 text-white">💡 Pro Tips:</p>
+              <ul className="space-y-2 text-sm">
+                <li>• Use hashtags like <code className="bg-gray-700 px-2 py-1 rounded text-pink-300">#idea</code>, <code className="bg-gray-700 px-2 py-1 rounded text-pink-300">#task</code>, <code className="bg-gray-700 px-2 py-1 rounded text-pink-300">#insight</code></li>
+                <li>• Include dates like "tomorrow", "next week", "Friday"</li>
+                <li>• Add urgency words like "urgent", "ASAP", "important"</li>
+                <li>• Mention locations with "at", "in", or "@"</li>
+                <li>• Voice capture works best in quiet environments</li>
+              </ul>
             </div>
           </div>
         </div>
