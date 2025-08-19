@@ -250,37 +250,54 @@ export const HomeView: React.FC = () => {
   // Smart filtering and organization
   const filteredEntries = useMemo(() => {
     let filtered = [...entries];
+    
+    console.log('=== FILTERING DEBUG ===');
+    console.log('Initial entries count:', filtered.length);
+    console.log('Search query:', searchQuery);
+    console.log('Selected tags:', selectedTags);
+    console.log('Active filters:', activeFilters);
 
     // Apply search filter
-    if (searchQuery) {
+    if (searchQuery && searchQuery.trim()) {
+      const beforeSearch = filtered.length;
       filtered = filtered.filter(entry =>
         entry.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
         entry.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
       );
+      console.log('After search filter:', beforeSearch, '->', filtered.length);
     }
 
     // Apply tag filter
     if (selectedTags.length > 0) {
+      const beforeTagFilter = filtered.length;
       filtered = filtered.filter(entry =>
         selectedTags.some(tag => entry.tags.includes(tag))
       );
+      console.log('After tag filter:', beforeTagFilter, '->', filtered.length);
     }
 
-    // Apply type filter
-    if (activeFilters.type !== 'all') {
+    // Apply type filter - only if not 'all'
+    if (activeFilters.type && activeFilters.type !== 'all') {
+      const beforeTypeFilter = filtered.length;
       filtered = filtered.filter(entry => entry.type === activeFilters.type);
+      console.log('After type filter:', beforeTypeFilter, '->', filtered.length);
     }
 
-    // Apply priority filter
-    if (activeFilters.priority !== 'all') {
+    // Apply priority filter - only if not 'all'
+    if (activeFilters.priority && activeFilters.priority !== 'all') {
+      const beforePriorityFilter = filtered.length;
       filtered = filtered.filter(entry => entry.priority === activeFilters.priority);
+      console.log('After priority filter:', beforePriorityFilter, '->', filtered.length);
     }
 
-    // Apply status filter
-    if (activeFilters.status !== 'all') {
+    // Apply status filter - only if not 'all'
+    if (activeFilters.status && activeFilters.status !== 'all') {
+      const beforeStatusFilter = filtered.length;
       filtered = filtered.filter(entry => entry.status === activeFilters.status);
+      console.log('After status filter:', beforeStatusFilter, '->', filtered.length);
     }
 
+    console.log('Final filtered count:', filtered.length);
     return filtered;
   }, [entries, searchQuery, selectedTags, activeFilters]);
 
@@ -331,22 +348,36 @@ export const HomeView: React.FC = () => {
       }),
       later: filteredEntries.filter(entry => {
         if (entry.status === 'completed') return false;
-        // Include entries due later
-        if (entry.dueDate && entry.isDeadline) {
-          return entry.dueDate > endOfWeek;
-        }
-        // Include entries pinned for later
-        if (entry.pinnedForDate) {
-          return entry.pinnedForDate > endOfWeek;
-        }
-        // Include entries created earlier this week (not today)
-        if (entry.createdAt) {
-          const createdDate = new Date(entry.createdAt);
-          const startOfWeek = new Date(today);
-          startOfWeek.setDate(today.getDate() - 7);
-          return createdDate < startOfWeek;
-        }
-        return false;
+        
+        // If entry is already categorized in other sections, don't include it here
+        const isInUrgent = entry.priority === 'urgent';
+        const isInToday = (() => {
+          if (entry.pinnedForDate) {
+            return entry.pinnedForDate.toDateString() === today.toDateString();
+          }
+          if (entry.dueDate && entry.isDeadline) {
+            return entry.dueDate.toDateString() === today.toDateString();
+          }
+          if (entry.createdAt) {
+            return entry.createdAt.toDateString() === today.toDateString();
+          }
+          return false;
+        })();
+        const isInThisWeek = (() => {
+          if (entry.dueDate && entry.isDeadline) {
+            return entry.dueDate >= today && entry.dueDate <= endOfWeek;
+          }
+          if (entry.pinnedForDate) {
+            return entry.pinnedForDate >= today && entry.pinnedForDate <= endOfWeek;
+          }
+          if (entry.createdAt) {
+            return entry.createdAt >= today && entry.createdAt <= endOfWeek;
+          }
+          return false;
+        })();
+        
+        // Include if not in any other section
+        return !isInUrgent && !isInToday && !isInThisWeek;
       }),
       done: filteredEntries.filter(entry => entry.status === 'completed')
     };
