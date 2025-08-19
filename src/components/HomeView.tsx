@@ -42,7 +42,7 @@ export const HomeView: React.FC = () => {
     today: true,
     thisWeek: true,
     insights: true,
-    later: false,
+    later: true,  // Changed to true so users can see entries
     done: false
   });
 
@@ -292,33 +292,54 @@ export const HomeView: React.FC = () => {
       ),
       today: filteredEntries.filter(entry => {
         if (entry.status === 'completed') return false;
+        // Include entries pinned for today
         if (entry.pinnedForDate) {
           return entry.pinnedForDate.toDateString() === today.toDateString();
         }
+        // Include entries due today
         if (entry.dueDate && entry.isDeadline) {
           return entry.dueDate.toDateString() === today.toDateString();
+        }
+        // Include entries created today (new entries should appear here)
+        if (entry.createdAt) {
+          return entry.createdAt.toDateString() === today.toDateString();
         }
         return false;
       }),
       thisWeek: filteredEntries.filter(entry => {
         if (entry.status === 'completed') return false;
+        // Include entries due this week
         if (entry.dueDate && entry.isDeadline) {
           return entry.dueDate >= today && entry.dueDate <= endOfWeek;
         }
+        // Include entries pinned for this week
         if (entry.pinnedForDate) {
           return entry.pinnedForDate >= today && entry.pinnedForDate <= endOfWeek;
+        }
+        // Include entries created this week
+        if (entry.createdAt) {
+          return entry.createdAt >= today && entry.createdAt <= endOfWeek;
         }
         return false;
       }),
       later: filteredEntries.filter(entry => {
         if (entry.status === 'completed') return false;
+        // Include entries due later
         if (entry.dueDate && entry.isDeadline) {
           return entry.dueDate > endOfWeek;
         }
+        // Include entries pinned for later
         if (entry.pinnedForDate) {
           return entry.pinnedForDate > endOfWeek;
         }
-        return !entry.pinnedForDate && !entry.dueDate;
+        // Include entries created earlier this week (not today)
+        if (entry.createdAt) {
+          const createdDate = new Date(entry.createdAt);
+          const startOfWeek = new Date(today);
+          startOfWeek.setDate(today.getDate() - 7);
+          return createdDate < startOfWeek;
+        }
+        return false;
       }),
       done: filteredEntries.filter(entry => entry.status === 'completed')
     };
@@ -328,8 +349,25 @@ export const HomeView: React.FC = () => {
       !categorized.today.some(todayEntry => todayEntry.id === entry.id)
     );
 
+    // Filter out thisWeek entries from later to avoid duplication
+    categorized.later = categorized.later.filter(entry => 
+      !categorized.today.some(todayEntry => todayEntry.id === entry.id) &&
+      !categorized.thisWeek.some(weekEntry => weekEntry.id === entry.id)
+    );
+
     return categorized;
   }, [filteredEntries]);
+
+  // Debug logging for troubleshooting
+  useEffect(() => {
+    console.log('=== HomeView Debug ===');
+    console.log('Total entries:', entries.length);
+    console.log('Filtered entries:', filteredEntries.length);
+    console.log('Categorized entries:', categorizedEntries);
+    console.log('Search query:', searchQuery);
+    console.log('Active filters:', activeFilters);
+    console.log('Selected tags:', selectedTags);
+  }, [entries, filteredEntries, categorizedEntries, searchQuery, activeFilters, selectedTags]);
 
   // Get all unique tags
   const allTags = useMemo(() => {
@@ -595,6 +633,44 @@ export const HomeView: React.FC = () => {
 
         {/* Smart Sections */}
         <div className="space-y-8">
+          {/* Recent Entries Section - Always show new entries */}
+          {filteredEntries.length > 0 && (
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <Plus className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">Recent Entries</h3>
+                    <p className="text-sm text-gray-500">{filteredEntries.length} total entries</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-6">
+                <div className="space-y-3">
+                  {sortEntries(filteredEntries).slice(0, 10).map((entry) => (
+                    <EntryCard
+                      key={entry.id}
+                      entry={entry}
+                      onTogglePin={() => togglePin(entry)}
+                      onToggleComplete={() => toggleComplete(entry)}
+                      onMove={(target) => moveEntry(entry, target)}
+                      onDelete={() => deleteEntry(entry.id)}
+                      showActions={true}
+                    />
+                  ))}
+                  {filteredEntries.length > 10 && (
+                    <div className="text-center py-4 text-gray-500">
+                      <p className="text-sm">Showing 10 of {filteredEntries.length} entries</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Urgent Section */}
           {categorizedEntries.urgent.length > 0 && (
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
