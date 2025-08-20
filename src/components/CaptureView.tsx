@@ -531,7 +531,7 @@ export const CaptureView: React.FC = () => {
     let finalPinnedDate = chronoResults.pinnedForDate || directives.pinnedForDate;
     let finalTargetWeek = directives.targetWeek;
     let enhancedPriority = directives.priority || 'medium';
-    let finalType = directives.type || 'note';
+    let finalType = directives.type;
     
     // If no specific date is set but content suggests urgency, pin to today
     if (!finalPinnedDate && !finalDueDate && enhancedPriority === 'urgent') {
@@ -539,7 +539,7 @@ export const CaptureView: React.FC = () => {
     }
     
     // Enhanced type detection if no directive specified
-    if (!finalType) {
+    if (!finalType || finalType === 'note') {
       const lowerText = text.toLowerCase();
       
       // TASK DETECTION - Look for actionable language
@@ -588,13 +588,18 @@ export const CaptureView: React.FC = () => {
     
     // Enhanced urgency detection - check for time-sensitive words in content
     const lowerText = text.toLowerCase();
-    if (lowerText.includes('today') || lowerText.includes('now') || 
-        lowerText.includes('asap') || lowerText.includes('urgent') ||
-        lowerText.includes('immediate') || lowerText.includes('deadline')) {
+    if (lowerText.includes('asap') || lowerText.includes('urgent') ||
+        lowerText.includes('immediate') || lowerText.includes('deadline') ||
+        lowerText.includes('critical') || lowerText.includes('emergency')) {
       enhancedPriority = 'urgent';
-    } else if (lowerText.includes('tomorrow') || lowerText.includes('soon') ||
-               lowerText.includes('quick') || lowerText.includes('fast')) {
+    } else if (lowerText.includes('today') || lowerText.includes('now') ||
+               lowerText.includes('tomorrow') || lowerText.includes('soon') ||
+               lowerText.includes('quick') || lowerText.includes('fast') ||
+               lowerText.includes('important') || lowerText.includes('priority')) {
       enhancedPriority = 'high';
+    } else if (lowerText.includes('next week') || lowerText.includes('later') ||
+               lowerText.includes('when possible') || lowerText.includes('low priority')) {
+      enhancedPriority = 'low';
     }
     
     // If "today" is mentioned, automatically pin to today
