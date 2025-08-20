@@ -14,7 +14,6 @@ import {
   Plus,
   Edit3,
   Trash2,
-  MoreHorizontal,
   Brain,
   Heart,
   MessageCircle,
@@ -888,7 +887,6 @@ const EntryCard: React.FC<EntryCardProps> = ({
   showActions
 }) => {
   const [showMoveMenu, setShowMoveMenu] = useState(false);
-  const [showMoreMenu, setShowMoreMenu] = useState(false);
 
   const getPriorityColor = (priority: Priority) => {
     switch (priority) {
@@ -1049,43 +1047,25 @@ const EntryCard: React.FC<EntryCardProps> = ({
                   )}
                 </div>
                 
-                {/* More Menu */}
-                <div className="relative">
-                  <button
-                    onClick={() => setShowMoreMenu(!showMoreMenu)}
-                    className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-md transition-colors"
-                    title="More options"
-                  >
-                    <MoreHorizontal className="w-4 h-4" />
-                  </button>
-                  
-                  {showMoreMenu && (
-                    <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                      <div className="py-1">
-                        <button
-                          onClick={() => {
-                            // TODO: Implement edit functionality
-                            setShowMoreMenu(false);
-                          }}
-                          className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => {
-                            onDelete();
-                            setShowMoreMenu(false);
-                          }}
-                          className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                {/* Edit Button */}
+                <button
+                  onClick={() => {
+                    // TODO: Implement edit functionality
+                  }}
+                  className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-md transition-colors"
+                  title="Edit"
+                >
+                  <Edit3 className="w-4 h-4" />
+                </button>
+                
+                {/* Delete Button */}
+                <button
+                  onClick={onDelete}
+                  className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                  title="Delete"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
             )}
           </div>
