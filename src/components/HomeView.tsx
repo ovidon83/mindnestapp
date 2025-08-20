@@ -293,6 +293,8 @@ export const HomeView: React.FC = () => {
       ),
       today: filteredEntries.filter(entry => {
         if (entry.status === 'completed') return false;
+        // Don't include journal entries in today's focus
+        if (entry.type === 'journal') return false;
         // Include entries pinned for today
         if (entry.pinnedForDate) {
           return entry.pinnedForDate.toDateString() === today.toDateString();

@@ -348,32 +348,32 @@ export const CaptureView: React.FC = () => {
     // Try multiple splitting strategies for better detection
     let segments: string[] = [];
     
-    // Strategy 1: Split by transition words first (this catches "Also" and similar)
-    const transitionPatterns = [
-      /\s+(?:and|also|plus|additionally|furthermore|moreover|besides|in addition|as well as)\s+/i,
-      /[.!?]\s+(?=[A-Z])/g,  // Sentence endings followed by capital
-      /\n\s*\n/,              // Double line breaks
-      /;\s+/,                 // Semicolons
-    ];
-    
-    for (const pattern of transitionPatterns) {
-      const newSegments = text.split(pattern);
-      if (newSegments.length > 1) {
-        segments = newSegments.filter(segment => segment.trim().length > 0);
-        break;
+    // Strategy 1: Try comma splitting first (most reliable for simple lists)
+    const commaSegments = text.split(/,\s+/);
+    if (commaSegments.length > 1) {
+      const validSegments = commaSegments.filter(segment => {
+        const trimmed = segment.trim();
+        return trimmed.length > 0;
+      });
+      if (validSegments.length > 0) {
+        segments = validSegments;
       }
     }
     
-    // Strategy 2: If no transitions found, try comma splitting
+    // Strategy 2: If comma splitting didn't work, try transition words
     if (segments.length <= 1) {
-      const commaSegments = text.split(/,\s+/);
-      if (commaSegments.length > 1) {
-        const validSegments = commaSegments.filter(segment => {
-          const trimmed = segment.trim();
-          return trimmed.length > 0;
-        });
-        if (validSegments.length > 0) {
-          segments = validSegments;
+      const transitionPatterns = [
+        /\s+(?:and|also|plus|additionally|furthermore|moreover|besides|in addition|as well as)\s+/i,
+        /[.!?]\s+(?=[A-Z])/g,  // Sentence endings followed by capital
+        /\n\s*\n/,              // Double line breaks
+        /;\s+/,                 // Semicolons
+      ];
+      
+      for (const pattern of transitionPatterns) {
+        const newSegments = text.split(pattern);
+        if (newSegments.length > 1) {
+          segments = newSegments.filter(segment => segment.trim().length > 0);
+          break;
         }
       }
     }
@@ -578,7 +578,11 @@ export const CaptureView: React.FC = () => {
       else if (lowerText.includes('remind') || lowerText.includes('don\'t forget') ||
                lowerText.includes('remember to') || 
                (lowerText.includes('call') && (lowerText.includes('tomorrow') || lowerText.includes('today') || lowerText.includes('next week'))) ||
-               (lowerText.includes('email') && (lowerText.includes('tomorrow') || lowerText.includes('today') || lowerText.includes('next week')))) {
+               (lowerText.includes('email') && (lowerText.includes('tomorrow') || lowerText.includes('today') || lowerText.includes('next week'))) ||
+               (lowerText.includes('tomorrow') && (lowerText.includes('call') || lowerText.includes('email') || lowerText.includes('meet'))) ||
+               (lowerText.includes('call') && lowerText.includes('mom')) || // Specific case for "call mom tomorrow"
+               (lowerText.includes('call') && lowerText.includes('dad')) ||
+               (lowerText.includes('call') && lowerText.includes('john'))) {
         finalType = 'reminder';
       }
       // IDEA DETECTION - Look for concept/innovation language
@@ -591,7 +595,9 @@ export const CaptureView: React.FC = () => {
                lowerText.includes('should add') || lowerText.includes('dark mode') || 
                lowerText.includes('feature') || lowerText.includes('mode') ||
                lowerText.includes('new') || lowerText.includes('add') ||
-               lowerText.includes('improve') || lowerText.includes('enhance')) {
+               lowerText.includes('improve') || lowerText.includes('enhance') ||
+               lowerText.includes('we should') || lowerText.includes('think we should') ||
+               lowerText.includes('would be nice') || lowerText.includes('could add')) {
         finalType = 'idea';
       }
       // JOURNAL DETECTION - Look for emotional/reflective language
