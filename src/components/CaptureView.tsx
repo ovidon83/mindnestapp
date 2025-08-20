@@ -5,8 +5,7 @@ import {
   Mic,
   MicOff,
   Lightbulb,
-  Target,
-  TrendingUp
+  Target
 } from 'lucide-react';
 import { useAllyMindStore } from '../store';
 import { Entry, EntryType, Priority, TaskStatus } from '../types';
