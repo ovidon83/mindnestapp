@@ -22,8 +22,8 @@ import {
   Tag,
   ArrowUp
 } from 'lucide-react';
-import { useGenieNotesStore } from '../store';
-import { Entry, EntryType, Priority, TaskStatus } from '../types';
+import { useAllyMindStore } from '../store';
+import { Entry, EntryType, Priority } from '../types';
 
 export const HomeView: React.FC = () => {
   const { 
@@ -34,14 +34,9 @@ export const HomeView: React.FC = () => {
     appState,
     setSearchQuery,
     setActiveFilters
-  } = useGenieNotesStore();
+  } = useAllyMindStore();
 
-  // Immediate debugging - let's see what's actually in the store
-  console.log('=== IMMEDIATE DEBUG ===');
-  console.log('Store entries:', entries);
-  console.log('Store entries length:', entries.length);
-  console.log('App state:', appState);
-  console.log('Current view:', appState.currentView);
+
 
   // Smart Home View State
   const [expandedSections, setExpandedSections] = useState({
@@ -250,54 +245,37 @@ export const HomeView: React.FC = () => {
   // Smart filtering and organization
   const filteredEntries = useMemo(() => {
     let filtered = [...entries];
-    
-    console.log('=== FILTERING DEBUG ===');
-    console.log('Initial entries count:', filtered.length);
-    console.log('Search query:', searchQuery);
-    console.log('Selected tags:', selectedTags);
-    console.log('Active filters:', activeFilters);
 
     // Apply search filter
     if (searchQuery && searchQuery.trim()) {
-      const beforeSearch = filtered.length;
       filtered = filtered.filter(entry =>
         entry.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
         entry.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
       );
-      console.log('After search filter:', beforeSearch, '->', filtered.length);
     }
 
     // Apply tag filter
     if (selectedTags.length > 0) {
-      const beforeTagFilter = filtered.length;
       filtered = filtered.filter(entry =>
         selectedTags.some(tag => entry.tags.includes(tag))
       );
-      console.log('After tag filter:', beforeTagFilter, '->', filtered.length);
     }
 
     // Apply type filter - only if not 'all'
     if (activeFilters.type && activeFilters.type !== 'all') {
-      const beforeTypeFilter = filtered.length;
       filtered = filtered.filter(entry => entry.type === activeFilters.type);
-      console.log('After type filter:', beforeTypeFilter, '->', filtered.length);
     }
 
     // Apply priority filter - only if not 'all'
     if (activeFilters.priority && activeFilters.priority !== 'all') {
-      const beforePriorityFilter = filtered.length;
       filtered = filtered.filter(entry => entry.priority === activeFilters.priority);
-      console.log('After priority filter:', beforePriorityFilter, '->', filtered.length);
     }
 
     // Apply status filter - only if not 'all'
     if (activeFilters.status && activeFilters.status !== 'all') {
-      const beforeStatusFilter = filtered.length;
       filtered = filtered.filter(entry => entry.status === activeFilters.status);
-      console.log('After status filter:', beforeStatusFilter, '->', filtered.length);
     }
 
-    console.log('Final filtered count:', filtered.length);
     return filtered;
   }, [entries, searchQuery, selectedTags, activeFilters]);
 
@@ -396,16 +374,7 @@ export const HomeView: React.FC = () => {
     return categorized;
   }, [filteredEntries]);
 
-  // Debug logging for troubleshooting
-  useEffect(() => {
-    console.log('=== HomeView Debug ===');
-    console.log('Total entries:', entries.length);
-    console.log('Filtered entries:', filteredEntries.length);
-    console.log('Categorized entries:', categorizedEntries);
-    console.log('Search query:', searchQuery);
-    console.log('Active filters:', activeFilters);
-    console.log('Selected tags:', selectedTags);
-  }, [entries, filteredEntries, categorizedEntries, searchQuery, activeFilters, selectedTags]);
+
 
   // Get all unique tags
   const allTags = useMemo(() => {
@@ -500,7 +469,7 @@ export const HomeView: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-gray-900">GenieNotes</h1>
+              <h1 className="text-2xl font-bold text-gray-900">AllyMind</h1>
               <button
                 onClick={refreshData}
                 className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
@@ -671,59 +640,7 @@ export const HomeView: React.FC = () => {
 
         {/* Smart Sections */}
         <div className="space-y-8">
-          {/* ALL ENTRIES DEBUG SECTION - TEMPORARY */}
-          <div className="bg-red-50 border border-red-200 rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-red-800 mb-4">🔍 DEBUG: All Entries (Temporary)</h3>
-            <p className="text-red-700 mb-4">Total entries in store: {entries.length}</p>
-            <p className="text-red-700 mb-4">Filtered entries: {filteredEntries.length}</p>
-            <p className="text-red-700 mb-4">Search query: "{searchQuery}"</p>
-            <p className="text-red-700 mb-4">Active filters: {JSON.stringify(activeFilters)}</p>
-            <p className="text-red-700 mb-4">Selected tags: {JSON.stringify(selectedTags)}</p>
-            
-            {/* Test button to add entry */}
-            <button
-              onClick={() => {
-                const testEntry = {
-                  content: `Test entry ${Date.now()}`,
-                  rawContent: `Test entry ${Date.now()}`,
-                  type: 'note' as EntryType,
-                  priority: 'medium' as Priority,
-                  tags: ['test'],
-                  status: 'pending' as TaskStatus,
-                  needsReview: false,
-                  confidence: 0.95,
-                  reasoning: 'Test entry for debugging',
-                  relatedIds: []
-                };
-                console.log('Adding test entry:', testEntry);
-                // We need to access the store function directly
-                const { addEntry } = useGenieNotesStore.getState();
-                addEntry(testEntry);
-              }}
-              className="bg-red-600 text-white px-4 py-2 rounded-lg mb-4 hover:bg-red-700"
-            >
-              Add Test Entry
-            </button>
-            
-            {entries.length > 0 ? (
-              <div className="space-y-2">
-                <p className="text-red-700 font-medium">Raw entries from store:</p>
-                {entries.slice(0, 5).map((entry, index) => (
-                  <div key={entry.id} className="bg-white p-3 rounded border text-sm">
-                    <p><strong>Entry {index + 1}:</strong> {entry.content}</p>
-                    <p><strong>Type:</strong> {entry.type} | <strong>Priority:</strong> {entry.priority} | <strong>Status:</strong> {entry.status}</p>
-                    <p><strong>Created:</strong> {entry.createdAt?.toLocaleString()}</p>
-                    <p><strong>Tags:</strong> {entry.tags.join(', ')}</p>
-                  </div>
-                ))}
-                {entries.length > 5 && (
-                  <p className="text-red-600 text-sm">... and {entries.length - 5} more entries</p>
-                )}
-              </div>
-            ) : (
-              <p className="text-red-600">No entries found in store!</p>
-            )}
-          </div>
+          
 
           {/* Recent Entries Section - Always show new entries */}
           {filteredEntries.length > 0 && (

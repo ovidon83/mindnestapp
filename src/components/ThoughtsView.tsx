@@ -15,7 +15,7 @@ import {
   CheckCircle2,
   Lightbulb
 } from 'lucide-react';
-import { useGenieNotesStore } from '../store';
+import { useAllyMindStore } from '../store';
 import { Entry, EntryType, Priority, TaskStatus, ReviewReason } from '../types';
 
 export const ThoughtsView: React.FC = () => {
@@ -32,19 +32,13 @@ export const ThoughtsView: React.FC = () => {
     markReviewed,
     setEditingEntry,
     getTopTags
-  } = useGenieNotesStore();
+  } = useAllyMindStore();
 
+  // Get all entries and filter them
   const allEntries = getFilteredEntries();
   const reviewEntries = getEntriesNeedingReview();
   const urgentEntries = getUrgentEntries();
   const topTags = getTopTags(allEntries);
-
-  // Debug logging
-  console.log('=== ThoughtsView Debug ===');
-  console.log('All entries:', allEntries);
-  console.log('Review entries:', reviewEntries);
-  console.log('Urgent entries:', urgentEntries);
-  console.log('Top tags:', topTags);
 
   const getTypeIcon = (type: EntryType) => {
     switch (type) {

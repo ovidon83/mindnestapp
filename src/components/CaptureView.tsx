@@ -8,7 +8,7 @@ import {
   Target,
   TrendingUp
 } from 'lucide-react';
-import { useGenieNotesStore } from '../store';
+import { useAllyMindStore } from '../store';
 import { Entry, EntryType, Priority, TaskStatus } from '../types';
 import * as chrono from 'chrono-node';
 
@@ -24,7 +24,7 @@ export const CaptureView: React.FC = () => {
   // Refs for voice recording
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
   
-  const { addEntry, setCurrentView } = useGenieNotesStore();
+  const { addEntry, setCurrentView } = useAllyMindStore();
 
   // Cleanup effects for voice recording
   useEffect(() => {
@@ -440,27 +440,24 @@ export const CaptureView: React.FC = () => {
 
   // Extract user hashtags, excluding directive hashtags to avoid duplication
   const extractUserTags = (text: string) => {
+    // Extract hashtags from the text
+    const hashtagPattern = /#\w+/g;
+    const hashtags = text.match(hashtagPattern)?.map(tag => tag.slice(1)) || [];
+    
+    // Filter out directive tags, keep only user-defined tags
     const directiveTags = [
       'today', 'tomorrow', 'thisweek', 'week', 'nextweek',
       'urgent', 'high', 'medium', 'low',
       'journal', 'task', 'idea', 'insight', 'reflection', 'event', 'reminder', 'note'
     ];
     
-    const hashtags = text.match(/#\w+/g)?.map(tag => tag.slice(1)) || [];
-    console.log('All hashtags found:', hashtags);
-    
-    // Filter out directive tags (case-insensitive)
     const userTags = hashtags.filter(tag => {
       const isDirective = directiveTags.some(directive => 
         directive.toLowerCase() === tag.toLowerCase()
       );
-      if (isDirective) {
-        console.log(`Filtering out directive tag: ${tag}`);
-      }
       return !isDirective;
     });
     
-    console.log('Final user tags (after filtering directives):', userTags);
     return userTags;
   };
 
@@ -496,13 +493,11 @@ export const CaptureView: React.FC = () => {
     
     // If the parsed date is in the past (like 2001), assume it's meant for current year
     if (startDate.getFullYear() < currentYear) {
-      console.log(`Date ${startDate.toDateString()} is in the past, adjusting to current year ${currentYear}`);
       startDate = new Date(currentYear, startDate.getMonth(), startDate.getDate());
     }
     
     // Validate: Don't set dates in the past
     if (startDate < now) {
-      console.log(`Adjusted date ${startDate.toDateString()} is still in the past, skipping date parsing`);
       return {};
     }
     
@@ -515,61 +510,34 @@ export const CaptureView: React.FC = () => {
     return { pinnedForDate: startDate };
   };
 
-  // Set default times for date expressions
-  const setDefaultTimes = (directives: any, chronoResults: any) => {
-    const defaults: any = {};
-    
-    // If we have a pinned date but no specific time, set default 9 AM
-    if (directives.pinnedForDate && !chronoResults.dueDate) {
-      const defaultTime = new Date(directives.pinnedForDate);
-      defaultTime.setHours(9, 0, 0, 0);
-      defaults.dueDate = defaultTime;
-    }
-    
-    // If we have "next week" directive, set to Monday 9 AM
-    if (directives.targetWeek === 'nextWeek' && !chronoResults.dueDate) {
-      const nextMonday = new Date();
-      nextMonday.setDate(nextMonday.getDate() + (8 - nextMonday.getDay()) % 7);
-      nextMonday.setHours(9, 0, 0, 0);
-      defaults.dueDate = nextMonday;
-    }
-    
-    return defaults;
-  };
-
   const parseInput = (text: string) => {
-    console.log('=== Enhanced AI Parsing Debug ===');
-    console.log('Original input:', text);
     
     // Store original text
     const rawContent = text;
     
     // Parse directives first
     const directives = parseDirectives(text);
-    console.log('Directives parsed:', directives);
     
     // Parse natural language dates with chrono
     const chronoResults = parseNaturalLanguageDates(text);
-    console.log('Chrono results:', chronoResults);
-    
-    // Set default times where appropriate
-    const defaultTimes = setDefaultTimes(directives, chronoResults);
-    console.log('Default times set:', defaultTimes);
     
     // Extract user tags from original text (excluding directive tags)
     const userTags = extractUserTags(text);
-    console.log('User tags extracted (excluding directives):', userTags);
     
     // Clean content for display (remove ALL hashtags)
     const cleanDisplayContent = cleanContent(text);
-    console.log('Cleaned content (all hashtags removed):', cleanDisplayContent);
     
     // Determine final values (chrono results override directives)
-    const finalDueDate = chronoResults.dueDate || directives.dueDate || defaultTimes.dueDate;
-    let finalPinnedDate = directives.pinnedForDate || chronoResults.pinnedForDate;
-    const finalPriority = directives.priority || 'medium';
-    let finalType = directives.type;
-    const finalTargetWeek = directives.targetWeek;
+    let finalDueDate = chronoResults.dueDate || directives.dueDate;
+    let finalPinnedDate = chronoResults.pinnedForDate || directives.pinnedForDate;
+    let finalTargetWeek = directives.targetWeek;
+    let enhancedPriority = directives.priority || 'medium';
+    let finalType = directives.type || 'note';
+    
+    // If no specific date is set but content suggests urgency, pin to today
+    if (!finalPinnedDate && !finalDueDate && enhancedPriority === 'urgent') {
+      finalPinnedDate = new Date();
+    }
     
     // Enhanced type detection if no directive specified
     if (!finalType) {
@@ -620,7 +588,6 @@ export const CaptureView: React.FC = () => {
     }
     
     // Enhanced urgency detection - check for time-sensitive words in content
-    let enhancedPriority = finalPriority;
     const lowerText = text.toLowerCase();
     if (lowerText.includes('today') || lowerText.includes('now') || 
         lowerText.includes('asap') || lowerText.includes('urgent') ||
@@ -631,25 +598,10 @@ export const CaptureView: React.FC = () => {
       enhancedPriority = 'high';
     }
     
-    // Determine if entry should be pinned to today
-    const shouldPinToToday = finalPinnedDate || 
-      (finalDueDate && finalDueDate.toDateString() === new Date().toDateString()) ||
-      finalTargetWeek === 'currentWeek' ||
-      lowerText.includes('today'); // Auto-pin if "today" mentioned
-    
     // If "today" is mentioned, automatically pin to today
     if (lowerText.includes('today') && !finalPinnedDate) {
       finalPinnedDate = new Date();
     }
-    
-    console.log('Final parsed values:', {
-      dueDate: finalDueDate,
-      pinnedForDate: finalPinnedDate,
-      targetWeek: finalTargetWeek,
-      priority: enhancedPriority,
-      type: finalType,
-      shouldPinToToday
-    });
     
     return {
       content: cleanDisplayContent,
@@ -731,29 +683,34 @@ export const CaptureView: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full mb-6 shadow-2xl">
-            <Brain className="w-10 h-10 text-white" />
+      <div className="max-w-4xl mx-auto px-6 py-12">
+        {/* Hero Section */}
+        <div className="text-center mb-16">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl">
+              <Brain className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              AllyMind
+            </h1>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-            GenieNotes
-          </h1>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Transform your thoughts into organized, actionable intelligence. 
-            One place for everything that matters.
+          <h2 className="text-2xl font-semibold text-gray-200 mb-4">
+            Your AI-Powered Thought Companion
+          </h2>
+          <p className="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
+            Transform scattered thoughts into organized insights. AllyMind intelligently captures, 
+            categorizes, and organizes your ideas, tasks, and reflections with AI-powered understanding.
           </p>
         </div>
 
-        {/* Core Input Section */}
-        <div className="bg-gray-800 rounded-3xl shadow-2xl border border-gray-700 p-8 mb-12">
+        {/* Input Section */}
+        <div className="bg-gray-800 rounded-3xl border border-gray-700 p-8 mb-12 shadow-2xl">
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-semibold text-white mb-3">
-              What's on your mind?
-            </h2>
-            <p className="text-gray-300">
-              Speak or type naturally. AI will organize and enhance everything.
+            <h3 className="text-2xl font-semibold text-white mb-3">
+              Capture Your Thoughts
+            </h3>
+            <p className="text-gray-400">
+              Type naturally or speak your mind. AllyMind will understand and organize everything for you.
             </p>
           </div>
 
@@ -810,7 +767,7 @@ export const CaptureView: React.FC = () => {
               ) : (
                 <div className="flex items-center justify-center gap-3">
                   <Sparkles className="w-5 h-5" />
-                  <span>Process</span>
+                  <span>Capture & Organize</span>
                 </div>
               )}
             </button>
@@ -852,16 +809,16 @@ export const CaptureView: React.FC = () => {
         {/* Core Features Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
           {/* Thought Capture */}
-          <div className="bg-gray-800 rounded-3xl border border-gray-700 p-6 hover:border-pink-500/50 transition-colors">
+          <div className="bg-gray-800 rounded-3xl border border-gray-700 p-6 hover:border-blue-500/50 transition-colors">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center">
                 <Brain className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-white">Thought Capture</h3>
+              <h3 className="text-xl font-semibold text-white">Intelligent Capture</h3>
             </div>
             <p className="text-gray-300 leading-relaxed">
-              Automatically split your thoughts into actionable tasks, ideas, and reflections. 
-              No more manual categorization.
+              Automatically detect and separate multiple thoughts from a single input. 
+              No more manual categorization or organization needed.
             </p>
           </div>
 
@@ -871,11 +828,11 @@ export const CaptureView: React.FC = () => {
               <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-white">Smart Assistant</h3>
+              <h3 className="text-xl font-semibold text-white">Smart Understanding</h3>
             </div>
             <p className="text-gray-300 leading-relaxed">
-              AI adds due dates, urgency levels, and smart nudges. 
-              "Hey, you said you'd email John today!"
+              AI automatically detects deadlines, urgency levels, and context. 
+              "Meeting with John tomorrow at 3pm" becomes a scheduled task.
             </p>
           </div>
 
@@ -885,11 +842,11 @@ export const CaptureView: React.FC = () => {
               <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl flex items-center justify-center">
                 <TrendingUp className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-white">Insight Engine</h3>
+              <h3 className="text-xl font-semibold text-white">Pattern Recognition</h3>
             </div>
             <p className="text-gray-300 leading-relaxed">
-              Discover patterns in your thoughts and behaviors. 
-              "You've mentioned stress 3x this week; want to reflect?"
+              Discover insights about your thinking patterns and behaviors. 
+              "You've mentioned stress 3x this week; time for reflection?"
             </p>
           </div>
 
@@ -899,11 +856,11 @@ export const CaptureView: React.FC = () => {
               <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-pink-600 rounded-2xl flex items-center justify-center">
                 <Target className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-white">Unified Flow</h3>
+              <h3 className="text-xl font-semibold text-white">Unified Workspace</h3>
             </div>
             <p className="text-gray-300 leading-relaxed">
-              Keep all thoughts and tasks in one place. 
-              No more scattered notes across multiple apps.
+              Keep all your thoughts, tasks, and insights in one intelligent workspace. 
+              No more scattered notes across multiple apps and devices.
             </p>
           </div>
         </div>
@@ -911,14 +868,14 @@ export const CaptureView: React.FC = () => {
         {/* Quick Tips */}
         <div className="bg-gray-800 rounded-3xl border border-gray-700 p-6">
           <div className="flex items-start gap-3">
-            <Lightbulb className="w-6 h-6 text-pink-400 mt-1 flex-shrink-0" />
+            <Lightbulb className="w-6 h-6 text-blue-400 mt-1 flex-shrink-0" />
             <div className="text-gray-300">
-              <p className="font-medium mb-3 text-white">💡 Quick Tips:</p>
+              <p className="font-medium mb-3 text-white">💡 Pro Tips:</p>
               <ul className="space-y-2 text-sm">
-                <li>• <strong>Voice Input:</strong> Click the microphone and speak naturally</li>
-                <li>• <strong>Natural Language:</strong> "tomorrow 3pm", "urgent", "Friday deadline"</li>
-                <li>• <strong>Multiple Thoughts:</strong> Separate with commas or "and" - AI will split them</li>
-                <li>• <strong>Smart Detection:</strong> AI automatically detects tasks, ideas, and insights</li>
+                <li>• <strong>Voice Input:</strong> Click the microphone and speak naturally - AllyMind understands context</li>
+                <li>• <strong>Natural Language:</strong> Use phrases like "tomorrow 3pm", "urgent", or "Friday deadline"</li>
+                <li>• <strong>Multiple Thoughts:</strong> Separate ideas with commas or "and" - AI automatically splits them</li>
+                <li>• <strong>Smart Detection:</strong> AllyMind automatically categorizes tasks, ideas, and insights</li>
               </ul>
             </div>
           </div>

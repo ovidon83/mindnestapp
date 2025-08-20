@@ -1,11 +1,11 @@
 import React from 'react';
 import { Brain, Lightbulb } from 'lucide-react';
-import { useGenieNotesStore } from './store';
+import { useAllyMindStore } from './store';
 import { CaptureView } from './components/CaptureView';
 import { HomeView } from './components/HomeView';
 
 export const App: React.FC = () => {
-  const { appState, setCurrentView } = useGenieNotesStore();
+  const { appState, setCurrentView } = useAllyMindStore();
   const { currentView } = appState;
 
   const views = [
@@ -35,7 +35,7 @@ export const App: React.FC = () => {
               <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                 <Brain className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-gray-900">GenieNotes</span>
+              <span className="text-xl font-bold text-gray-900">AllyMind</span>
             </div>
 
             {/* Navigation Tabs */}

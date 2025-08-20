@@ -10,7 +10,7 @@ import type {
   UIState
 } from '../types';
 
-interface GenieNotesStore {
+interface AllyMindStore {
   // Core data
   entries: Entry[];
   
@@ -65,7 +65,7 @@ interface GenieNotesStore {
   migrateEntriesToCleanFormat: () => void;
 }
 
-export const useGenieNotesStore = create<GenieNotesStore>()(
+export const useAllyMindStore = create<AllyMindStore>()(
   persist(
     (set, get) => ({
       // Initial state
@@ -104,17 +104,10 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
           updatedAt: new Date()
         };
         
-        console.log('=== Store Debug: Adding Entry ===');
-        console.log('Original entry data:', entryData);
-        console.log('Tags before dedup:', entryData.tags);
-        console.log('Tags after dedup:', uniqueTags);
-        console.log('Created entry:', entry);
-        
         set((state) => {
           const newState = {
             entries: [entry, ...state.entries]
           };
-          console.log('New store state:', newState);
           return newState;
         });
       },
@@ -146,13 +139,8 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
       changeEntryTimePeriod: (id, period) => {
         const entry = get().entries.find(e => e.id === id);
         if (!entry) {
-          console.log(`Entry not found: ${id}`);
           return;
         }
-        
-        console.log(`=== Changing time period for entry: ${entry.content} ===`);
-        console.log('Current entry:', entry);
-        console.log('New period:', period);
         
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -166,7 +154,6 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
               pinnedForDate: today,
               targetWeek: undefined
             };
-            console.log('Setting to today:', today);
             break;
           case 'week':
             // Set to current week (Monday)
@@ -177,7 +164,6 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
               pinnedForDate: monday,
               targetWeek: 'currentWeek'
             };
-            console.log('Setting to current week (Monday):', monday);
             break;
           case 'upcoming':
             // Set to next week (Monday)
@@ -187,17 +173,10 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
               pinnedForDate: nextMonday,
               targetWeek: 'nextWeek'
             };
-            console.log('Setting to next week (Monday):', nextMonday);
             break;
         }
         
-        console.log('Updates to apply:', updates);
         get().updateEntry(id, updates);
-        
-        // Verify the update
-        const updatedEntry = get().entries.find(e => e.id === id);
-        console.log('Updated entry:', updatedEntry);
-        console.log('=== Time period change complete ===');
       },
       adjustPriority: (id, direction) => {
         const entry = get().entries.find(e => e.id === id);
@@ -268,61 +247,41 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         const { entries, appState } = get();
         let filtered = entries;
         
-        console.log('=== Store Debug: getFilteredEntries ===');
-        console.log('Total entries in store:', entries.length);
-        console.log('Current filters:', appState.activeFilters);
-        console.log('Search query:', appState.searchQuery);
-        console.log('All entries:', entries);
-        
         // Filter by type
         if (appState.activeFilters.type && appState.activeFilters.type !== 'all') {
-          const beforeTypeFilter = filtered.length;
           filtered = filtered.filter(entry => entry.type === appState.activeFilters.type);
-          console.log(`Type filter (${appState.activeFilters.type}): ${beforeTypeFilter} -> ${filtered.length}`);
         }
         
         // Filter by priority
         if (appState.activeFilters.priority && appState.activeFilters.priority !== 'all') {
-          const beforePriorityFilter = filtered.length;
           filtered = filtered.filter(entry => entry.priority === appState.activeFilters.priority);
-          console.log(`Priority filter (${appState.activeFilters.priority}): ${beforePriorityFilter} -> ${filtered.length}`);
         }
         
         // Filter by status
         if (appState.activeFilters.status && appState.activeFilters.status !== 'all') {
-          const beforeStatusFilter = filtered.length;
           filtered = filtered.filter(entry => entry.status === appState.activeFilters.status);
-          console.log(`Status filter (${appState.activeFilters.status}): ${beforeStatusFilter} -> ${filtered.length}`);
         }
         
         // Filter by tags
         if (appState.activeFilters.tags.length > 0) {
-          const beforeTagsFilter = filtered.length;
           filtered = filtered.filter(entry => 
             appState.activeFilters.tags.some(tag => entry.tags.includes(tag))
           );
-          console.log(`Tags filter (${appState.activeFilters.tags}): ${beforeTagsFilter} -> ${filtered.length}`);
         }
         
         // Filter by review status
         if (appState.activeFilters.needsReview) {
-          const beforeReviewFilter = filtered.length;
           filtered = filtered.filter(entry => entry.needsReview);
-          console.log(`Review filter: ${beforeReviewFilter} -> ${filtered.length}`);
         }
         
         // Search query
         if (appState.searchQuery) {
-          const beforeSearchFilter = filtered.length;
           filtered = filtered.filter(entry =>
             entry.content.toLowerCase().includes(appState.searchQuery.toLowerCase()) ||
             entry.tags.some(tag => tag.toLowerCase().includes(appState.searchQuery.toLowerCase())) ||
             entry.notes?.toLowerCase().includes(appState.searchQuery.toLowerCase())
           );
-          console.log(`Search filter ("${appState.searchQuery}"): ${beforeSearchFilter} -> ${filtered.length}`);
         }
-        
-        console.log('Final filtered entries:', filtered);
         
         // Sort by urgency and recency
         return filtered.sort((a, b) => {
@@ -371,11 +330,6 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         const now = new Date();
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         
-        console.log('=== Store Debug: getUrgentEntries ===');
-        console.log('Total entries in store:', entries.length);
-        console.log('Today date:', today);
-        console.log('All entries:', entries);
-        
         const urgentEntries = entries
           .filter(entry => {
             if (entry.status === 'completed') return false;
@@ -405,7 +359,6 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
             return priorityOrder[b.priority] - priorityOrder[a.priority];
           });
         
-        console.log('Urgent entries found:', urgentEntries);
         return urgentEntries;
       },
       
@@ -486,23 +439,13 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
           'journal', 'task', 'idea', 'insight', 'reflection', 'event', 'reminder', 'note'
         ];
         
-        console.log('=== Store: Cleaning up directive tags ===');
-        
         const cleanedEntries = state.entries.map((entry) => {
-          const originalTags = entry.tags;
           const cleanedTags = entry.tags.filter(tag => {
             const isDirective = directiveTags.some(directive => 
               directive.toLowerCase() === tag.toLowerCase()
             );
-            if (isDirective) {
-              console.log(`Removing directive tag "${tag}" from entry "${entry.content}"`);
-            }
             return !isDirective;
           });
-          
-          if (originalTags.length !== cleanedTags.length) {
-            console.log(`Entry "${entry.content}": ${originalTags.length} -> ${cleanedTags.length} tags`);
-          }
           
           return {
             ...entry,
@@ -511,32 +454,21 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
           };
         });
         
-        console.log('=== Store: Directive tag cleanup complete ===');
         return { entries: cleanedEntries };
       }),
 
       // Migrate existing entries to clean format (remove hashtags from titles, ensure all hashtags are tags)
       migrateEntriesToCleanFormat: () => set((state) => {
-        console.log('=== Store: Starting migration to clean format ===');
-        console.log('Original entries:', state.entries);
-        
         const migratedEntries = state.entries.map((entry) => {
-          console.log(`--- Processing entry: ${entry.id} ---`);
-          console.log('Original content:', entry.content);
-          console.log('Original tags:', entry.tags);
-          
           // Extract all hashtags from the content
           const hashtagPattern = /#\w+/g;
           const hashtags = entry.content.match(hashtagPattern)?.map(tag => tag.slice(1)) || [];
-          console.log('Extracted hashtags:', hashtags);
           
           // Clean the content by removing hashtags
           const cleanContent = entry.content.replace(hashtagPattern, '').replace(/\s+/g, ' ').trim();
-          console.log('Cleaned content:', cleanContent);
           
           // Merge existing tags with extracted hashtags, remove duplicates
           const allTags = [...new Set([...(entry.tags || []), ...hashtags])];
-          console.log('Final merged tags:', allTags);
           
           const migratedEntry = {
             ...entry,
@@ -545,18 +477,14 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
             updatedAt: new Date()
           };
           
-          console.log('Migrated entry:', migratedEntry);
           return migratedEntry;
         });
-        
-        console.log('=== Store: Migration complete ===');
-        console.log('Final migrated entries:', migratedEntries);
         
         return { entries: migratedEntries };
       })
     }),
     {
-      name: "genienotes-storage",
+      name: "allymind-storage",
       partialize: (state) => ({
         entries: state.entries,
         appState: state.appState,
@@ -564,7 +492,6 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {
-          console.log('=== Store: Rehydrating from localStorage ===');
           
           // Convert date strings back to Date objects for all entries
           state.entries = state.entries.map(entry => {
@@ -613,9 +540,6 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
             
             return updatedEntry;
           });
-          
-          console.log('=== Store: Date conversion complete ===');
-          console.log('Updated entries:', state.entries);
         }
       }
     }
