@@ -343,82 +343,55 @@ export const CaptureView: React.FC = () => {
     return targetDate;
   };
 
-  // Enhanced Multi-Thought Recognition
+  // Enhanced Multi-Thought Recognition with Smart Linking
   const splitIntoMultipleEntries = (text: string): Partial<Entry>[] => {
     const entries: Partial<Entry>[] = [];
     
-    // Advanced splitting patterns for better thought recognition
-    const splitPatterns = [
-      // Natural speech patterns
-      /\s+(?:and|also|plus|additionally|furthermore|moreover|besides|in addition|as well as)\s+/i,
-      // Punctuation-based splits
-      /[.!?]\s+(?=[A-Z])/g,  // Sentence endings followed by capital
-      /\n\s*\n/,              // Double line breaks
-      /;\s+/,                 // Semicolons
-      /,\s+(?=(?:and|or|but)\s)/i, // Commas before conjunctions
-      // Thought transition words
-      /\s+(?:meanwhile|however|therefore|consequently|thus|hence|so|then)\s+/i,
-      // Action-based splits
-      /\s+(?:next|after that|then|subsequently|following that)\s+/i,
-      // Time-based splits
-      /\s+(?:later|afterwards|meanwhile|during|while)\s+/i,
-      // Context shifts
-      /\s+(?:speaking of|on another note|by the way|incidentally)\s+/i,
-      // Specific task patterns
-      /,\s+(?=call|email|meet|buy|get|find|review|check|update|create|build|design|write|read|study|organize|clean|fix|solve|plan|schedule|remember|think about|need to|want to|should|must|have to|going to)/i,
-    ];
+    // Force comma-based splitting for better detection
+    let segments: string[] = [];
+    const commaSegments = text.split(/,\s+/);
     
-    let segments: string[] = [text];
-    
-    // First, try advanced pattern matching
-    for (const pattern of splitPatterns) {
-      const newSegments = segments[0].split(pattern);
-      if (newSegments.length > 1) {
-        segments = newSegments.filter(segment => segment.trim().length > 0);
-        break;
+    if (commaSegments.length > 1) {
+      // Filter out segments that are too short or start with conjunctions
+      const validSegments = commaSegments.filter(segment => {
+        const trimmed = segment.trim();
+        return trimmed.length > 3 && // Very permissive length
+               !trimmed.toLowerCase().startsWith('and') &&
+               !trimmed.toLowerCase().startsWith('or') &&
+               !trimmed.toLowerCase().startsWith('but') &&
+               !trimmed.toLowerCase().startsWith('also') &&
+               !trimmed.toLowerCase().startsWith('plus');
+      });
+      
+      if (validSegments.length >= 2) {
+        segments = validSegments;
       }
     }
     
-    // If no advanced patterns worked, try comma-based splitting
-    if (segments.length === 1) {
-      const commaSegments = text.split(/,\s+/);
-      if (commaSegments.length > 1) {
-        const validSegments = commaSegments.filter(segment => {
-          const trimmed = segment.trim();
-          return trimmed.length > 5 && // Reduced minimum length for better detection
-                 !trimmed.toLowerCase().startsWith('and') &&
-                 !trimmed.toLowerCase().startsWith('or') &&
-                 !trimmed.toLowerCase().startsWith('but') &&
-                 !trimmed.toLowerCase().startsWith('also') &&
-                 !trimmed.toLowerCase().startsWith('plus');
-        });
-        
-        // Additional check: if we have 2+ segments and they seem like distinct thoughts
-        if (validSegments.length >= 2) {
-          // Check if segments contain different types of content (tasks, dates, etc.)
-          const hasDifferentContent = validSegments.some((segment, index) => {
-            if (index === 0) return true;
-            const prevSegment = validSegments[index - 1];
-            const currentSegment = segment;
-            
-            // Check if segments have different characteristics
-            const prevHasDate = /\b(tomorrow|today|friday|monday|next week|this week)\b/i.test(prevSegment);
-            const currentHasDate = /\b(tomorrow|today|friday|monday|next week|this week)\b/i.test(currentSegment);
-            const prevHasAction = /\b(fix|call|email|meet|buy|get|find|review|check|update|create|build|design|write|read|study|organize|clean|solve|plan|schedule|remember|think about|need to|want to|should|must|have to|going to)\b/i.test(prevSegment);
-            const currentHasAction = /\b(fix|call|email|meet|buy|get|find|review|check|update|create|build|design|write|read|study|organize|clean|solve|plan|schedule|remember|think about|need to|want to|should|must|have to|going to)\b/i.test(currentSegment);
-            
-            return (prevHasDate !== currentHasDate) || (prevHasAction !== currentHasAction);
-          });
-          
-          if (hasDifferentContent) {
-            segments = validSegments;
-          }
+    // If comma splitting didn't work, try other patterns
+    if (segments.length <= 1) {
+      const splitPatterns = [
+        /\s+(?:and|also|plus|additionally|furthermore|moreover|besides|in addition|as well as)\s+/i,
+        /[.!?]\s+(?=[A-Z])/g,
+        /\n\s*\n/,
+        /;\s+/,
+        /\s+(?:meanwhile|however|therefore|consequently|thus|hence|so|then)\s+/i,
+        /\s+(?:next|after that|then|subsequently|following that)\s+/i,
+        /\s+(?:later|afterwards|meanwhile|during|while)\s+/i,
+        /\s+(?:speaking of|on another note|by the way|incidentally)\s+/i,
+      ];
+      
+      for (const pattern of splitPatterns) {
+        const newSegments = text.split(pattern);
+        if (newSegments.length > 1) {
+          segments = newSegments.filter(segment => segment.trim().length > 0);
+          break;
         }
       }
     }
     
-    // If still no splits, try action verb detection
-    if (segments.length === 1) {
+    // If still no splits, force split by action verbs
+    if (segments.length <= 1) {
       const actionVerbs = [
         'finish', 'complete', 'start', 'work on', 'prepare', 'email', 'call',
         'meet', 'buy', 'get', 'find', 'review', 'check', 'update', 'create',
@@ -431,30 +404,38 @@ export const CaptureView: React.FC = () => {
       const foundVerbs = actionVerbs.filter(verb => lowerText.includes(verb));
       
       if (foundVerbs.length > 1) {
-        // Split by the first action verb found
         const firstVerb = foundVerbs[0];
         const verbIndex = lowerText.indexOf(firstVerb);
         if (verbIndex > 0) {
           const firstPart = text.substring(0, verbIndex).trim();
           const secondPart = text.substring(verbIndex).trim();
           
-          if (firstPart.length > 12 && secondPart.length > 12) {
+          if (firstPart.length > 8 && secondPart.length > 8) {
             segments = [firstPart, secondPart];
           }
         }
       }
     }
     
-    // Create entries for each segment with enhanced parsing
-    segments.forEach((segment) => {
+    // Create entries for each segment with enhanced parsing and linking
+    const createdEntries: Partial<Entry>[] = [];
+    segments.forEach((segment, index) => {
       const trimmedSegment = segment.trim();
       if (trimmedSegment.length > 0) {
         const entry = parseInput(trimmedSegment);
-        entries.push(entry);
+        
+        // Add linking information
+        if (segments.length > 1) {
+          (entry as any).relatedIds = segments.map((_, i) => `entry_${index}_${i}`).filter(id => id !== `entry_${index}_${index}`);
+        } else {
+          (entry as any).relatedIds = [];
+        }
+        
+        createdEntries.push(entry);
       }
     });
     
-    return entries;
+    return createdEntries;
   };
 
   // Extract user hashtags, excluding directive hashtags to avoid duplication
@@ -582,14 +563,32 @@ export const CaptureView: React.FC = () => {
           lowerText.includes('have to') || lowerText.includes('should')) {
         finalType = 'task';
       }
+      // REMINDER DETECTION - Look for time-based action language
+      else if (lowerText.includes('remind') || lowerText.includes('don\'t forget') ||
+               lowerText.includes('remember to') || 
+               (lowerText.includes('call') && (lowerText.includes('tomorrow') || lowerText.includes('today') || lowerText.includes('next week'))) ||
+               (lowerText.includes('email') && (lowerText.includes('tomorrow') || lowerText.includes('today') || lowerText.includes('next week')))) {
+        finalType = 'reminder';
+      }
       // IDEA DETECTION - Look for concept/innovation language
       else if (lowerText.includes('could be') || lowerText.includes('would be great') || 
                lowerText.includes('imagine if') || lowerText.includes('what if') ||
                lowerText.includes('maybe we could') || lowerText.includes('innovation') || 
                lowerText.includes('concept') || lowerText.includes('brainstorm') ||
                lowerText.includes('possibility') || lowerText.includes('potential') ||
-               lowerText.includes('opportunity') || lowerText.includes('think about')) {
+               lowerText.includes('opportunity') || lowerText.includes('think about') ||
+               lowerText.includes('should add') || lowerText.includes('dark mode') || lowerText.includes('feature')) {
         finalType = 'idea';
+      }
+      // JOURNAL DETECTION - Look for emotional/reflective language
+      else if (lowerText.includes('feeling') || lowerText.includes('feel') ||
+               lowerText.includes('drained') || lowerText.includes('overwhelmed') ||
+               lowerText.includes('stressed') || lowerText.includes('happy') ||
+               lowerText.includes('sad') || lowerText.includes('excited') ||
+               lowerText.includes('worried') || lowerText.includes('confused') ||
+               lowerText.includes('think') || lowerText.includes('thought') ||
+               lowerText.includes('realize') || lowerText.includes('understand')) {
+        finalType = 'journal';
       }
       // EVENT DETECTION - Look for scheduling/meeting language
       else if (lowerText.includes('meeting') || lowerText.includes('event') || 
