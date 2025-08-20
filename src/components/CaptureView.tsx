@@ -697,20 +697,16 @@ export const CaptureView: React.FC = () => {
           <h2 className="text-2xl font-semibold text-gray-200 mb-4">
             Your AI-Powered Thought Companion
           </h2>
-          <p className="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
-            Transform scattered thoughts into organized insights. AllyMind intelligently captures, 
-            categorizes, and organizes your ideas, tasks, and reflections with AI-powered understanding.
-          </p>
         </div>
 
         {/* Input Section */}
         <div className="bg-gray-800 rounded-3xl border border-gray-700 p-8 mb-12 shadow-2xl">
           <div className="text-center mb-8">
             <h3 className="text-2xl font-semibold text-white mb-3">
-              Capture Your Thoughts
+              Transform scattered thoughts into organized insights
             </h3>
             <p className="text-gray-400">
-              Type naturally or speak your mind. AllyMind will understand and organize everything for you.
+              AllyMind intelligently captures, categorizes, and organizes your ideas, tasks, and reflections with AI-powered understanding. Type naturally or speak your mind - AllyMind will understand and organize everything for you.
             </p>
           </div>
 
