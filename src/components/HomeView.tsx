@@ -430,17 +430,20 @@ export const HomeView: React.FC = () => {
       case 'today':
         updates.pinnedForDate = new Date();
         updates.dueDate = undefined;
+        updates.isDeadline = false;
         break;
       case 'thisWeek':
         const endOfWeek = new Date();
         endOfWeek.setDate(endOfWeek.getDate() + 7);
         updates.dueDate = endOfWeek;
+        updates.pinnedForDate = undefined;
         updates.isDeadline = true;
         break;
       case 'later':
         const nextMonth = new Date();
         nextMonth.setMonth(nextMonth.getMonth() + 1);
         updates.dueDate = nextMonth;
+        updates.pinnedForDate = undefined;
         updates.isDeadline = true;
         break;
     }
