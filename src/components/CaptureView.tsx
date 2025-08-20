@@ -345,8 +345,6 @@ export const CaptureView: React.FC = () => {
 
   // Enhanced Multi-Thought Recognition with Smart Linking
   const splitIntoMultipleEntries = (text: string): Partial<Entry>[] => {
-    const entries: Partial<Entry>[] = [];
-    
     // Force comma-based splitting for better detection
     let segments: string[] = [];
     const commaSegments = text.split(/,\s+/);
