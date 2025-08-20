@@ -362,6 +362,29 @@ export const CaptureView: React.FC = () => {
       }
     }
     
+    // If comma splitting didn't work or only gave 1 segment, try more aggressive splitting
+    if (segments.length <= 1) {
+      // Try splitting by common transition words and punctuation
+      const aggressivePatterns = [
+        /\s+(?:and|also|plus|additionally|furthermore|moreover|besides|in addition|as well as)\s+/i,
+        /[.!?]\s+(?=[A-Z])/g,  // Sentence endings followed by capital
+        /\n\s*\n/,              // Double line breaks
+        /;\s+/,                 // Semicolons
+        /\s+(?:meanwhile|however|therefore|consequently|thus|hence|so|then)\s+/i,
+        /\s+(?:next|after that|then|subsequently|following that)\s+/i,
+        /\s+(?:later|afterwards|meanwhile|during|while)\s+/i,
+        /\s+(?:speaking of|on another note|by the way|incidentally)\s+/i,
+      ];
+      
+      for (const pattern of aggressivePatterns) {
+        const newSegments = text.split(pattern);
+        if (newSegments.length > 1) {
+          segments = newSegments.filter(segment => segment.trim().length > 0);
+          break;
+        }
+      }
+    }
+    
     // If comma splitting didn't work, try other patterns
     if (segments.length <= 1) {
       const splitPatterns = [
