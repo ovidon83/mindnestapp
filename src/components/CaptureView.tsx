@@ -350,15 +350,10 @@ export const CaptureView: React.FC = () => {
     const commaSegments = text.split(/,\s+/);
     
     if (commaSegments.length > 1) {
-      // Filter out segments that are too short or start with conjunctions
+      // Use all comma-separated segments, just filter out empty ones
       const validSegments = commaSegments.filter(segment => {
         const trimmed = segment.trim();
-        return trimmed.length > 2 && // Even more permissive length
-               !trimmed.toLowerCase().startsWith('and') &&
-               !trimmed.toLowerCase().startsWith('or') &&
-               !trimmed.toLowerCase().startsWith('but') &&
-               !trimmed.toLowerCase().startsWith('also') &&
-               !trimmed.toLowerCase().startsWith('plus');
+        return trimmed.length > 0; // Only filter out completely empty segments
       });
       
       // Always use comma splitting if we have multiple segments
