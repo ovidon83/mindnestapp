@@ -353,7 +353,7 @@ export const CaptureView: React.FC = () => {
       // Filter out segments that are too short or start with conjunctions
       const validSegments = commaSegments.filter(segment => {
         const trimmed = segment.trim();
-        return trimmed.length > 3 && // Very permissive length
+        return trimmed.length > 2 && // Even more permissive length
                !trimmed.toLowerCase().startsWith('and') &&
                !trimmed.toLowerCase().startsWith('or') &&
                !trimmed.toLowerCase().startsWith('but') &&
@@ -361,7 +361,8 @@ export const CaptureView: React.FC = () => {
                !trimmed.toLowerCase().startsWith('plus');
       });
       
-      if (validSegments.length >= 2) {
+      // Always use comma splitting if we have multiple segments
+      if (validSegments.length > 0) {
         segments = validSegments;
       }
     }
@@ -575,7 +576,10 @@ export const CaptureView: React.FC = () => {
                lowerText.includes('concept') || lowerText.includes('brainstorm') ||
                lowerText.includes('possibility') || lowerText.includes('potential') ||
                lowerText.includes('opportunity') || lowerText.includes('think about') ||
-               lowerText.includes('should add') || lowerText.includes('dark mode') || lowerText.includes('feature')) {
+               lowerText.includes('should add') || lowerText.includes('dark mode') || 
+               lowerText.includes('feature') || lowerText.includes('mode') ||
+               lowerText.includes('new') || lowerText.includes('add') ||
+               lowerText.includes('improve') || lowerText.includes('enhance')) {
         finalType = 'idea';
       }
       // JOURNAL DETECTION - Look for emotional/reflective language
@@ -585,7 +589,9 @@ export const CaptureView: React.FC = () => {
                lowerText.includes('sad') || lowerText.includes('excited') ||
                lowerText.includes('worried') || lowerText.includes('confused') ||
                lowerText.includes('think') || lowerText.includes('thought') ||
-               lowerText.includes('realize') || lowerText.includes('understand')) {
+               lowerText.includes('realize') || lowerText.includes('understand') ||
+               lowerText.includes('lately') || lowerText.includes('tired') ||
+               lowerText.includes('exhausted') || lowerText.includes('burned out')) {
         finalType = 'journal';
       }
       // EVENT DETECTION - Look for scheduling/meeting language
