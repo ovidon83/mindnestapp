@@ -642,43 +642,7 @@ export const HomeView: React.FC = () => {
         <div className="space-y-8">
           
 
-          {/* Recent Entries Section - Always show new entries */}
-          {filteredEntries.length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <Plus className="w-5 h-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">Recent Entries</h3>
-                    <p className="text-sm text-gray-500">{filteredEntries.length} total entries</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="p-6">
-                <div className="space-y-3">
-                  {sortEntries(filteredEntries).slice(0, 10).map((entry) => (
-                    <EntryCard
-                      key={entry.id}
-                      entry={entry}
-                      onTogglePin={() => togglePin(entry)}
-                      onToggleComplete={() => toggleComplete(entry)}
-                      onMove={(target) => moveEntry(entry, target)}
-                      onDelete={() => deleteEntry(entry.id)}
-                      showActions={true}
-                    />
-                  ))}
-                  {filteredEntries.length > 10 && (
-                    <div className="text-center py-4 text-gray-500">
-                      <p className="text-sm">Showing 10 of {filteredEntries.length} entries</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
+
 
           {/* Urgent Section */}
           {categorizedEntries.urgent.length > 0 && (
