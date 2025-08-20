@@ -308,17 +308,20 @@ export const HomeView: React.FC = () => {
       }),
       thisWeek: filteredEntries.filter(entry => {
         if (entry.status === 'completed') return false;
-        // Include entries due this week
+        // Include entries due this week (but not today)
         if (entry.dueDate && entry.isDeadline) {
-          return entry.dueDate >= today && entry.dueDate <= endOfWeek;
+          const dueDate = entry.dueDate;
+          return dueDate > today && dueDate <= endOfWeek;
         }
-        // Include entries pinned for this week
+        // Include entries pinned for this week (but not today)
         if (entry.pinnedForDate) {
-          return entry.pinnedForDate >= today && entry.pinnedForDate <= endOfWeek;
+          const pinnedDate = entry.pinnedForDate;
+          return pinnedDate > today && pinnedDate <= endOfWeek;
         }
-        // Include entries created this week
+        // Include entries created this week (but not today)
         if (entry.createdAt) {
-          return entry.createdAt >= today && entry.createdAt <= endOfWeek;
+          const createdDate = entry.createdAt;
+          return createdDate > today && createdDate <= endOfWeek;
         }
         return false;
       }),
@@ -431,9 +434,10 @@ export const HomeView: React.FC = () => {
         updates.isDeadline = false;
         break;
       case 'thisWeek':
-        const endOfWeek = new Date();
-        endOfWeek.setDate(endOfWeek.getDate() + 7);
-        updates.dueDate = endOfWeek;
+        const thisWeekDate = new Date();
+        thisWeekDate.setDate(thisWeekDate.getDate() + 3); // Set to 3 days from now (middle of week)
+        thisWeekDate.setHours(12, 0, 0, 0); // Set to noon
+        updates.dueDate = thisWeekDate;
         updates.pinnedForDate = undefined;
         updates.isDeadline = true;
         break;
