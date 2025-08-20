@@ -345,42 +345,35 @@ export const CaptureView: React.FC = () => {
 
   // Enhanced Multi-Thought Recognition with Smart Linking
   const splitIntoMultipleEntries = (text: string): Partial<Entry>[] => {
-    // Force comma-based splitting for better detection
+    // Try multiple splitting strategies for better detection
     let segments: string[] = [];
-    const commaSegments = text.split(/,\s+/);
     
-    if (commaSegments.length > 1) {
-      // Use all comma-separated segments, just filter out empty ones
-      const validSegments = commaSegments.filter(segment => {
-        const trimmed = segment.trim();
-        return trimmed.length > 0; // Only filter out completely empty segments
-      });
-      
-      // Always use comma splitting if we have multiple segments
-      if (validSegments.length > 0) {
-        segments = validSegments;
+    // Strategy 1: Split by transition words first (this catches "Also" and similar)
+    const transitionPatterns = [
+      /\s+(?:and|also|plus|additionally|furthermore|moreover|besides|in addition|as well as)\s+/i,
+      /[.!?]\s+(?=[A-Z])/g,  // Sentence endings followed by capital
+      /\n\s*\n/,              // Double line breaks
+      /;\s+/,                 // Semicolons
+    ];
+    
+    for (const pattern of transitionPatterns) {
+      const newSegments = text.split(pattern);
+      if (newSegments.length > 1) {
+        segments = newSegments.filter(segment => segment.trim().length > 0);
+        break;
       }
     }
     
-    // If comma splitting didn't work or only gave 1 segment, try more aggressive splitting
+    // Strategy 2: If no transitions found, try comma splitting
     if (segments.length <= 1) {
-      // Try splitting by common transition words and punctuation
-      const aggressivePatterns = [
-        /\s+(?:and|also|plus|additionally|furthermore|moreover|besides|in addition|as well as)\s+/i,
-        /[.!?]\s+(?=[A-Z])/g,  // Sentence endings followed by capital
-        /\n\s*\n/,              // Double line breaks
-        /;\s+/,                 // Semicolons
-        /\s+(?:meanwhile|however|therefore|consequently|thus|hence|so|then)\s+/i,
-        /\s+(?:next|after that|then|subsequently|following that)\s+/i,
-        /\s+(?:later|afterwards|meanwhile|during|while)\s+/i,
-        /\s+(?:speaking of|on another note|by the way|incidentally)\s+/i,
-      ];
-      
-      for (const pattern of aggressivePatterns) {
-        const newSegments = text.split(pattern);
-        if (newSegments.length > 1) {
-          segments = newSegments.filter(segment => segment.trim().length > 0);
-          break;
+      const commaSegments = text.split(/,\s+/);
+      if (commaSegments.length > 1) {
+        const validSegments = commaSegments.filter(segment => {
+          const trimmed = segment.trim();
+          return trimmed.length > 0;
+        });
+        if (validSegments.length > 0) {
+          segments = validSegments;
         }
       }
     }
@@ -491,6 +484,7 @@ export const CaptureView: React.FC = () => {
       .replace(/\s+/g, ' ') // Collapse multiple spaces
       .replace(/\s*[,\s]*$/g, '') // Remove trailing commas and spaces
       .replace(/^\s*[,\s]*/g, '') // Remove leading commas and spaces
+      .replace(/^\s*(?:and|also|plus|additionally|furthermore|moreover|besides|in addition|as well as)\s+/i, '') // Remove leading transition words
       .trim();
     
     return cleaned;
