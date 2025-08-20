@@ -18,7 +18,6 @@ import {
   Brain,
   Heart,
   MessageCircle,
-  RefreshCw,
   Tag,
   ArrowUp
 } from 'lucide-react';
@@ -51,7 +50,6 @@ export const HomeView: React.FC = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<'priority' | 'date' | 'type' | 'created'>('priority');
   const [showInsights, setShowInsights] = useState(true);
-  const [lastRefresh, setLastRefresh] = useState(new Date());
 
   // Smart Assistant State
   const [smartNudges, setSmartNudges] = useState<any[]>([]);
@@ -67,7 +65,7 @@ export const HomeView: React.FC = () => {
     generateSmartInsights();
     generateSmartNudges();
     checkOverdueItems();
-  }, [entries, lastRefresh]);
+  }, [entries]);
 
   // Smart Insights Engine
   const generateSmartInsights = () => {
@@ -457,13 +455,7 @@ export const HomeView: React.FC = () => {
     }
   };
 
-  // Smart refresh
-  const refreshData = () => {
-    setLastRefresh(new Date());
-    generateSmartInsights();
-    generateSmartNudges();
-    checkOverdueItems();
-  };
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -472,13 +464,6 @@ export const HomeView: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
-              <button
-                onClick={refreshData}
-                className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-                title="Refresh insights"
-              >
-                <RefreshCw className="w-5 h-5" />
-              </button>
             </div>
             
             <div className="flex items-center space-x-4">
