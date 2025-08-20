@@ -364,6 +364,8 @@ export const CaptureView: React.FC = () => {
       /\s+(?:later|afterwards|meanwhile|during|while)\s+/i,
       // Context shifts
       /\s+(?:speaking of|on another note|by the way|incidentally)\s+/i,
+      // Specific task patterns
+      /,\s+(?=call|email|meet|buy|get|find|review|check|update|create|build|design|write|read|study|organize|clean|fix|solve|plan|schedule|remember|think about|need to|want to|should|must|have to|going to)/i,
     ];
     
     let segments: string[] = [text];
@@ -383,7 +385,7 @@ export const CaptureView: React.FC = () => {
       if (commaSegments.length > 1) {
         const validSegments = commaSegments.filter(segment => {
           const trimmed = segment.trim();
-          return trimmed.length > 8 && // Must be substantial
+          return trimmed.length > 5 && // Reduced minimum length for better detection
                  !trimmed.toLowerCase().startsWith('and') &&
                  !trimmed.toLowerCase().startsWith('or') &&
                  !trimmed.toLowerCase().startsWith('but') &&
@@ -391,8 +393,26 @@ export const CaptureView: React.FC = () => {
                  !trimmed.toLowerCase().startsWith('plus');
         });
         
-        if (validSegments.length > 1) {
-          segments = validSegments;
+        // Additional check: if we have 2+ segments and they seem like distinct thoughts
+        if (validSegments.length >= 2) {
+          // Check if segments contain different types of content (tasks, dates, etc.)
+          const hasDifferentContent = validSegments.some((segment, index) => {
+            if (index === 0) return true;
+            const prevSegment = validSegments[index - 1];
+            const currentSegment = segment;
+            
+            // Check if segments have different characteristics
+            const prevHasDate = /\b(tomorrow|today|friday|monday|next week|this week)\b/i.test(prevSegment);
+            const currentHasDate = /\b(tomorrow|today|friday|monday|next week|this week)\b/i.test(currentSegment);
+            const prevHasAction = /\b(fix|call|email|meet|buy|get|find|review|check|update|create|build|design|write|read|study|organize|clean|solve|plan|schedule|remember|think about|need to|want to|should|must|have to|going to)\b/i.test(prevSegment);
+            const currentHasAction = /\b(fix|call|email|meet|buy|get|find|review|check|update|create|build|design|write|read|study|organize|clean|solve|plan|schedule|remember|think about|need to|want to|should|must|have to|going to)\b/i.test(currentSegment);
+            
+            return (prevHasDate !== currentHasDate) || (prevHasAction !== currentHasAction);
+          });
+          
+          if (hasDifferentContent) {
+            segments = validSegments;
+          }
         }
       }
     }
