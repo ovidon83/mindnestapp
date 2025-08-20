@@ -682,7 +682,7 @@ export const CaptureView: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 text-gray-900">
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Hero Section */}
         <div className="text-center mb-16">
@@ -690,22 +690,22 @@ export const CaptureView: React.FC = () => {
             <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl">
               <Brain className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
               AllyMind
             </h1>
           </div>
-          <h2 className="text-2xl font-semibold text-gray-200 mb-4">
+          <h2 className="text-2xl font-semibold text-gray-700 mb-4">
             Because your thoughts deserve intelligent organization
           </h2>
         </div>
 
         {/* Input Section */}
-        <div className="bg-gray-800 rounded-3xl border border-gray-700 p-8 mb-12 shadow-2xl">
+        <div className="bg-white rounded-3xl border border-gray-200 p-8 mb-12 shadow-xl">
           <div className="text-center mb-8">
-            <h3 className="text-2xl font-semibold text-white mb-3">
+            <h3 className="text-2xl font-semibold text-gray-900 mb-3">
               Capture & Organize
             </h3>
-            <p className="text-gray-400">
+            <p className="text-gray-600">
               Type or speak naturally. AllyMind understands and organizes everything.
             </p>
           </div>
@@ -717,7 +717,7 @@ export const CaptureView: React.FC = () => {
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder="Share your thoughts, tasks, ideas, or reflections... For example: 'Need to finish project by Friday, also call John about the meeting, and I had an idea for a new app feature'"
-              className="w-full h-32 px-6 py-4 bg-gray-700 border border-gray-600 rounded-2xl focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none text-white placeholder-gray-400 text-lg leading-relaxed transition-colors"
+              className="w-full h-32 px-6 py-4 bg-gray-50 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none text-gray-900 placeholder-gray-500 text-lg leading-relaxed transition-colors"
               disabled={isProcessing}
             />
           </div>
@@ -805,56 +805,56 @@ export const CaptureView: React.FC = () => {
         {/* Core Features Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
           {/* Thought Capture */}
-          <div className="bg-gray-800 rounded-3xl border border-gray-700 p-6 hover:border-blue-500/50 transition-colors">
+          <div className="bg-white rounded-3xl border border-gray-200 p-6 hover:border-blue-500/50 transition-colors shadow-sm">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center">
                 <Brain className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-white">Intelligent Capture</h3>
+              <h3 className="text-xl font-semibold text-gray-900">Intelligent Capture</h3>
             </div>
-            <p className="text-gray-300 leading-relaxed">
+            <p className="text-gray-600 leading-relaxed">
               Automatically detect and separate multiple thoughts from a single input. 
               No more manual categorization or organization needed.
             </p>
           </div>
 
           {/* Smart Assistant */}
-          <div className="bg-gray-800 rounded-3xl border border-gray-700 p-6 hover:border-purple-500/50 transition-colors">
+          <div className="bg-white rounded-3xl border border-gray-200 p-6 hover:border-purple-500/50 transition-colors shadow-sm">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-white">Smart Understanding</h3>
+              <h3 className="text-xl font-semibold text-gray-900">Smart Understanding</h3>
             </div>
-            <p className="text-gray-300 leading-relaxed">
+            <p className="text-gray-600 leading-relaxed">
               AI automatically detects deadlines, urgency levels, and context. 
               "Meeting with John tomorrow at 3pm" becomes a scheduled task.
             </p>
           </div>
 
           {/* Insight Engine */}
-          <div className="bg-gray-800 rounded-3xl border border-gray-700 p-6 hover:border-green-500/50 transition-colors">
+          <div className="bg-white rounded-3xl border border-gray-200 p-6 hover:border-green-500/50 transition-colors shadow-sm">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-white" />
+                <Target className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-white">Pattern Recognition</h3>
+              <h3 className="text-xl font-semibold text-gray-900">Pattern Recognition</h3>
             </div>
-            <p className="text-gray-300 leading-relaxed">
+            <p className="text-gray-600 leading-relaxed">
               Discover insights about your thinking patterns and behaviors. 
               "You've mentioned stress 3x this week; time for reflection?"
             </p>
           </div>
 
           {/* Unified Flow */}
-          <div className="bg-gray-800 rounded-3xl border border-gray-700 p-6 hover:border-pink-500/50 transition-colors">
+          <div className="bg-white rounded-3xl border border-gray-200 p-6 hover:border-pink-500/50 transition-colors shadow-sm">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-pink-600 rounded-2xl flex items-center justify-center">
                 <Target className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-white">Unified Workspace</h3>
+              <h3 className="text-xl font-semibold text-gray-900">Unified Workspace</h3>
             </div>
-            <p className="text-gray-300 leading-relaxed">
+            <p className="text-gray-600 leading-relaxed">
               Keep all your thoughts, tasks, and insights in one intelligent workspace. 
               No more scattered notes across multiple apps and devices.
             </p>
@@ -862,11 +862,11 @@ export const CaptureView: React.FC = () => {
         </div>
 
         {/* Quick Tips */}
-        <div className="bg-gray-800 rounded-3xl border border-gray-700 p-6">
+        <div className="bg-white rounded-3xl border border-gray-200 p-6 shadow-sm">
           <div className="flex items-start gap-3">
-            <Lightbulb className="w-6 h-6 text-blue-400 mt-1 flex-shrink-0" />
-            <div className="text-gray-300">
-              <p className="font-medium mb-3 text-white">💡 Pro Tips:</p>
+            <Lightbulb className="w-6 h-6 text-blue-500 mt-1 flex-shrink-0" />
+            <div className="text-gray-700">
+              <p className="font-medium mb-3 text-gray-900">💡 Pro Tips:</p>
               <ul className="space-y-2 text-sm">
                 <li>• <strong>Voice Input:</strong> Click the microphone and speak naturally - AllyMind understands context</li>
                 <li>• <strong>Natural Language:</strong> Use phrases like "tomorrow 3pm", "urgent", or "Friday deadline"</li>
