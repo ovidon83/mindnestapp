@@ -42,6 +42,8 @@ export const HomeView: React.FC = () => {
     today: true,
     thisWeek: true,
     insights: true,
+    ideas: true,  // New section for ideas
+    journal: true, // New section for journal entries
     later: true,  // Changed to true so users can see entries
     done: false
   });
@@ -324,6 +326,12 @@ export const HomeView: React.FC = () => {
         }
         return false;
       }),
+      ideas: filteredEntries.filter(entry => 
+        entry.type === 'idea' && entry.status !== 'completed'
+      ),
+      journal: filteredEntries.filter(entry => 
+        entry.type === 'journal' && entry.status !== 'completed'
+      ),
       later: filteredEntries.filter(entry => {
         if (entry.status === 'completed') return false;
         
@@ -353,9 +361,11 @@ export const HomeView: React.FC = () => {
           }
           return false;
         })();
+        const isInIdeas = entry.type === 'idea';
+        const isInJournal = entry.type === 'journal';
         
         // Include if not in any other section
-        return !isInUrgent && !isInToday && !isInThisWeek;
+        return !isInUrgent && !isInToday && !isInThisWeek && !isInIdeas && !isInJournal;
       }),
       done: filteredEntries.filter(entry => entry.status === 'completed')
     };
@@ -764,6 +774,100 @@ export const HomeView: React.FC = () => {
                     <p className="text-lg font-medium">No items for this week</p>
                     <p className="text-sm">Plan ahead by setting some deadlines</p>
                   </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Ideas Section */}
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <Lightbulb className="w-5 h-5 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Ideas & Insights</h3>
+                  <p className="text-sm text-gray-500">{categorizedEntries.ideas.length} creative thoughts</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setExpandedSections({ ...expandedSections, ideas: !expandedSections.ideas })}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                {expandedSections.ideas ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+              </button>
+            </div>
+            
+            {expandedSections.ideas && (
+              <div className="p-6">
+                {categorizedEntries.ideas.length > 0 ? (
+                  <div className="space-y-3">
+                    {sortEntries(categorizedEntries.ideas).map((entry) => (
+                      <EntryCard
+                        key={entry.id}
+                        entry={entry}
+                        onTogglePin={() => togglePin(entry)}
+                        onToggleComplete={() => toggleComplete(entry)}
+                        onMove={(target) => moveEntry(entry, target)}
+                        onDelete={() => deleteEntry(entry.id)}
+                        showActions={true}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <Lightbulb className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                    <p className="text-lg font-medium">No ideas captured yet</p>
+                    <p className="text-sm">Start capturing your creative thoughts and insights</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Journal Section */}
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <MessageCircle className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Journal & Reflections</h3>
+                  <p className="text-sm text-gray-500">{categorizedEntries.journal.length} personal entries</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setExpandedSections({ ...expandedSections, journal: !expandedSections.journal })}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                {expandedSections.journal ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+              </button>
+            </div>
+            
+            {expandedSections.journal && (
+              <div className="p-6">
+                {categorizedEntries.journal.length > 0 ? (
+                  <div className="space-y-3">
+                    {sortEntries(categorizedEntries.journal).map((entry) => (
+                      <EntryCard
+                        key={entry.id}
+                        entry={entry}
+                        onTogglePin={() => togglePin(entry)}
+                        onToggleComplete={() => toggleComplete(entry)}
+                        onMove={(target) => moveEntry(entry, target)}
+                        onDelete={() => deleteEntry(entry.id)}
+                        showActions={true}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <MessageCircle className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                    <p className="text-lg font-medium">No journal entries yet</p>
+                    <p className="text-sm">Capture your thoughts, feelings, and reflections</p>
+                    </div>
                 )}
               </div>
             )}
