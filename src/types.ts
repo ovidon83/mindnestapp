@@ -8,6 +8,13 @@ export type Priority = 'urgent' | 'high' | 'medium' | 'low';
 
 export type GroupingMode = 'none' | 'time' | 'type' | 'time_type' | 'type_time';
 
+export interface SubTask {
+  id: string;
+  title: string;
+  completed: boolean;
+  createdAt: Date;
+}
+
 export interface Entry {
   id: string;
   type: EntryType;
@@ -21,6 +28,10 @@ export interface Entry {
   pinned?: boolean;
   completed?: boolean; // Only for tasks
   aiConfidence?: number;
+  // New fields for enhanced task management
+  note?: string; // AI-generated insights + user notes
+  subTasks?: SubTask[];
+  progress?: number; // 0-100 based on sub-tasks completion
 }
 
 export interface HomeViewPreferences {

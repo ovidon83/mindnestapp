@@ -30,7 +30,6 @@ const HomeView: React.FC = () => {
   const [activeView, setActiveView] = useState<'todo' | 'thoughts'>('todo');
 
   const groupedEntries = getGroupedEntries();
-  const totalEntries = entries.length;
   
 
   
@@ -164,7 +163,7 @@ const HomeView: React.FC = () => {
     }
   };
 
-    const EntryRow: React.FC<{ entry: Entry }> = ({ entry }) => {
+    const TaskCard: React.FC<{ entry: Entry }> = ({ entry }) => {
     const isExpanded = expandedEntryIds.has(entry.id);
     const isCompleted = entry.type === 'task' && entry.completed;
 
@@ -357,10 +356,10 @@ const HomeView: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200/50 px-8 py-6 shadow-sm">
+      <div className="bg-white/90 backdrop-blur-sm border-b border-slate-200/30 px-8 py-6 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
               <span className="text-white text-xl font-bold">A</span>
             </div>
             <div>
@@ -368,7 +367,7 @@ const HomeView: React.FC = () => {
                 AllyMind
               </h1>
               <p className="text-sm text-slate-500 font-medium">
-                {totalEntries} entries organized
+                Intelligent task & thought management
               </p>
             </div>
           </div>
@@ -376,7 +375,7 @@ const HomeView: React.FC = () => {
           <div className="flex items-center space-x-4">
             <button
               onClick={() => setCurrentView('capture')}
-              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-semibold"
+              className="px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-semibold"
             >
               + New Entry
             </button>
@@ -391,8 +390,20 @@ const HomeView: React.FC = () => {
         </div>
       </div>
 
+      {/* Greeting Section */}
+      <div className="bg-white/70 backdrop-blur-sm border-b border-slate-200/20 px-8 py-8">
+        <div className="text-center">
+          <h2 className="text-4xl font-bold text-slate-800 mb-2">
+            Good Morning! 👋
+          </h2>
+          <p className="text-lg text-slate-600">
+            What do you plan to do today?
+          </p>
+        </div>
+      </div>
+
       {/* Sub-view Navigation */}
-      <div className="bg-white/60 backdrop-blur-sm border-b border-slate-200/30 px-8 py-4">
+      <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200/30 px-8 py-4">
         <div className="flex items-center space-x-8">
           {/* View Tabs */}
           <div className="flex space-x-1 bg-slate-100/80 rounded-xl p-1">
@@ -428,7 +439,7 @@ const HomeView: React.FC = () => {
                 placeholder="Search entries... (Press / to focus)"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border border-slate-200/50 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-200"
+                className="w-full pl-12 pr-4 py-3 border border-slate-200/50 rounded-xl focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-200"
               />
             </div>
           </div>
@@ -448,23 +459,15 @@ const HomeView: React.FC = () => {
 
       {/* Content */}
       <div className="flex-1 overflow-auto">
-        {/* Always show Today section first */}
-        <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200/30">
-          <div className="flex items-center justify-between px-8 py-4 bg-gradient-to-r from-blue-50/80 to-indigo-100/80">
-            <div className="flex items-center space-x-4">
-              <Clock className="w-5 h-5 text-blue-500" />
-              <h2 className="text-xl font-bold text-slate-800">Today</h2>
-              <span className="text-sm font-semibold text-slate-600 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-slate-200/50 shadow-sm">
-                {entries.filter(entry => {
-                  if (activeView === 'todo' && entry.type !== 'task') return false;
-                  if (activeView === 'thoughts' && entry.type !== 'thought') return false;
-                  return entry.timeBucket === 'today' || entry.timeBucket === 'overdue';
-                }).length}
-              </span>
-            </div>
+        {/* Today's Tasks Section */}
+        <div className="px-8 py-6">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-slate-800 mb-2">Today's Tasks</h2>
+            <p className="text-slate-600">Focus on what matters most today</p>
           </div>
           
-          <div className="divide-y divide-slate-100">
+          {/* Task Cards */}
+          <div className="space-y-4">
             {entries
               .filter(entry => {
                 if (activeView === 'todo' && entry.type !== 'task') return false;
@@ -472,16 +475,15 @@ const HomeView: React.FC = () => {
                 return entry.timeBucket === 'today' || entry.timeBucket === 'overdue';
               })
               .map((entry) => (
-                <EntryRow key={entry.id} entry={entry} />
+                <TaskCard key={entry.id} entry={entry} />
               ))}
           </div>
         </div>
 
-        {/* Show other time buckets */}
+        {/* Other Time Buckets */}
         {Object.entries(groupedEntries)
           .filter(([groupName]) => groupName !== 'today' && groupName !== 'overdue')
           .map(([groupName, groupEntries]) => {
-            // Filter entries based on active view
             const filteredEntries = groupEntries.filter(entry => {
               if (activeView === 'todo' && entry.type !== 'task') return false;
               if (activeView === 'thoughts' && entry.type !== 'thought') return false;
@@ -491,24 +493,17 @@ const HomeView: React.FC = () => {
             if (filteredEntries.length === 0) return null;
             
             return (
-              <div key={groupName} className="bg-white/80 backdrop-blur-sm border-b border-slate-200/30">
-                {/* Group header */}
-                <div className="flex items-center justify-between px-8 py-4 bg-gradient-to-r from-slate-50/80 to-slate-100/80">
-                  <div className="flex items-center space-x-4">
-                    <Clock className="w-5 h-5 text-slate-500" />
-                    <h2 className="text-xl font-bold text-slate-800">
-                      {getTimeBucketLabel(groupName as TimeBucket)}
-                    </h2>
-                    <span className="text-sm font-semibold text-slate-600 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-slate-200/50 shadow-sm">
-                      {filteredEntries.length}
-                    </span>
-                  </div>
+              <div key={groupName} className="px-8 py-6 border-t border-slate-200/30">
+                <div className="mb-6">
+                  <h2 className="text-2xl font-bold text-slate-800 mb-2">
+                    {getTimeBucketLabel(groupName as TimeBucket)}
+                  </h2>
+                  <p className="text-slate-600">{filteredEntries.length} items</p>
                 </div>
                 
-                {/* Group content */}
-                <div className="divide-y divide-slate-100">
+                <div className="space-y-4">
                   {filteredEntries.map((entry) => (
-                    <EntryRow key={entry.id} entry={entry} />
+                    <TaskCard key={entry.id} entry={entry} />
                   ))}
                 </div>
               </div>
@@ -523,14 +518,14 @@ const HomeView: React.FC = () => {
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">No entries found</h3>
             <p className="text-gray-500 mb-4">
-              Try adjusting your filters or search query
+              Try adjusting your search query
             </p>
             <button
               onClick={() => {
                 setSearchQuery('');
                 setSearchInput('');
               }}
-              className="px-6 py-3 bg-gradient-to-r from-slate-500 to-slate-600 text-white rounded-xl hover:from-slate-600 hover:to-slate-700 transition-all duration-200 shadow-sm hover:shadow-md font-medium"
+              className="px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-sm hover:shadow-md font-medium"
             >
               Clear search
             </button>
