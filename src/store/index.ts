@@ -7,9 +7,6 @@ interface AllyMindStore {
   homeViewPrefs: HomeViewPreferences;
   currentView: AppView;
   
-  // Migration
-  migrateOldEntries: () => Entry[];
-  
   // Entry management
   addEntry: (entry: Omit<Entry, 'id' | 'createdAt' | 'timeBucket'>) => void;
   updateEntry: (id: string, updates: Partial<Entry>) => void;
@@ -63,35 +60,7 @@ export const useAllyMindStore = create<AllyMindStore>()(
       homeViewPrefs: defaultHomeViewPrefs,
       currentView: 'capture' as AppView,
       
-      // Migration function to convert old entries to new format
-      migrateOldEntries: () => {
-        const { entries } = get();
-        const migratedEntries = entries.map(entry => {
-          // Check if this is an old entry format
-          if ('content' in entry && !('title' in entry)) {
-            // Convert old format to new format
-            const oldEntry = entry as any;
-            return {
-              id: oldEntry.id,
-              type: oldEntry.type === 'task' ? 'task' : 'thought', // Convert to simplified types
-              title: oldEntry.content?.substring(0, 100) || 'Untitled',
-              body: oldEntry.content || '',
-              tags: oldEntry.tags || [],
-              createdAt: oldEntry.createdAt ? new Date(oldEntry.createdAt) : new Date(),
-              dueAt: oldEntry.dueDate ? new Date(oldEntry.dueDate) : undefined,
-              timeBucket: get().getTimeBucketFromDate(oldEntry.dueDate ? new Date(oldEntry.dueDate) : undefined),
-              priority: oldEntry.priority,
-              pinned: oldEntry.pinnedForDate ? true : false,
-              completed: oldEntry.status === 'completed',
-              aiConfidence: oldEntry.confidence || 0.8,
-            } as Entry;
-          }
-          return entry;
-        });
-        
-        set({ entries: migratedEntries });
-        return migratedEntries;
-      },
+
 
       addEntry: (entryData) => {
         const now = new Date();
@@ -278,25 +247,49 @@ export const useAllyMindStore = create<AllyMindStore>()(
         const { filters, searchQuery } = homeViewPrefs;
         
         return entries.filter((entry) => {
-          // Type filter
-          if (!filters.types.includes(entry.type)) return false;
+          // Handle both old and new entry formats using type assertion
+          const oldEntry = entry as any;
+          const entryType = entry.type || 'thought'; // Default to thought for old entries
+          const entryCompleted = entry.completed || oldEntry.status === 'completed' || false;
+          const entryPinned = entry.pinned || !!oldEntry.pinnedForDate || false;
           
-          // Time bucket filter
-          if (!filters.timeBuckets.includes(entry.timeBucket)) return false;
+          // Type filter - convert old types to new simplified types
+          let normalizedType = entryType;
+          if (['idea', 'insight', 'reflection', 'journal', 'reminder', 'note', 'event'].includes(entryType)) {
+            normalizedType = 'thought';
+          }
+          if (!filters.types.includes(normalizedType as any)) return false;
+          
+          // Time bucket filter - calculate for old entries if missing
+          let timeBucket = entry.timeBucket;
+          if (!timeBucket) {
+            if (oldEntry.dueDate) {
+              timeBucket = get().getTimeBucketFromDate(new Date(oldEntry.dueDate));
+            } else if (oldEntry.pinnedForDate) {
+              timeBucket = get().getTimeBucketFromDate(new Date(oldEntry.pinnedForDate));
+            } else {
+              timeBucket = 'none';
+            }
+          }
+          if (!filters.timeBuckets.includes(timeBucket)) return false;
           
           // Status filter
-          if (filters.status === 'incomplete' && entry.completed) return false;
-          if (filters.status === 'completed' && !entry.completed) return false;
+          if (filters.status === 'incomplete' && entryCompleted) return false;
+          if (filters.status === 'completed' && !entryCompleted) return false;
           
           // Pinned filter
-          if (filters.pinnedOnly && !entry.pinned) return false;
+          if (filters.pinnedOnly && !entryPinned) return false;
           
           // Search filter
           if (searchQuery) {
             const query = searchQuery.toLowerCase();
-            const matchesTitle = entry.title.toLowerCase().includes(query);
-            const matchesBody = entry.body.toLowerCase().includes(query);
-            const matchesTags = entry.tags.some(tag => tag.toLowerCase().includes(query));
+            const content = entry.title || oldEntry.content || '';
+            const body = entry.body || oldEntry.content || '';
+            const tags = entry.tags || [];
+            
+            const matchesTitle = content.toLowerCase().includes(query);
+            const matchesBody = body.toLowerCase().includes(query);
+            const matchesTags = tags.some(tag => tag.toLowerCase().includes(query));
             if (!matchesTitle && !matchesBody && !matchesTags) return false;
           }
           
@@ -365,7 +358,18 @@ export const useAllyMindStore = create<AllyMindStore>()(
         if (grouping === 'time') {
           const groups: Record<string, Entry[]> = {};
           sortedEntries.forEach((entry) => {
-            const group = entry.timeBucket;
+            // Handle old entries that might not have timeBucket
+            let group = entry.timeBucket;
+            if (!group) {
+              const oldEntry = entry as any;
+              if (oldEntry.dueDate) {
+                group = get().getTimeBucketFromDate(new Date(oldEntry.dueDate));
+              } else if (oldEntry.pinnedForDate) {
+                group = get().getTimeBucketFromDate(new Date(oldEntry.pinnedForDate));
+              } else {
+                group = 'none';
+              }
+            }
             if (!groups[group]) groups[group] = [];
             groups[group].push(entry);
           });
@@ -375,7 +379,11 @@ export const useAllyMindStore = create<AllyMindStore>()(
         if (grouping === 'type') {
           const groups: Record<string, Entry[]> = {};
           sortedEntries.forEach((entry) => {
-            const group = entry.type;
+            // Handle old entry types - convert to simplified types
+            let group = entry.type;
+            if (['idea', 'insight', 'reflection', 'journal', 'reminder', 'note', 'event'].includes(group)) {
+              group = 'thought';
+            }
             if (!groups[group]) groups[group] = [];
             groups[group].push(entry);
           });
