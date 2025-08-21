@@ -49,16 +49,7 @@ const HomeView: React.FC = () => {
   const totalEntries = entries.length;
   const filteredCount = Object.values(groupedEntries).reduce((sum, group) => sum + group.length, 0);
   
-  // Debug: Log entries to see what's happening
-  console.log('=== DEBUG INFO ===');
-  console.log('Total entries in store:', totalEntries);
-  console.log('Current filters:', homeViewPrefs.filters);
-  console.log('Raw entries:', entries);
-  console.log('First few entries sample:', entries.slice(0, 3));
-  console.log('Grouped entries:', groupedEntries);
-  console.log('Filtered count:', filteredCount);
-  console.log('Group names:', Object.keys(groupedEntries));
-  console.log('=== END DEBUG ===');
+
   
 
 
@@ -597,36 +588,6 @@ const HomeView: React.FC = () => {
 
       {/* Content */}
       <div className="flex-1 overflow-auto">
-        {/* Temporary: Show all entries if filtering is too restrictive */}
-        {totalEntries > 0 && Object.keys(groupedEntries).length === 0 && (
-          <div className="bg-yellow-50/80 border-b border-yellow-200/30 px-8 py-6">
-            <div className="text-center">
-              <h3 className="text-lg font-semibold text-yellow-800 mb-2">⚠️ Filtering Issue Detected</h3>
-              <p className="text-yellow-700 mb-4">
-                You have {totalEntries} entries but none are showing. This suggests a filtering problem.
-              </p>
-              <div className="flex justify-center space-x-3">
-                <button
-                  onClick={() => {
-                    // Force show all entries by setting very permissive filters
-                    setFilters({
-                      types: ['task', 'thought'],
-                      timeBuckets: ['overdue', 'today', 'tomorrow', 'this_week', 'next_week', 'later', 'someday', 'none'],
-                      status: 'both',
-                      pinnedOnly: false,
-                    });
-                    setSearchQuery('');
-                    setSearchInput('');
-                  }}
-                  className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-xl hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 shadow-sm hover:shadow-md font-medium"
-                >
-                  🔧 Fix Filters
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-        
         {Object.entries(groupedEntries).map(([groupName, groupEntries]) => (
           <div key={groupName} className="bg-white/80 backdrop-blur-sm border-b border-slate-200/30">
             {/* Group header */}
@@ -683,41 +644,21 @@ const HomeView: React.FC = () => {
             <p className="text-gray-500 mb-4">
               Try adjusting your filters or search query
             </p>
-            <div className="flex space-x-3">
-              <button
-                onClick={() => {
-                  setFilters({
-                    types: ['task', 'thought'],
-                    timeBuckets: ['overdue', 'today', 'tomorrow', 'this_week', 'next_week', 'later', 'someday', 'none'],
-                    status: 'both',
-                    pinnedOnly: false,
-                  });
-                  setSearchQuery('');
-                  setSearchInput('');
-                }}
-                className="px-6 py-3 bg-gradient-to-r from-slate-500 to-slate-600 text-white rounded-xl hover:from-slate-600 hover:to-slate-700 transition-all duration-200 shadow-sm hover:shadow-md font-medium"
-              >
-                Clear all filters
-              </button>
-              
-              <button
-                onClick={() => {
-                  // Force show all entries by setting very permissive filters
-                  setFilters({
-                    types: ['task', 'thought'],
-                    timeBuckets: ['overdue', 'today', 'tomorrow', 'this_week', 'next_week', 'later', 'someday', 'none'],
-                    status: 'both',
-                    pinnedOnly: false,
-                  });
-                  setSearchQuery('');
-                  setSearchInput('');
-                  console.log('Force showing all entries. Current entries:', entries);
-                }}
-                className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-sm hover:shadow-md font-medium"
-              >
-                🔍 Show All Entries
-              </button>
-            </div>
+            <button
+              onClick={() => {
+                setFilters({
+                  types: ['task', 'thought'],
+                  timeBuckets: ['overdue', 'today', 'tomorrow', 'this_week', 'next_week', 'later', 'someday', 'none'],
+                  status: 'both',
+                  pinnedOnly: false,
+                });
+                setSearchQuery('');
+                setSearchInput('');
+              }}
+              className="px-6 py-3 bg-gradient-to-r from-slate-500 to-slate-600 text-white rounded-xl hover:from-slate-600 hover:to-slate-700 transition-all duration-200 shadow-sm hover:shadow-md font-medium"
+            >
+              Clear all filters
+            </button>
           </div>
         )}
       </div>

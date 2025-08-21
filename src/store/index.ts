@@ -243,81 +243,15 @@ export const useAllyMindStore = create<AllyMindStore>()(
       },
 
       getFilteredEntries: () => {
-        const { entries, homeViewPrefs } = get();
-        const { filters, searchQuery } = homeViewPrefs;
+        const { entries } = get();
         
-        return entries.filter((entry) => {
-          try {
-            // Handle both old and new entry formats using type assertion
-            const oldEntry = entry as any;
-            const entryType = entry.type || 'thought'; // Default to thought for old entries
-            const entryCompleted = entry.completed || oldEntry.status === 'completed' || false;
-            const entryPinned = entry.pinned || !!oldEntry.pinnedForDate || false;
-            
-            // Type filter - convert old types to new simplified types
-            let normalizedType = entryType;
-            if (['idea', 'insight', 'reflection', 'journal', 'reminder', 'note', 'event'].includes(entryType)) {
-              normalizedType = 'thought';
-            }
-            if (!filters.types.includes(normalizedType as any)) return false;
-            
-            // Time bucket filter - calculate for old entries if missing
-            let timeBucket = entry.timeBucket;
-            if (!timeBucket) {
-              if (oldEntry.dueDate) {
-                try {
-                  const dueDate = new Date(oldEntry.dueDate);
-                  if (!isNaN(dueDate.getTime())) {
-                    timeBucket = get().getTimeBucketFromDate(dueDate);
-                  } else {
-                    timeBucket = 'none';
-                  }
-                } catch {
-                  timeBucket = 'none';
-                }
-              } else if (oldEntry.pinnedForDate) {
-                try {
-                  const pinnedDate = new Date(oldEntry.pinnedForDate);
-                  if (!isNaN(pinnedDate.getTime())) {
-                    timeBucket = get().getTimeBucketFromDate(pinnedDate);
-                  } else {
-                    timeBucket = 'none';
-                  }
-                } catch {
-                  timeBucket = 'none';
-                }
-              } else {
-                timeBucket = 'none';
-              }
-            }
-            if (!filters.timeBuckets.includes(timeBucket)) return false;
-            
-            // Status filter
-            if (filters.status === 'incomplete' && entryCompleted) return false;
-            if (filters.status === 'completed' && !entryCompleted) return false;
-            
-            // Pinned filter
-            if (filters.pinnedOnly && !entryPinned) return false;
-            
-            // Search filter
-            if (searchQuery) {
-              const query = searchQuery.toLowerCase();
-              const content = entry.title || oldEntry.content || '';
-              const body = entry.body || oldEntry.content || '';
-              const tags = entry.tags || [];
-              
-              const matchesTitle = content.toLowerCase().includes(query);
-              const matchesBody = body.toLowerCase().includes(query);
-              const matchesTags = tags.some(tag => tag.toLowerCase().includes(query));
-              if (!matchesTitle && !matchesBody && !matchesTags) return false;
-            }
-            
-            return true;
-          } catch (error) {
-            console.error('Error filtering entry:', entry, error);
-            return false; // Skip problematic entries
-          }
-        });
+        // TEMPORARY: Show ALL entries until we fix the filtering
+        if (entries.length > 0) {
+          console.log('SHOWING ALL ENTRIES - FILTERING DISABLED');
+          return entries;
+        }
+        
+        return [];
       },
 
       getGroupedEntries: () => {
