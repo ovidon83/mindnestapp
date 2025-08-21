@@ -415,6 +415,12 @@ const HomeView: React.FC = () => {
               + New Entry
             </button>
             <button
+              onClick={() => setCurrentView('capture')}
+              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              ← Back to Capture
+            </button>
+            <button
               onClick={() => setShowKeyboardShortcuts(!showKeyboardShortcuts)}
               className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
               title="Keyboard shortcuts"

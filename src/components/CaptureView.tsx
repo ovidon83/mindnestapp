@@ -5,7 +5,7 @@ import { Mic, MicOff, Sparkles, CheckCircle, Circle } from 'lucide-react';
 import * as chrono from 'chrono-node';
 
 const CaptureView: React.FC = () => {
-  const { addEntry } = useAllyMindStore();
+  const { addEntry, setCurrentView } = useAllyMindStore();
   const [inputText, setInputText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -197,12 +197,15 @@ const CaptureView: React.FC = () => {
       
       // Show success message
       setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
+      setTimeout(() => setShowSuccess(false), 2000);
       
       // Reset form
       setInputText('');
       setTranscript('');
       setIsRecording(false);
+      
+      // Navigate to Home view to see the entries
+      setTimeout(() => setCurrentView('home'), 2000);
       
     } catch (error) {
       console.error('Error processing input:', error);
@@ -228,6 +231,14 @@ const CaptureView: React.FC = () => {
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">AllyMind</h1>
           <p className="text-lg text-gray-600">Because your thoughts deserve intelligent organization!</p>
+          
+          {/* Navigation Button */}
+          <button
+            onClick={() => setCurrentView('home')}
+            className="mt-4 px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+          >
+            View All Entries →
+          </button>
         </div>
 
         {/* Main Input Card */}
