@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Entry, EntryType, TimeBucket, Priority, HomeViewPreferences, GroupingMode, AppView } from '../types';
+import { Entry, TimeBucket, Priority, HomeViewPreferences, GroupingMode, AppView } from '../types';
 
 interface AllyMindStore {
   entries: Entry[];
@@ -235,7 +235,7 @@ export const useAllyMindStore = create<AllyMindStore>()(
       },
 
       setCurrentView: (view) => {
-        set((state) => ({
+        set(() => ({
           currentView: view,
         }));
       },
@@ -285,7 +285,7 @@ export const useAllyMindStore = create<AllyMindStore>()(
             const bOrder = timeOrder.indexOf(b.timeBucket);
             if (aOrder !== bOrder) return aOrder - bOrder;
           } else if (sort.primary === 'priority') {
-            const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 };
+            const priorityOrder: Record<Priority, number> = { urgent: 0, high: 1, medium: 2, low: 3 };
             const aPriority = a.priority ? priorityOrder[a.priority] : 4;
             const bPriority = b.priority ? priorityOrder[b.priority] : 4;
             if (aPriority !== bPriority) return aPriority - bPriority;
@@ -303,7 +303,7 @@ export const useAllyMindStore = create<AllyMindStore>()(
           
           // Secondary sort
           if (sort.secondary === 'priority') {
-            const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 };
+            const priorityOrder: Record<Priority, number> = { urgent: 0, high: 1, medium: 2, low: 3 };
             const aPriority = a.priority ? priorityOrder[a.priority] : 4;
             const bPriority = b.priority ? priorityOrder[b.priority] : 4;
             if (aPriority !== bPriority) return aPriority - bPriority;

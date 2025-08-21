@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useAllyMindStore } from '../store';
 import { Entry, EntryType, TimeBucket, Priority, GroupingMode } from '../types';
 import { 
@@ -14,12 +14,7 @@ import {
   Star,
   StarOff,
   MoreHorizontal,
-  Edit3,
-  Trash2,
-  Calendar,
-  Tag,
-  ArrowUpDown,
-  X,
+
   HelpCircle,
   CheckSquare,
   Square
@@ -30,10 +25,8 @@ const HomeView: React.FC = () => {
     entries,
     homeViewPrefs,
     getGroupedEntries,
-    updateHomeViewPrefs,
     setGrouping,
     setFilters,
-    setSort,
     toggleGroupCollapsed,
     setSearchQuery,
     toggleEntryComplete,
@@ -43,14 +36,13 @@ const HomeView: React.FC = () => {
     bulkComplete,
     bulkDelete,
     bulkDefer,
-    bulkAddTags,
     setCurrentView
   } = useAllyMindStore();
 
   const [selectedEntryIds, setSelectedEntryIds] = useState<Set<string>>(new Set());
   const [expandedEntryIds, setSelectedExpandedIds] = useState<Set<string>>(new Set());
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
-  const [showBulkActions, setShowBulkActions] = useState(false);
+
   const [searchInput, setSearchInput] = useState(homeViewPrefs.searchQuery);
 
   const groupedEntries = getGroupedEntries();
@@ -121,10 +113,7 @@ const HomeView: React.FC = () => {
     });
   }, []);
 
-  const handleSelectAll = useCallback(() => {
-    const allIds = new Set(Object.values(groupedEntries).flat().map(entry => entry.id));
-    setSelectedEntryIds(allIds);
-  }, [groupedEntries]);
+
 
   const handleDeselectAll = useCallback(() => {
     setSelectedEntryIds(new Set());

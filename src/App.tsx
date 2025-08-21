@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useAllyMindStore } from './store';
-import { AppView } from './types';
 import CaptureView from './components/CaptureView';
 import HomeView from './components/HomeView';
 
 const App: React.FC = () => {
-  const { currentView, setCurrentView } = useAllyMindStore();
+  const { currentView } = useAllyMindStore();
 
   return (
     <div className="App">

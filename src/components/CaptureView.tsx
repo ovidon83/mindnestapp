@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAllyMindStore } from '../store';
-import { Entry, EntryType, Priority, TimeBucket } from '../types';
-import { Mic, MicOff, Send, Sparkles, CheckCircle, Circle } from 'lucide-react';
+import { Entry, EntryType, Priority } from '../types';
+import { Mic, MicOff, Sparkles, CheckCircle, Circle } from 'lucide-react';
 import * as chrono from 'chrono-node';
 
 const CaptureView: React.FC = () => {
