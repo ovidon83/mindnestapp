@@ -364,8 +364,10 @@ export const useAllyMindStore = create<AllyMindStore>()(
         const lowerText = text.toLowerCase();
         
         if (type === 'task') {
-          // Generate specific insights based on task content
-          if (lowerText.includes('design') || lowerText.includes('create')) {
+          // Generate specific insights based on task content with topic research
+          if (lowerText.includes('immigration') || lowerText.includes('visa') || lowerText.includes('citizenship')) {
+            return `🌍 Immigration Task: This is a complex legal process that requires careful planning. Start by researching your specific visa type, gathering required documents, and understanding timelines. Consider consulting with an immigration lawyer for complex cases. Key areas to focus on: document preparation, timeline management, and understanding legal requirements.`;
+          } else if (lowerText.includes('design') || lowerText.includes('create')) {
             return `🎨 Design Task: Start with research and inspiration gathering. Consider user needs and create multiple iterations. Don't forget to get feedback early and often.`;
           } else if (lowerText.includes('write') || lowerText.includes('content')) {
             return `✍️ Writing Task: Begin with an outline or mind map. Consider your audience and key messages. Break into smaller writing sessions for better focus.`;
@@ -375,8 +377,22 @@ export const useAllyMindStore = create<AllyMindStore>()(
             return `📚 Learning Task: Use spaced repetition techniques. Practice actively rather than just reading. Consider finding a study partner or mentor.`;
           } else if (lowerText.includes('organize') || lowerText.includes('clean')) {
             return `🧹 Organization Task: Start with the most visible areas first. Use the "touch once" rule - don't just move things around.`;
+          } else if (lowerText.includes('plan') || lowerText.includes('strategy')) {
+            return `📋 Planning Task: Break this into phases with clear milestones. Consider dependencies, resources needed, and potential obstacles. Create a timeline with realistic deadlines.`;
+          } else if (lowerText.includes('research') || lowerText.includes('investigate')) {
+            return `🔬 Research Task: Define your research question clearly. Use multiple sources and cross-reference information. Document your findings systematically and consider the reliability of your sources.`;
+          } else if (lowerText.includes('build') || lowerText.includes('develop')) {
+            return `🏗️ Development Task: Start with requirements gathering and planning. Break into development phases, consider testing at each stage, and plan for deployment and maintenance.`;
+          } else if (lowerText.includes('travel') || lowerText.includes('trip')) {
+            return `✈️ Travel Task: Research destinations, check visa requirements, book accommodations early, and plan your itinerary. Don't forget travel insurance and emergency contacts.`;
+          } else if (lowerText.includes('health') || lowerText.includes('medical') || lowerText.includes('doctor')) {
+            return `🏥 Health Task: Research your symptoms, find qualified healthcare providers, prepare questions for your appointment, and gather relevant medical history. Consider second opinions for major decisions.`;
+          } else if (lowerText.includes('finance') || lowerText.includes('money') || lowerText.includes('investment')) {
+            return `💰 Financial Task: Research your options thoroughly, understand risks and benefits, consider consulting a financial advisor, and create a plan that aligns with your long-term goals.`;
+          } else if (lowerText.includes('career') || lowerText.includes('job') || lowerText.includes('work')) {
+            return `💼 Career Task: Research the market, update your skills, network actively, and prepare thoroughly for interviews. Consider both short-term opportunities and long-term career trajectory.`;
           } else {
-            return `✅ Actionable Task: Break this down into smaller, specific steps. Set a realistic deadline and consider what resources you'll need.`;
+            return `✅ Actionable Task: Break this down into smaller, specific steps. Set a realistic deadline and consider what resources you'll need. Research the topic to understand best practices and common pitfalls.`;
           }
         } else {
           // Generate insights for thoughts/reflections
@@ -397,47 +413,133 @@ export const useAllyMindStore = create<AllyMindStore>()(
         const now = new Date();
         const lowerText = text.toLowerCase();
         
-        if (lowerText.includes('design') || lowerText.includes('create')) {
+        // Immigration-specific sub-tasks
+        if (lowerText.includes('immigration') || lowerText.includes('visa') || lowerText.includes('citizenship')) {
           subTasks.push(
-            { id: crypto.randomUUID(), title: 'Research and gather inspiration', completed: false, createdAt: now },
-            { id: crypto.randomUUID(), title: 'Create initial mockups', completed: false, createdAt: now },
-            { id: crypto.randomUUID(), title: 'Get feedback and iterate', completed: false, createdAt: now },
-            { id: crypto.randomUUID(), title: 'Finalize design', completed: false, createdAt: now }
+            { id: crypto.randomUUID(), title: 'Research visa types and eligibility requirements', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Gather required documents (passport, photos, financial statements)', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Complete application forms accurately', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Schedule biometrics appointment if required', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Prepare for interview (practice common questions)', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Submit application and track status', completed: false, createdAt: now }
+          );
+        } else if (lowerText.includes('design') || lowerText.includes('create')) {
+          subTasks.push(
+            { id: crypto.randomUUID(), title: 'Research target audience and user needs', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Gather inspiration and create mood board', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Create wireframes and user flow diagrams', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Design high-fidelity mockups', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Get stakeholder feedback and iterate', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Prepare design specifications for development', completed: false, createdAt: now }
           );
         } else if (lowerText.includes('write') || lowerText.includes('content')) {
           subTasks.push(
-            { id: crypto.randomUUID(), title: 'Research and outline main points', completed: false, createdAt: now },
-            { id: crypto.randomUUID(), title: 'Write first draft', completed: false, createdAt: now },
-            { id: crypto.randomUUID(), title: 'Review and edit', completed: false, createdAt: now },
-            { id: crypto.randomUUID(), title: 'Get feedback and finalize', completed: false, createdAt: now }
+            { id: crypto.randomUUID(), title: 'Research topic and gather key information', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Create detailed outline with main points', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Write first draft focusing on structure', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Revise for clarity and flow', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Edit for grammar and style', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Get feedback and make final revisions', completed: false, createdAt: now }
           );
         } else if (lowerText.includes('meet') || lowerText.includes('call')) {
           subTasks.push(
-            { id: crypto.randomUUID(), title: 'Prepare agenda and key points', completed: false, createdAt: now },
-            { id: crypto.randomUUID(), title: 'Schedule meeting', completed: false, createdAt: now },
-            { id: crypto.randomUUID(), title: 'Conduct meeting', completed: false, createdAt: now },
-            { id: crypto.randomUUID(), title: 'Follow up with action items', completed: false, createdAt: now }
+            { id: crypto.randomUUID(), title: 'Define meeting objectives and desired outcomes', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Prepare detailed agenda with time allocations', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Research participants and their backgrounds', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Schedule meeting and send calendar invites', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Conduct meeting and take detailed notes', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Send follow-up email with action items and next steps', completed: false, createdAt: now }
           );
         } else if (lowerText.includes('learn') || lowerText.includes('study')) {
           subTasks.push(
-            { id: crypto.randomUUID(), title: 'Set learning objectives', completed: false, createdAt: now },
-            { id: crypto.randomUUID(), title: 'Gather learning resources', completed: false, createdAt: now },
-            { id: crypto.randomUUID(), title: 'Practice and apply knowledge', completed: false, createdAt: now },
-            { id: crypto.randomUUID(), title: 'Review and reinforce', completed: false, createdAt: now }
+            { id: crypto.randomUUID(), title: 'Define specific learning objectives and success criteria', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Research best learning resources and courses', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Create study schedule with regular practice sessions', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Practice hands-on exercises and real-world applications', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Test knowledge with quizzes and assessments', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Apply learning to practical projects and share knowledge', completed: false, createdAt: now }
           );
         } else if (lowerText.includes('organize') || lowerText.includes('clean')) {
           subTasks.push(
-            { id: crypto.randomUUID(), title: 'Assess current state', completed: false, createdAt: now },
-            { id: crypto.randomUUID(), title: 'Create organization system', completed: false, createdAt: now },
-            { id: crypto.randomUUID(), title: 'Implement organization', completed: false, createdAt: now },
-            { id: crypto.randomUUID(), title: 'Maintain and improve', completed: false, createdAt: now }
+            { id: crypto.randomUUID(), title: 'Assess current state and identify problem areas', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Declutter and remove unnecessary items', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Create logical organization system with clear categories', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Implement organization system consistently', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Label and document organization system', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Establish maintenance routine and habits', completed: false, createdAt: now }
+          );
+        } else if (lowerText.includes('plan') || lowerText.includes('strategy')) {
+          subTasks.push(
+            { id: crypto.randomUUID(), title: 'Define clear goals and success metrics', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Research best practices and case studies', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Identify key stakeholders and get their input', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Create detailed timeline with milestones', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Identify potential risks and mitigation strategies', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Develop communication and monitoring plan', completed: false, createdAt: now }
+          );
+        } else if (lowerText.includes('research') || lowerText.includes('investigate')) {
+          subTasks.push(
+            { id: crypto.randomUUID(), title: 'Define research question and scope clearly', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Identify reliable sources and databases', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Gather and organize relevant information', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Analyze data and identify patterns', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Cross-reference findings with multiple sources', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Document findings and create summary report', completed: false, createdAt: now }
+          );
+        } else if (lowerText.includes('build') || lowerText.includes('develop')) {
+          subTasks.push(
+            { id: crypto.randomUUID(), title: 'Gather detailed requirements from stakeholders', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Create technical architecture and design documents', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Set up development environment and tools', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Develop core features with regular testing', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Conduct thorough testing and bug fixes', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Deploy and monitor performance in production', completed: false, createdAt: now }
+          );
+        } else if (lowerText.includes('travel') || lowerText.includes('trip')) {
+          subTasks.push(
+            { id: crypto.randomUUID(), title: 'Research destination and create bucket list', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Check visa requirements and travel restrictions', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Book flights and accommodations early', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Plan detailed itinerary with local attractions', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Arrange travel insurance and emergency contacts', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Prepare packing list and travel documents', completed: false, createdAt: now }
+          );
+        } else if (lowerText.includes('health') || lowerText.includes('medical') || lowerText.includes('doctor')) {
+          subTasks.push(
+            { id: crypto.randomUUID(), title: 'Research symptoms and possible conditions', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Find qualified healthcare providers in your area', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Prepare detailed list of symptoms and timeline', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Gather relevant medical history and records', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Schedule appointment and prepare questions', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Follow up on recommendations and treatment plan', completed: false, createdAt: now }
+          );
+        } else if (lowerText.includes('finance') || lowerText.includes('money') || lowerText.includes('investment')) {
+          subTasks.push(
+            { id: crypto.randomUUID(), title: 'Assess current financial situation and goals', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Research different options and their pros/cons', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Calculate costs, fees, and potential returns', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Consult with financial advisor if needed', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Create detailed plan with timeline and milestones', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Implement plan and monitor progress regularly', completed: false, createdAt: now }
+          );
+        } else if (lowerText.includes('career') || lowerText.includes('job') || lowerText.includes('work')) {
+          subTasks.push(
+            { id: crypto.randomUUID(), title: 'Research job market and salary expectations', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Update resume and LinkedIn profile', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Identify target companies and networking opportunities', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Practice interview questions and scenarios', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Apply to relevant positions and follow up', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Evaluate offers and negotiate terms', completed: false, createdAt: now }
           );
         } else {
+          // Generic but more thoughtful sub-tasks
           subTasks.push(
-            { id: crypto.randomUUID(), title: 'Plan approach and timeline', completed: false, createdAt: now },
-            { id: crypto.randomUUID(), title: 'Execute main work', completed: false, createdAt: now },
-            { id: crypto.randomUUID(), title: 'Review and refine', completed: false, createdAt: now },
-            { id: crypto.randomUUID(), title: 'Complete and document', completed: false, createdAt: now }
+            { id: crypto.randomUUID(), title: 'Research topic thoroughly and gather information', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Break down into logical phases or steps', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Identify required resources and dependencies', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Create timeline with realistic deadlines', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Execute plan with regular progress checks', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Review outcomes and document lessons learned', completed: false, createdAt: now }
           );
         }
         
