@@ -36,7 +36,8 @@ const HomeView: React.FC = () => {
     bulkComplete,
     bulkDelete,
     bulkDefer,
-    setCurrentView
+    setCurrentView,
+    migrateOldEntries
   } = useAllyMindStore();
 
   const [selectedEntryIds, setSelectedEntryIds] = useState<Set<string>>(new Set());
@@ -48,6 +49,12 @@ const HomeView: React.FC = () => {
   const groupedEntries = getGroupedEntries();
   const totalEntries = entries.length;
   const filteredCount = Object.values(groupedEntries).reduce((sum, group) => sum + group.length, 0);
+  
+  // Debug: Log entries to see what's in the store
+  console.log('Total entries in store:', totalEntries);
+  console.log('Entries:', entries);
+  console.log('Grouped entries:', groupedEntries);
+  console.log('Filtered count:', filteredCount);
 
   // Debounced search
   useEffect(() => {
@@ -612,21 +619,36 @@ const HomeView: React.FC = () => {
             <p className="text-gray-500 mb-4">
               Try adjusting your filters or search query
             </p>
-            <button
-              onClick={() => {
-                setFilters({
-                  types: ['task', 'thought'],
-                  timeBuckets: ['overdue', 'today', 'tomorrow', 'this_week', 'next_week', 'later', 'someday'],
-                  status: 'incomplete',
-                  pinnedOnly: false,
-                });
-                setSearchQuery('');
-                setSearchInput('');
-              }}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Clear all filters
-            </button>
+            <div className="space-x-4">
+              <button
+                onClick={() => {
+                  setFilters({
+                    types: ['task', 'thought'],
+                    timeBuckets: ['overdue', 'today', 'tomorrow', 'this_week', 'next_week', 'later', 'someday'],
+                    status: 'incomplete',
+                    pinnedOnly: false,
+                  });
+                  setSearchQuery('');
+                  setSearchInput('');
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Clear all filters
+              </button>
+              
+              {totalEntries > 0 && (
+                <button
+                  onClick={() => {
+                    migrateOldEntries();
+                    // Force a re-render
+                    setTimeout(() => window.location.reload(), 100);
+                  }}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                >
+                  Migrate Old Entries ({totalEntries} found)
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>

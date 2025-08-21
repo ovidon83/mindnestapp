@@ -7,6 +7,9 @@ interface AllyMindStore {
   homeViewPrefs: HomeViewPreferences;
   currentView: AppView;
   
+  // Migration
+  migrateOldEntries: () => Entry[];
+  
   // Entry management
   addEntry: (entry: Omit<Entry, 'id' | 'createdAt' | 'timeBucket'>) => void;
   updateEntry: (id: string, updates: Partial<Entry>) => void;
@@ -59,6 +62,36 @@ export const useAllyMindStore = create<AllyMindStore>()(
       entries: [],
       homeViewPrefs: defaultHomeViewPrefs,
       currentView: 'capture' as AppView,
+      
+      // Migration function to convert old entries to new format
+      migrateOldEntries: () => {
+        const { entries } = get();
+        const migratedEntries = entries.map(entry => {
+          // Check if this is an old entry format
+          if ('content' in entry && !('title' in entry)) {
+            // Convert old format to new format
+            const oldEntry = entry as any;
+            return {
+              id: oldEntry.id,
+              type: oldEntry.type === 'task' ? 'task' : 'thought', // Convert to simplified types
+              title: oldEntry.content?.substring(0, 100) || 'Untitled',
+              body: oldEntry.content || '',
+              tags: oldEntry.tags || [],
+              createdAt: oldEntry.createdAt ? new Date(oldEntry.createdAt) : new Date(),
+              dueAt: oldEntry.dueDate ? new Date(oldEntry.dueDate) : undefined,
+              timeBucket: get().getTimeBucketFromDate(oldEntry.dueDate ? new Date(oldEntry.dueDate) : undefined),
+              priority: oldEntry.priority,
+              pinned: oldEntry.pinnedForDate ? true : false,
+              completed: oldEntry.status === 'completed',
+              aiConfidence: oldEntry.confidence || 0.8,
+            } as Entry;
+          }
+          return entry;
+        });
+        
+        set({ entries: migratedEntries });
+        return migratedEntries;
+      },
 
       addEntry: (entryData) => {
         const now = new Date();
