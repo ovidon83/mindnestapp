@@ -1,353 +1,149 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  Brain, 
-  Sparkles,
-  Mic,
-  MicOff,
-  Lightbulb,
-  Target
-} from 'lucide-react';
 import { useAllyMindStore } from '../store';
-import { Entry, EntryType, Priority, TaskStatus } from '../types';
+import { Entry, EntryType, Priority, TimeBucket } from '../types';
+import { Mic, MicOff, Send, Sparkles, CheckCircle, Circle } from 'lucide-react';
 import * as chrono from 'chrono-node';
 
-export const CaptureView: React.FC = () => {
+const CaptureView: React.FC = () => {
+  const { addEntry } = useAllyMindStore();
   const [inputText, setInputText] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
-  
-  // Voice capture states
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const [recordingTime, setRecordingTime] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   
-  // Refs for voice recording
-  const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
-  
-  const { addEntry, setCurrentView } = useAllyMindStore();
+  const recognitionRef = useRef<any>(null);
 
-  // Cleanup effects for voice recording
+  // Initialize speech recognition
   useEffect(() => {
-    return () => {
-      if (recordingTimerRef.current) {
-        clearInterval(recordingTimerRef.current);
-      }
-    };
-  }, [isRecording]);
-
-  // Real-time speech recognition using Web Speech API
-  const startSpeechRecognition = () => {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      alert('Speech recognition not supported in this browser. Please use Chrome, Edge, or Safari.');
-      return;
-    }
-
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-    
-    let finalTranscript = '';
-    
-    recognition.onstart = () => {
-      setIsRecording(true);
-      setRecordingTime(0);
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
       
-      // Start recording timer
-      recordingTimerRef.current = setInterval(() => {
-        setRecordingTime(prev => prev + 1);
-      }, 1000);
-    };
-    
-    recognition.onresult = (event: any) => {
-      let interimTranscript = '';
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = 'en-US';
       
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcriptPart = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscript += transcriptPart + ' ';
-        } else {
-          interimTranscript += transcriptPart;
-        }
-      }
-      
-      const fullTranscript = finalTranscript + interimTranscript;
-      setTranscript(fullTranscript);
-      setInputText(fullTranscript);
-    };
-    
-    recognition.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
-      setIsRecording(false);
-      
-      if (recordingTimerRef.current) {
-        clearInterval(recordingTimerRef.current);
-      }
-      
-      if (event.error === 'no-speech') {
-        alert('No speech detected. Please try speaking again.');
-      } else if (event.error === 'not-allowed') {
-        alert('Microphone access denied. Please allow microphone access and try again.');
-      } else {
-        alert(`Speech recognition error: ${event.error}`);
-      }
-    };
-    
-    recognition.onend = () => {
-      setIsRecording(false);
-      
-      if (recordingTimerRef.current) {
-        clearInterval(recordingTimerRef.current);
-      }
-      
-      if (finalTranscript.trim()) {
-        setTranscript(finalTranscript.trim());
-        setInputText(finalTranscript.trim());
-      }
-    };
-    
-    recognition.start();
-  };
-
-  // Directive parser - maps hashtags to structured fields
-  const parseDirectives = (text: string) => {
-    const directives: {
-      pinnedForDate?: Date;
-      dueDate?: Date;
-      targetWeek?: string;
-      priority?: Priority;
-      type?: EntryType;
-      isDeadline?: boolean;
-    } = {};
-    
-    const lowerText = text.toLowerCase();
-    
-    // Check for urgency indicators first
-    const urgencyDueDate = getUrgencyDueDate(text);
-    if (urgencyDueDate) {
-      directives.dueDate = urgencyDueDate;
-      directives.isDeadline = true;
-      // Set priority to high for urgent tasks
-      if (lowerText.includes('asap') || lowerText.includes('urgent') || lowerText.includes('immediately')) {
-        directives.priority = 'urgent';
-      }
-    }
-    
-    // Natural language date detection using chrono-node (only if no urgency detected)
-    if (!urgencyDueDate) {
-      const chronoResults = chrono.parse(text, new Date());
-      
-      if (chronoResults.length > 0) {
-        const parsedDate = chronoResults[0];
-        
-        // Determine if this should be a deadline or just a pinned date
-        const isDeadline = isDeadlinePhrase(text);
-        
-        if (isDeadline) {
-          // For deadline phrases, ensure the date is in the future
-          const parsedDateObj = parsedDate.start.date();
-          const now = new Date();
-          
-          if (parsedDateObj < now) {
-            // If parsed date is in the past, try to get next occurrence
-            if (parsedDate.start.isCertain('weekday')) {
-              // It's a weekday reference, get next occurrence
-              const weekday = parsedDateObj.getDay();
-              const nextOccurrence = getNextWeekday(weekday);
-              directives.dueDate = nextOccurrence;
-            } else {
-              // For other past dates, set to today + 1 day
-              const tomorrow = new Date();
-              tomorrow.setDate(tomorrow.getDate() + 1);
-              tomorrow.setHours(9, 0, 0, 0);
-              directives.dueDate = tomorrow;
-            }
-          } else {
-            directives.dueDate = parsedDateObj;
+      recognitionRef.current.onresult = (event: any) => {
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
           }
-          directives.isDeadline = true;
-        } else {
-          // If not a deadline phrase, pin it to that date for reference
-          directives.pinnedForDate = parsedDate.start.date();
-          directives.isDeadline = false;
         }
-      }
+        if (finalTranscript) {
+          setTranscript(finalTranscript);
+        }
+      };
+      
+      recognitionRef.current.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsRecording(false);
+      };
+      
+      recognitionRef.current.onend = () => {
+        setIsRecording(false);
+      };
     }
-    
-    // Check for "today" mentioned in content (not just hashtags)
-    if (lowerText.includes('today') && !lowerText.includes('#today')) {
-      directives.pinnedForDate = new Date();
-    }
-    
-    // Check for hashtag directives
-    if (text.includes('#today')) {
-      directives.pinnedForDate = new Date();
-    }
-    if (text.includes('#tomorrow')) {
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(9, 0, 0, 0);
-      directives.dueDate = tomorrow;
-      directives.isDeadline = true;
-    }
-    if (text.includes('#thisweek') || text.includes('#week')) {
-      directives.targetWeek = 'currentWeek';
-    }
-    if (text.includes('#nextweek')) {
-      directives.targetWeek = 'nextWeek';
-    }
-    if (text.includes('#urgent')) {
-      directives.priority = 'urgent';
-    }
-    if (text.includes('#high')) {
-      directives.priority = 'high';
-    }
-    if (text.includes('#medium')) {
-      directives.priority = 'medium';
-    }
-    if (text.includes('#low')) {
-      directives.priority = 'low';
-    }
-    if (text.includes('#journal')) {
-      directives.type = 'journal';
-    }
-    if (text.includes('#task')) {
-      directives.type = 'task';
-    }
-    if (text.includes('#idea')) {
-      directives.type = 'idea';
-    }
-    if (text.includes('#insight')) {
-      directives.type = 'insight';
-    }
-    if (text.includes('#reflection')) {
-      directives.type = 'reflection';
-    }
-    if (text.includes('#event')) {
-      directives.type = 'event';
-    }
-    if (text.includes('#reminder')) {
-      directives.type = 'reminder';
-    }
-    if (text.includes('#note')) {
-      directives.type = 'note';
-    }
+  }, []);
 
-    return directives;
+  const startRecording = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.start();
+      setIsRecording(true);
+      setTranscript('');
+    }
   };
 
-  // Helper function to determine if text contains deadline phrases
-  const isDeadlinePhrase = (text: string): boolean => {
-    const lowerText = text.toLowerCase();
-    const deadlinePhrases = [
-      'due', 'deadline', 'by', 'before', 'until', 'must', 'need to', 'have to',
-      'should', 'will', 'going to', 'plan to', 'intend to', 'aim to', 'target',
-      'finish', 'complete', 'submit', 'deliver', 'hand in', 'turn in',
-      'asap', 'as soon as possible', 'urgent', 'immediately', 'right away',
-      'now', 'today', 'tonight', 'this evening', 'this afternoon'
-    ];
-    
-    return deadlinePhrases.some(phrase => lowerText.includes(phrase));
+  const stopRecording = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsRecording(false);
+    }
   };
 
-  // Helper function to get urgency-based due date
-  const getUrgencyDueDate = (text: string): Date | null => {
-    const lowerText = text.toLowerCase();
-    
-    if (lowerText.includes('asap') || lowerText.includes('as soon as possible') || 
-        lowerText.includes('urgent') || lowerText.includes('immediately') ||
-        lowerText.includes('right away') || lowerText.includes('now')) {
-      // Set to today at 5 PM (end of workday)
-      const today = new Date();
-      today.setHours(17, 0, 0, 0);
-      return today;
+  const handleVoiceInput = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
     }
-    
-    if (lowerText.includes('today') || lowerText.includes('tonight') || 
-        lowerText.includes('this evening') || lowerText.includes('this afternoon')) {
-      // Set to today at 5 PM
-      const today = new Date();
-      today.setHours(17, 0, 0, 0);
-      return today;
-    }
-    
-    if (lowerText.includes('tomorrow')) {
-      // Set to tomorrow at 9 AM
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(9, 0, 0, 0);
-      return tomorrow;
-    }
-    
-    // Handle relative weekday references
-    if (lowerText.includes('friday') || lowerText.includes('fri')) {
-      const friday = getNextWeekday(5); // 5 = Friday
-      friday.setHours(17, 0, 0, 0); // 5 PM
-      return friday;
-    }
-    
-    if (lowerText.includes('monday') || lowerText.includes('mon')) {
-      const monday = getNextWeekday(1); // 1 = Monday
-      monday.setHours(9, 0, 0, 0); // 9 AM
-      return monday;
-    }
-    
-    if (lowerText.includes('tuesday') || lowerText.includes('tue')) {
-      const tuesday = getNextWeekday(2); // 2 = Tuesday
-      tuesday.setHours(9, 0, 0, 0); // 9 AM
-      return tuesday;
-    }
-    
-    if (lowerText.includes('wednesday') || lowerText.includes('wed')) {
-      const wednesday = getNextWeekday(3); // 3 = Wednesday
-      wednesday.setHours(9, 0, 0, 0); // 9 AM
-      return wednesday;
-    }
-    
-    if (lowerText.includes('thursday') || lowerText.includes('thu')) {
-      const thursday = getNextWeekday(4); // 4 = Thursday
-      thursday.setHours(9, 0, 0, 0); // 9 AM
-      return thursday;
-    }
-    
-    if (lowerText.includes('saturday') || lowerText.includes('sat')) {
-      const saturday = getNextWeekday(6); // 6 = Saturday
-      saturday.setHours(10, 0, 0, 0); // 10 AM
-      return saturday;
-    }
-    
-    if (lowerText.includes('sunday') || lowerText.includes('sun')) {
-      const sunday = getNextWeekday(0); // 0 = Sunday
-      sunday.setHours(10, 0, 0, 0); // 10 AM
-      return sunday;
-    }
-    
-    return null;
   };
 
-  // Helper function to get the next occurrence of a weekday
-  const getNextWeekday = (targetDay: number): Date => {
-    const today = new Date();
-    const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  const parseInput = (text: string): Partial<Entry> => {
+    const lowerText = text.toLowerCase().trim();
     
-    let daysUntilTarget = targetDay - currentDay;
+    // Determine entry type
+    let finalType: EntryType = 'thought';
     
-    // If target day is today or in the past, get next week's occurrence
-    if (daysUntilTarget <= 0) {
-      daysUntilTarget += 7;
+    // TASK DETECTION - Look for action-oriented language
+    if (lowerText.includes('need to') || lowerText.includes('have to') || 
+        lowerText.includes('must') || lowerText.includes('should') ||
+        lowerText.includes('going to') || lowerText.includes('will') ||
+        lowerText.includes('finish') || lowerText.includes('complete') ||
+        lowerText.includes('start') || lowerText.includes('work on') ||
+        lowerText.includes('prepare') || lowerText.includes('email') ||
+        lowerText.includes('call') || lowerText.includes('meet') ||
+        lowerText.includes('buy') || lowerText.includes('get') ||
+        lowerText.includes('find') || lowerText.includes('review') ||
+        lowerText.includes('check') || lowerText.includes('update') ||
+        lowerText.includes('create') || lowerText.includes('build') ||
+        lowerText.includes('design') || lowerText.includes('write') ||
+        lowerText.includes('read') || lowerText.includes('study') ||
+        lowerText.includes('organize') || lowerText.includes('clean') ||
+        lowerText.includes('fix') || lowerText.includes('solve') ||
+        lowerText.includes('plan') || lowerText.includes('schedule') ||
+        lowerText.includes('remember') || lowerText.includes('think about') ||
+        lowerText.includes('want to') || lowerText.includes('going to')) {
+      finalType = 'task';
     }
     
-    const targetDate = new Date();
-    targetDate.setDate(today.getDate() + daysUntilTarget);
-    return targetDate;
+    // Determine priority
+    let priority: Priority | undefined;
+    if (lowerText.includes('urgent') || lowerText.includes('asap') || lowerText.includes('emergency')) {
+      priority = 'urgent';
+    } else if (lowerText.includes('important') || lowerText.includes('critical') || lowerText.includes('high')) {
+      priority = 'high';
+    } else if (lowerText.includes('medium') || lowerText.includes('moderate')) {
+      priority = 'medium';
+    } else if (lowerText.includes('low') || lowerText.includes('minor')) {
+      priority = 'low';
+    }
+    
+    // Extract due date
+    let dueAt: Date | undefined;
+    const parsedDate = chrono.parseDate(text);
+    if (parsedDate) {
+      dueAt = parsedDate;
+    }
+    
+    // Extract tags (words starting with #)
+    const tagMatches = text.match(/#\w+/g);
+    const tags = tagMatches ? tagMatches.map(tag => tag.slice(1)) : [];
+    
+    // Clean content (remove hashtags and extra whitespace)
+    let cleanedContent = text
+      .replace(/#\w+/g, '') // Remove hashtags
+      .replace(/\s+/g, ' ') // Collapse multiple spaces
+      .trim();
+    
+    // Create title (first sentence or first 50 characters)
+    const title = cleanedContent.length > 50 
+      ? cleanedContent.substring(0, 50) + '...'
+      : cleanedContent;
+    
+    return {
+      type: finalType,
+      title,
+      body: cleanedContent,
+      tags,
+      priority,
+      dueAt,
+      aiConfidence: 0.9, // High confidence for simple classification
+    };
   };
 
-  // Enhanced Multi-Thought Recognition with Smart Linking
   const splitIntoMultipleEntries = (text: string): Partial<Entry>[] => {
-    // Try multiple splitting strategies for better detection
-    let segments: string[] = [];
-    
     // Strategy 1: Try comma splitting first (most reliable for simple lists)
     const commaSegments = text.split(/,\s+/);
     if (commaSegments.length > 1) {
@@ -356,369 +152,58 @@ export const CaptureView: React.FC = () => {
         return trimmed.length > 0;
       });
       if (validSegments.length > 0) {
-        segments = validSegments;
+        return validSegments.map(segment => parseInput(segment.trim()));
       }
     }
     
     // Strategy 2: If comma splitting didn't work, try transition words
-    if (segments.length <= 1) {
-      const transitionPatterns = [
-        /\s+(?:and|also|plus|additionally|furthermore|moreover|besides|in addition|as well as)\s+/i,
-        /[.!?]\s+(?=[A-Z])/g,  // Sentence endings followed by capital
-        /\n\s*\n/,              // Double line breaks
-        /;\s+/,                 // Semicolons
-      ];
-      
-      for (const pattern of transitionPatterns) {
-        const newSegments = text.split(pattern);
-        if (newSegments.length > 1) {
-          segments = newSegments.filter(segment => segment.trim().length > 0);
-          break;
-        }
-      }
-    }
-    
-    // If comma splitting didn't work, try other patterns
-    if (segments.length <= 1) {
-      const splitPatterns = [
-        /\s+(?:and|also|plus|additionally|furthermore|moreover|besides|in addition|as well as)\s+/i,
-        /[.!?]\s+(?=[A-Z])/g,
-        /\n\s*\n/,
-        /;\s+/,
-        /\s+(?:meanwhile|however|therefore|consequently|thus|hence|so|then)\s+/i,
-        /\s+(?:next|after that|then|subsequently|following that)\s+/i,
-        /\s+(?:later|afterwards|meanwhile|during|while)\s+/i,
-        /\s+(?:speaking of|on another note|by the way|incidentally)\s+/i,
-      ];
-      
-      for (const pattern of splitPatterns) {
-        const newSegments = text.split(pattern);
-        if (newSegments.length > 1) {
-          segments = newSegments.filter(segment => segment.trim().length > 0);
-          break;
-        }
-      }
-    }
-    
-    // If still no splits, force split by action verbs
-    if (segments.length <= 1) {
-      const actionVerbs = [
-        'finish', 'complete', 'start', 'work on', 'prepare', 'email', 'call',
-        'meet', 'buy', 'get', 'find', 'review', 'check', 'update', 'create',
-        'build', 'design', 'write', 'read', 'study', 'organize', 'clean',
-        'fix', 'solve', 'plan', 'schedule', 'remember', 'think about',
-        'need to', 'want to', 'should', 'must', 'have to', 'going to'
-      ];
-      
-      const lowerText = text.toLowerCase();
-      const foundVerbs = actionVerbs.filter(verb => lowerText.includes(verb));
-      
-      if (foundVerbs.length > 1) {
-        const firstVerb = foundVerbs[0];
-        const verbIndex = lowerText.indexOf(firstVerb);
-        if (verbIndex > 0) {
-          const firstPart = text.substring(0, verbIndex).trim();
-          const secondPart = text.substring(verbIndex).trim();
-          
-          if (firstPart.length > 8 && secondPart.length > 8) {
-            segments = [firstPart, secondPart];
-          }
-        }
-      }
-    }
-    
-    // Create entries for each segment with enhanced parsing and linking
-    const createdEntries: Partial<Entry>[] = [];
-    segments.forEach((segment, index) => {
-      const trimmedSegment = segment.trim();
-      if (trimmedSegment.length > 0) {
-        const entry = parseInput(trimmedSegment);
-        
-        // Add linking information
-        if (segments.length > 1) {
-          (entry as any).relatedIds = segments.map((_, i) => `entry_${index}_${i}`).filter(id => id !== `entry_${index}_${index}`);
-        } else {
-          (entry as any).relatedIds = [];
-        }
-        
-        createdEntries.push(entry);
-      }
-    });
-    
-    return createdEntries;
-  };
-
-  // Extract user hashtags, excluding directive hashtags to avoid duplication
-  const extractUserTags = (text: string) => {
-    // Extract hashtags from the text
-    const hashtagPattern = /#\w+/g;
-    const hashtags = text.match(hashtagPattern)?.map(tag => tag.slice(1)) || [];
-    
-    // Filter out directive tags, keep only user-defined tags
-    const directiveTags = [
-      'today', 'tomorrow', 'thisweek', 'week', 'nextweek',
-      'urgent', 'high', 'medium', 'low',
-      'journal', 'task', 'idea', 'insight', 'reflection', 'event', 'reminder', 'note'
+    const transitionPatterns = [
+      /\s+(?:and|also|plus|additionally|furthermore|moreover|besides|in addition|as well as)\s+/i,
+      /[.!?]\s+(?=[A-Z])/g,  // Sentence endings followed by capital
+      /\n\s*\n/,              // Double line breaks
+      /;\s+/,                 // Semicolons
     ];
     
-    const userTags = hashtags.filter(tag => {
-      const isDirective = directiveTags.some(directive => 
-        directive.toLowerCase() === tag.toLowerCase()
-      );
-      return !isDirective;
-    });
+    for (const pattern of transitionPatterns) {
+      const newSegments = text.split(pattern);
+      if (newSegments.length > 1) {
+        const validSegments = newSegments.filter(segment => segment.trim().length > 0);
+        if (validSegments.length > 0) {
+          return validSegments.map(segment => parseInput(segment.trim()));
+        }
+      }
+    }
     
-    return userTags;
+    // If still no splits, return single entry
+    return [parseInput(text)];
   };
 
-  // Clean content by removing ALL hashtags and normalizing
-  const cleanContent = (text: string) => {
-    let cleaned = text;
+  const handleSubmit = async () => {
+    const textToProcess = transcript || inputText;
+    if (!textToProcess.trim()) return;
     
-    // Remove ALL hashtags (both directive and user tags)
-    const allHashtagPattern = /#\w+/g;
-    cleaned = cleaned.replace(allHashtagPattern, '');
-    
-    // Clean up the text
-    cleaned = cleaned
-      .replace(/\s+/g, ' ') // Collapse multiple spaces
-      .replace(/\s*[,\s]*$/g, '') // Remove trailing commas and spaces
-      .replace(/^\s*[,\s]*/g, '') // Remove leading commas and spaces
-      .replace(/^\s*(?:and|also|plus|additionally|furthermore|moreover|besides|in addition|as well as)\s+/i, '') // Remove leading transition words
-      .trim();
-    
-    return cleaned;
-  };
-
-  // Parse natural language dates using chrono-node
-  const parseNaturalLanguageDates = (text: string) => {
-    const results = chrono.parse(text);
-    if (results.length === 0) return {};
-    
-    const firstResult = results[0];
-    let startDate = firstResult.start.date();
-    
-    // Fix: Ensure dates like "10/18" default to current year, not 2001
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    
-    // If the parsed date is in the past (like 2001), assume it's meant for current year
-    if (startDate.getFullYear() < currentYear) {
-      startDate = new Date(currentYear, startDate.getMonth(), startDate.getDate());
-    }
-    
-    // Validate: Don't set dates in the past
-    if (startDate < now) {
-      return {};
-    }
-    
-    // If it's a time expression, set as due date
-    if (firstResult.start.isCertain('hour')) {
-      return { dueDate: startDate };
-    }
-    
-    // If it's just a date, set as pinned date
-    return { pinnedForDate: startDate };
-  };
-
-  const parseInput = (text: string) => {
-    
-    // Store original text
-    const rawContent = text;
-    
-    // Parse directives first
-    const directives = parseDirectives(text);
-    
-    // Parse natural language dates with chrono
-    const chronoResults = parseNaturalLanguageDates(text);
-    
-    // Extract user tags from original text (excluding directive tags)
-    const userTags = extractUserTags(text);
-    
-    // Clean content for display (remove ALL hashtags)
-    const cleanDisplayContent = cleanContent(text);
-    
-    // Determine final values (chrono results override directives)
-    let finalDueDate = chronoResults.dueDate || directives.dueDate;
-    let finalPinnedDate = chronoResults.pinnedForDate || directives.pinnedForDate;
-    let finalTargetWeek = directives.targetWeek;
-    let enhancedPriority = directives.priority || 'medium';
-    let finalType = directives.type;
-    
-    // If no specific date is set but content suggests urgency, pin to today
-    if (!finalPinnedDate && !finalDueDate && enhancedPriority === 'urgent') {
-      finalPinnedDate = new Date();
-    }
-    
-    // Enhanced type detection if no directive specified
-    if (!finalType || finalType === 'note') {
-      const lowerText = text.toLowerCase();
-      
-      // TASK DETECTION - Look for actionable language
-      if (lowerText.includes('finish') || lowerText.includes('complete') || 
-          lowerText.includes('do') || lowerText.includes('work on') ||
-          lowerText.includes('start') || lowerText.includes('prepare') ||
-          lowerText.includes('email') || lowerText.includes('call') || 
-          lowerText.includes('meet') || lowerText.includes('buy') || 
-          lowerText.includes('get') || lowerText.includes('find') ||
-          lowerText.includes('review') || lowerText.includes('check') || 
-          lowerText.includes('update') || lowerText.includes('create') || 
-          lowerText.includes('build') || lowerText.includes('design') ||
-          lowerText.includes('write') || lowerText.includes('read') || 
-          lowerText.includes('study') || lowerText.includes('organize') || 
-          lowerText.includes('clean') || lowerText.includes('fix') ||
-          lowerText.includes('solve') || lowerText.includes('plan') || 
-          lowerText.includes('schedule') || lowerText.includes('asap') ||
-          lowerText.includes('urgent') || lowerText.includes('deadline') ||
-          lowerText.includes('need to') || lowerText.includes('must') ||
-          lowerText.includes('have to') || lowerText.includes('should')) {
-        finalType = 'task';
-      }
-      // REMINDER DETECTION - Look for time-based action language
-      else if (lowerText.includes('remind') || lowerText.includes('don\'t forget') ||
-               lowerText.includes('remember to') || 
-               (lowerText.includes('call') && (lowerText.includes('tomorrow') || lowerText.includes('today') || lowerText.includes('next week'))) ||
-               (lowerText.includes('email') && (lowerText.includes('tomorrow') || lowerText.includes('today') || lowerText.includes('next week'))) ||
-               (lowerText.includes('tomorrow') && (lowerText.includes('call') || lowerText.includes('email') || lowerText.includes('meet'))) ||
-               (lowerText.includes('call') && lowerText.includes('mom')) || // Specific case for "call mom tomorrow"
-               (lowerText.includes('call') && lowerText.includes('dad')) ||
-               (lowerText.includes('call') && lowerText.includes('john'))) {
-        finalType = 'reminder';
-      }
-      // IDEA DETECTION - Look for concept/innovation language
-      else if (lowerText.includes('could be') || lowerText.includes('would be great') || 
-               lowerText.includes('imagine if') || lowerText.includes('what if') ||
-               lowerText.includes('maybe we could') || lowerText.includes('innovation') || 
-               lowerText.includes('concept') || lowerText.includes('brainstorm') ||
-               lowerText.includes('possibility') || lowerText.includes('potential') ||
-               lowerText.includes('opportunity') || lowerText.includes('think about') ||
-               lowerText.includes('should add') || lowerText.includes('dark mode') || 
-               lowerText.includes('feature') || lowerText.includes('mode') ||
-               lowerText.includes('new') || lowerText.includes('add') ||
-               lowerText.includes('improve') || lowerText.includes('enhance') ||
-               lowerText.includes('we should') || lowerText.includes('think we should') ||
-               lowerText.includes('would be nice') || lowerText.includes('could add')) {
-        finalType = 'idea';
-      }
-      // JOURNAL DETECTION - Look for emotional/reflective language
-      else if (lowerText.includes('feeling') || lowerText.includes('feel') ||
-               lowerText.includes('drained') || lowerText.includes('overwhelmed') ||
-               lowerText.includes('stressed') || lowerText.includes('happy') ||
-               lowerText.includes('sad') || lowerText.includes('excited') ||
-               lowerText.includes('worried') || lowerText.includes('confused') ||
-               lowerText.includes('think') || lowerText.includes('thought') ||
-               lowerText.includes('realize') || lowerText.includes('understand') ||
-               lowerText.includes('lately') || lowerText.includes('tired') ||
-               lowerText.includes('exhausted') || lowerText.includes('burned out')) {
-        finalType = 'journal';
-      }
-      // EVENT DETECTION - Look for scheduling/meeting language
-      else if (lowerText.includes('meeting') || lowerText.includes('event') || 
-               lowerText.includes('appointment') || lowerText.includes('conference') ||
-               lowerText.includes('party') || lowerText.includes('dinner') || 
-               lowerText.includes('lunch') || lowerText.includes('interview') ||
-               lowerText.includes('presentation') || lowerText.includes('workshop') || 
-               lowerText.includes('class')) {
-        finalType = 'event';
-      }
-      // Default to note if no clear type detected
-      else {
-        finalType = 'note';
-      }
-    }
-    
-    // Enhanced urgency detection - check for time-sensitive words in content
-    const lowerText = text.toLowerCase();
-    if (lowerText.includes('asap') || lowerText.includes('urgent') ||
-        lowerText.includes('immediate') || lowerText.includes('deadline') ||
-        lowerText.includes('critical') || lowerText.includes('emergency')) {
-      enhancedPriority = 'urgent';
-    } else if (lowerText.includes('today') || lowerText.includes('now') ||
-               lowerText.includes('tomorrow') || lowerText.includes('soon') ||
-               lowerText.includes('quick') || lowerText.includes('fast') ||
-               lowerText.includes('important') || lowerText.includes('priority')) {
-      enhancedPriority = 'high';
-    } else if (lowerText.includes('next week') || lowerText.includes('later') ||
-               lowerText.includes('when possible') || lowerText.includes('low priority')) {
-      enhancedPriority = 'low';
-    }
-    
-    // If "today" is mentioned, automatically pin to today
-    if (lowerText.includes('today') && !finalPinnedDate) {
-      finalPinnedDate = new Date();
-    }
-    
-    return {
-      content: cleanDisplayContent,
-      rawContent,
-      type: finalType,
-      priority: enhancedPriority,
-      tags: userTags,
-      dueDate: finalDueDate,
-      pinnedForDate: finalPinnedDate,
-      targetWeek: finalTargetWeek,
-      status: finalType === 'task' ? 'pending' as TaskStatus : 'pending' as TaskStatus,
-      needsReview: false,
-      confidence: 0.95,
-      reasoning: `Parsed with enhanced AI: Type=${finalType}, Priority=${enhancedPriority}, Due=${finalDueDate}, Pinned=${finalPinnedDate}`,
-      relatedIds: []
-    };
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputText.trim()) return;
-
     setIsProcessing(true);
     
     try {
-      // Check if input contains multiple thoughts/entries
-      const multipleEntries = splitIntoMultipleEntries(inputText);
+      // Split into multiple entries if needed
+      const entries = splitIntoMultipleEntries(textToProcess);
       
-      if (multipleEntries.length > 1) {
-        // Multiple entries detected - save all automatically
-        multipleEntries.forEach(entry => {
-          if (entry.content && entry.content.trim()) {
-            const fullEntry: Entry = {
-              ...entry,
-              id: crypto.randomUUID(),
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              status: entry.type === 'task' ? 'pending' : 'pending',
-              confidence: 0.95,
-              reasoning: `Auto-processed: Type=${entry.type}, Priority=${entry.priority}`,
-              needsReview: false,
-              relatedIds: []
-            } as Entry;
-            addEntry(fullEntry);
-          }
-        });
-        
-        // Show success message and redirect
-        setInputText('');
-        setTranscript('');
-        setCurrentView('home');
-      } else {
-        // Single entry - save automatically
-        const parsed = parseInput(inputText);
-        const fullEntry: Entry = {
-          ...parsed,
-          id: crypto.randomUUID(),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          status: parsed.type === 'task' ? 'pending' : 'pending',
-          confidence: 0.95,
-          reasoning: `Auto-processed: Type=${parsed.type}, Priority=${parsed.priority}`,
-          needsReview: false,
-          relatedIds: []
-        } as Entry;
-        addEntry(fullEntry);
-        
-        // Show success message and redirect
-        setInputText('');
-        setTranscript('');
-        setCurrentView('home');
-      }
+      // Add each entry
+      entries.forEach(entry => {
+        if (entry.type) { // Ensure type is defined
+          addEntry(entry as Omit<Entry, 'id' | 'createdAt' | 'timeBucket'>);
+        }
+      });
+      
+      // Show success message
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+      
+      // Reset form
+      setInputText('');
+      setTranscript('');
+      setIsRecording(false);
+      
     } catch (error) {
       console.error('Error processing input:', error);
     } finally {
@@ -726,202 +211,138 @@ export const CaptureView: React.FC = () => {
     }
   };
 
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
+
+  const currentText = transcript || inputText;
+  const hasContent = currentText.trim().length > 0;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 text-gray-900">
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        {/* Hero Section */}
-        <div className="text-center mb-16">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl">
-              <Brain className="w-8 h-8 text-white" />
-            </div>
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-              AllyMind
-            </h1>
-          </div>
-          <h2 className="text-2xl font-semibold text-gray-700 mb-4">
-            Because your thoughts deserve intelligent organization
-          </h2>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">AllyMind</h1>
+          <p className="text-lg text-gray-600">Because your thoughts deserve intelligent organization!</p>
         </div>
 
-        {/* Input Section */}
-        <div className="bg-white rounded-3xl border border-gray-200 p-8 mb-12 shadow-xl">
-          <div className="text-center mb-8">
-            <h3 className="text-2xl font-semibold text-gray-900 mb-3">
-              Capture & Organize
-            </h3>
-            <p className="text-gray-600">
-              Type or speak naturally. AllyMind understands and organizes everything.
-            </p>
-          </div>
-
+        {/* Main Input Card */}
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
           {/* Input Area */}
-          <div className="mb-8">
+          <div className="mb-6">
             <textarea
-              id="thought-input"
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              placeholder="Share your thoughts, tasks, ideas, or reflections... For example: 'Need to finish project by Friday, also call John about the meeting, and I had an idea for a new app feature'"
-              className="w-full h-32 px-6 py-4 bg-gray-50 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none text-gray-900 placeholder-gray-500 text-lg leading-relaxed transition-colors"
-              disabled={isProcessing}
+              value={currentText}
+              onChange={(e) => {
+                if (transcript) {
+                  setTranscript(e.target.value);
+                } else {
+                  setInputText(e.target.value);
+                }
+              }}
+              onKeyPress={handleKeyPress}
+              placeholder="What's on your mind? Share your thoughts, tasks, ideas..."
+              className="w-full h-32 p-4 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
             />
           </div>
 
-          {/* Action Buttons Row */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            {/* Voice Button */}
-            <button
-              onClick={startSpeechRecognition}
-              disabled={isRecording || isProcessing}
-              className={`relative group transition-all duration-300 ${
-                isRecording ? 'scale-110' : 'hover:scale-105'
-              }`}
-            >
-              <div className={`w-16 h-16 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${
-                isRecording 
-                  ? 'bg-gradient-to-r from-red-500 to-pink-600 animate-pulse' 
-                  : 'bg-gradient-to-r from-pink-500 to-purple-600 hover:shadow-pink-500/25'
-              }`}>
+          {/* Action Buttons */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              {/* Voice Input Button */}
+              <button
+                onClick={handleVoiceInput}
+                className={`p-4 rounded-full transition-all duration-200 ${
+                  isRecording 
+                    ? 'bg-red-500 text-white shadow-lg scale-110' 
+                    : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                }`}
+                title={isRecording ? 'Stop recording' : 'Start voice input'}
+              >
                 {isRecording ? (
-                  <MicOff className="w-8 h-8 text-white" />
+                  <MicOff className="w-6 h-6" />
                 ) : (
-                  <Mic className="w-8 h-8 text-white" />
+                  <Mic className="w-6 h-6" />
                 )}
-              </div>
-              {/* Glow effect */}
-              {!isRecording && (
-                <div className="absolute inset-0 w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+              </button>
+              
+              {/* Voice Status */}
+              {isRecording && (
+                <div className="flex items-center space-x-2 text-red-600">
+                  <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
+                  <span className="text-sm font-medium">Recording...</span>
+                </div>
               )}
-            </button>
+            </div>
 
-            {/* Main Action Button */}
+            {/* Submit Button */}
             <button
               onClick={handleSubmit}
-              disabled={!inputText.trim() || isProcessing}
-              className="bg-gradient-to-r from-pink-600 to-purple-600 text-white px-12 py-4 rounded-2xl font-semibold text-lg hover:from-pink-700 hover:to-purple-700 focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              disabled={!hasContent || isProcessing}
+              className={`px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 flex items-center space-x-2 ${
+                hasContent && !isProcessing
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
             >
               {isProcessing ? (
-                <div className="flex items-center justify-center gap-3">
+                <>
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   <span>Processing...</span>
-                </div>
+                </>
               ) : (
-                <div className="flex items-center justify-center gap-3">
+                <>
                   <Sparkles className="w-5 h-5" />
-                  <span>Capture & Organize</span>
-                </div>
+                  <span>Organize</span>
+                </>
               )}
             </button>
           </div>
 
-          {/* Recording Status */}
-          {isRecording && (
-            <div className="mt-6 text-center">
-              <div className="inline-flex items-center gap-3 px-4 py-2 bg-pink-900/20 rounded-full border border-pink-500/30">
-                <div className="w-2 h-2 bg-pink-500 rounded-full animate-pulse"></div>
-                <span className="text-pink-300 font-medium">
-                  Recording... {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}
-                </span>
+          {/* Success Message */}
+          {showSuccess && (
+            <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-xl text-center">
+              <div className="flex items-center justify-center space-x-2 text-green-700">
+                <CheckCircle className="w-5 h-5" />
+                <span className="font-medium">Thoughts organized successfully!</span>
               </div>
-              <p className="text-sm text-gray-400 mt-2">Release to stop recording</p>
             </div>
           )}
 
-          {/* Transcript Display */}
-          {transcript && (
-            <div className="mt-6 p-4 bg-gray-700 rounded-2xl border border-gray-600">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-sm font-medium text-gray-200">Voice Input:</p>
-                <button
-                  onClick={() => {
-                    setTranscript('');
-                    setInputText('');
-                  }}
-                  className="px-3 py-1 text-sm text-gray-400 hover:text-white hover:bg-gray-600 rounded-lg transition-colors"
-                >
-                  Clear
-                </button>
-              </div>
-              <p className="text-gray-300 italic leading-relaxed">"{transcript}"</p>
+          {/* Voice Instructions */}
+          {!isRecording && !hasContent && (
+            <div className="mt-6 text-center text-gray-500">
+              <p className="text-sm">💡 Try saying: "Need to finish the report by Friday, also call mom tomorrow"</p>
             </div>
           )}
         </div>
 
-        {/* Core Features Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-          {/* Thought Capture */}
-          <div className="bg-white rounded-3xl border border-gray-200 p-6 hover:border-blue-500/50 transition-colors shadow-sm">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center">
-                <Brain className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900">Intelligent Capture</h3>
-            </div>
-            <p className="text-gray-600 leading-relaxed">
-              Automatically detect and separate multiple thoughts from a single input. 
-              No more manual categorization or organization needed.
-            </p>
+        {/* Features Preview */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200">
+            <CheckCircle className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+            <h3 className="font-semibold text-gray-900">Smart Tasks</h3>
+            <p className="text-sm text-gray-600">Automatic task detection and organization</p>
           </div>
-
-          {/* Smart Assistant */}
-          <div className="bg-white rounded-3xl border border-gray-200 p-6 hover:border-purple-500/50 transition-colors shadow-sm">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900">Smart Understanding</h3>
-            </div>
-            <p className="text-gray-600 leading-relaxed">
-              AI automatically detects deadlines, urgency levels, and context. 
-              "Meeting with John tomorrow at 3pm" becomes a scheduled task.
-            </p>
+          
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200">
+            <Circle className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+            <h3 className="font-semibold text-gray-900">Thought Capture</h3>
+            <p className="text-sm text-gray-600">Capture ideas, insights, and reflections</p>
           </div>
-
-          {/* Insight Engine */}
-          <div className="bg-white rounded-3xl border border-gray-200 p-6 hover:border-green-500/50 transition-colors shadow-sm">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl flex items-center justify-center">
-                <Target className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900">Pattern Recognition</h3>
-            </div>
-            <p className="text-gray-600 leading-relaxed">
-              Discover insights about your thinking patterns and behaviors. 
-              "You've mentioned stress 3x this week; time for reflection?"
-            </p>
-          </div>
-
-          {/* Unified Flow */}
-          <div className="bg-white rounded-3xl border border-gray-200 p-6 hover:border-pink-500/50 transition-colors shadow-sm">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-pink-600 rounded-2xl flex items-center justify-center">
-                <Target className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900">Unified Workspace</h3>
-            </div>
-            <p className="text-gray-600 leading-relaxed">
-              Keep all your thoughts, tasks, and insights in one intelligent workspace. 
-              No more scattered notes across multiple apps and devices.
-            </p>
-          </div>
-        </div>
-
-        {/* Quick Tips */}
-        <div className="bg-white rounded-3xl border border-gray-200 p-6 shadow-sm">
-          <div className="flex items-start gap-3">
-            <Lightbulb className="w-6 h-6 text-blue-500 mt-1 flex-shrink-0" />
-            <div className="text-gray-700">
-              <p className="font-medium mb-3 text-gray-900">💡 Pro Tips:</p>
-              <ul className="space-y-2 text-sm">
-                <li>• <strong>Voice Input:</strong> Click the microphone and speak naturally - AllyMind understands context</li>
-                <li>• <strong>Natural Language:</strong> Use phrases like "tomorrow 3pm", "urgent", or "Friday deadline"</li>
-                <li>• <strong>Multiple Thoughts:</strong> Separate ideas with commas or "and" - AI automatically splits them</li>
-                <li>• <strong>Smart Detection:</strong> AllyMind automatically categorizes tasks, ideas, and insights</li>
-              </ul>
-            </div>
+          
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-gray-200">
+            <Sparkles className="w-8 h-8 text-green-600 mx-auto mb-2" />
+            <h3 className="font-semibold text-gray-900">AI Organization</h3>
+            <p className="text-sm text-gray-600">Intelligent categorization and prioritization</p>
           </div>
         </div>
       </div>
     </div>
   );
 };
+
+export default CaptureView;
