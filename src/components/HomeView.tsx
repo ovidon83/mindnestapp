@@ -226,38 +226,39 @@ const HomeView: React.FC = () => {
     return (
       <div 
         className={`
-          group relative border-b border-gray-100 hover:bg-gray-50 transition-colors
-          ${isSelected ? 'bg-blue-50 border-blue-200' : ''}
+          group relative border-b border-slate-200/30 hover:bg-white/60 transition-all duration-200
+          ${isSelected ? 'bg-blue-50/80 border-blue-300/50' : ''}
           ${isCompleted ? 'opacity-60' : ''}
         `}
       >
-        <div className="flex items-center px-4 py-3">
+        <div className="flex items-center px-8 py-4">
           {/* Selection checkbox */}
-          <div className="mr-3">
+          <div className="mr-4">
             <input
               type="checkbox"
               checked={isSelected}
               onChange={() => handleEntrySelect(entry.id)}
-              className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+              className="w-5 h-5 text-blue-600 rounded-lg border-slate-300 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-200"
             />
           </div>
 
           {/* Type icon */}
-          <div className="mr-3">
+          <div className="mr-4">
             {entry.type === 'task' ? (
-              <CheckCircle className={`w-5 h-5 ${isCompleted ? 'text-green-600' : 'text-gray-400'}`} />
+              <CheckCircle className={`w-6 h-6 ${isCompleted ? 'text-green-500' : 'text-slate-400'} transition-colors duration-200`} />
             ) : (
-              <Circle className="w-5 h-5 text-blue-400" />
+              <Circle className="w-6 h-6 text-blue-400 transition-colors duration-200" />
             )}
           </div>
 
           {/* Content */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center">
+            <div className="flex items-center space-x-4">
               <h3 
                 className={`
-                  text-sm font-medium text-gray-900 truncate flex-1
-                  ${isCompleted ? 'line-through' : ''}
+                  text-base font-semibold text-slate-800 truncate flex-1
+                  ${isCompleted ? 'line-through text-slate-500' : ''}
+                  transition-all duration-200
                 `}
               >
                 {entry.title}
@@ -265,25 +266,25 @@ const HomeView: React.FC = () => {
               
               {/* Due date badge */}
               {entry.dueAt && (
-                <span className={`ml-2 px-2 py-1 text-xs rounded-full ${getTimeBucketColor(entry.timeBucket)}`}>
+                <span className={`px-3 py-1.5 text-xs font-medium rounded-full ${getTimeBucketColor(entry.timeBucket)} shadow-sm`}>
                   {formatDate(entry.dueAt)}
                 </span>
               )}
             </div>
             
-            {/* Tags */}
+            {/* Tags - inline with title */}
             {entry.tags.length > 0 && (
-              <div className="flex items-center mt-1 space-x-1">
+              <div className="flex items-center mt-2 space-x-2">
                 {entry.tags.slice(0, 3).map((tag, index) => (
                   <span 
                     key={index}
-                    className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full"
+                    className="px-3 py-1 text-xs font-medium bg-gradient-to-r from-slate-100 to-slate-200 text-slate-700 rounded-full border border-slate-200/50 shadow-sm"
                   >
                     #{tag}
                   </span>
                 ))}
                 {entry.tags.length > 3 && (
-                  <span className="text-xs text-gray-400">+{entry.tags.length - 3}</span>
+                  <span className="text-xs text-slate-500 font-medium">+{entry.tags.length - 3}</span>
                 )}
               </div>
             )}
@@ -291,42 +292,42 @@ const HomeView: React.FC = () => {
 
           {/* Priority indicator */}
           {entry.priority && (
-            <div className={`mr-3 text-xs font-medium ${getPriorityColor(entry.priority)}`}>
+            <div className={`mr-4 text-xs font-bold ${getPriorityColor(entry.priority)} px-3 py-1.5 rounded-full bg-white/80 backdrop-blur-sm border border-slate-200/50 shadow-sm`}>
               {entry.priority.toUpperCase()}
             </div>
           )}
 
           {/* AI confidence */}
           {entry.aiConfidence !== undefined && entry.aiConfidence < 0.8 && (
-            <div className="mr-3">
-              <HelpCircle className="w-4 h-4 text-yellow-500" />
+            <div className="mr-4">
+              <HelpCircle className="w-5 h-5 text-yellow-500" />
             </div>
           )}
 
           {/* Pin toggle */}
           <button
             onClick={() => toggleEntryPin(entry.id)}
-            className="mr-2 p-1 hover:bg-gray-200 rounded transition-colors"
+            className="mr-4 p-2 hover:bg-white/80 rounded-xl transition-all duration-200"
           >
             {entry.pinned ? (
-              <Star className="w-4 h-4 text-yellow-500 fill-current" />
+              <Star className="w-5 h-5 text-yellow-500 fill-current" />
             ) : (
-              <StarOff className="w-4 h-4 text-gray-400" />
+              <StarOff className="w-5 h-5 text-slate-400" />
             )}
           </button>
 
-          {/* Actions */}
-          <div className="flex items-center space-x-1">
+                    {/* Actions */}
+          <div className="flex items-center space-x-2">
             {entry.type === 'task' && (
               <button
                 onClick={() => toggleEntryComplete(entry.id)}
-                className="p-1 hover:bg-gray-200 rounded transition-colors"
+                className="p-2 hover:bg-white/80 rounded-xl transition-all duration-200"
                 title={isCompleted ? 'Mark incomplete' : 'Mark complete'}
               >
                 {isCompleted ? (
-                  <CheckSquare className="w-4 h-4 text-green-600" />
+                  <CheckSquare className="w-5 h-5 text-green-500" />
                 ) : (
-                  <Square className="w-4 h-4 text-gray-400" />
+                  <Square className="w-5 h-5 text-slate-400" />
                 )}
               </button>
             )}
@@ -341,28 +342,28 @@ const HomeView: React.FC = () => {
                 }
                 return newSet;
               })}
-              className="p-1 hover:bg-gray-200 rounded transition-colors"
+              className="p-2 hover:bg-white/80 rounded-xl transition-all duration-200"
             >
-              <MoreHorizontal className="w-4 h-4 text-gray-400" />
+              <MoreHorizontal className="w-5 h-5 text-slate-400" />
             </button>
           </div>
         </div>
 
         {/* Expanded content */}
         {isExpanded && (
-          <div className="px-4 pb-3 bg-gray-50">
-            <div className="text-sm text-gray-600 mb-3">
+          <div className="px-8 pb-6 bg-gradient-to-r from-slate-50/80 to-slate-100/80 border-t border-slate-200/30">
+            <div className="text-sm text-slate-700 mb-4 leading-relaxed">
               {entry.body}
             </div>
             
-            <div className="flex items-center justify-between text-xs text-gray-500">
-              <span>Created {entry.createdAt.toLocaleDateString()}</span>
+            <div className="flex items-center justify-between text-xs text-slate-500 mb-4">
+              <span className="font-medium">Created {formatDate(entry.createdAt)}</span>
               {entry.aiConfidence !== undefined && (
-                <span>AI confidence: {Math.round(entry.aiConfidence * 100)}%</span>
+                <span className="font-medium">AI confidence: {Math.round(entry.aiConfidence * 100)}%</span>
               )}
             </div>
             
-            <div className="flex items-center space-x-2 mt-3">
+            <div className="flex items-center space-x-3">
               {entry.type === 'task' && (
                 <>
                   <button
@@ -371,7 +372,7 @@ const HomeView: React.FC = () => {
                       newDate.setDate(newDate.getDate() + 1);
                       updateEntry(entry.id, { dueAt: newDate });
                     }}
-                    className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                    className="px-4 py-2 text-xs font-medium bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm hover:shadow-md"
                   >
                     Tomorrow
                   </button>
@@ -381,7 +382,7 @@ const HomeView: React.FC = () => {
                       newDate.setDate(newDate.getDate() + 7);
                       updateEntry(entry.id, { dueAt: newDate });
                     }}
-                    className="px-3 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200"
+                    className="px-4 py-2 text-xs font-medium bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-sm hover:shadow-md"
                   >
                     Next Week
                   </button>
@@ -395,7 +396,7 @@ const HomeView: React.FC = () => {
                     updateEntry(entry.id, { tags: [...entry.tags, tag] });
                   }
                 }}
-                className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                className="px-4 py-2 text-xs font-medium bg-gradient-to-r from-slate-500 to-slate-600 text-white rounded-xl hover:from-slate-600 hover:to-slate-700 transition-all duration-200 shadow-sm hover:shadow-md"
               >
                 Add Tag
               </button>
@@ -406,7 +407,7 @@ const HomeView: React.FC = () => {
                     deleteEntry(entry.id);
                   }
                 }}
-                className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200"
+                className="px-4 py-2 text-xs font-medium bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-sm hover:shadow-md"
               >
                 Delete
               </button>
@@ -418,33 +419,40 @@ const HomeView: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+      <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200/50 px-8 py-6 shadow-sm">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">AllyMind</h1>
-            <p className="text-sm text-gray-500">
-              {filteredCount} of {totalEntries} entries
-            </p>
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+              <span className="text-white text-xl font-bold">A</span>
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                AllyMind
+              </h1>
+              <p className="text-sm text-slate-500 font-medium">
+                {filteredCount} of {totalEntries} entries
+              </p>
+            </div>
           </div>
           
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-4">
             <button
               onClick={() => setCurrentView('capture')}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-semibold"
             >
               + New Entry
             </button>
             <button
               onClick={() => setCurrentView('capture')}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              className="px-6 py-3 bg-white/80 backdrop-blur-sm text-slate-700 rounded-xl hover:bg-white transition-all duration-200 border border-slate-200/50 shadow-sm hover:shadow-md font-medium"
             >
               ← Back to Capture
             </button>
             <button
               onClick={() => setShowKeyboardShortcuts(!showKeyboardShortcuts)}
-              className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+              className="p-3 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-white/80 transition-all duration-200"
               title="Keyboard shortcuts"
             >
               <HelpCircle className="w-5 h-5" />
@@ -454,30 +462,30 @@ const HomeView: React.FC = () => {
       </div>
 
       {/* Controls */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center space-x-4">
+      <div className="bg-white/60 backdrop-blur-sm border-b border-slate-200/30 px-8 py-6">
+        <div className="flex items-center space-x-6">
           {/* Search */}
           <div className="flex-1 max-w-md">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
               <input
                 id="search-input"
                 type="text"
                 placeholder="Search entries... (Press / to focus)"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-12 pr-4 py-3 border border-slate-200/50 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-200"
               />
             </div>
           </div>
 
           {/* Grouping */}
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-500">Group by:</span>
+          <div className="flex items-center space-x-3">
+            <span className="text-sm font-medium text-slate-600">Group by:</span>
             <select
               value={homeViewPrefs.grouping}
               onChange={(e) => setGrouping(e.target.value as GroupingMode)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-4 py-3 border border-slate-200/50 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-200"
             >
               <option value="none">None</option>
               <option value="time">Time</option>
@@ -488,8 +496,8 @@ const HomeView: React.FC = () => {
           </div>
 
           {/* Filters */}
-          <div className="flex items-center space-x-2">
-            <Filter className="w-4 h-4 text-gray-400" />
+          <div className="flex items-center space-x-3">
+            <Filter className="w-5 h-5 text-slate-400" />
             <select
               value={homeViewPrefs.filters.types.length === 2 ? 'both' : homeViewPrefs.filters.types[0]}
               onChange={(e) => {
@@ -497,7 +505,7 @@ const HomeView: React.FC = () => {
                 const types: EntryType[] = value === 'both' ? ['task', 'thought'] : [value as EntryType];
                 setFilters({ types });
               }}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-4 py-3 border border-slate-200/50 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-200"
             >
               <option value="both">All Types</option>
               <option value="task">Tasks Only</option>
@@ -518,7 +526,7 @@ const HomeView: React.FC = () => {
                 setSearchQuery('');
                 setSearchInput('');
               }}
-              className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+              className="px-6 py-3 bg-gradient-to-r from-slate-500 to-slate-600 text-white rounded-xl hover:from-slate-600 hover:to-slate-700 transition-all duration-200 shadow-sm hover:shadow-md font-medium"
             >
               Clear filters
             </button>
@@ -528,37 +536,37 @@ const HomeView: React.FC = () => {
 
       {/* Bulk actions */}
       {selectedEntryIds.size > 0 && (
-        <div className="bg-blue-50 border-b border-blue-200 px-6 py-3">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200/50 px-8 py-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-blue-800">
+            <span className="text-sm font-medium text-blue-800">
               {selectedEntryIds.size} entries selected
             </span>
             
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               <button
                 onClick={handleBulkComplete}
-                className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                className="px-4 py-2 text-sm bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm hover:shadow-md font-medium"
               >
                 Complete Tasks
               </button>
               
               <button
                 onClick={() => handleBulkDefer('tomorrow')}
-                className="px-3 py-1 text-sm bg-purple-600 text-white rounded hover:bg-purple-700"
+                className="px-4 py-2 text-sm bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-sm hover:shadow-md font-medium"
               >
                 Defer to Tomorrow
               </button>
               
               <button
                 onClick={handleBulkDelete}
-                className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                className="px-4 py-2 text-sm bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-sm hover:shadow-md font-medium"
               >
                 Delete
               </button>
               
               <button
                 onClick={handleDeselectAll}
-                className="px-3 py-1 text-sm text-blue-600 hover:text-blue-800"
+                className="px-4 py-2 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-200 font-medium"
               >
                 Deselect All
               </button>
@@ -569,9 +577,9 @@ const HomeView: React.FC = () => {
 
       {/* Keyboard shortcuts help */}
       {showKeyboardShortcuts && (
-        <div className="bg-yellow-50 border-b border-yellow-200 px-6 py-3">
-          <div className="text-sm text-yellow-800">
-            <strong>Keyboard shortcuts:</strong> / (search), j/k (navigate), x (select), p (pin), c (complete), d (defer), g+t (group by time), g+y (group by type), g+n (no grouping)
+        <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border-b border-yellow-200/50 px-8 py-4">
+          <div className="text-sm font-medium text-amber-800">
+            <strong>⌨️ Keyboard shortcuts:</strong> / (search), j/k (navigate), x (select), p (pin), c (complete), d (defer), g+t (group by time), g+y (group by type), g+n (no grouping)
           </div>
         </div>
       )}
@@ -579,36 +587,36 @@ const HomeView: React.FC = () => {
       {/* Content */}
       <div className="flex-1 overflow-auto">
         {Object.entries(groupedEntries).map(([groupName, groupEntries]) => (
-          <div key={groupName} className="bg-white border-b border-gray-200">
+          <div key={groupName} className="bg-white/80 backdrop-blur-sm border-b border-slate-200/30">
             {/* Group header */}
             <div 
-              className="flex items-center justify-between px-6 py-3 bg-gray-50 hover:bg-gray-100 cursor-pointer"
+              className="flex items-center justify-between px-8 py-4 bg-gradient-to-r from-slate-50/80 to-slate-100/80 hover:from-slate-100/80 hover:to-slate-200/80 cursor-pointer transition-all duration-200"
               onClick={() => toggleGroupCollapsed(groupName)}
             >
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-2">
-                  {homeViewPrefs.grouping === 'time' && <Clock className="w-4 h-4 text-gray-500" />}
-                  {homeViewPrefs.grouping === 'type' && <Type className="w-4 h-4 text-gray-500" />}
-                  {homeViewPrefs.grouping === 'none' && <Grid3X3 className="w-4 h-4 text-gray-500" />}
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-3">
+                  {homeViewPrefs.grouping === 'time' && <Clock className="w-5 h-5 text-slate-500" />}
+                  {homeViewPrefs.grouping === 'type' && <Type className="w-5 h-5 text-slate-500" />}
+                  {homeViewPrefs.grouping === 'none' && <Grid3X3 className="w-5 h-5 text-slate-500" />}
                 </div>
                 
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-xl font-bold text-slate-800">
                   {groupName === 'All Entries' ? 'All Entries' : 
                    homeViewPrefs.grouping === 'time' ? getTimeBucketLabel(groupName as TimeBucket) :
                    homeViewPrefs.grouping === 'type' ? (groupName === 'task' ? 'Tasks' : 'Thoughts') :
                    groupName}
                 </h2>
                 
-                <span className="text-sm text-gray-500 bg-gray-200 px-2 py-1 rounded-full">
+                <span className="text-sm font-semibold text-slate-600 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-slate-200/50 shadow-sm">
                   {groupEntries.length}
                 </span>
               </div>
               
-              <button className="text-gray-400 hover:text-gray-600">
+              <button className="text-slate-400 hover:text-slate-600 transition-colors duration-200">
                 {homeViewPrefs.collapsedGroups[groupName] ? (
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-6 h-6" />
                 ) : (
-                  <ChevronDown className="w-5 h-5" />
+                  <ChevronDown className="w-6 h-6" />
                 )}
               </button>
             </div>
