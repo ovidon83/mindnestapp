@@ -180,22 +180,42 @@ const HomeView: React.FC = () => {
     return priority ? colors[priority] : 'text-gray-400';
   };
 
-  const formatDate = (date: Date): string => {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
-    
-    if (date.toDateString() === today.toDateString()) return 'Today';
-    if (date.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
-    
-    const diffTime = date.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays < 7) {
-      return date.toLocaleDateString('en-US', { weekday: 'long' });
+  const formatDate = (date: Date | string | undefined): string => {
+    try {
+      // Handle different date formats safely
+      let dateObj: Date;
+      if (typeof date === 'string') {
+        dateObj = new Date(date);
+      } else if (date instanceof Date) {
+        dateObj = date;
+      } else {
+        return 'No date';
+      }
+      
+      // Check if date is valid
+      if (isNaN(dateObj.getTime())) {
+        return 'Invalid date';
+      }
+      
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+      
+      if (dateObj.toDateString() === today.toDateString()) return 'Today';
+      if (dateObj.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
+      
+      const diffTime = dateObj.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays < 7) {
+        return dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+      }
+      
+      return dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    } catch (error) {
+      console.error('Error formatting date:', date, error);
+      return 'Invalid date';
     }
-    
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
   const EntryRow: React.FC<{ entry: Entry }> = ({ entry }) => {

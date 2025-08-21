@@ -341,13 +341,25 @@ export const useAllyMindStore = create<AllyMindStore>()(
               if (aPriority !== bPriority) return aPriority - bPriority;
             } else if (sort.primary === 'dueAt') {
               if (a.dueAt && b.dueAt) {
-                if (a.dueAt.getTime() !== b.dueAt.getTime()) {
-                  return a.dueAt.getTime() - b.dueAt.getTime();
+                try {
+                  const aTime = a.dueAt instanceof Date ? a.dueAt.getTime() : new Date(a.dueAt).getTime();
+                  const bTime = b.dueAt instanceof Date ? b.dueAt.getTime() : new Date(b.dueAt).getTime();
+                  if (!isNaN(aTime) && !isNaN(bTime) && aTime !== bTime) {
+                    return aTime - bTime;
+                  }
+                } catch (error) {
+                  console.error('Error comparing dueAt dates:', error);
                 }
               }
             } else if (sort.primary === 'createdAt') {
-              if (a.createdAt.getTime() !== b.createdAt.getTime()) {
-                return b.createdAt.getTime() - a.createdAt.getTime();
+              try {
+                const aTime = a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
+                const bTime = b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
+                if (!isNaN(aTime) && !isNaN(bTime) && aTime !== bTime) {
+                  return bTime - aTime;
+                }
+              } catch (error) {
+                console.error('Error comparing createdAt dates:', error);
               }
             }
             
@@ -359,19 +371,40 @@ export const useAllyMindStore = create<AllyMindStore>()(
               if (aPriority !== bPriority) return aPriority - bPriority;
             } else if (sort.secondary === 'dueAt') {
               if (a.dueAt && b.dueAt) {
-                if (a.dueAt.getTime() !== b.dueAt.getTime()) {
-                  return a.dueAt.getTime() - b.dueAt.getTime();
+                try {
+                  const aTime = a.dueAt instanceof Date ? a.dueAt.getTime() : new Date(a.dueAt).getTime();
+                  const bTime = b.dueAt instanceof Date ? b.dueAt.getTime() : new Date(b.dueAt).getTime();
+                  if (!isNaN(aTime) && !isNaN(bTime) && aTime !== bTime) {
+                    return aTime - bTime;
+                  }
+                } catch (error) {
+                  console.error('Error comparing dueAt dates in secondary sort:', error);
                 }
               }
             } else if (sort.secondary === 'createdAt') {
-              if (a.createdAt.getTime() !== b.createdAt.getTime()) {
-                return b.createdAt.getTime() - a.createdAt.getTime();
+              try {
+                const aTime = a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
+                const bTime = b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
+                if (!isNaN(aTime) && !isNaN(bTime) && aTime !== bTime) {
+                  return bTime - aTime;
+                }
+              } catch (error) {
+                console.error('Error comparing createdAt dates in secondary sort:', error);
               }
             }
             
-            // Final sort: pinned first, then by creation date
-            if (a.pinned !== b.pinned) return b.pinned ? 1 : -1;
-            return b.createdAt.getTime() - a.createdAt.getTime();
+                      // Final sort: pinned first, then by creation date
+          if (a.pinned !== b.pinned) return b.pinned ? 1 : -1;
+          try {
+            const aTime = a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
+            const bTime = b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
+            if (!isNaN(aTime) && !isNaN(bTime)) {
+              return bTime - aTime;
+            }
+          } catch (error) {
+            console.error('Error comparing createdAt dates in final sort:', error);
+          }
+          return 0;
           } catch (error) {
             console.error('Error sorting entries:', error);
             return 0; // Keep original order if sorting fails
