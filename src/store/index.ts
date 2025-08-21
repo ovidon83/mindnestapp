@@ -247,53 +247,76 @@ export const useAllyMindStore = create<AllyMindStore>()(
         const { filters, searchQuery } = homeViewPrefs;
         
         return entries.filter((entry) => {
-          // Handle both old and new entry formats using type assertion
-          const oldEntry = entry as any;
-          const entryType = entry.type || 'thought'; // Default to thought for old entries
-          const entryCompleted = entry.completed || oldEntry.status === 'completed' || false;
-          const entryPinned = entry.pinned || !!oldEntry.pinnedForDate || false;
-          
-          // Type filter - convert old types to new simplified types
-          let normalizedType = entryType;
-          if (['idea', 'insight', 'reflection', 'journal', 'reminder', 'note', 'event'].includes(entryType)) {
-            normalizedType = 'thought';
-          }
-          if (!filters.types.includes(normalizedType as any)) return false;
-          
-          // Time bucket filter - calculate for old entries if missing
-          let timeBucket = entry.timeBucket;
-          if (!timeBucket) {
-            if (oldEntry.dueDate) {
-              timeBucket = get().getTimeBucketFromDate(new Date(oldEntry.dueDate));
-            } else if (oldEntry.pinnedForDate) {
-              timeBucket = get().getTimeBucketFromDate(new Date(oldEntry.pinnedForDate));
-            } else {
-              timeBucket = 'none';
-            }
-          }
-          if (!filters.timeBuckets.includes(timeBucket)) return false;
-          
-          // Status filter
-          if (filters.status === 'incomplete' && entryCompleted) return false;
-          if (filters.status === 'completed' && !entryCompleted) return false;
-          
-          // Pinned filter
-          if (filters.pinnedOnly && !entryPinned) return false;
-          
-          // Search filter
-          if (searchQuery) {
-            const query = searchQuery.toLowerCase();
-            const content = entry.title || oldEntry.content || '';
-            const body = entry.body || oldEntry.content || '';
-            const tags = entry.tags || [];
+          try {
+            // Handle both old and new entry formats using type assertion
+            const oldEntry = entry as any;
+            const entryType = entry.type || 'thought'; // Default to thought for old entries
+            const entryCompleted = entry.completed || oldEntry.status === 'completed' || false;
+            const entryPinned = entry.pinned || !!oldEntry.pinnedForDate || false;
             
-            const matchesTitle = content.toLowerCase().includes(query);
-            const matchesBody = body.toLowerCase().includes(query);
-            const matchesTags = tags.some(tag => tag.toLowerCase().includes(query));
-            if (!matchesTitle && !matchesBody && !matchesTags) return false;
+            // Type filter - convert old types to new simplified types
+            let normalizedType = entryType;
+            if (['idea', 'insight', 'reflection', 'journal', 'reminder', 'note', 'event'].includes(entryType)) {
+              normalizedType = 'thought';
+            }
+            if (!filters.types.includes(normalizedType as any)) return false;
+            
+            // Time bucket filter - calculate for old entries if missing
+            let timeBucket = entry.timeBucket;
+            if (!timeBucket) {
+              if (oldEntry.dueDate) {
+                try {
+                  const dueDate = new Date(oldEntry.dueDate);
+                  if (!isNaN(dueDate.getTime())) {
+                    timeBucket = get().getTimeBucketFromDate(dueDate);
+                  } else {
+                    timeBucket = 'none';
+                  }
+                } catch {
+                  timeBucket = 'none';
+                }
+              } else if (oldEntry.pinnedForDate) {
+                try {
+                  const pinnedDate = new Date(oldEntry.pinnedForDate);
+                  if (!isNaN(pinnedDate.getTime())) {
+                    timeBucket = get().getTimeBucketFromDate(pinnedDate);
+                  } else {
+                    timeBucket = 'none';
+                  }
+                } catch {
+                  timeBucket = 'none';
+                }
+              } else {
+                timeBucket = 'none';
+              }
+            }
+            if (!filters.timeBuckets.includes(timeBucket)) return false;
+            
+            // Status filter
+            if (filters.status === 'incomplete' && entryCompleted) return false;
+            if (filters.status === 'completed' && !entryCompleted) return false;
+            
+            // Pinned filter
+            if (filters.pinnedOnly && !entryPinned) return false;
+            
+            // Search filter
+            if (searchQuery) {
+              const query = searchQuery.toLowerCase();
+              const content = entry.title || oldEntry.content || '';
+              const body = entry.body || oldEntry.content || '';
+              const tags = entry.tags || [];
+              
+              const matchesTitle = content.toLowerCase().includes(query);
+              const matchesBody = body.toLowerCase().includes(query);
+              const matchesTags = tags.some(tag => tag.toLowerCase().includes(query));
+              if (!matchesTitle && !matchesBody && !matchesTags) return false;
+            }
+            
+            return true;
+          } catch (error) {
+            console.error('Error filtering entry:', entry, error);
+            return false; // Skip problematic entries
           }
-          
-          return true;
         });
       },
 
@@ -304,50 +327,55 @@ export const useAllyMindStore = create<AllyMindStore>()(
         
         // Sort entries
         const sortedEntries = [...filteredEntries].sort((a, b) => {
-          // Primary sort
-          if (sort.primary === 'timeBucket') {
-            const timeOrder = ['overdue', 'today', 'tomorrow', 'this_week', 'next_week', 'later', 'someday', 'none'];
-            const aOrder = timeOrder.indexOf(a.timeBucket);
-            const bOrder = timeOrder.indexOf(b.timeBucket);
-            if (aOrder !== bOrder) return aOrder - bOrder;
-          } else if (sort.primary === 'priority') {
-            const priorityOrder: Record<Priority, number> = { urgent: 0, high: 1, medium: 2, low: 3 };
-            const aPriority = a.priority ? priorityOrder[a.priority] : 4;
-            const bPriority = b.priority ? priorityOrder[b.priority] : 4;
-            if (aPriority !== bPriority) return aPriority - bPriority;
-          } else if (sort.primary === 'dueAt') {
-            if (a.dueAt && b.dueAt) {
-              if (a.dueAt.getTime() !== b.dueAt.getTime()) {
-                return a.dueAt.getTime() - b.dueAt.getTime();
+          try {
+            // Primary sort
+            if (sort.primary === 'timeBucket') {
+              const timeOrder = ['overdue', 'today', 'tomorrow', 'this_week', 'next_week', 'later', 'someday', 'none'];
+              const aOrder = timeOrder.indexOf(a.timeBucket);
+              const bOrder = timeOrder.indexOf(b.timeBucket);
+              if (aOrder !== bOrder) return aOrder - bOrder;
+            } else if (sort.primary === 'priority') {
+              const priorityOrder: Record<Priority, number> = { urgent: 0, high: 1, medium: 2, low: 3 };
+              const aPriority = a.priority ? priorityOrder[a.priority] : 4;
+              const bPriority = b.priority ? priorityOrder[b.priority] : 4;
+              if (aPriority !== bPriority) return aPriority - bPriority;
+            } else if (sort.primary === 'dueAt') {
+              if (a.dueAt && b.dueAt) {
+                if (a.dueAt.getTime() !== b.dueAt.getTime()) {
+                  return a.dueAt.getTime() - b.dueAt.getTime();
+                }
+              }
+            } else if (sort.primary === 'createdAt') {
+              if (a.createdAt.getTime() !== b.createdAt.getTime()) {
+                return b.createdAt.getTime() - a.createdAt.getTime();
               }
             }
-          } else if (sort.primary === 'createdAt') {
-            if (a.createdAt.getTime() !== b.createdAt.getTime()) {
-              return b.createdAt.getTime() - a.createdAt.getTime();
-            }
-          }
-          
-          // Secondary sort
-          if (sort.secondary === 'priority') {
-            const priorityOrder: Record<Priority, number> = { urgent: 0, high: 1, medium: 2, low: 3 };
-            const aPriority = a.priority ? priorityOrder[a.priority] : 4;
-            const bPriority = b.priority ? priorityOrder[b.priority] : 4;
-            if (aPriority !== bPriority) return aPriority - bPriority;
-          } else if (sort.secondary === 'dueAt') {
-            if (a.dueAt && b.dueAt) {
-              if (a.dueAt.getTime() !== b.dueAt.getTime()) {
-                return a.dueAt.getTime() - b.dueAt.getTime();
+            
+            // Secondary sort
+            if (sort.secondary === 'priority') {
+              const priorityOrder: Record<Priority, number> = { urgent: 0, high: 1, medium: 2, low: 3 };
+              const aPriority = a.priority ? priorityOrder[a.priority] : 4;
+              const bPriority = b.priority ? priorityOrder[b.priority] : 4;
+              if (aPriority !== bPriority) return aPriority - bPriority;
+            } else if (sort.secondary === 'dueAt') {
+              if (a.dueAt && b.dueAt) {
+                if (a.dueAt.getTime() !== b.dueAt.getTime()) {
+                  return a.dueAt.getTime() - b.dueAt.getTime();
+                }
+              }
+            } else if (sort.secondary === 'createdAt') {
+              if (a.createdAt.getTime() !== b.createdAt.getTime()) {
+                return b.createdAt.getTime() - a.createdAt.getTime();
               }
             }
-          } else if (sort.secondary === 'createdAt') {
-            if (a.createdAt.getTime() !== b.createdAt.getTime()) {
-              return b.createdAt.getTime() - a.createdAt.getTime();
-            }
+            
+            // Final sort: pinned first, then by creation date
+            if (a.pinned !== b.pinned) return b.pinned ? 1 : -1;
+            return b.createdAt.getTime() - a.createdAt.getTime();
+          } catch (error) {
+            console.error('Error sorting entries:', error);
+            return 0; // Keep original order if sorting fails
           }
-          
-          // Final sort: pinned first, then by creation date
-          if (a.pinned !== b.pinned) return b.pinned ? 1 : -1;
-          return b.createdAt.getTime() - a.createdAt.getTime();
         });
         
         // Group entries
@@ -358,20 +386,45 @@ export const useAllyMindStore = create<AllyMindStore>()(
         if (grouping === 'time') {
           const groups: Record<string, Entry[]> = {};
           sortedEntries.forEach((entry) => {
-            // Handle old entries that might not have timeBucket
-            let group = entry.timeBucket;
-            if (!group) {
-              const oldEntry = entry as any;
-              if (oldEntry.dueDate) {
-                group = get().getTimeBucketFromDate(new Date(oldEntry.dueDate));
-              } else if (oldEntry.pinnedForDate) {
-                group = get().getTimeBucketFromDate(new Date(oldEntry.pinnedForDate));
-              } else {
-                group = 'none';
+            try {
+              // Handle old entries that might not have timeBucket
+              let group = entry.timeBucket;
+              if (!group) {
+                const oldEntry = entry as any;
+                if (oldEntry.dueDate) {
+                  try {
+                    const dueDate = new Date(oldEntry.dueDate);
+                    if (!isNaN(dueDate.getTime())) {
+                      group = get().getTimeBucketFromDate(dueDate);
+                    } else {
+                      group = 'none';
+                    }
+                  } catch {
+                    group = 'none';
+                  }
+                } else if (oldEntry.pinnedForDate) {
+                  try {
+                    const pinnedDate = new Date(oldEntry.pinnedForDate);
+                    if (!isNaN(pinnedDate.getTime())) {
+                      group = get().getTimeBucketFromDate(pinnedDate);
+                    } else {
+                      group = 'none';
+                    }
+                  } catch {
+                    group = 'none';
+                  }
+                } else {
+                  group = 'none';
+                }
               }
+              if (!groups[group]) groups[group] = [];
+              groups[group].push(entry);
+            } catch (error) {
+              console.error('Error grouping entry by time:', entry, error);
+              // Put problematic entries in 'none' group
+              if (!groups['none']) groups['none'] = [];
+              groups['none'].push(entry);
             }
-            if (!groups[group]) groups[group] = [];
-            groups[group].push(entry);
           });
           return groups;
         }
