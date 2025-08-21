@@ -56,7 +56,61 @@ const defaultHomeViewPrefs: HomeViewPreferences = {
 export const useAllyMindStore = create<AllyMindStore>()(
   persist(
     (set, get) => ({
-      entries: [],
+      entries: [
+        {
+          id: '1',
+          type: 'task',
+          title: 'Design new landing page',
+          body: 'Create a modern, responsive landing page for our product',
+          tags: ['design', 'frontend', 'priority'],
+          createdAt: new Date(),
+          dueAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+          timeBucket: 'tomorrow',
+          priority: 'high',
+          completed: false,
+          pinned: true,
+          note: 'Based on your previous design work, consider using a hero section with clear value proposition, social proof section, and strong CTA buttons. Your users respond well to gradient backgrounds and interactive elements.',
+          subTasks: [
+            { id: '1a', title: 'Wireframe layout', completed: false, createdAt: new Date() },
+            { id: '1b', title: 'Design hero section', completed: false, createdAt: new Date() },
+            { id: '1c', title: 'Create mobile mockups', completed: false, createdAt: new Date() }
+          ],
+          progress: 0
+        },
+        {
+          id: '2',
+          type: 'task',
+          title: 'Review quarterly reports',
+          body: 'Analyze Q3 performance metrics and prepare presentation',
+          tags: ['analysis', 'business', 'presentation'],
+          createdAt: new Date(),
+          dueAt: new Date(),
+          timeBucket: 'today',
+          priority: 'medium',
+          completed: false,
+          pinned: false,
+          note: 'Focus on key performance indicators that show growth trends. Consider creating visual charts for better stakeholder understanding. Your previous presentations were well-received when you included actionable insights.',
+          subTasks: [
+            { id: '2a', title: 'Gather data from all departments', completed: false, createdAt: new Date() },
+            { id: '2b', title: 'Create performance charts', completed: false, createdAt: new Date() },
+            { id: '2c', title: 'Write executive summary', completed: false, createdAt: new Date() }
+          ],
+          progress: 0
+        },
+        {
+          id: '3',
+          type: 'thought',
+          title: 'User experience insights',
+          body: 'Reflect on recent user feedback and identify improvement opportunities',
+          tags: ['ux', 'insights', 'improvement'],
+          createdAt: new Date(),
+          timeBucket: 'none',
+          priority: 'low',
+          completed: false,
+          pinned: false,
+          note: 'Your user research has shown that customers value simplicity and speed. Consider A/B testing different navigation patterns and measuring completion rates.'
+        }
+      ],
       homeViewPrefs: defaultHomeViewPrefs,
       currentView: 'capture' as AppView,
       
