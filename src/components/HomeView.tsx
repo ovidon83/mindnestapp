@@ -1,23 +1,14 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAllyMindStore } from '../store';
-import { Entry, EntryType, TimeBucket, Priority, GroupingMode } from '../types';
+import { Entry, TimeBucket, Priority } from '../types';
 import { 
   Search, 
-  Filter, 
-  Grid3X3, 
   Clock, 
-  Type, 
-  ChevronDown, 
-  ChevronRight,
   CheckCircle,
   Circle,
   Star,
-  StarOff,
   MoreHorizontal,
-
-  HelpCircle,
-  CheckSquare,
-  Square
+  HelpCircle
 } from 'lucide-react';
 
 const HomeView: React.FC = () => {
@@ -25,29 +16,21 @@ const HomeView: React.FC = () => {
     entries,
     homeViewPrefs,
     getGroupedEntries,
-    setGrouping,
-    setFilters,
-    toggleGroupCollapsed,
     setSearchQuery,
     toggleEntryComplete,
     toggleEntryPin,
     updateEntry,
-    deleteEntry,
-    bulkComplete,
-    bulkDelete,
-    bulkDefer,
     setCurrentView
   } = useAllyMindStore();
 
-  const [selectedEntryIds, setSelectedEntryIds] = useState<Set<string>>(new Set());
   const [expandedEntryIds, setSelectedExpandedIds] = useState<Set<string>>(new Set());
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
 
   const [searchInput, setSearchInput] = useState(homeViewPrefs.searchQuery);
+  const [activeView, setActiveView] = useState<'todo' | 'thoughts'>('todo');
 
   const groupedEntries = getGroupedEntries();
   const totalEntries = entries.length;
-  const filteredCount = Object.values(groupedEntries).reduce((sum, group) => sum + group.length, 0);
   
 
   
@@ -103,46 +86,7 @@ const HomeView: React.FC = () => {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [setGrouping]);
-
-  const handleEntrySelect = useCallback((entryId: string) => {
-    setSelectedEntryIds(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(entryId)) {
-        newSet.delete(entryId);
-      } else {
-        newSet.add(entryId);
-      }
-      return newSet;
-    });
   }, []);
-
-
-
-  const handleDeselectAll = useCallback(() => {
-    setSelectedEntryIds(new Set());
-  }, []);
-
-  const handleBulkComplete = useCallback(() => {
-    const taskIds = Array.from(selectedEntryIds).filter(id => {
-      const entry = entries.find(e => e.id === id);
-      return entry?.type === 'task';
-    });
-    bulkComplete(taskIds);
-    setSelectedEntryIds(new Set());
-  }, [selectedEntryIds, entries, bulkComplete]);
-
-  const handleBulkDelete = useCallback(() => {
-    if (window.confirm(`Delete ${selectedEntryIds.size} selected entries?`)) {
-      bulkDelete(Array.from(selectedEntryIds));
-      setSelectedEntryIds(new Set());
-    }
-  }, [selectedEntryIds, bulkDelete]);
-
-  const handleBulkDefer = useCallback((timeBucket: TimeBucket) => {
-    bulkDefer(Array.from(selectedEntryIds), timeBucket);
-    setSelectedEntryIds(new Set());
-  }, [selectedEntryIds, bulkDefer]);
 
   const getTimeBucketLabel = (timeBucket: TimeBucket): string => {
     const labels: Record<TimeBucket, string> = {
@@ -220,8 +164,7 @@ const HomeView: React.FC = () => {
     }
   };
 
-  const EntryRow: React.FC<{ entry: Entry }> = ({ entry }) => {
-    const isSelected = selectedEntryIds.has(entry.id);
+    const EntryRow: React.FC<{ entry: Entry }> = ({ entry }) => {
     const isExpanded = expandedEntryIds.has(entry.id);
     const isCompleted = entry.type === 'task' && entry.completed;
 
@@ -229,29 +172,35 @@ const HomeView: React.FC = () => {
       <div 
         className={`
           group relative border-b border-slate-200/30 hover:bg-white/60 transition-all duration-200
-          ${isSelected ? 'bg-blue-50/80 border-blue-300/50' : ''}
-          ${isCompleted ? 'opacity-60' : ''}
+          ${isCompleted ? 'opacity-75 bg-slate-50/50' : ''}
         `}
       >
         <div className="flex items-center px-8 py-4">
-          {/* Selection checkbox */}
-          <div className="mr-4">
-            <input
-              type="checkbox"
-              checked={isSelected}
-              onChange={() => handleEntrySelect(entry.id)}
-              className="w-5 h-5 text-blue-600 rounded-lg border-slate-300 focus:ring-blue-500/50 focus:border-blue-400/50 transition-all duration-200"
-            />
-          </div>
+          {/* Task completion status */}
+          {entry.type === 'task' && (
+            <button
+              onClick={() => toggleEntryComplete(entry.id)}
+              className={`mr-4 p-2 rounded-xl transition-all duration-200 ${
+                isCompleted 
+                  ? 'text-green-500 bg-green-50/80 hover:bg-green-100/80' 
+                  : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100/80'
+              }`}
+              title={isCompleted ? 'Mark incomplete' : 'Mark complete'}
+            >
+              {isCompleted ? (
+                <CheckCircle className="w-6 h-6" />
+              ) : (
+                <Circle className="w-6 h-6" />
+              )}
+            </button>
+          )}
 
-          {/* Type icon */}
-          <div className="mr-4">
-            {entry.type === 'task' ? (
-              <CheckCircle className={`w-6 h-6 ${isCompleted ? 'text-green-500' : 'text-slate-400'} transition-colors duration-200`} />
-            ) : (
-              <Circle className="w-6 h-6 text-blue-400 transition-colors duration-200" />
-            )}
-          </div>
+          {/* Type indicator for thoughts */}
+          {entry.type === 'thought' && (
+            <div className="mr-4 p-2 text-blue-500">
+              <Circle className="w-6 h-6" />
+            </div>
+          )}
 
           {/* Content */}
           <div className="flex-1 min-w-0">
@@ -274,7 +223,7 @@ const HomeView: React.FC = () => {
               )}
             </div>
             
-            {/* Tags - inline with title */}
+            {/* Tags */}
             {entry.tags.length > 0 && (
               <div className="flex items-center mt-2 space-x-2">
                 {entry.tags.slice(0, 3).map((tag, index) => (
@@ -299,38 +248,31 @@ const HomeView: React.FC = () => {
             </div>
           )}
 
-          {/* AI confidence */}
-          {entry.aiConfidence !== undefined && entry.aiConfidence < 0.8 && (
-            <div className="mr-4">
-              <HelpCircle className="w-5 h-5 text-yellow-500" />
-            </div>
-          )}
-
           {/* Pin toggle */}
           <button
             onClick={() => toggleEntryPin(entry.id)}
-            className="mr-4 p-2 hover:bg-white/80 rounded-xl transition-all duration-200"
+            className={`mr-4 p-2 rounded-xl transition-all duration-200 ${
+              entry.pinned 
+                ? 'text-yellow-500 bg-yellow-50/80 hover:bg-yellow-100/80' 
+                : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100/80'
+            }`}
           >
-            {entry.pinned ? (
-              <Star className="w-5 h-5 text-yellow-500 fill-current" />
-            ) : (
-              <StarOff className="w-5 h-5 text-slate-400" />
-            )}
+            <Star className="w-5 h-5" fill={entry.pinned ? 'currentColor' : 'none'} />
           </button>
 
-                    {/* Actions */}
+          {/* Quick actions */}
           <div className="flex items-center space-x-2">
-            {entry.type === 'task' && (
+            {entry.type === 'task' && !isCompleted && (
               <button
-                onClick={() => toggleEntryComplete(entry.id)}
-                className="p-2 hover:bg-white/80 rounded-xl transition-all duration-200"
-                title={isCompleted ? 'Mark incomplete' : 'Mark complete'}
+                onClick={() => {
+                  const newDate = new Date();
+                  newDate.setDate(newDate.getDate() + 1);
+                  updateEntry(entry.id, { dueAt: newDate });
+                }}
+                className="p-2 text-blue-500 hover:bg-blue-50/80 rounded-xl transition-all duration-200"
+                title="Defer to tomorrow"
               >
-                {isCompleted ? (
-                  <CheckSquare className="w-5 h-5 text-green-500" />
-                ) : (
-                  <Square className="w-5 h-5 text-slate-400" />
-                )}
+                <Clock className="w-5 h-5" />
               </button>
             )}
             
@@ -344,9 +286,10 @@ const HomeView: React.FC = () => {
                 }
                 return newSet;
               })}
-              className="p-2 hover:bg-white/80 rounded-xl transition-all duration-200"
+              className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100/80 rounded-xl transition-all duration-200"
+              title="More options"
             >
-              <MoreHorizontal className="w-5 h-5 text-slate-400" />
+              <MoreHorizontal className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -403,16 +346,7 @@ const HomeView: React.FC = () => {
                 Add Tag
               </button>
               
-              <button
-                onClick={() => {
-                  if (window.confirm('Delete this entry?')) {
-                    deleteEntry(entry.id);
-                  }
-                }}
-                className="px-4 py-2 text-xs font-medium bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-sm hover:shadow-md"
-              >
-                Delete
-              </button>
+
             </div>
           </div>
         )}
@@ -434,7 +368,7 @@ const HomeView: React.FC = () => {
                 AllyMind
               </h1>
               <p className="text-sm text-slate-500 font-medium">
-                {filteredCount} of {totalEntries} entries
+                {totalEntries} entries organized
               </p>
             </div>
           </div>
@@ -447,12 +381,6 @@ const HomeView: React.FC = () => {
               + New Entry
             </button>
             <button
-              onClick={() => setCurrentView('capture')}
-              className="px-6 py-3 bg-white/80 backdrop-blur-sm text-slate-700 rounded-xl hover:bg-white transition-all duration-200 border border-slate-200/50 shadow-sm hover:shadow-md font-medium"
-            >
-              ← Back to Capture
-            </button>
-            <button
               onClick={() => setShowKeyboardShortcuts(!showKeyboardShortcuts)}
               className="p-3 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-white/80 transition-all duration-200"
               title="Keyboard shortcuts"
@@ -463,9 +391,33 @@ const HomeView: React.FC = () => {
         </div>
       </div>
 
-      {/* Controls */}
-      <div className="bg-white/60 backdrop-blur-sm border-b border-slate-200/30 px-8 py-6">
-        <div className="flex items-center space-x-6">
+      {/* Sub-view Navigation */}
+      <div className="bg-white/60 backdrop-blur-sm border-b border-slate-200/30 px-8 py-4">
+        <div className="flex items-center space-x-8">
+          {/* View Tabs */}
+          <div className="flex space-x-1 bg-slate-100/80 rounded-xl p-1">
+            <button
+              onClick={() => setActiveView('todo')}
+              className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+                activeView === 'todo'
+                  ? 'bg-white text-slate-800 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-800'
+              }`}
+            >
+              📋 To-Do
+            </button>
+            <button
+              onClick={() => setActiveView('thoughts')}
+              className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+                activeView === 'thoughts'
+                  ? 'bg-white text-slate-800 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-600'
+              }`}
+            >
+              💭 Thoughts
+            </button>
+          </div>
+
           {/* Search */}
           <div className="flex-1 max-w-md">
             <div className="relative">
@@ -480,102 +432,10 @@ const HomeView: React.FC = () => {
               />
             </div>
           </div>
-
-          {/* Grouping */}
-          <div className="flex items-center space-x-3">
-            <span className="text-sm font-medium text-slate-600">Group by:</span>
-            <select
-              value={homeViewPrefs.grouping}
-              onChange={(e) => setGrouping(e.target.value as GroupingMode)}
-              className="px-4 py-3 border border-slate-200/50 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-200"
-            >
-              <option value="none">None</option>
-              <option value="time">Time</option>
-              <option value="type">Type</option>
-              <option value="time_type">Time ▸ Type</option>
-              <option value="type_time">Type ▸ Time</option>
-            </select>
-          </div>
-
-          {/* Filters */}
-          <div className="flex items-center space-x-3">
-            <Filter className="w-5 h-5 text-slate-400" />
-            <select
-              value={homeViewPrefs.filters.types.length === 2 ? 'both' : homeViewPrefs.filters.types[0]}
-              onChange={(e) => {
-                const value = e.target.value;
-                const types: EntryType[] = value === 'both' ? ['task', 'thought'] : [value as EntryType];
-                setFilters({ types });
-              }}
-              className="px-4 py-3 border border-slate-200/50 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-400/50 bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-200"
-            >
-              <option value="both">All Types</option>
-              <option value="task">Tasks Only</option>
-              <option value="thought">Thoughts Only</option>
-            </select>
-          </div>
-
-          {/* Clear filters */}
-          {filteredCount < totalEntries && (
-            <button
-              onClick={() => {
-                setFilters({
-                  types: ['task', 'thought'],
-                  timeBuckets: ['overdue', 'today', 'tomorrow', 'this_week', 'next_week', 'later', 'someday'],
-                  status: 'incomplete',
-                  pinnedOnly: false,
-                });
-                setSearchQuery('');
-                setSearchInput('');
-              }}
-              className="px-6 py-3 bg-gradient-to-r from-slate-500 to-slate-600 text-white rounded-xl hover:from-slate-600 hover:to-slate-700 transition-all duration-200 shadow-sm hover:shadow-md font-medium"
-            >
-              Clear filters
-            </button>
-          )}
         </div>
       </div>
 
-      {/* Bulk actions */}
-      {selectedEntryIds.size > 0 && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200/50 px-8 py-4">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-blue-800">
-              {selectedEntryIds.size} entries selected
-            </span>
-            
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={handleBulkComplete}
-                className="px-4 py-2 text-sm bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm hover:shadow-md font-medium"
-              >
-                Complete Tasks
-              </button>
-              
-              <button
-                onClick={() => handleBulkDefer('tomorrow')}
-                className="px-4 py-2 text-sm bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-sm hover:shadow-md font-medium"
-              >
-                Defer to Tomorrow
-              </button>
-              
-              <button
-                onClick={handleBulkDelete}
-                className="px-4 py-2 text-sm bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-sm hover:shadow-md font-medium"
-              >
-                Delete
-              </button>
-              
-              <button
-                onClick={handleDeselectAll}
-                className="px-4 py-2 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-200 font-medium"
-              >
-                Deselect All
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* Keyboard shortcuts help */}
       {showKeyboardShortcuts && (
@@ -588,51 +448,72 @@ const HomeView: React.FC = () => {
 
       {/* Content */}
       <div className="flex-1 overflow-auto">
-        {Object.entries(groupedEntries).map(([groupName, groupEntries]) => (
-          <div key={groupName} className="bg-white/80 backdrop-blur-sm border-b border-slate-200/30">
-            {/* Group header */}
-            <div 
-              className="flex items-center justify-between px-8 py-4 bg-gradient-to-r from-slate-50/80 to-slate-100/80 hover:from-slate-100/80 hover:to-slate-200/80 cursor-pointer transition-all duration-200"
-              onClick={() => toggleGroupCollapsed(groupName)}
-            >
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-3">
-                  {homeViewPrefs.grouping === 'time' && <Clock className="w-5 h-5 text-slate-500" />}
-                  {homeViewPrefs.grouping === 'type' && <Type className="w-5 h-5 text-slate-500" />}
-                  {homeViewPrefs.grouping === 'none' && <Grid3X3 className="w-5 h-5 text-slate-500" />}
+        {/* Always show Today section first */}
+        <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200/30">
+          <div className="flex items-center justify-between px-8 py-4 bg-gradient-to-r from-blue-50/80 to-indigo-100/80">
+            <div className="flex items-center space-x-4">
+              <Clock className="w-5 h-5 text-blue-500" />
+              <h2 className="text-xl font-bold text-slate-800">Today</h2>
+              <span className="text-sm font-semibold text-slate-600 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-slate-200/50 shadow-sm">
+                {entries.filter(entry => {
+                  if (activeView === 'todo' && entry.type !== 'task') return false;
+                  if (activeView === 'thoughts' && entry.type !== 'thought') return false;
+                  return entry.timeBucket === 'today' || entry.timeBucket === 'overdue';
+                }).length}
+              </span>
+            </div>
+          </div>
+          
+          <div className="divide-y divide-slate-100">
+            {entries
+              .filter(entry => {
+                if (activeView === 'todo' && entry.type !== 'task') return false;
+                if (activeView === 'thoughts' && entry.type !== 'thought') return false;
+                return entry.timeBucket === 'today' || entry.timeBucket === 'overdue';
+              })
+              .map((entry) => (
+                <EntryRow key={entry.id} entry={entry} />
+              ))}
+          </div>
+        </div>
+
+        {/* Show other time buckets */}
+        {Object.entries(groupedEntries)
+          .filter(([groupName]) => groupName !== 'today' && groupName !== 'overdue')
+          .map(([groupName, groupEntries]) => {
+            // Filter entries based on active view
+            const filteredEntries = groupEntries.filter(entry => {
+              if (activeView === 'todo' && entry.type !== 'task') return false;
+              if (activeView === 'thoughts' && entry.type !== 'thought') return false;
+              return true;
+            });
+            
+            if (filteredEntries.length === 0) return null;
+            
+            return (
+              <div key={groupName} className="bg-white/80 backdrop-blur-sm border-b border-slate-200/30">
+                {/* Group header */}
+                <div className="flex items-center justify-between px-8 py-4 bg-gradient-to-r from-slate-50/80 to-slate-100/80">
+                  <div className="flex items-center space-x-4">
+                    <Clock className="w-5 h-5 text-slate-500" />
+                    <h2 className="text-xl font-bold text-slate-800">
+                      {getTimeBucketLabel(groupName as TimeBucket)}
+                    </h2>
+                    <span className="text-sm font-semibold text-slate-600 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-slate-200/50 shadow-sm">
+                      {filteredEntries.length}
+                    </span>
+                  </div>
                 </div>
                 
-                <h2 className="text-xl font-bold text-slate-800">
-                  {groupName === 'All Entries' ? 'All Entries' : 
-                   homeViewPrefs.grouping === 'time' ? getTimeBucketLabel(groupName as TimeBucket) :
-                   homeViewPrefs.grouping === 'type' ? (groupName === 'task' ? 'Tasks' : 'Thoughts') :
-                   groupName}
-                </h2>
-                
-                <span className="text-sm font-semibold text-slate-600 bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-slate-200/50 shadow-sm">
-                  {groupEntries.length}
-                </span>
+                {/* Group content */}
+                <div className="divide-y divide-slate-100">
+                  {filteredEntries.map((entry) => (
+                    <EntryRow key={entry.id} entry={entry} />
+                  ))}
+                </div>
               </div>
-              
-              <button className="text-slate-400 hover:text-slate-600 transition-colors duration-200">
-                {homeViewPrefs.collapsedGroups[groupName] ? (
-                  <ChevronRight className="w-6 h-6" />
-                ) : (
-                  <ChevronDown className="w-6 h-6" />
-                )}
-              </button>
-            </div>
-            
-            {/* Group content */}
-            {!homeViewPrefs.collapsedGroups[groupName] && (
-              <div className="divide-y divide-gray-100">
-                {groupEntries.map((entry) => (
-                  <EntryRow key={entry.id} entry={entry} />
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
+            );
+          })}
         
         {/* Empty state */}
         {Object.keys(groupedEntries).length === 0 && (
@@ -646,18 +527,12 @@ const HomeView: React.FC = () => {
             </p>
             <button
               onClick={() => {
-                setFilters({
-                  types: ['task', 'thought'],
-                  timeBuckets: ['overdue', 'today', 'tomorrow', 'this_week', 'next_week', 'later', 'someday', 'none'],
-                  status: 'both',
-                  pinnedOnly: false,
-                });
                 setSearchQuery('');
                 setSearchInput('');
               }}
               className="px-6 py-3 bg-gradient-to-r from-slate-500 to-slate-600 text-white rounded-xl hover:from-slate-600 hover:to-slate-700 transition-all duration-200 shadow-sm hover:shadow-md font-medium"
             >
-              Clear all filters
+              Clear search
             </button>
           </div>
         )}
