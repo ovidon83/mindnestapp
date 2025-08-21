@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Entry, TimeBucket, Priority, HomeViewPreferences, GroupingMode, AppView } from '../types';
+import { Entry, TimeBucket, Priority, HomeViewPreferences, GroupingMode, AppView, SubTask } from '../types';
 
 interface AllyMindStore {
   entries: Entry[];
@@ -13,6 +13,16 @@ interface AllyMindStore {
   deleteEntry: (id: string) => void;
   toggleEntryComplete: (id: string) => void;
   toggleEntryPin: (id: string) => void;
+  
+  // AI Processing
+  processInputWithAI: (rawInput: string) => Entry[];
+  splitInputIntoEntries: (rawInput: string) => Omit<Entry, 'id' | 'createdAt' | 'timeBucket'>[];
+  enhanceEntryWithAI: (entryData: Omit<Entry, 'id' | 'createdAt' | 'timeBucket'>) => Entry;
+  classifyEntry: (text: string) => { type: 'task' | 'thought', confidence: number };
+  extractTimeInfo: (text: string) => { dueAt?: Date };
+  determinePriority: (text: string, type: 'task' | 'thought') => Priority;
+  generateAINote: (text: string, type: 'task' | 'thought') => string;
+  generateSubTasks: (text: string) => SubTask[];
   
   // Bulk operations
   bulkComplete: (ids: string[]) => void;
@@ -115,6 +125,245 @@ export const useAllyMindStore = create<AllyMindStore>()(
       currentView: 'capture' as AppView,
       
 
+
+      // AI Processing Functions
+      processInputWithAI: (rawInput: string) => {
+        const entries = get().splitInputIntoEntries(rawInput);
+        const processedEntries = entries.map(entry => get().enhanceEntryWithAI(entry));
+        
+        // Add all processed entries
+        set((state) => ({
+          entries: [...state.entries, ...processedEntries],
+        }));
+        
+        return processedEntries;
+      },
+
+      splitInputIntoEntries: (rawInput: string): Omit<Entry, 'id' | 'createdAt' | 'timeBucket'>[] => {
+        // Split by common separators and natural language patterns
+        const separators = [
+          /\.\s+/g,           // Period + space
+          /!\s+/g,            // Exclamation + space
+          /\?\s+/g,           // Question + space
+          /;\s+/g,            // Semicolon + space
+          /\n\s*\n/g,         // Double line breaks
+          /\s+and\s+/gi,      // "and" between items
+          /\s+then\s+/gi,     // "then" between items
+          /\s+also\s+/gi,     // "also" between items
+        ];
+
+        let splitInput = rawInput;
+        separators.forEach(separator => {
+          splitInput = splitInput.replace(separator, '|||SPLIT|||');
+        });
+
+        const rawEntries = splitInput.split('|||SPLIT|||').filter(entry => entry.trim().length > 0);
+        
+        return rawEntries.map(entry => ({
+          type: 'thought' as const, // Will be classified by AI
+          title: entry.trim(),
+          body: entry.trim(),
+          tags: [],
+          dueAt: undefined,
+          priority: undefined,
+          completed: false,
+          pinned: false,
+          aiConfidence: undefined,
+          note: undefined,
+          subTasks: undefined,
+          progress: undefined,
+        }));
+      },
+
+      enhanceEntryWithAI: (entryData: Omit<Entry, 'id' | 'createdAt' | 'timeBucket'>): Entry => {
+        const now = new Date();
+        
+        // 1. Classify as Task or Thought
+        const classification = get().classifyEntry(entryData.title + ' ' + entryData.body);
+        
+        // 2. Extract time and reminders
+        const timeInfo = get().extractTimeInfo(entryData.title + ' ' + entryData.body);
+        
+        // 3. Determine priority
+        const priority = get().determinePriority(entryData.title + ' ' + entryData.body, classification.type);
+        
+        // 4. Generate AI insights
+        const aiNote = get().generateAINote(entryData.title + ' ' + entryData.body, classification.type);
+        
+        // 5. Determine time bucket
+        const timeBucket = get().getTimeBucketFromDate(timeInfo.dueAt);
+        
+        // 6. Generate sub-tasks for complex tasks
+        const subTasks = classification.type === 'task' ? get().generateSubTasks(entryData.title + ' ' + entryData.body) : undefined;
+        
+        const newEntry: Entry = {
+          ...entryData,
+          id: crypto.randomUUID(),
+          createdAt: now,
+          type: classification.type,
+          timeBucket,
+          dueAt: timeInfo.dueAt,
+          priority,
+          note: aiNote,
+          subTasks,
+          progress: subTasks ? 0 : undefined,
+          aiConfidence: classification.confidence,
+        };
+        
+        return newEntry;
+      },
+
+      classifyEntry: (text: string): { type: 'task' | 'thought', confidence: number } => {
+        const taskKeywords = [
+          'need to', 'have to', 'must', 'should', 'will', 'going to', 'plan to', 'want to',
+          'finish', 'complete', 'start', 'create', 'build', 'design', 'write', 'call', 'email',
+          'meet', 'schedule', 'book', 'buy', 'order', 'submit', 'review', 'approve', 'send',
+          'deadline', 'due', 'urgent', 'important', 'priority', 'reminder', 'todo', 'task'
+        ];
+        
+        const thoughtKeywords = [
+          'idea', 'thought', 'think', 'believe', 'feel', 'wonder', 'consider', 'reflect',
+          'learned', 'discovered', 'realized', 'noticed', 'remember', 'dream', 'wish',
+          'maybe', 'perhaps', 'could', 'might', 'interesting', 'curious', 'insight'
+        ];
+        
+        const lowerText = text.toLowerCase();
+        let taskScore = 0;
+        let thoughtScore = 0;
+        
+        taskKeywords.forEach(keyword => {
+          if (lowerText.includes(keyword)) taskScore += 1;
+        });
+        
+        thoughtKeywords.forEach(keyword => {
+          if (lowerText.includes(keyword)) thoughtScore += 1;
+        });
+        
+        // Check for action-oriented language
+        if (lowerText.includes('by') || lowerText.includes('until') || lowerText.includes('before')) {
+          taskScore += 2;
+        }
+        
+        if (lowerText.includes('?') || lowerText.includes('why') || lowerText.includes('how')) {
+          thoughtScore += 2;
+        }
+        
+        const totalScore = taskScore + thoughtScore;
+        const confidence = totalScore > 0 ? Math.max(taskScore, thoughtScore) / totalScore : 0.5;
+        
+        return {
+          type: taskScore >= thoughtScore ? 'task' : 'thought',
+          confidence: Math.min(confidence + 0.3, 1.0) // Boost confidence
+        };
+      },
+
+      extractTimeInfo: (text: string): { dueAt?: Date } => {
+        const lowerText = text.toLowerCase();
+        const now = new Date();
+        
+        // Natural language time parsing
+        if (lowerText.includes('tomorrow')) {
+          const tomorrow = new Date(now);
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          return { dueAt: tomorrow };
+        }
+        
+        if (lowerText.includes('next week')) {
+          const nextWeek = new Date(now);
+          nextWeek.setDate(now.getDate() + 7);
+          return { dueAt: nextWeek };
+        }
+        
+        if (lowerText.includes('this week')) {
+          const thisWeek = new Date(now);
+          thisWeek.setDate(now.getDate() + 3);
+          return { dueAt: thisWeek };
+        }
+        
+        if (lowerText.includes('asap') || lowerText.includes('urgent')) {
+          return { dueAt: now };
+        }
+        
+        if (lowerText.includes('later') || lowerText.includes('someday')) {
+          const later = new Date(now);
+          later.setDate(now.getDate() + 30);
+          return { dueAt: later };
+        }
+        
+        // Extract specific times (e.g., "3pm", "9am")
+        const timeMatch = text.match(/(\d{1,2})(?::\d{2})?\s*(am|pm)/i);
+        if (timeMatch) {
+          const hour = parseInt(timeMatch[1]);
+          const isPM = timeMatch[2].toLowerCase() === 'pm';
+          const adjustedHour = isPM && hour !== 12 ? hour + 12 : hour === 12 && !isPM ? 0 : hour;
+          
+          const dueDate = new Date(now);
+          dueDate.setHours(adjustedHour, 0, 0, 0);
+          
+          // If time has passed today, set for tomorrow
+          if (dueDate <= now) {
+            dueDate.setDate(dueDate.getDate() + 1);
+          }
+          
+          return { dueAt: dueDate };
+        }
+        
+        return {};
+      },
+
+      determinePriority: (text: string, type: 'task' | 'thought'): Priority => {
+        const lowerText = text.toLowerCase();
+        
+        if (lowerText.includes('urgent') || lowerText.includes('asap') || lowerText.includes('emergency')) {
+          return 'urgent';
+        }
+        
+        if (lowerText.includes('important') || lowerText.includes('critical') || lowerText.includes('deadline')) {
+          return 'high';
+        }
+        
+        if (lowerText.includes('priority') || lowerText.includes('focus') || lowerText.includes('key')) {
+          return 'medium';
+        }
+        
+        return type === 'task' ? 'medium' : 'low';
+      },
+
+      generateAINote: (_text: string, type: 'task' | 'thought'): string => {
+        if (type === 'task') {
+          return `This appears to be an actionable task. Consider breaking it down into smaller steps if it's complex. Set a realistic deadline and prioritize based on your current workload.`;
+        } else {
+          return `This seems like a valuable insight or reflection. Consider how you might apply this learning or explore this idea further. You might want to revisit this during your next planning session.`;
+        }
+      },
+
+      generateSubTasks: (text: string): SubTask[] => {
+        // Simple sub-task generation for complex tasks
+        const subTasks = [];
+        const now = new Date();
+        
+        if (text.toLowerCase().includes('design') || text.toLowerCase().includes('create')) {
+          subTasks.push(
+            { id: '1', title: 'Research and gather inspiration', completed: false, createdAt: now },
+            { id: '2', title: 'Create initial mockups', completed: false, createdAt: now },
+            { id: '3', title: 'Get feedback and iterate', completed: false, createdAt: now }
+          );
+        } else if (text.toLowerCase().includes('write') || text.toLowerCase().includes('content')) {
+          subTasks.push(
+            { id: '1', title: 'Outline main points', completed: false, createdAt: now },
+            { id: '2', title: 'Write first draft', completed: false, createdAt: now },
+            { id: '3', title: 'Review and edit', completed: false, createdAt: now }
+          );
+        } else {
+          subTasks.push(
+            { id: '1', title: 'Plan approach', completed: false, createdAt: now },
+            { id: '2', title: 'Execute main work', completed: false, createdAt: now },
+            { id: '3', title: 'Review and complete', completed: false, createdAt: now }
+          );
+        }
+        
+        return subTasks;
+      },
 
       addEntry: (entryData) => {
         const now = new Date();

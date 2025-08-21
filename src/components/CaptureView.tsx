@@ -1,11 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAllyMindStore } from '../store';
-import { Entry, EntryType, Priority } from '../types';
 import { Mic, MicOff, Sparkles, CheckCircle, Circle } from 'lucide-react';
-import * as chrono from 'chrono-node';
 
 const CaptureView: React.FC = () => {
-  const { addEntry, setCurrentView } = useAllyMindStore();
+  const { processInputWithAI, setCurrentView } = useAllyMindStore();
   const [inputText, setInputText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -70,113 +68,10 @@ const CaptureView: React.FC = () => {
     }
   };
 
-  const parseInput = (text: string): Partial<Entry> => {
-    const lowerText = text.toLowerCase().trim();
-    
-    // Determine entry type
-    let finalType: EntryType = 'thought';
-    
-    // TASK DETECTION - Look for action-oriented language
-    if (lowerText.includes('need to') || lowerText.includes('have to') || 
-        lowerText.includes('must') || lowerText.includes('should') ||
-        lowerText.includes('going to') || lowerText.includes('will') ||
-        lowerText.includes('finish') || lowerText.includes('complete') ||
-        lowerText.includes('start') || lowerText.includes('work on') ||
-        lowerText.includes('prepare') || lowerText.includes('email') ||
-        lowerText.includes('call') || lowerText.includes('meet') ||
-        lowerText.includes('buy') || lowerText.includes('get') ||
-        lowerText.includes('find') || lowerText.includes('review') ||
-        lowerText.includes('check') || lowerText.includes('update') ||
-        lowerText.includes('create') || lowerText.includes('build') ||
-        lowerText.includes('design') || lowerText.includes('write') ||
-        lowerText.includes('read') || lowerText.includes('study') ||
-        lowerText.includes('organize') || lowerText.includes('clean') ||
-        lowerText.includes('fix') || lowerText.includes('solve') ||
-        lowerText.includes('plan') || lowerText.includes('schedule') ||
-        lowerText.includes('remember') || lowerText.includes('think about') ||
-        lowerText.includes('want to') || lowerText.includes('going to')) {
-      finalType = 'task';
-    }
-    
-    // Determine priority
-    let priority: Priority | undefined;
-    if (lowerText.includes('urgent') || lowerText.includes('asap') || lowerText.includes('emergency')) {
-      priority = 'urgent';
-    } else if (lowerText.includes('important') || lowerText.includes('critical') || lowerText.includes('high')) {
-      priority = 'high';
-    } else if (lowerText.includes('medium') || lowerText.includes('moderate')) {
-      priority = 'medium';
-    } else if (lowerText.includes('low') || lowerText.includes('minor')) {
-      priority = 'low';
-    }
-    
-    // Extract due date
-    let dueAt: Date | undefined;
-    const parsedDate = chrono.parseDate(text);
-    if (parsedDate) {
-      dueAt = parsedDate;
-    }
-    
-    // Extract tags (words starting with #)
-    const tagMatches = text.match(/#\w+/g);
-    const tags = tagMatches ? tagMatches.map(tag => tag.slice(1)) : [];
-    
-    // Clean content (remove hashtags and extra whitespace)
-    let cleanedContent = text
-      .replace(/#\w+/g, '') // Remove hashtags
-      .replace(/\s+/g, ' ') // Collapse multiple spaces
-      .trim();
-    
-    // Create title (first sentence or first 50 characters)
-    const title = cleanedContent.length > 50 
-      ? cleanedContent.substring(0, 50) + '...'
-      : cleanedContent;
-    
-    return {
-      type: finalType,
-      title,
-      body: cleanedContent,
-      tags,
-      priority,
-      dueAt,
-      aiConfidence: 0.9, // High confidence for simple classification
-    };
-  };
 
-  const splitIntoMultipleEntries = (text: string): Partial<Entry>[] => {
-    // Strategy 1: Try comma splitting first (most reliable for simple lists)
-    const commaSegments = text.split(/,\s+/);
-    if (commaSegments.length > 1) {
-      const validSegments = commaSegments.filter(segment => {
-        const trimmed = segment.trim();
-        return trimmed.length > 0;
-      });
-      if (validSegments.length > 0) {
-        return validSegments.map(segment => parseInput(segment.trim()));
-      }
-    }
-    
-    // Strategy 2: If comma splitting didn't work, try transition words
-    const transitionPatterns = [
-      /\s+(?:and|also|plus|additionally|furthermore|moreover|besides|in addition|as well as)\s+/i,
-      /[.!?]\s+(?=[A-Z])/g,  // Sentence endings followed by capital
-      /\n\s*\n/,              // Double line breaks
-      /;\s+/,                 // Semicolons
-    ];
-    
-    for (const pattern of transitionPatterns) {
-      const newSegments = text.split(pattern);
-      if (newSegments.length > 1) {
-        const validSegments = newSegments.filter(segment => segment.trim().length > 0);
-        if (validSegments.length > 0) {
-          return validSegments.map(segment => parseInput(segment.trim()));
-        }
-      }
-    }
-    
-    // If still no splits, return single entry
-    return [parseInput(text)];
-  };
+
+
+
 
   const handleSubmit = async () => {
     const textToProcess = transcript || inputText;
@@ -185,15 +80,8 @@ const CaptureView: React.FC = () => {
     setIsProcessing(true);
     
     try {
-      // Split into multiple entries if needed
-      const entries = splitIntoMultipleEntries(textToProcess);
-      
-      // Add each entry
-      entries.forEach(entry => {
-        if (entry.type) { // Ensure type is defined
-          addEntry(entry as Omit<Entry, 'id' | 'createdAt' | 'timeBucket'>);
-        }
-      });
+      // Process with AI - this will automatically classify, extract time, prioritize, and create entries
+      processInputWithAI(textToProcess);
       
       // Show success message
       setShowSuccess(true);
@@ -232,13 +120,7 @@ const CaptureView: React.FC = () => {
           <h1 className="text-4xl font-bold text-gray-900 mb-2">AllyMind</h1>
           <p className="text-lg text-gray-600">Because your thoughts deserve intelligent organization!</p>
           
-          {/* Navigation Button */}
-          <button
-            onClick={() => setCurrentView('home')}
-            className="mt-4 px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-          >
-            View All Entries →
-          </button>
+
         </div>
 
         {/* Main Input Card */}
