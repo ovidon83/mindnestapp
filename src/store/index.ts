@@ -14,6 +14,12 @@ interface AllyMindStore {
   toggleEntryComplete: (id: string) => void;
   toggleEntryPin: (id: string) => void;
   
+  // Enhanced entry management
+  editEntryTitle: (id: string, newTitle: string) => void;
+  editEntryBody: (id: string, newBody: string) => void;
+  addSubTask: (entryId: string, subTaskTitle: string) => void;
+  toggleSubTask: (entryId: string, subTaskId: string) => void;
+  
   // AI Processing
   processInputWithAI: (rawInput: string) => Entry[];
   splitInputIntoEntries: (rawInput: string) => Omit<Entry, 'id' | 'createdAt' | 'timeBucket'>[];
@@ -23,6 +29,12 @@ interface AllyMindStore {
   determinePriority: (text: string, type: 'task' | 'thought') => Priority;
   generateAINote: (text: string, type: 'task' | 'thought') => string;
   generateSubTasks: (text: string) => SubTask[];
+  
+  // Planning & Organization
+  updatePlanningSessions: (newEntries: Entry[]) => void;
+  getDailyTop3: () => Entry[];
+  getWeeklyReview: () => { critical: Entry[], postponed: Entry[], forgotten: Entry[] };
+  reorderEntries: (entryIds: string[]) => void;
   
   // Bulk operations
   bulkComplete: (ids: string[]) => void;
@@ -136,11 +148,14 @@ export const useAllyMindStore = create<AllyMindStore>()(
           entries: [...state.entries, ...processedEntries],
         }));
         
+        // Trigger planning session updates
+        get().updatePlanningSessions(processedEntries);
+        
         return processedEntries;
       },
 
       splitInputIntoEntries: (rawInput: string): Omit<Entry, 'id' | 'createdAt' | 'timeBucket'>[] => {
-        // Split by common separators and natural language patterns
+        // Enhanced splitting with intelligent detection
         const separators = [
           /\.\s+/g,           // Period + space
           /!\s+/g,            // Exclamation + space
@@ -150,6 +165,8 @@ export const useAllyMindStore = create<AllyMindStore>()(
           /\s+and\s+/gi,      // "and" between items
           /\s+then\s+/gi,     // "then" between items
           /\s+also\s+/gi,     // "also" between items
+          /\s+next\s+/gi,     // "next" between items
+          /\s+finally\s+/gi,  // "finally" between items
         ];
 
         let splitInput = rawInput;
@@ -157,9 +174,22 @@ export const useAllyMindStore = create<AllyMindStore>()(
           splitInput = splitInput.replace(separator, '|||SPLIT|||');
         });
 
-        const rawEntries = splitInput.split('|||SPLIT|||').filter(entry => entry.trim().length > 0);
+        let rawEntries = splitInput.split('|||SPLIT|||').filter(entry => entry.trim().length > 0);
         
-        return rawEntries.map(entry => ({
+        // Further split if entries are still too long or contain multiple thoughts
+        const finalEntries: string[] = [];
+        for (const entry of rawEntries) {
+          const trimmed = entry.trim();
+          if (trimmed.length > 200) {
+            // Split long entries by sentence boundaries
+            const sentences = trimmed.match(/[^.!?]+[.!?]+/g) || [trimmed];
+            finalEntries.push(...sentences.map(s => s.trim()).filter(s => s.length > 10));
+          } else {
+            finalEntries.push(trimmed);
+          }
+        }
+        
+        return finalEntries.map(entry => ({
           type: 'thought' as const, // Will be classified by AI
           title: entry.trim(),
           body: entry.trim(),
@@ -329,40 +359,155 @@ export const useAllyMindStore = create<AllyMindStore>()(
         return type === 'task' ? 'medium' : 'low';
       },
 
-      generateAINote: (_text: string, type: 'task' | 'thought'): string => {
+      generateAINote: (text: string, type: 'task' | 'thought'): string => {
+        const lowerText = text.toLowerCase();
+        
         if (type === 'task') {
-          return `This appears to be an actionable task. Consider breaking it down into smaller steps if it's complex. Set a realistic deadline and prioritize based on your current workload.`;
+          // Generate specific insights based on task content
+          if (lowerText.includes('design') || lowerText.includes('create')) {
+            return `🎨 Design Task: Start with research and inspiration gathering. Consider user needs and create multiple iterations. Don't forget to get feedback early and often.`;
+          } else if (lowerText.includes('write') || lowerText.includes('content')) {
+            return `✍️ Writing Task: Begin with an outline or mind map. Consider your audience and key messages. Break into smaller writing sessions for better focus.`;
+          } else if (lowerText.includes('meet') || lowerText.includes('call')) {
+            return `📞 Communication Task: Prepare agenda and key points beforehand. Set clear objectives and follow up with action items.`;
+          } else if (lowerText.includes('learn') || lowerText.includes('study')) {
+            return `📚 Learning Task: Use spaced repetition techniques. Practice actively rather than just reading. Consider finding a study partner or mentor.`;
+          } else if (lowerText.includes('organize') || lowerText.includes('clean')) {
+            return `🧹 Organization Task: Start with the most visible areas first. Use the "touch once" rule - don't just move things around.`;
+          } else {
+            return `✅ Actionable Task: Break this down into smaller, specific steps. Set a realistic deadline and consider what resources you'll need.`;
+          }
         } else {
-          return `This seems like a valuable insight or reflection. Consider how you might apply this learning or explore this idea further. You might want to revisit this during your next planning session.`;
+          // Generate insights for thoughts/reflections
+          if (lowerText.includes('idea') || lowerText.includes('concept')) {
+            return `💡 Great idea! Consider how this connects to your existing projects. Maybe it's time to start a new project or pivot an existing one?`;
+          } else if (lowerText.includes('problem') || lowerText.includes('issue')) {
+            return `🔍 Problem Analysis: What's the root cause? Who else might be experiencing this? Consider multiple perspectives and potential solutions.`;
+          } else if (lowerText.includes('goal') || lowerText.includes('vision')) {
+            return `🎯 Goal Setting: Make this SMART (Specific, Measurable, Achievable, Relevant, Time-bound). What's the first step toward this vision?`;
+          } else {
+            return `🤔 Interesting reflection! Consider how this insight might apply to other areas of your life or work. Worth exploring further.`;
+          }
         }
       },
 
       generateSubTasks: (text: string): SubTask[] => {
-        // Simple sub-task generation for complex tasks
         const subTasks = [];
         const now = new Date();
+        const lowerText = text.toLowerCase();
         
-        if (text.toLowerCase().includes('design') || text.toLowerCase().includes('create')) {
+        if (lowerText.includes('design') || lowerText.includes('create')) {
           subTasks.push(
-            { id: '1', title: 'Research and gather inspiration', completed: false, createdAt: now },
-            { id: '2', title: 'Create initial mockups', completed: false, createdAt: now },
-            { id: '3', title: 'Get feedback and iterate', completed: false, createdAt: now }
+            { id: crypto.randomUUID(), title: 'Research and gather inspiration', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Create initial mockups', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Get feedback and iterate', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Finalize design', completed: false, createdAt: now }
           );
-        } else if (text.toLowerCase().includes('write') || text.toLowerCase().includes('content')) {
+        } else if (lowerText.includes('write') || lowerText.includes('content')) {
           subTasks.push(
-            { id: '1', title: 'Outline main points', completed: false, createdAt: now },
-            { id: '2', title: 'Write first draft', completed: false, createdAt: now },
-            { id: '3', title: 'Review and edit', completed: false, createdAt: now }
+            { id: crypto.randomUUID(), title: 'Research and outline main points', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Write first draft', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Review and edit', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Get feedback and finalize', completed: false, createdAt: now }
+          );
+        } else if (lowerText.includes('meet') || lowerText.includes('call')) {
+          subTasks.push(
+            { id: crypto.randomUUID(), title: 'Prepare agenda and key points', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Schedule meeting', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Conduct meeting', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Follow up with action items', completed: false, createdAt: now }
+          );
+        } else if (lowerText.includes('learn') || lowerText.includes('study')) {
+          subTasks.push(
+            { id: crypto.randomUUID(), title: 'Set learning objectives', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Gather learning resources', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Practice and apply knowledge', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Review and reinforce', completed: false, createdAt: now }
+          );
+        } else if (lowerText.includes('organize') || lowerText.includes('clean')) {
+          subTasks.push(
+            { id: crypto.randomUUID(), title: 'Assess current state', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Create organization system', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Implement organization', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Maintain and improve', completed: false, createdAt: now }
           );
         } else {
           subTasks.push(
-            { id: '1', title: 'Plan approach', completed: false, createdAt: now },
-            { id: '2', title: 'Execute main work', completed: false, createdAt: now },
-            { id: '3', title: 'Review and complete', completed: false, createdAt: now }
+            { id: crypto.randomUUID(), title: 'Plan approach and timeline', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Execute main work', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Review and refine', completed: false, createdAt: now },
+            { id: crypto.randomUUID(), title: 'Complete and document', completed: false, createdAt: now }
           );
         }
         
         return subTasks;
+      },
+
+      // Planning & Organization Functions
+      updatePlanningSessions: (newEntries: Entry[]) => {
+        // This will be called when new entries are added to update planning sessions
+        // For now, just log - we'll implement full planning logic
+        console.log('Planning sessions updated with:', newEntries);
+      },
+
+      getDailyTop3: () => {
+        const { entries } = get();
+        const todayEntries = entries.filter(entry => 
+          entry.timeBucket === 'today' && 
+          entry.type === 'task' && 
+          !entry.completed
+        );
+        
+        // Sort by priority and return top 3
+        return todayEntries
+          .sort((a, b) => {
+            const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
+            const aPriority = priorityOrder[a.priority || 'low'] || 1;
+            const bPriority = priorityOrder[b.priority || 'low'] || 1;
+            return bPriority - aPriority;
+          })
+          .slice(0, 3);
+      },
+
+      getWeeklyReview: () => {
+        const { entries } = get();
+        const now = new Date();
+        const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        
+        const critical = entries.filter(entry => 
+          entry.priority === 'urgent' && 
+          entry.timeBucket === 'overdue'
+        );
+        
+        const postponed = entries.filter(entry => 
+          entry.dueAt && 
+          entry.dueAt < oneWeekAgo && 
+          !entry.completed
+        );
+        
+        const forgotten = entries.filter(entry => 
+          entry.createdAt < oneWeekAgo && 
+          !entry.completed && 
+          entry.timeBucket === 'someday'
+        );
+        
+        return { critical, postponed, forgotten };
+      },
+
+      reorderEntries: (entryIds: string[]) => {
+        set((state) => {
+          const reorderedEntries = entryIds.map(id => 
+            state.entries.find(entry => entry.id === id)
+          ).filter(Boolean) as Entry[];
+          
+          const remainingEntries = state.entries.filter(entry => 
+            !entryIds.includes(entry.id)
+          );
+          
+          return {
+            entries: [...reorderedEntries, ...remainingEntries]
+          };
+        });
       },
 
       addEntry: (entryData) => {
@@ -402,6 +547,62 @@ export const useAllyMindStore = create<AllyMindStore>()(
       deleteEntry: (id) => {
         set((state) => ({
           entries: state.entries.filter((entry) => entry.id !== id),
+        }));
+      },
+
+      // Enhanced entry management
+      editEntryTitle: (id: string, newTitle: string) => {
+        set((state) => ({
+          entries: state.entries.map((entry) => 
+            entry.id === id ? { ...entry, title: newTitle } : entry
+          ),
+        }));
+      },
+
+      editEntryBody: (id: string, newBody: string) => {
+        set((state) => ({
+          entries: state.entries.map((entry) => 
+            entry.id === id ? { ...entry, body: newBody } : entry
+          ),
+        }));
+      },
+
+      addSubTask: (entryId: string, subTaskTitle: string) => {
+        set((state) => ({
+          entries: state.entries.map((entry) => {
+            if (entry.id === entryId) {
+              const newSubTask: SubTask = {
+                id: crypto.randomUUID(),
+                title: subTaskTitle,
+                completed: false,
+                createdAt: new Date()
+              };
+              const updatedSubTasks = [...(entry.subTasks || []), newSubTask];
+              return { ...entry, subTasks: updatedSubTasks };
+            }
+            return entry;
+          }),
+        }));
+      },
+
+      toggleSubTask: (entryId: string, subTaskId: string) => {
+        set((state) => ({
+          entries: state.entries.map((entry) => {
+            if (entry.id === entryId && entry.subTasks) {
+              const updatedSubTasks = entry.subTasks.map(subTask => 
+                subTask.id === subTaskId 
+                  ? { ...subTask, completed: !subTask.completed }
+                  : subTask
+              );
+              
+              // Calculate progress
+              const completedCount = updatedSubTasks.filter(st => st.completed).length;
+              const progress = Math.round((completedCount / updatedSubTasks.length) * 100);
+              
+              return { ...entry, subTasks: updatedSubTasks, progress };
+            }
+            return entry;
+          }),
         }));
       },
 
