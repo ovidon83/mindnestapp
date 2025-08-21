@@ -41,8 +41,8 @@ const defaultHomeViewPrefs: HomeViewPreferences = {
   grouping: 'time',
   filters: {
     types: ['task', 'thought'],
-    timeBuckets: ['overdue', 'today', 'tomorrow', 'this_week', 'next_week', 'later', 'someday'],
-    status: 'incomplete',
+    timeBuckets: ['overdue', 'today', 'tomorrow', 'this_week', 'next_week', 'later', 'someday', 'none'],
+    status: 'both',
     pinnedOnly: false,
   },
   sort: {

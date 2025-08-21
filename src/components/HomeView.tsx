@@ -49,6 +49,13 @@ const HomeView: React.FC = () => {
   const totalEntries = entries.length;
   const filteredCount = Object.values(groupedEntries).reduce((sum, group) => sum + group.length, 0);
   
+  // Debug: Log entries to see what's happening
+  console.log('Total entries in store:', totalEntries);
+  console.log('Entries:', entries);
+  console.log('Grouped entries:', groupedEntries);
+  console.log('Filtered count:', filteredCount);
+  console.log('Current filters:', homeViewPrefs.filters);
+  
 
 
   // Debounced search
