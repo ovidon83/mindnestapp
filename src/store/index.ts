@@ -291,54 +291,55 @@ export const useAllyMindStore = create<AllyMindStore>()(
         const lowerText = text.toLowerCase();
         const now = new Date();
         
-        // Natural language time parsing
-        if (lowerText.includes('tomorrow')) {
-          const tomorrow = new Date(now);
-          tomorrow.setDate(tomorrow.getDate() + 1);
-          return { dueAt: tomorrow };
-        }
-        
-        if (lowerText.includes('next week')) {
-          const nextWeek = new Date(now);
-          nextWeek.setDate(now.getDate() + 7);
-          return { dueAt: nextWeek };
-        }
-        
-        if (lowerText.includes('this week')) {
-          const thisWeek = new Date(now);
-          thisWeek.setDate(now.getDate() + 3);
-          return { dueAt: thisWeek };
-        }
-        
-        if (lowerText.includes('asap') || lowerText.includes('urgent')) {
-          return { dueAt: now };
-        }
-        
-        if (lowerText.includes('later') || lowerText.includes('someday')) {
-          const later = new Date(now);
-          later.setDate(now.getDate() + 30);
-          return { dueAt: later };
-        }
-        
-        // Extract specific times (e.g., "3pm", "9am")
-        const timeMatch = text.match(/(\d{1,2})(?::\d{2})?\s*(am|pm)/i);
-        if (timeMatch) {
-          const hour = parseInt(timeMatch[1]);
-          const isPM = timeMatch[2].toLowerCase() === 'pm';
-          const adjustedHour = isPM && hour !== 12 ? hour + 12 : hour === 12 && !isPM ? 0 : hour;
-          
-          const dueDate = new Date(now);
-          dueDate.setHours(adjustedHour, 0, 0, 0);
-          
-          // If time has passed today, set for tomorrow
-          if (dueDate <= now) {
-            dueDate.setDate(dueDate.getDate() + 1);
+        try {
+          // Natural language time parsing
+          if (lowerText.includes('tomorrow')) {
+            const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+            return { dueAt: tomorrow };
           }
           
-          return { dueAt: dueDate };
+          if (lowerText.includes('next week')) {
+            const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+            return { dueAt: nextWeek };
+          }
+          
+          if (lowerText.includes('this week')) {
+            const thisWeek = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+            return { dueAt: thisWeek };
+          }
+          
+          if (lowerText.includes('asap') || lowerText.includes('urgent')) {
+            return { dueAt: now };
+          }
+          
+          if (lowerText.includes('later') || lowerText.includes('someday')) {
+            const later = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+            return { dueAt: later };
+          }
+          
+          // Extract specific times (e.g., "3pm", "9am")
+          const timeMatch = text.match(/(\d{1,2})(?::\d{2})?\s*(am|pm)/i);
+          if (timeMatch) {
+            const hour = parseInt(timeMatch[1]);
+            const isPM = timeMatch[2].toLowerCase() === 'pm';
+            const adjustedHour = isPM && hour !== 12 ? hour + 12 : hour === 12 && !isPM ? 0 : hour;
+            
+            const dueDate = new Date(now);
+            dueDate.setHours(adjustedHour, 0, 0, 0);
+            
+            // If time has passed today, set for tomorrow
+            if (dueDate <= now) {
+              dueDate.setTime(dueDate.getTime() + 24 * 60 * 60 * 1000);
+            }
+            
+            return { dueAt: dueDate };
+          }
+          
+          return { dueAt: undefined };
+        } catch (error) {
+          console.warn('Error parsing time from text:', text, error);
+          return { dueAt: undefined };
         }
-        
-        return {};
       },
 
       determinePriority: (text: string, type: 'task' | 'thought'): Priority => {
@@ -940,21 +941,32 @@ export const useAllyMindStore = create<AllyMindStore>()(
       getTimeBucketFromDate: (date?: Date): TimeBucket => {
         if (!date) return 'none';
         
-        const now = new Date();
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
-        const endOfWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-        const endOfNextWeek = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);
-        
-        const dueDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        
-        if (dueDate < today) return 'overdue';
-        if (dueDate.getTime() === today.getTime()) return 'today';
-        if (dueDate.getTime() === tomorrow.getTime()) return 'tomorrow';
-        if (dueDate <= endOfWeek) return 'this_week';
-        if (dueDate <= endOfNextWeek) return 'next_week';
-        if (dueDate.getTime() < today.getTime() + 30 * 24 * 60 * 60 * 1000) return 'later';
-        return 'someday';
+        try {
+          // Check if date is valid
+          if (isNaN(date.getTime())) {
+            console.warn('Invalid date provided to getTimeBucketFromDate:', date);
+            return 'none';
+          }
+          
+          const now = new Date();
+          const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+          const endOfWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+          const endOfNextWeek = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);
+          
+          const dueDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+          
+          if (dueDate < today) return 'overdue';
+          if (dueDate.getTime() === today.getTime()) return 'today';
+          if (dueDate.getTime() === tomorrow.getTime()) return 'tomorrow';
+          if (dueDate <= endOfWeek) return 'this_week';
+          if (dueDate <= endOfNextWeek) return 'next_week';
+          if (dueDate.getTime() < today.getTime() + 30 * 24 * 60 * 60 * 1000) return 'later';
+          return 'someday';
+        } catch (error) {
+          console.warn('Error in getTimeBucketFromDate:', error);
+          return 'none';
+        }
       },
     }),
     {
