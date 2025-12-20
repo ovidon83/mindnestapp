@@ -38,9 +38,9 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange }) =>
                 const Icon = item.icon;
                 const isActive = currentView === item.id;
               const colorClasses = {
-                indigo: isActive ? 'bg-slate-900 text-white' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
-                blue: isActive ? 'bg-slate-900 text-white' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
-                slate: isActive ? 'bg-slate-900 text-white' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
+                indigo: isActive ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
+                blue: isActive ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
+                slate: isActive ? 'bg-slate-50 text-slate-700 border border-slate-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
               };
                 
                 return (
@@ -61,7 +61,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange }) =>
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <button
               onClick={() => onViewChange('capture')}
-              className="px-4 py-2 text-sm font-medium bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors duration-200 flex items-center gap-2 min-h-[40px]"
+              className="px-4 py-2 text-sm font-medium bg-slate-50 text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors duration-200 flex items-center gap-2 min-h-[40px]"
             >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">New Thought</span>

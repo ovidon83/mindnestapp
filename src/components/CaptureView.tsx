@@ -305,7 +305,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       onOrganizeClick('signup');
                     }
                   }}
-                  className="px-5 py-2.5 text-sm font-medium bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors"
+                  className="px-5 py-2.5 text-sm font-medium bg-slate-50 text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors"
                 >
                   Sign Up
                 </button>
@@ -427,7 +427,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
               disabled={!hasContent || isProcessing}
               className={`px-8 py-3 rounded-xl font-medium text-base transition-all duration-200 flex items-center gap-2 ${
                 hasContent && !isProcessing
-                  ? 'bg-slate-900 text-white hover:bg-slate-800'
+                  ? 'bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100'
                   : 'bg-slate-200 text-slate-400 cursor-not-allowed'
               }`}
             >

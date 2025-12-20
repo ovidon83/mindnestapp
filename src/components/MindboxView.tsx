@@ -331,7 +331,7 @@ const MindboxView: React.FC = () => {
             {!searchQuery && (
               <button
                 onClick={() => setCurrentView('capture')}
-                className="px-5 py-2 text-sm font-medium bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors min-h-[36px]"
+                className="px-5 py-2 text-sm font-medium bg-slate-50 text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors min-h-[36px]"
               >
                 Capture Thought
               </button>
@@ -368,10 +368,10 @@ const MindboxView: React.FC = () => {
                                   className={`px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center gap-2 ${
                                     badgeType === type
                                       ? info.color === 'emerald'
-                                        ? 'bg-emerald-600 text-white'
+                                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                         : info.color === 'indigo'
-                                        ? 'bg-indigo-600 text-white'
-                                        : 'bg-amber-600 text-white'
+                                        ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                                        : 'bg-amber-50 text-amber-700 border border-amber-200'
                                       : info.color === 'emerald'
                                       ? 'text-emerald-600 hover:bg-emerald-50'
                                       : info.color === 'indigo'
