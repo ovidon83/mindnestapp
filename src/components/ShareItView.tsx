@@ -540,7 +540,7 @@ const ShareItView: React.FC = () => {
 
                         {currentTab === 'instagram' && (
                           <div>
-                            {(!post.instagramContent || !post.instagramImageUrl || generatingPosts.has(entry.id)) ? (
+                            {(!post.instagramContent || generatingPosts.has(entry.id)) ? (
                               <div className="flex flex-col items-center justify-center py-8">
                                 <Loader2 className="w-5 h-5 animate-spin text-indigo-600 mb-2" />
                                 <div className="text-xs text-slate-600">Generating...</div>
