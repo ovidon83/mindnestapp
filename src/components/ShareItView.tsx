@@ -336,7 +336,7 @@ const ShareItView: React.FC = () => {
                       <div className="p-5 max-h-[400px] overflow-y-auto">
                         {currentTab === 'linkedin' && (
                           <div>
-                            {(!post.draftContent || generatingPosts.has(entry.id)) ? (
+                            {!post.draftContent && generatingPosts.has(entry.id) ? (
                               <div className="flex flex-col items-center justify-center py-8">
                                 <Loader2 className="w-5 h-5 animate-spin text-indigo-600 mb-2" />
                                 <div className="text-xs text-slate-600">Generating...</div>
@@ -389,24 +389,28 @@ const ShareItView: React.FC = () => {
                                     >
                                       <RefreshCcw className="w-3 h-3" />
                                     </button>
-                                    <button
-                                      onClick={() => handleCopy(post.draftContent, `linkedin-${post.id}`)}
-                                      className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded transition-colors"
-                                      title="Copy"
-                                    >
-                                      {copiedId === `linkedin-${post.id}` ? (
-                                        <Check className="w-3 h-3 text-green-600" />
-                                      ) : (
-                                        <Copy className="w-3 h-3" />
-                                      )}
-                                    </button>
-                                    <button
-                                      onClick={() => handleEditDraft(post, 'linkedin')}
-                                      className="p-1.5 border border-slate-200 text-slate-500 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                                      title="Edit"
-                                    >
-                                      <Edit2 className="w-3 h-3" />
-                                    </button>
+                                    {post.draftContent && (
+                                      <>
+                                        <button
+                                          onClick={() => handleCopy(post.draftContent, `linkedin-${post.id}`)}
+                                          className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded transition-colors"
+                                          title="Copy"
+                                        >
+                                          {copiedId === `linkedin-${post.id}` ? (
+                                            <Check className="w-3 h-3 text-green-600" />
+                                          ) : (
+                                            <Copy className="w-3 h-3" />
+                                          )}
+                                        </button>
+                                        <button
+                                          onClick={() => handleEditDraft(post, 'linkedin')}
+                                          className="p-1.5 border border-slate-200 text-slate-500 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                          title="Edit"
+                                        >
+                                          <Edit2 className="w-3 h-3" />
+                                        </button>
+                                      </>
+                                    )}
                                   </>
                                 )}
                               </div>
@@ -419,8 +423,17 @@ const ShareItView: React.FC = () => {
                                 placeholder="Edit LinkedIn draft..."
                               />
                             ) : (
-                              <div className="p-2 bg-slate-50 border border-slate-200 rounded text-xs text-slate-800 whitespace-pre-line leading-relaxed max-h-[300px] overflow-y-auto">
-                                {post.draftContent}
+                              <div className="space-y-2">
+                                {post.draftContent ? (
+                                  <div className="p-2 bg-slate-50 border border-slate-200 rounded text-xs text-slate-800 whitespace-pre-line leading-relaxed max-h-[300px] overflow-y-auto">
+                                    {post.draftContent}
+                                  </div>
+                                ) : generatingPosts.has(entry.id) ? (
+                                  <div className="flex flex-col items-center justify-center py-8 border border-slate-200 rounded bg-slate-50">
+                                    <Loader2 className="w-5 h-5 animate-spin text-indigo-600 mb-2" />
+                                    <div className="text-xs text-slate-600">Generating LinkedIn draft...</div>
+                                  </div>
+                                ) : null}
                               </div>
                             )}
                             </>
@@ -430,7 +443,7 @@ const ShareItView: React.FC = () => {
 
                         {currentTab === 'twitter' && (
                           <div>
-                            {(!post.twitterContent || generatingPosts.has(entry.id)) ? (
+                            {!post.twitterContent && generatingPosts.has(entry.id) ? (
                               <div className="flex flex-col items-center justify-center py-8">
                                 <Loader2 className="w-5 h-5 animate-spin text-indigo-600 mb-2" />
                                 <div className="text-xs text-slate-600">Generating...</div>
@@ -465,31 +478,31 @@ const ShareItView: React.FC = () => {
                                   </>
                                 ) : (
                                   <>
+                                    <button
+                                      onClick={async () => {
+                                        setGeneratingPosts(prev => new Set(prev).add(entry.id));
+                                        try {
+                                          await deletePost(post.id);
+                                          await generatePostForEntry(entry.id);
+                                          await loadPosts();
+                                        } catch (error) {
+                                          console.error('Error regenerating draft:', error);
+                                          alert('Error regenerating draft. Please try again.');
+                                        } finally {
+                                          setGeneratingPosts(prev => {
+                                            const next = new Set(prev);
+                                            next.delete(entry.id);
+                                            return next;
+                                          });
+                                        }
+                                      }}
+                                      className="p-2 border border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700 rounded transition-colors"
+                                      title="Regenerate draft"
+                                    >
+                                      <RefreshCcw className="w-3.5 h-3.5" />
+                                    </button>
                                     {post.twitterContent && (
                                       <>
-                                        <button
-                                          onClick={async () => {
-                                            setGeneratingPosts(prev => new Set(prev).add(entry.id));
-                                            try {
-                                              await deletePost(post.id);
-                                              await generatePostForEntry(entry.id);
-                                              await loadPosts();
-                                            } catch (error) {
-                                              console.error('Error regenerating draft:', error);
-                                              alert('Error regenerating draft. Please try again.');
-                                            } finally {
-                                              setGeneratingPosts(prev => {
-                                                const next = new Set(prev);
-                                                next.delete(entry.id);
-                                                return next;
-                                              });
-                                            }
-                                          }}
-                                          className="p-2 border border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700 rounded transition-colors"
-                                          title="Regenerate draft"
-                                        >
-                                          <RefreshCcw className="w-3.5 h-3.5" />
-                                        </button>
                                         <button
                                           onClick={() => handleCopy(post.twitterContent || '', `twitter-${post.id}`)}
                                           className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded transition-colors"
@@ -528,10 +541,17 @@ const ShareItView: React.FC = () => {
                                 </div>
                               </div>
                             ) : (
-                              <div className="p-2 bg-slate-50 border border-slate-200 rounded text-xs text-slate-800 max-h-[300px] overflow-y-auto">
-                                {post.twitterContent && (
-                                  <div className="whitespace-pre-wrap">{post.twitterContent}</div>
-                                )}
+                              <div className="space-y-2">
+                                {post.twitterContent ? (
+                                  <div className="p-2 bg-slate-50 border border-slate-200 rounded text-xs text-slate-800 max-h-[300px] overflow-y-auto">
+                                    <div className="whitespace-pre-wrap">{post.twitterContent}</div>
+                                  </div>
+                                ) : generatingPosts.has(entry.id) ? (
+                                  <div className="flex flex-col items-center justify-center py-8 border border-slate-200 rounded bg-slate-50">
+                                    <Loader2 className="w-5 h-5 animate-spin text-indigo-600 mb-2" />
+                                    <div className="text-xs text-slate-600">Generating Twitter post...</div>
+                                  </div>
+                                ) : null}
                               </div>
                             )}
                             </>
@@ -541,7 +561,7 @@ const ShareItView: React.FC = () => {
 
                         {currentTab === 'instagram' && (
                           <div>
-                            {(!post.instagramContent || generatingPosts.has(entry.id)) ? (
+                            {!post.instagramContent && generatingPosts.has(entry.id) ? (
                               <div className="flex flex-col items-center justify-center py-8">
                                 <Loader2 className="w-5 h-5 animate-spin text-indigo-600 mb-2" />
                                 <div className="text-xs text-slate-600">Generating...</div>
