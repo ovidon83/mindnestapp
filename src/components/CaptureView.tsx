@@ -422,6 +422,27 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </div>
           </section>
 
+          {/* Philosophy Section */}
+          <section className="relative z-10 py-12 sm:py-16">
+            <div className="max-w-4xl mx-auto px-4 sm:px-8">
+              <div className="text-center">
+                <p className="text-2xl sm:text-3xl md:text-4xl font-semibold text-slate-900 mb-8 leading-relaxed">
+                  <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                    Thouthy is a thinking companion.
+                  </span>
+                </p>
+                <div className="space-y-3 sm:space-y-4 text-lg sm:text-xl md:text-2xl text-slate-700 font-medium">
+                  <p className="opacity-80">Some people just want peace.</p>
+                  <p className="opacity-90">Some want expression.</p>
+                  <p className="opacity-100">Some want leverage.</p>
+                  <p className="mt-6 text-slate-900 font-semibold">
+                    All start in the same place.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* Sticky/Floating Capture Card - Always in view */}
           <div className="relative z-20 -mt-8 mb-16">
             <div className="max-w-2xl mx-auto px-4 sm:px-8">
