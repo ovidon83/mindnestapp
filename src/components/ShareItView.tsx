@@ -200,9 +200,10 @@ const ShareItView: React.FC = () => {
                           setGeneratingPosts(prev => new Set(prev).add(entry.id));
                           setGenerationProgress(prev => ({ ...prev, [entry.id]: 'Creating LinkedIn draft...' }));
                           try {
-                            // Update progress as we go
+                            // Update progress as we go (approximate timing)
                             setTimeout(() => setGenerationProgress(prev => ({ ...prev, [entry.id]: 'Creating Twitter post...' })), 2000);
-                            setTimeout(() => setGenerationProgress(prev => ({ ...prev, [entry.id]: 'Creating Instagram content...' })), 4000);
+                            setTimeout(() => setGenerationProgress(prev => ({ ...prev, [entry.id]: 'Creating Instagram caption...' })), 4000);
+                            setTimeout(() => setGenerationProgress(prev => ({ ...prev, [entry.id]: 'Generating Instagram image...' })), 6000);
                             
                             await generatePostForEntry(entry.id, true);
                             await loadPosts();

@@ -375,6 +375,17 @@ Rules:
       }
     }
 
+    // Generate Instagram image if we have a prompt
+    let instagramImageUrl = '';
+    if (generateInstagram && instagramImagePrompt) {
+      try {
+        instagramImageUrl = await generateInstagramImage(instagramImagePrompt);
+      } catch (error) {
+        console.error('Error generating Instagram image:', error);
+        // Continue without image - caption is more important
+      }
+    }
+
     return {
       shouldPost: viralityScore >= 50,
       viralityScore,
@@ -382,7 +393,7 @@ Rules:
       twitterContent,
       instagramContent,
       instagramImagePrompt,
-      instagramImageUrl: '', // Would be generated separately if needed
+      instagramImageUrl,
     };
   } catch (error) {
     console.error('Error analyzing entry for post:', error);
@@ -410,7 +421,52 @@ export async function generateInstagramImagePrompt(_content: string): Promise<st
   return '';
 }
 
-export async function generateInstagramImage(_prompt: string): Promise<string> {
+export async function generateInstagramImage(prompt: string): Promise<string> {
+  const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+  
+  if (!apiKey || !prompt || !prompt.trim()) {
+    return '';
+  }
+
+  // Validate prompt
+  const { validateDallePrompt } = await import('./api-utils');
+  const validation = validateDallePrompt(prompt);
+  if (!validation.valid) {
+    console.error('Invalid DALL-E prompt:', validation.error);
+    return '';
+  }
+
+  try {
+    const response = await fetchWithRetry('https://api.openai.com/v1/images/generations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'dall-e-3',
+        prompt: prompt,
+        n: 1,
+        size: '1024x1024',
+        quality: 'standard',
+        style: 'vivid'
+      })
+    }, { maxRetries: 2, baseDelay: 2000 });
+
+    if (response.ok) {
+      const data = await response.json();
+      const imageUrl = data.data?.[0]?.url;
+      if (imageUrl) {
+        return imageUrl;
+      }
+    } else {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('DALL-E API error:', response.status, errorData);
+    }
+  } catch (error) {
+    console.error('Error generating Instagram image:', error);
+  }
+
   return '';
 }
 
