@@ -412,7 +412,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
               
               {/* Sub-headline */}
               <p className="text-lg sm:text-xl md:text-2xl text-slate-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-                Every thought you have is captured, acted on, and turned into something worth sharing.
+                Stay on top of your inner world and become the most powerful version of you
               </p>
               
               {/* Email Subscription */}
