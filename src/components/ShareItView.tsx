@@ -21,8 +21,16 @@ const ShareItView: React.FC = () => {
   const [generationAttempts, setGenerationAttempts] = useState<Record<string, number>>({});
   const [generationProgress, setGenerationProgress] = useState<Record<string, string>>({});
 
-  // Get entries that are in Share it
-  const shareItEntries = entries.filter(e => e.inShareIt);
+  // Get entries that are in Share it, ordered by last added (most recent first)
+  // We'll use updatedAt to track when it was added to ShareIt
+  const shareItEntries = entries
+    .filter(e => e.inShareIt)
+    .sort((a, b) => {
+      // Sort by updatedAt (when added to ShareIt) or createdAt as fallback
+      const aTime = a.updatedAt?.getTime() || a.createdAt.getTime();
+      const bTime = b.updatedAt?.getTime() || b.createdAt.getTime();
+      return bTime - aTime; // Most recent first
+    });
 
   useEffect(() => {
     loadPosts();
@@ -240,7 +248,7 @@ const ShareItView: React.FC = () => {
                             });
                           }
                         }}
-                        className="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 shadow-sm"
+                        className="w-full px-4 py-3 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg font-medium hover:bg-indigo-100 transition-colors flex items-center justify-center gap-2"
                       >
                         <Sparkles className="w-4 h-4" />
                         Generate Post Drafts
@@ -349,7 +357,7 @@ const ShareItView: React.FC = () => {
                                   <>
                                     <button
                                       onClick={() => handleSaveDraft(post.id)}
-                                      className="px-3 py-1.5 text-xs font-medium bg-slate-900 text-white rounded hover:bg-slate-800 transition-colors"
+                                      className="px-3 py-1.5 text-xs font-medium bg-slate-50 text-slate-700 border border-slate-200 rounded hover:bg-slate-100 transition-colors"
                                     >
                                       Save
                                     </button>
@@ -359,7 +367,7 @@ const ShareItView: React.FC = () => {
                                         setEditingPlatform(null);
                                         setEditingDraft('');
                                       }}
-                                      className="px-4 py-2 text-xs font-medium bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors"
+                                      className="px-4 py-2 text-xs font-medium bg-slate-50 text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors"
                                     >
                                       Cancel
                                     </button>
@@ -461,7 +469,7 @@ const ShareItView: React.FC = () => {
                                   <>
                                     <button
                                       onClick={() => handleSaveDraft(post.id)}
-                                      className="px-3 py-1.5 text-xs font-medium bg-slate-900 text-white rounded hover:bg-slate-800 transition-colors"
+                                      className="px-3 py-1.5 text-xs font-medium bg-slate-50 text-slate-700 border border-slate-200 rounded hover:bg-slate-100 transition-colors"
                                     >
                                       Save
                                     </button>
@@ -471,7 +479,7 @@ const ShareItView: React.FC = () => {
                                         setEditingPlatform(null);
                                         setEditingDraft('');
                                       }}
-                                      className="px-4 py-2 text-xs font-medium bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors"
+                                      className="px-4 py-2 text-xs font-medium bg-slate-50 text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors"
                                     >
                                       Cancel
                                     </button>
@@ -573,7 +581,7 @@ const ShareItView: React.FC = () => {
                                 <>
                                   <button
                                     onClick={() => handleSaveDraft(post.id)}
-                                    className="px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                                    className="px-3 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded hover:bg-blue-100 transition-colors"
                                   >
                                     Save
                                   </button>
@@ -719,7 +727,7 @@ const ShareItView: React.FC = () => {
                               e.stopPropagation();
                               handleMarkAsShared(post.id);
                             }}
-                            className="px-4 py-2 text-xs font-medium bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors flex items-center gap-1.5"
+                            className="px-4 py-2 text-xs font-medium bg-slate-50 text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors flex items-center gap-1.5"
                           >
                             <Check className="w-3.5 h-3.5" />
                             <span className="hidden sm:inline">Mark as Shared</span>

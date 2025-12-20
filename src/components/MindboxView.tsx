@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useGenieNotesStore } from '../store';
 import { Entry, EntryType } from '../types';
-import { Search, Clock, CheckSquare, Lightbulb, BookOpen, Share2, Check, Trash2, Filter, ChevronDown } from 'lucide-react';
+import { Search, Clock, CheckSquare, Lightbulb, BookOpen, Share2, Check, Trash2, Filter, ChevronDown, ChevronRight } from 'lucide-react';
 import UserAvatar from './UserAvatar';
 import { generatePostForEntry } from '../lib/posts';
 
@@ -350,64 +350,74 @@ const MindboxView: React.FC = () => {
                   key={entry.id}
                   className={`bg-white rounded-lg p-5 border border-slate-200 hover:border-slate-300 transition-all duration-200 ${opacity} relative flex flex-col h-full`}
                 >
-                  {/* Badges Row - Type badge + Shareability indicator */}
-                  <div className="flex-shrink-0 flex items-center gap-2 mb-4">
-                    {/* Type Badge - Clickable to change */}
-                    <div className="badge-selector">
-                      {editingBadgeId === entry.id ? (
-                        <div className="absolute z-20 flex flex-col gap-1 bg-white border border-slate-200 rounded-xl shadow-xl p-2">
-                          {badgeTypes.map((type) => {
-                            const info = getBadgeInfo(type);
-                            const Icon = info.icon;
-                            return (
-                              <button
-                                key={type}
-                                onClick={() => handleBadgeChange(entry.id, type)}
-                                className={`px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center gap-2 ${
-                                  badgeType === type
-                                    ? info.color === 'emerald'
-                                      ? 'bg-emerald-600 text-white'
+                  {/* Header: Date top-right + Badges */}
+                  <div className="flex-shrink-0 flex items-start justify-between mb-4">
+                    {/* Badges Row - Type badge + Shareability indicator */}
+                    <div className="flex items-center gap-2">
+                      {/* Type Badge - Clickable to change */}
+                      <div className="badge-selector">
+                        {editingBadgeId === entry.id ? (
+                          <div className="absolute z-20 flex flex-col gap-1 bg-white border border-slate-200 rounded-xl shadow-xl p-2">
+                            {badgeTypes.map((type) => {
+                              const info = getBadgeInfo(type);
+                              const Icon = info.icon;
+                              return (
+                                <button
+                                  key={type}
+                                  onClick={() => handleBadgeChange(entry.id, type)}
+                                  className={`px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center gap-2 ${
+                                    badgeType === type
+                                      ? info.color === 'emerald'
+                                        ? 'bg-emerald-600 text-white'
+                                        : info.color === 'indigo'
+                                        ? 'bg-indigo-600 text-white'
+                                        : 'bg-amber-600 text-white'
+                                      : info.color === 'emerald'
+                                      ? 'text-emerald-600 hover:bg-emerald-50'
                                       : info.color === 'indigo'
-                                      ? 'bg-indigo-600 text-white'
-                                      : 'bg-amber-600 text-white'
-                                    : info.color === 'emerald'
-                                    ? 'text-emerald-600 hover:bg-emerald-50'
-                                    : info.color === 'indigo'
-                                    ? 'text-indigo-600 hover:bg-indigo-50'
-                                    : 'text-amber-600 hover:bg-amber-50'
-                                }`}
-                              >
-                                <Icon className="w-3 h-3" />
-                                {info.label}
-                              </button>
-                            );
-                          })}
+                                      ? 'text-indigo-600 hover:bg-indigo-50'
+                                      : 'text-amber-600 hover:bg-amber-50'
+                                  }`}
+                                >
+                                  <Icon className="w-3 h-3" />
+                                  {info.label}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setEditingBadgeId(entry.id)}
+                            className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors duration-200 ${
+                              badgeInfo.color === 'emerald'
+                                ? 'bg-emerald-50 text-emerald-700'
+                                : badgeInfo.color === 'indigo'
+                                ? 'bg-indigo-50 text-indigo-700'
+                                : 'bg-amber-50 text-amber-700'
+                            }`}
+                          >
+                            <BadgeIcon className="w-3 h-3" />
+                            {badgeInfo.label}
+                            <ChevronRight className="w-3 h-3 opacity-60" />
+                          </button>
+                        )}
+                      </div>
+                      
+                      {/* Shareability Badge - Shows if postingScore >= 50 */}
+                      {entry.postingScore !== undefined && entry.postingScore >= 50 && !entry.inShareIt && (
+                        <div className="px-2.5 py-1 rounded-lg text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200 flex items-center gap-1.5">
+                          <Share2 className="w-3 h-3" />
+                          <span>Worth sharing</span>
+                          <span className="text-purple-500">({entry.postingScore})</span>
                         </div>
-                      ) : (
-                        <button
-                          onClick={() => setEditingBadgeId(entry.id)}
-                          className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors duration-200 ${
-                            badgeInfo.color === 'emerald'
-                              ? 'bg-emerald-50 text-emerald-700'
-                              : badgeInfo.color === 'indigo'
-                              ? 'bg-indigo-50 text-indigo-700'
-                              : 'bg-amber-50 text-amber-700'
-                          }`}
-                        >
-                          <BadgeIcon className="w-3 h-3" />
-                          {badgeInfo.label}
-                        </button>
                       )}
                     </div>
                     
-                    {/* Shareability Badge - Shows if postingScore >= 50 */}
-                    {entry.postingScore !== undefined && entry.postingScore >= 50 && !entry.inShareIt && (
-                      <div className="px-2.5 py-1 rounded-lg text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200 flex items-center gap-1.5">
-                        <Share2 className="w-3 h-3" />
-                        <span>Worth sharing</span>
-                        <span className="text-purple-500">({entry.postingScore})</span>
-                      </div>
-                    )}
+                    {/* Date - Top right */}
+                    <div className="text-xs text-slate-400 flex items-center gap-1.5">
+                      <Clock className="w-3 h-3" />
+                      {formatDate(entry.createdAt)}
+                    </div>
                   </div>
 
                   {/* Content */}
@@ -425,12 +435,8 @@ const MindboxView: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Date and Actions - Fixed at bottom */}
+                  {/* Actions - Fixed at bottom */}
                   <div className="flex flex-col gap-3 pt-3 border-t border-slate-100 flex-shrink-0">
-                    <div className="text-xs text-slate-400 flex items-center gap-1.5">
-                      <Clock className="w-3 h-3" />
-                      {formatDate(entry.createdAt)}
-                    </div>
                     <div className="flex items-center justify-between gap-3">
                       {!entry.inShareIt ? (
                         addedToShareIt === entry.id ? (
@@ -452,10 +458,10 @@ const MindboxView: React.FC = () => {
                                 alert('Error adding to Share it. Please try again.');
                               }
                             }}
-                            className={`px-4 py-2.5 text-sm font-medium rounded-lg transition-all flex items-center gap-2 flex-1 justify-center shadow-sm ${
+                            className={`px-4 py-2.5 text-sm font-medium rounded-lg transition-all flex items-center gap-2 flex-1 justify-center ${
                               entry.postingScore !== undefined && entry.postingScore >= 50
-                                ? 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-md'
-                                : 'bg-slate-900 text-white hover:bg-slate-800 hover:shadow-md'
+                                ? 'bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100'
+                                : 'bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100'
                             }`}
                             title="Add to Share it"
                           >
@@ -464,8 +470,8 @@ const MindboxView: React.FC = () => {
                           </button>
                         )
                       ) : (
-                        <div className="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-2 flex-1 justify-center">
-                          <Share2 className="w-4 h-4" />
+                        <div className="px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-1.5">
+                          <Share2 className="w-3.5 h-3.5" />
                           <span>In Share it</span>
                         </div>
                       )}

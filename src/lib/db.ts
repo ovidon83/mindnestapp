@@ -1,0 +1,223 @@
+import { supabase } from './supabase';
+import { Entry, TrainingData } from '../types';
+
+// Convert database entry to app Entry format
+// Handles both new (type) and old (category + entry_type) formats for backward compatibility
+export function dbEntryToEntry(dbEntry: any): Entry {
+  // Determine type: prefer new 'type' field, fallback to deriving from old fields
+  let entryType: 'todo' | 'insight' | 'journal';
+  if (dbEntry.type) {
+    entryType = dbEntry.type;
+  } else {
+    // Derive from old fields for backward compatibility
+    if (dbEntry.category === 'todo') {
+      entryType = 'todo';
+    } else if (dbEntry.entry_type === 'journal') {
+      entryType = 'journal';
+    } else {
+      entryType = 'insight'; // insight or idea -> insight
+    }
+  }
+
+  return {
+    id: dbEntry.id,
+    type: entryType,
+    originalText: dbEntry.original_text,
+    tags: dbEntry.tags || [],
+    summary: dbEntry.summary,
+    nextStep: dbEntry.next_step || undefined,
+    completed: dbEntry.completed || false,
+    postRecommendation: dbEntry.post_recommendation || false,
+    createdAt: new Date(dbEntry.created_at),
+    updatedAt: new Date(dbEntry.updated_at),
+    // New fields for Mindbox
+    aiHint: dbEntry.ai_hint || undefined,
+    badgeOverride: dbEntry.badge_override || undefined,
+    postingScore: dbEntry.posting_score || undefined,
+    inShareIt: dbEntry.in_share_it || false,
+    // Legacy fields for backward compatibility
+    entryType: dbEntry.entry_type || (entryType === 'journal' ? 'journal' : 'thought'),
+    category: dbEntry.category || (entryType === 'todo' ? 'todo' : entryType === 'insight' ? 'insight' : 'idea'),
+  };
+}
+
+// Convert app Entry to database format
+// Writes both new (type) and old (category + entry_type) fields for backward compatibility
+export function entryToDbEntry(entry: Entry): any {
+  const type = entry.type || (entry.category === 'todo' ? 'todo' : entry.entryType === 'journal' ? 'journal' : 'insight');
+  
+  return {
+    id: entry.id,
+    type: type, // New field
+    original_text: entry.originalText,
+    tags: entry.tags,
+    summary: entry.summary,
+    next_step: entry.nextStep || null,
+    completed: entry.completed || false,
+    post_recommendation: entry.postRecommendation,
+    // New fields for Mindbox
+    ai_hint: entry.aiHint || null,
+    badge_override: entry.badgeOverride || null,
+    posting_score: entry.postingScore || null,
+    in_share_it: entry.inShareIt || false,
+    // Legacy fields for backward compatibility
+    entry_type: entry.entryType || (type === 'journal' ? 'journal' : 'thought'),
+    category: entry.category || (type === 'todo' ? 'todo' : type === 'insight' ? 'insight' : 'idea'),
+  };
+}
+
+// Fetch all entries for current user
+export async function fetchEntries(): Promise<Entry[]> {
+  const { data, error } = await supabase
+    .from('entries')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching entries:', error);
+    throw error;
+  }
+
+  return (data || []).map(dbEntryToEntry);
+}
+
+// Insert a new entry
+export async function insertEntry(entry: Omit<Entry, 'id' | 'createdAt' | 'updatedAt'>): Promise<Entry> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
+  const dbEntry = entryToDbEntry({
+    ...entry,
+    id: crypto.randomUUID(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  } as Entry);
+
+  const dbEntryWithUserId = {
+    ...dbEntry,
+    user_id: user.id,
+  };
+
+  const { data, error } = await supabase
+    .from('entries')
+    .insert(dbEntryWithUserId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error inserting entry:', error);
+    throw error;
+  }
+
+  return dbEntryToEntry(data);
+}
+
+// Update an entry
+export async function updateEntry(id: string, updates: Partial<Entry>): Promise<Entry> {
+  const updateData: any = {};
+  
+  // New fields
+  if (updates.type !== undefined) {
+    updateData.type = updates.type;
+    // Also update legacy fields for backward compatibility
+    updateData.category = updates.type === 'todo' ? 'todo' : updates.type === 'insight' ? 'insight' : 'idea';
+    updateData.entry_type = updates.type === 'journal' ? 'journal' : 'thought';
+  }
+  if (updates.completed !== undefined) updateData.completed = updates.completed;
+  
+  // Legacy field updates (also update new type field)
+  if (updates.entryType !== undefined) {
+    updateData.entry_type = updates.entryType;
+    if (updates.entryType === 'journal') updateData.type = 'journal';
+    else if (!updateData.type) updateData.type = 'insight';
+  }
+  if (updates.category !== undefined) {
+    updateData.category = updates.category;
+    if (updates.category === 'todo') updateData.type = 'todo';
+    else if (!updateData.type) updateData.type = 'insight';
+  }
+  
+  // Other fields
+  if (updates.originalText !== undefined) updateData.original_text = updates.originalText;
+  if (updates.tags !== undefined) updateData.tags = updates.tags;
+  if (updates.summary !== undefined) updateData.summary = updates.summary;
+  if (updates.nextStep !== undefined) updateData.next_step = updates.nextStep || null;
+  if (updates.postRecommendation !== undefined) updateData.post_recommendation = updates.postRecommendation;
+  
+  // Mindbox fields
+  if (updates.badgeOverride !== undefined) updateData.badge_override = updates.badgeOverride || null;
+  if (updates.inShareIt !== undefined) updateData.in_share_it = updates.inShareIt;
+  if (updates.aiHint !== undefined) updateData.ai_hint = updates.aiHint || null;
+  if (updates.postingScore !== undefined) updateData.posting_score = updates.postingScore || null;
+
+  const { data, error } = await supabase
+    .from('entries')
+    .update(updateData)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating entry:', error);
+    throw error;
+  }
+
+  return dbEntryToEntry(data);
+}
+
+// Delete an entry
+export async function deleteEntry(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('entries')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting entry:', error);
+    throw error;
+  }
+}
+
+// Training data functions
+export async function saveTrainingData(content: string, contentType: 'text' | 'file', fileName?: string): Promise<void> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
+  const { error } = await supabase
+    .from('training_data')
+    .insert({
+      user_id: user.id,
+      content,
+      content_type: contentType,
+      file_name: fileName || null,
+    });
+
+  if (error) {
+    console.error('Error saving training data:', error);
+    throw error;
+  }
+}
+
+export async function fetchTrainingData(): Promise<TrainingData[]> {
+  const { data, error } = await supabase
+    .from('training_data')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching training data:', error);
+    throw error;
+  }
+
+  return (data || []).map((td: any) => ({
+    id: td.id,
+    content: td.content,
+    contentType: td.content_type,
+    fileName: td.file_name,
+    createdAt: new Date(td.created_at),
+  }));
+}

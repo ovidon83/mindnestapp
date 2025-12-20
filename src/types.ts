@@ -1,63 +1,57 @@
-export type AppView = 'capture' | 'home';
+export type AppView = 'capture' | 'mindbox' | 'shareit' | 'companion';
 
-export type EntryType = 'task' | 'thought';
+// Merged category and type into a single type
+export type EntryType = 'todo' | 'insight' | 'journal';
 
-export type TimeBucket = 'overdue' | 'today' | 'tomorrow' | 'this_week' | 'next_week' | 'later' | 'someday' | 'none';
+export type Tag = 'work' | 'soccer' | 'family' | 'spirituality' | 'business' | 'tech' | 'health' | 'other';
 
-export type Priority = 'urgent' | 'high' | 'medium' | 'low';
-
-export type GroupingMode = 'none' | 'time' | 'type' | 'time_type' | 'type_time';
-
-export interface SubTask {
-  id: string;
-  title: string;
-  completed: boolean;
-  createdAt: Date;
-}
+// Legacy types for backward compatibility (can be removed later)
+export type Category = 'todo' | 'insight' | 'idea'; // Deprecated - use EntryType instead
 
 export interface Entry {
   id: string;
-  type: EntryType;
-  title: string;
-  body: string;
-  tags: string[];
+  type: EntryType; // Merged: 'todo' | 'insight' | 'journal'
+  originalText: string;
+  tags: Tag[];
+  summary: string;
+  nextStep?: string; // Only for todos
+  completed?: boolean; // Only for todos - marks if todo is done
+  postRecommendation: boolean;
   createdAt: Date;
-  dueAt?: Date;
-  timeBucket: TimeBucket;
-  priority?: Priority;
-  pinned?: boolean;
-  completed?: boolean; // Only for tasks
-  aiConfidence?: number;
-  // New fields for enhanced task management
-  note?: string; // AI-generated insights + user notes
-  subTasks?: SubTask[];
-  progress?: number; // 0-100 based on sub-tasks completion
+  updatedAt: Date;
+  
+  // New fields for Mindbox
+  aiHint?: string; // Single AI hint line (e.g., "Possible next step: ...", "Might be worth sharing.")
+  badgeOverride?: EntryType; // User override for badge type
+  postingScore?: number; // Internal posting potential score (0-100, hidden from UI)
+  inShareIt?: boolean; // Whether this entry is in Share it
+  
+  // Legacy fields for backward compatibility (will be removed after migration)
+  entryType?: 'thought' | 'journal'; // Deprecated
+  category?: Category; // Deprecated
 }
 
-export interface HomeViewPreferences {
-  grouping: GroupingMode;
-  filters: {
-    types: EntryType[];
-    timeBuckets: TimeBucket[];
-    status: 'incomplete' | 'completed' | 'both';
-    pinnedOnly: boolean;
-  };
-  sort: {
-    primary: 'timeBucket' | 'priority' | 'dueAt' | 'createdAt';
-    secondary: 'priority' | 'dueAt' | 'createdAt';
-  };
-  collapsedGroups: Record<string, boolean>;
-  searchQuery: string;
+export interface TrainingData {
+  id: string;
+  content: string;
+  contentType: 'text' | 'file';
+  fileName?: string;
+  createdAt: Date;
 }
 
-export interface AppState {
-  currentView: AppView;
-  homeViewPrefs: HomeViewPreferences;
-}
+export type PostStatus = 'draft' | 'ready' | 'posted' | 'archived';
 
-export interface UIState {
-  selectedEntryIds: Set<string>;
-  expandedEntryIds: Set<string>;
-  showKeyboardShortcuts: boolean;
-  showBulkActions: boolean;
+export interface Post {
+  id: string;
+  entryId: string;
+  viralityScore: number; // 0-100 (hidden from UI, kept for internal logic)
+  draftContent: string; // LinkedIn post
+  twitterContent?: string; // Twitter/X post (280 chars max)
+  instagramContent?: string; // Instagram caption
+  instagramImagePrompt?: string; // Image description/prompt for Instagram
+  instagramImageUrl?: string; // DALL-E generated image URL
+  status: PostStatus;
+  createdAt: Date;
+  updatedAt: Date;
+  shared?: boolean; // Whether user marked as shared
 }
