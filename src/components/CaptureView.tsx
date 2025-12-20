@@ -333,27 +333,29 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
   }
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Background decorative elements - only show when not logged in */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 relative overflow-hidden">
+      {/* Modern background elements - only show when not logged in */}
       {!user && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-br from-blue-100/30 to-purple-100/30 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-br from-purple-100/20 to-pink-100/20 rounded-full blur-3xl"></div>
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-blue-50/20 to-transparent"></div>
+          <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-br from-blue-200/40 to-indigo-200/40 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-gradient-to-br from-purple-200/30 to-pink-200/30 rounded-full blur-3xl"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-indigo-100/20 to-blue-100/20 rounded-full blur-3xl"></div>
         </div>
       )}
 
       {/* Navigation */}
-      <nav className="relative z-50 w-full px-8 py-6">
+      <nav className="relative z-50 w-full px-4 sm:px-8 py-4 sm:py-6 backdrop-blur-sm bg-white/80 border-b border-slate-200/50">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow duration-300 group">
+            <div className="relative w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 group">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-white relative z-10 drop-shadow-sm" strokeWidth={2.5} />
               <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/10 to-transparent"></div>
             </div>
-            <span className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Thouthy</span>
+            <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent tracking-tight">Thouthy</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             {user ? (
               <>
                 <button
@@ -382,7 +384,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       onOrganizeClick('signup');
                     }
                   }}
-                  className="px-5 py-2.5 text-sm font-medium bg-slate-50 text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors"
+                  className="px-5 py-2.5 text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-sm hover:shadow-md"
                 >
                   Sign Up
                 </button>
@@ -392,27 +394,218 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
         </div>
       </nav>
 
-      <div className={`relative z-10 w-full max-w-6xl mx-auto px-8 ${user ? 'pt-8 pb-8' : 'pt-12 pb-20'}`}>
-        {/* Hero Section - only show when not logged in */}
-        {!user && (
-          <div className="text-center mb-20">
-            {/* Main Headline */}
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-slate-900 mb-6 leading-tight tracking-tight">
-              Give every thought a meaning
-            </h1>
-            
-            {/* Sub-headline */}
-            <p className="text-lg md:text-xl text-slate-600 mb-10 max-w-2xl mx-auto">
-              Every thought you have is captured, acted on, and turned into something worth sharing.
-            </p>
-            
-            {/* Email Subscription */}
-            <EmailSubscription />
-          </div>
-        )}
+      {!user ? (
+        <>
+          {/* Hero Section - Separated and Modern */}
+          <section className="relative z-10 pt-16 sm:pt-24 pb-12 sm:pb-16">
+            <div className="max-w-5xl mx-auto px-4 sm:px-8 text-center">
+              {/* Main Headline with gradient */}
+              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight tracking-tight">
+                <span className="bg-gradient-to-r from-slate-900 via-indigo-900 to-purple-900 bg-clip-text text-transparent">
+                  Give every thought
+                </span>
+                <br />
+                <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  a meaning
+                </span>
+              </h1>
+              
+              {/* Sub-headline */}
+              <p className="text-lg sm:text-xl md:text-2xl text-slate-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+                Every thought you have is captured, acted on, and turned into something worth sharing.
+              </p>
+              
+              {/* Email Subscription */}
+              <div className="mt-10">
+                <EmailSubscription />
+              </div>
+            </div>
+          </section>
 
-        {/* Main Input Card */}
-        <div id="capture-input" className={`bg-white rounded-2xl shadow-sm p-8 sm:p-10 relative z-10 ${user ? 'max-w-3xl mx-auto' : ''} hover:shadow-md transition-shadow duration-200`}>
+          {/* Sticky/Floating Capture Card - Always in view */}
+          <div className="relative z-20 -mt-8 mb-16">
+            <div className="max-w-2xl mx-auto px-4 sm:px-8">
+              <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-xl border border-slate-200/50 p-6 sm:p-8 lg:p-10 hover:shadow-2xl transition-all duration-300">
+                <div className="mb-4">
+                  <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 mb-2">Start capturing</h2>
+                  <p className="text-sm text-slate-500">Try it now - no signup required</p>
+                </div>
+                
+                {/* Input Area */}
+                <div className="mb-6">
+                  <textarea
+                    value={transcript || inputText}
+                    onChange={(e) => {
+                      if (transcript) {
+                        setTranscript(e.target.value);
+                      } else {
+                        setInputText(e.target.value);
+                      }
+                    }}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSubmit();
+                      }
+                    }}
+                    placeholder="What's on your mind? Share your thoughts, tasks, ideas..."
+                    className="w-full p-5 text-base border-2 border-slate-200 bg-white rounded-xl hover:border-indigo-300 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 resize-none transition-all h-32"
+                  />
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {/* Voice Input Button */}
+                    {isSpeechRecognitionAvailable() ? (
+                      <button
+                        onClick={handleVoiceInput}
+                        className={`p-3 rounded-xl transition-all duration-200 ${
+                          isRecording 
+                            ? 'bg-red-500 text-white shadow-md animate-pulse' 
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
+                        title={isRecording ? 'Stop recording' : 'Start voice input'}
+                        type="button"
+                      >
+                        {isRecording ? (
+                          <MicOff className="w-5 h-5" />
+                        ) : (
+                          <Mic className="w-5 h-5" />
+                        )}
+                      </button>
+                    ) : (
+                      <button
+                        className="p-3 rounded-xl bg-slate-100 text-slate-400 cursor-not-allowed"
+                        title="Voice input not supported in this browser"
+                        type="button"
+                        disabled
+                      >
+                        <Mic className="w-5 h-5" />
+                      </button>
+                    )}
+                    
+                    {/* Training Upload Button */}
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowUpload(!showUpload)}
+                        className="p-3 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors duration-200"
+                        title="Upload training data"
+                      >
+                        <Upload className="w-5 h-5" />
+                      </button>
+                      
+                      {showUpload && (
+                        <div className="absolute left-0 mt-2 bg-white rounded-xl shadow-xl border border-slate-200 p-2 z-10 min-w-[140px]">
+                          <button
+                            onClick={handleTextUpload}
+                            className="block w-full text-left px-4 py-2 text-sm hover:bg-slate-50 rounded-lg transition-colors"
+                          >
+                            Upload Text
+                          </button>
+                          <label className="block w-full text-left px-4 py-2 text-sm hover:bg-slate-50 rounded-lg cursor-pointer transition-colors">
+                            Upload File
+                            <input
+                              ref={fileInputRef}
+                              type="file"
+                              className="hidden"
+                              onChange={handleFileUpload}
+                              accept=".txt,.md,.doc,.docx"
+                            />
+                          </label>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Voice Status */}
+                    {isRecording && (
+                      <div className="flex items-center gap-2 text-red-600 ml-2">
+                        <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
+                        <span className="text-sm font-medium">Recording...</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    onClick={handleSubmit}
+                    disabled={!hasContent || isProcessing}
+                    className={`px-6 sm:px-8 py-3 rounded-xl font-medium text-base transition-all duration-200 flex items-center gap-2 ${
+                      hasContent && !isProcessing
+                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 shadow-md hover:shadow-lg'
+                        : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                    }`}
+                  >
+                    {isProcessing ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Capturing...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-5 h-5" />
+                        <span>Capture</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Error Message */}
+                {error && (
+                  <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                    <div className="text-sm text-red-700">{error}</div>
+                  </div>
+                )}
+
+                {/* Success Message */}
+                {showSuccess && (
+                  <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-xl text-center">
+                    <div className="flex items-center justify-center gap-2 text-green-700">
+                      <CheckCircle className="w-5 h-5" />
+                      <span className="font-medium">
+                        Thought captured and saved!
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Benefits Section - Modern Cards */}
+          <section className="relative z-10 pb-20 sm:pb-32">
+            <div className="max-w-6xl mx-auto px-4 sm:px-8">
+              <div className="grid md:grid-cols-3 gap-6 sm:gap-8">
+                <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-slate-200/50 hover:border-indigo-200 hover:shadow-lg transition-all duration-300">
+                  <div className="text-4xl sm:text-5xl mb-4">✨</div>
+                  <h3 className="font-semibold text-slate-900 text-lg sm:text-xl mb-3">AI-Powered Organization</h3>
+                  <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+                    Your thoughts are automatically categorized, tagged, and summarized
+                  </p>
+                </div>
+                <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-slate-200/50 hover:border-purple-200 hover:shadow-lg transition-all duration-300">
+                  <div className="text-4xl sm:text-5xl mb-4">📝</div>
+                  <h3 className="font-semibold text-slate-900 text-lg sm:text-xl mb-3">Turn Insights into Posts</h3>
+                  <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+                    AI identifies valuable insights and drafts ready-to-share content
+                  </p>
+                </div>
+                <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-slate-200/50 hover:border-pink-200 hover:shadow-lg transition-all duration-300">
+                  <div className="text-4xl sm:text-5xl mb-4">🔒</div>
+                  <h3 className="font-semibold text-slate-900 text-lg sm:text-xl mb-3">Never Lose a Thought</h3>
+                  <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+                    Everything is saved, organized, and searchable forever
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </>
+      ) : (
+        /* Logged in view - simpler layout */
+        <div className="relative z-10 w-full max-w-3xl mx-auto px-4 sm:px-8 pt-8 pb-8">
+          {/* Main Input Card */}
+          <div id="capture-input" className="bg-white rounded-2xl shadow-sm p-8 sm:p-10 hover:shadow-md transition-shadow duration-200">
           <div className="relative z-10">
 
           {/* Input Area */}
@@ -441,21 +634,33 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               {/* Voice Input Button */}
-              <button
-                onClick={handleVoiceInput}
-                className={`p-3 rounded-lg transition-all duration-200 ${
-                  isRecording 
-                    ? 'bg-red-500 text-white shadow-md animate-pulse' 
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-                title={isRecording ? 'Stop recording' : 'Start voice input'}
-              >
-                {isRecording ? (
-                  <MicOff className="w-5 h-5" />
-                ) : (
+              {isSpeechRecognitionAvailable() ? (
+                <button
+                  onClick={handleVoiceInput}
+                  className={`p-3 rounded-lg transition-all duration-200 ${
+                    isRecording 
+                      ? 'bg-red-500 text-white shadow-md animate-pulse' 
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                  title={isRecording ? 'Stop recording' : 'Start voice input'}
+                  type="button"
+                >
+                  {isRecording ? (
+                    <MicOff className="w-5 h-5" />
+                  ) : (
+                    <Mic className="w-5 h-5" />
+                  )}
+                </button>
+              ) : (
+                <button
+                  className="p-3 rounded-lg bg-slate-100 text-slate-400 cursor-not-allowed"
+                  title="Voice input not supported in this browser"
+                  type="button"
+                  disabled
+                >
                   <Mic className="w-5 h-5" />
-                )}
-              </button>
+                </button>
+              )}
               
               {/* Training Upload Button */}
               <div className="relative">
@@ -540,38 +745,10 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
               </div>
             </div>
           )}
-          </div>
-        </div>
-
-        {/* Benefits Section - Simple and Clean */}
-        {!user && (
-          <div className="mt-20 text-center">
-            <div className="grid md:grid-cols-3 gap-12 max-w-4xl mx-auto">
-              <div className="space-y-3">
-                <div className="text-4xl">✨</div>
-                <h3 className="font-semibold text-slate-900 text-base">AI-Powered Organization</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">
-                  Your thoughts are automatically categorized, tagged, and summarized
-                </p>
-              </div>
-              <div className="space-y-3">
-                <div className="text-4xl">📝</div>
-                <h3 className="font-semibold text-slate-900 text-base">Turn Insights into Posts</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">
-                  AI identifies valuable insights and drafts ready-to-share content
-                </p>
-              </div>
-              <div className="space-y-3">
-                <div className="text-4xl">🔒</div>
-                <h3 className="font-semibold text-slate-900 text-base">Never Lose a Thought</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">
-                  Everything is saved, organized, and searchable forever
-                </p>
-              </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
