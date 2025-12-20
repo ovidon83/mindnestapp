@@ -87,8 +87,6 @@ const EmailSubscription: React.FC = () => {
 
 const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
   const { processAndSave, setCurrentView, user, signOut } = useGenieNotesStore();
-  // Simple capture - always capture as thought, AI will determine if it's todo or insight
-  const entryType: 'thought' | 'journal' = 'thought';
   const [inputText, setInputText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -100,52 +98,131 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
   
   const recognitionRef = useRef<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const accumulatedTranscriptRef = useRef<string>('');
+
+  // Check if speech recognition is available
+  const isSpeechRecognitionAvailable = () => {
+    return 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
+  };
 
   // Initialize speech recognition
   useEffect(() => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      recognitionRef.current = new SpeechRecognition();
-      
-      recognitionRef.current.continuous = true;
-      recognitionRef.current.interimResults = true;
-      recognitionRef.current.lang = 'en-US';
-      
-      recognitionRef.current.onresult = (event: any) => {
-        let finalTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript;
+    if (isSpeechRecognitionAvailable()) {
+      try {
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        recognitionRef.current = new SpeechRecognition();
+        
+        recognitionRef.current.continuous = true;
+        recognitionRef.current.interimResults = true;
+        recognitionRef.current.lang = 'en-US';
+        
+        // Accumulate transcript from all results
+        recognitionRef.current.onresult = (event: any) => {
+          let interimTranscript = '';
+          
+          // Process all results from resultIndex to accumulate new results
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              // Add to accumulated final transcript
+              accumulatedTranscriptRef.current += transcript + ' ';
+            } else {
+              // Show interim results
+              interimTranscript += transcript;
+            }
           }
-        }
-        if (finalTranscript) {
-          setTranscript(finalTranscript);
-        }
-      };
-      
-      recognitionRef.current.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
-        setIsRecording(false);
-      };
-      
-      recognitionRef.current.onend = () => {
-        setIsRecording(false);
-      };
+          
+          // Update transcript: show accumulated final results + current interim
+          setTranscript((accumulatedTranscriptRef.current + interimTranscript).trim());
+        };
+        
+        recognitionRef.current.onerror = (event: any) => {
+          console.error('Speech recognition error:', event.error);
+          setIsRecording(false);
+          
+          // Handle specific error types
+          let errorMessage = 'Voice input error. ';
+          switch (event.error) {
+            case 'no-speech':
+              errorMessage = 'No speech detected. Please try again.';
+              break;
+            case 'audio-capture':
+              errorMessage = 'Microphone not found. Please check your microphone.';
+              break;
+            case 'not-allowed':
+              errorMessage = 'Microphone permission denied. Please enable microphone access in your browser settings.';
+              break;
+            case 'network':
+              errorMessage = 'Network error. Please check your connection.';
+              break;
+            case 'aborted':
+              // User stopped recording, not an error
+              return;
+            default:
+              errorMessage = `Voice input error: ${event.error}`;
+          }
+          
+          setError(errorMessage);
+          setTimeout(() => setError(null), 5000);
+        };
+        
+        recognitionRef.current.onend = () => {
+          // Only set recording to false if it wasn't manually stopped
+          // This handles cases where recognition stops automatically (e.g., timeout)
+          if (isRecording) {
+            setIsRecording(false);
+          }
+        };
+        
+        recognitionRef.current.onstart = () => {
+          setIsRecording(true);
+        };
+      } catch (error) {
+        console.error('Error initializing speech recognition:', error);
+        setError('Voice input is not supported in this browser.');
+      }
     }
   }, []);
 
   const startRecording = () => {
+    if (!isSpeechRecognitionAvailable()) {
+      setError('Voice input is not supported in this browser. Please use Chrome, Edge, or Safari.');
+      setTimeout(() => setError(null), 5000);
+      return;
+    }
+
     if (recognitionRef.current) {
-      recognitionRef.current.start();
-      setIsRecording(true);
-      setTranscript('');
+      try {
+        // Clear previous transcript and reset accumulated transcript
+        setTranscript('');
+        accumulatedTranscriptRef.current = '';
+        setError(null);
+        
+        // Start recognition
+        recognitionRef.current.start();
+      } catch (error: any) {
+        console.error('Error starting recording:', error);
+        setIsRecording(false);
+        
+        if (error.name === 'InvalidStateError') {
+          setError('Voice input is already running. Please stop it first.');
+        } else {
+          setError('Failed to start voice input. Please try again.');
+        }
+        setTimeout(() => setError(null), 5000);
+      }
     }
   };
 
   const stopRecording = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      setIsRecording(false);
+    if (recognitionRef.current && isRecording) {
+      try {
+        recognitionRef.current.stop();
+        setIsRecording(false);
+      } catch (error) {
+        console.error('Error stopping recording:', error);
+        setIsRecording(false);
+      }
     }
   };
 
@@ -176,7 +253,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
     try {
       // Always capture as thought - AI will determine if it's todo or insight
       // Redirect to mindbox after saving
-      await processAndSave(textToProcess, 'thought', undefined);
+      await processAndSave(textToProcess, 'thought');
       
       setShowSuccess(true);
       setInputText('');
@@ -413,7 +490,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
               </div>
               
               {/* Voice Status */}
-              {entryType === 'thought' && isRecording && (
+              {isRecording && (
                 <div className="flex items-center gap-2 text-red-600 ml-2">
                   <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
                   <span className="text-sm font-medium">Recording...</span>
