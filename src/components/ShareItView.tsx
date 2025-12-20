@@ -626,7 +626,8 @@ const ShareItView: React.FC = () => {
                                 placeholder="Edit Instagram caption..."
                               />
                             ) : (
-                              <div className="space-y-2">
+                              <div className="space-y-3">
+                                {/* Image Section */}
                                 {post.instagramImageUrl ? (
                                   <div className="bg-white border border-slate-200 rounded overflow-hidden">
                                     <div className="aspect-square bg-black flex items-center justify-center">
@@ -636,29 +637,31 @@ const ShareItView: React.FC = () => {
                                         className="w-full h-full object-cover"
                                       />
                                     </div>
-                                    {post.instagramContent && (
-                                      <div className="p-2">
-                                        <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed line-clamp-3">
-                                          {post.instagramContent}
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                ) : generatingPosts.has(entry.id) ? (
-                                  <div className="bg-slate-100 border-2 border-dashed border-slate-300 rounded p-6 text-center">
-                                    <Instagram className="w-6 h-6 text-slate-400 mx-auto mb-2" />
-                                    <div className="text-xs text-slate-500 mb-2">Generating...</div>
-                                    <Loader2 className="w-4 h-4 animate-spin text-slate-400 mx-auto" />
                                   </div>
                                 ) : (
-                                  <div className="bg-slate-100 border-2 border-dashed border-slate-300 rounded p-6 text-center">
-                                    <Instagram className="w-6 h-6 text-slate-400 mx-auto mb-2" />
-                                    <div className="text-xs text-slate-500">Image not generated</div>
+                                  <div className="bg-slate-100 border-2 border-dashed border-slate-300 rounded-lg aspect-square flex flex-col items-center justify-center p-6">
+                                    {generatingPosts.has(entry.id) ? (
+                                      <>
+                                        <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mb-3" />
+                                        <div className="text-sm font-medium text-slate-700 mb-1">Generating image...</div>
+                                        <div className="text-xs text-slate-500">This may take 5-10 seconds</div>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Instagram className="w-8 h-8 text-slate-400 mb-2" />
+                                        <div className="text-xs text-slate-500">Image not generated</div>
+                                      </>
+                                    )}
                                   </div>
                                 )}
-                                {post.instagramContent && !post.instagramImageUrl && !generatingPosts.has(entry.id) && (
-                                  <div className="p-2 bg-slate-50 border border-slate-200 rounded text-xs text-slate-800 whitespace-pre-line max-h-[200px] overflow-y-auto">
-                                    {post.instagramContent}
+                                
+                                {/* Caption Section - Show immediately when available */}
+                                {post.instagramContent && (
+                                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                                    <div className="text-xs font-medium text-slate-600 mb-1.5">Caption:</div>
+                                    <div className="text-sm text-slate-800 whitespace-pre-line leading-relaxed max-h-[200px] overflow-y-auto">
+                                      {post.instagramContent}
+                                    </div>
                                   </div>
                                 )}
                               </div>
