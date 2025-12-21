@@ -423,24 +423,40 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
           </section>
 
           {/* Philosophy Section */}
-          <section className="relative z-10 py-12 sm:py-16">
+          <section className="relative z-10 py-16 sm:py-20">
             <div className="max-w-5xl mx-auto px-4 sm:px-8">
-              <div className="text-center">
-                <p className="text-2xl sm:text-3xl md:text-4xl font-semibold text-slate-900 mb-8 leading-relaxed">
-                  <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                    Thouthy is a thinking companion.
-                  </span>
-                </p>
-                <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 md:gap-6 text-base sm:text-lg md:text-xl lg:text-2xl text-slate-700 font-medium mb-6">
-                  <span>Some people just want peace</span>
-                  <span className="text-slate-400">*</span>
-                  <span>Some want expression</span>
-                  <span className="text-slate-400">*</span>
-                  <span>Some want leverage</span>
+              <div className="relative">
+                {/* Decorative background element */}
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 via-purple-50/30 to-pink-50/50 rounded-3xl blur-3xl -z-10"></div>
+                
+                <div className="text-center space-y-8 sm:space-y-10">
+                  {/* Main statement - larger and more prominent */}
+                  <div className="relative inline-block">
+                    <p className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+                      <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        Thouthy is your thinking companion.
+                      </span>
+                    </p>
+                    {/* Decorative underline */}
+                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 rounded-full"></div>
+                  </div>
+                  
+                  {/* Three motivations - elegant horizontal layout */}
+                  <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 md:gap-4 text-base sm:text-lg md:text-xl text-slate-600 font-medium py-4">
+                    <span className="px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200/50">Some people just want peace</span>
+                    <span className="text-slate-300 text-xl">•</span>
+                    <span className="px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200/50">Some want expression</span>
+                    <span className="text-slate-300 text-xl">•</span>
+                    <span className="px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200/50">Some want leverage</span>
+                  </div>
+                  
+                  {/* Final statement - emphasized */}
+                  <div className="pt-4">
+                    <p className="text-xl sm:text-2xl md:text-3xl text-slate-900 font-semibold">
+                      All start in the same place.
+                    </p>
+                  </div>
                 </div>
-                <p className="text-lg sm:text-xl md:text-2xl text-slate-900 font-semibold">
-                  All start in the same place.
-                </p>
               </div>
             </div>
           </section>
