@@ -61,29 +61,29 @@ const CompanionView: React.FC = () => {
 
   const getRandomGradient = (index: number) => {
     const gradients = [
-      'from-purple-100 to-pink-100',
-      'from-blue-100 to-cyan-100',
-      'from-amber-100 to-orange-100',
-      'from-emerald-100 to-teal-100',
-      'from-indigo-100 to-purple-100',
+      'from-teal-50 to-emerald-50',
+      'from-slate-50 to-stone-50',
+      'from-amber-50 to-orange-50',
+      'from-emerald-50 to-teal-50',
+      'from-stone-50 to-slate-50',
     ];
     return gradients[index % gradients.length];
   };
 
   if (observations.length === 0 && !loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+      <div className="min-h-screen bg-gradient-to-br from-stone-50 via-neutral-50 to-stone-100">
         <div className="max-w-3xl mx-auto px-4 sm:px-8 py-12">
           <div className="text-center py-16">
             <div className="relative inline-block mb-6">
-              <div className="w-24 h-24 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center mx-auto shadow-lg animate-pulse">
-                <Sparkles className="w-12 h-12 text-white" />
+              <div className="w-24 h-24 bg-slate-800 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                <Sparkles className="w-12 h-12 text-teal-400" />
               </div>
-              <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center animate-bounce">
-                <Brain className="w-4 h-4 text-yellow-900" />
+              <div className="absolute -top-2 -right-2 w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center animate-bounce">
+                <Brain className="w-4 h-4 text-white" />
               </div>
             </div>
-            <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-3">
+            <h3 className="text-2xl font-bold text-slate-800 mb-3">
               Ready to discover patterns?
             </h3>
             <p className="text-slate-600 mb-6 max-w-md mx-auto">
@@ -94,7 +94,7 @@ const CompanionView: React.FC = () => {
             <button
               onClick={updateObservations}
               disabled={loading || entries.length === 0}
-              className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full font-medium hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto"
+              className="px-6 py-3 bg-slate-900 text-white rounded-full font-medium hover:bg-slate-800 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto"
             >
               {loading ? (
                 <>
@@ -120,7 +120,7 @@ const CompanionView: React.FC = () => {
         {/* Header */}
         <div className="mb-8 flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+            <h1 className="text-3xl font-bold text-slate-800 mb-2">
               Your Companion
             </h1>
             {lastUpdated && (
@@ -132,7 +132,7 @@ const CompanionView: React.FC = () => {
           <button
             onClick={updateObservations}
             disabled={loading}
-            className="px-5 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full font-medium hover:from-purple-600 hover:to-pink-600 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-5 py-2.5 bg-slate-900 text-white rounded-full font-medium hover:bg-slate-800 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {loading ? (
               <>
@@ -160,8 +160,8 @@ const CompanionView: React.FC = () => {
                 className={`bg-gradient-to-br ${gradient} rounded-2xl p-6 border-2 border-white/50 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1`}
               >
                 <div className="flex items-start gap-4">
-                  <div className={`flex-shrink-0 w-12 h-12 rounded-full bg-white/80 flex items-center justify-center shadow-md`}>
-                    <Icon className={`w-6 h-6 text-purple-600`} />
+                  <div className={`flex-shrink-0 w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-md`}>
+                    <Icon className={`w-6 h-6 text-slate-700`} />
                   </div>
                   <div className="flex-1">
                     <p className="text-slate-800 leading-relaxed text-base font-medium">

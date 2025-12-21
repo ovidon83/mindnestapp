@@ -156,9 +156,9 @@ const ShareItView: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-8 h-8 border-4 border-slate-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-slate-600">Loading...</p>
         </div>
       </div>
@@ -171,8 +171,8 @@ const ShareItView: React.FC = () => {
       <div className="w-full px-4 sm:px-8 py-4 sm:py-6">
         {shareItEntries.length === 0 ? (
           <div className="text-center py-16 sm:py-20">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-              <Share2 className="w-10 h-10 sm:w-12 sm:h-12 text-indigo-500" />
+            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <Share2 className="w-10 h-10 sm:w-12 sm:h-12 text-slate-600" />
             </div>
             <h3 className="text-xl sm:text-2xl font-semibold text-slate-900 mb-2">
               No thoughts in Share it yet
@@ -248,7 +248,7 @@ const ShareItView: React.FC = () => {
                             });
                           }
                         }}
-                        className="w-full px-4 py-3 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg font-medium hover:bg-indigo-100 transition-colors flex items-center justify-center gap-2"
+                        className="w-full px-4 py-3 bg-slate-900 text-white border border-slate-800 rounded-lg font-medium hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
                       >
                         <Sparkles className="w-4 h-4" />
                         Generate Post Drafts
@@ -264,8 +264,8 @@ const ShareItView: React.FC = () => {
                             {generationProgress[entry.id] || 'Generating drafts...'}
                           </span>
                         </div>
-                        <div className="w-full bg-indigo-100 rounded-full h-1.5 overflow-hidden">
-                          <div className="bg-indigo-600 h-full rounded-full animate-pulse" style={{ width: '60%' }}></div>
+                        <div className="w-full bg-stone-200 rounded-full h-1.5 overflow-hidden">
+                          <div className="bg-slate-600 h-full rounded-full animate-pulse" style={{ width: '60%' }}></div>
                         </div>
                       </div>
                     )}
@@ -310,7 +310,7 @@ const ShareItView: React.FC = () => {
                         const colorMap = {
                           linkedin: 'text-blue-600',
                           twitter: 'text-sky-500',
-                          instagram: 'text-pink-600',
+                          instagram: 'text-amber-600',
                         };
                         const Icon = iconMap[platform as keyof typeof iconMap];
                         const color = colorMap[platform as keyof typeof colorMap];
@@ -328,7 +328,7 @@ const ShareItView: React.FC = () => {
                             }}
                             className={`flex-1 px-3 py-2.5 text-xs font-medium transition-colors duration-200 flex items-center justify-center gap-1.5 ${
                               isActive
-                                ? 'border-b-2 border-indigo-600 text-indigo-600 bg-indigo-50'
+                                ? 'border-b-2 border-slate-700 text-slate-700 bg-slate-50'
                                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                             }`}
                           >
@@ -346,7 +346,7 @@ const ShareItView: React.FC = () => {
                           <div>
                             {!post.draftContent && generatingPosts.has(entry.id) ? (
                               <div className="flex flex-col items-center justify-center py-8">
-                                <Loader2 className="w-5 h-5 animate-spin text-indigo-600 mb-2" />
+                                <Loader2 className="w-5 h-5 animate-spin text-slate-600 mb-2" />
                                 <div className="text-xs text-slate-600">Generating...</div>
                               </div>
                             ) : (
@@ -438,7 +438,7 @@ const ShareItView: React.FC = () => {
                                   </div>
                                 ) : generatingPosts.has(entry.id) ? (
                                   <div className="flex flex-col items-center justify-center py-8 border border-slate-200 rounded bg-slate-50">
-                                    <Loader2 className="w-5 h-5 animate-spin text-indigo-600 mb-2" />
+                                    <Loader2 className="w-5 h-5 animate-spin text-slate-600 mb-2" />
                                     <div className="text-xs text-slate-600">Generating LinkedIn draft...</div>
                                   </div>
                                 ) : null}
@@ -453,7 +453,7 @@ const ShareItView: React.FC = () => {
                           <div>
                             {!post.twitterContent && generatingPosts.has(entry.id) ? (
                               <div className="flex flex-col items-center justify-center py-8">
-                                <Loader2 className="w-5 h-5 animate-spin text-indigo-600 mb-2" />
+                                <Loader2 className="w-5 h-5 animate-spin text-slate-600 mb-2" />
                                 <div className="text-xs text-slate-600">Generating...</div>
                               </div>
                             ) : (
@@ -556,7 +556,7 @@ const ShareItView: React.FC = () => {
                                   </div>
                                 ) : generatingPosts.has(entry.id) ? (
                                   <div className="flex flex-col items-center justify-center py-8 border border-slate-200 rounded bg-slate-50">
-                                    <Loader2 className="w-5 h-5 animate-spin text-indigo-600 mb-2" />
+                                    <Loader2 className="w-5 h-5 animate-spin text-slate-600 mb-2" />
                                     <div className="text-xs text-slate-600">Generating Twitter post...</div>
                                   </div>
                                 ) : null}
@@ -571,7 +571,7 @@ const ShareItView: React.FC = () => {
                           <div>
                             {!post.instagramContent && generatingPosts.has(entry.id) ? (
                               <div className="flex flex-col items-center justify-center py-8">
-                                <Loader2 className="w-5 h-5 animate-spin text-indigo-600 mb-2" />
+                                <Loader2 className="w-5 h-5 animate-spin text-slate-600 mb-2" />
                                 <div className="text-xs text-slate-600">Generating...</div>
                               </div>
                             ) : (
