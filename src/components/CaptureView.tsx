@@ -346,11 +346,14 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
       <nav className="relative z-50 w-full px-4 sm:px-8 py-4 sm:py-6 bg-white border-b border-slate-100">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 sm:w-12 sm:h-12 bg-emerald-600 rounded-lg flex items-center justify-center shadow-sm hover:shadow-md transition-all duration-300 group">
-              {/* Clean, modern brain icon */}
+            <div className="relative w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 group">
+              {/* Playful brain icon with sparkles */}
               <Brain className="w-6 h-6 sm:w-7 sm:h-7 text-white relative z-10 group-hover:scale-110 transition-transform duration-300" strokeWidth={2.5} fill="none" />
-              {/* Subtle hover glow */}
-              <div className="absolute inset-0 rounded-lg bg-emerald-500/0 group-hover:bg-emerald-500/20 transition-all duration-300"></div>
+              {/* Fun sparkles around the brain */}
+              <Sparkles className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 text-yellow-400 opacity-80 group-hover:opacity-100 group-hover:scale-125 transition-all duration-300" strokeWidth={2} />
+              <Sparkles className="absolute -bottom-0.5 -left-0.5 w-2 h-2 text-purple-300 opacity-70 group-hover:opacity-90 group-hover:scale-125 transition-all duration-300" strokeWidth={2} />
+              {/* Playful hover glow */}
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/0 to-yellow-500/0 group-hover:from-purple-500/20 group-hover:to-yellow-500/20 transition-all duration-300"></div>
             </div>
             <span className="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">Thouthy</span>
           </div>
@@ -383,7 +386,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       onOrganizeClick('signup');
                     }
                   }}
-                  className="px-5 py-2.5 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all shadow-sm hover:shadow-md"
+                  className="px-5 py-2.5 text-sm font-medium bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
                 >
                   Sign Up
                 </button>
@@ -395,24 +398,25 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
 
       {!user ? (
         <>
-          {/* Hero Section - Clean and Modern */}
+          {/* Hero Section - Playful and Clean */}
           <section className="relative z-10 pt-20 sm:pt-28 pb-16 sm:pb-20 overflow-hidden">
-            {/* Clean background inspired by Clause - light green with subtle grid */}
+            {/* Playful background with purple and yellow accents */}
             <div className="absolute inset-0 -z-10">
-              <div className="absolute inset-0 bg-gradient-to-b from-emerald-50/50 via-emerald-50/30 to-white"></div>
+              <div className="absolute inset-0 bg-gradient-to-b from-purple-50/40 via-indigo-50/20 to-white"></div>
               {/* Subtle grid pattern - very light */}
-              <div className="absolute inset-0 opacity-[0.03]" style={{
-                backgroundImage: `linear-gradient(rgba(16, 185, 129, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(16, 185, 129, 0.1) 1px, transparent 1px)`,
+              <div className="absolute inset-0 opacity-[0.02]" style={{
+                backgroundImage: `linear-gradient(rgba(139, 92, 246, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(139, 92, 246, 0.1) 1px, transparent 1px)`,
                 backgroundSize: '60px 60px'
               }}></div>
-              {/* Single subtle accent orb */}
-              <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-emerald-100/20 rounded-full blur-3xl"></div>
+              {/* Playful floating orbs */}
+              <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-purple-200/15 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-1/4 left-1/4 w-72 h-72 bg-yellow-200/10 rounded-full blur-3xl"></div>
             </div>
             <div className="max-w-5xl mx-auto px-4 sm:px-8 text-center relative">
               {/* Small label */}
               <div className="mb-4">
-                <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-100/50 text-emerald-700 text-sm font-medium rounded-full border border-emerald-200/50">
-                  <Sparkles className="w-3.5 h-3.5" />
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-100/60 text-purple-700 text-sm font-medium rounded-full border border-purple-200/50 shadow-sm">
+                  <Sparkles className="w-3.5 h-3.5 text-purple-600" />
                   THINK SMARTER
                 </span>
               </div>
@@ -424,8 +428,17 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 </span>
                 <br />
                 <span className="relative inline-block">
-                  <span className="text-emerald-600">a meaning</span>
-                  <span className="absolute -bottom-2 left-0 right-0 h-3 bg-yellow-300/60 -z-10" style={{ transform: 'skewX(-12deg)' }}></span>
+                  <span className="text-purple-600">a meaning</span>
+                  {/* Playful wavy underline */}
+                  <svg className="absolute -bottom-2 left-0 right-0 h-4 -z-10" viewBox="0 0 200 20" preserveAspectRatio="none">
+                    <path d="M0,15 Q50,5 100,15 T200,15" stroke="url(#yellowGradient)" strokeWidth="3" fill="none" strokeLinecap="round"/>
+                    <defs>
+                      <linearGradient id="yellowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.8" />
+                        <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.8" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
                 </span>
               </h1>
               
@@ -441,8 +454,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </div>
           </section>
 
-          {/* Philosophy Section - Light gray background */}
-          <section className="relative z-10 py-20 sm:py-24 bg-slate-50/50">
+          {/* Philosophy Section - Playful purple tint */}
+          <section className="relative z-10 py-20 sm:py-24 bg-gradient-to-br from-purple-50/30 via-indigo-50/20 to-white">
             <div className="max-w-5xl mx-auto px-4 sm:px-8 relative">
               <div className="text-center space-y-8 sm:space-y-10">
                 {/* Main statement */}
@@ -452,11 +465,11 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   </p>
                 </div>
                 
-                {/* Three motivations - clean pill design */}
+                {/* Three motivations - playful pill design */}
                 <div className="flex flex-wrap items-center justify-center gap-4 text-base sm:text-lg md:text-xl font-medium py-8">
-                  <span className="px-6 py-3 rounded-full bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 transition-all shadow-sm">Peace of mind</span>
-                  <span className="px-6 py-3 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 transition-all shadow-sm">Self-expression</span>
-                  <span className="px-6 py-3 rounded-full bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 transition-all shadow-sm">Leverage</span>
+                  <span className="px-6 py-3 rounded-full bg-white/80 backdrop-blur-sm border-2 border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300 transition-all shadow-md hover:shadow-lg">Peace of mind</span>
+                  <span className="px-6 py-3 rounded-full bg-white/80 backdrop-blur-sm border-2 border-yellow-200 text-yellow-700 hover:bg-yellow-50 hover:border-yellow-300 transition-all shadow-md hover:shadow-lg">Self-expression</span>
+                  <span className="px-6 py-3 rounded-full bg-white/80 backdrop-blur-sm border-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:border-indigo-300 transition-all shadow-md hover:shadow-lg">Leverage</span>
                 </div>
                 
                 {/* Final statement */}
@@ -469,10 +482,10 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </div>
           </section>
 
-          {/* Sticky/Floating Capture Card - Section with subtle background */}
+          {/* Sticky/Floating Capture Card - Section with playful background */}
           <div className="relative z-20 -mt-8 mb-20 py-12">
             {/* Background for capture section */}
-            <div className="absolute inset-0 -z-10 bg-gradient-to-b from-emerald-50/30 via-white to-white"></div>
+            <div className="absolute inset-0 -z-10 bg-gradient-to-b from-yellow-50/20 via-purple-50/10 to-white"></div>
             <div className="max-w-2xl mx-auto px-4 sm:px-8 relative">
               <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-8 lg:p-10 hover:shadow-xl transition-all duration-300">
                 <div className="mb-4">
@@ -497,7 +510,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       }
                     }}
                     placeholder="Share your thoughts, tasks, ideas..."
-                    className="w-full p-5 text-base border border-slate-200 bg-white rounded-lg hover:border-emerald-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 resize-none transition-all h-32"
+                    className="w-full p-5 text-base border-2 border-slate-200 bg-white rounded-xl hover:border-purple-300 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 resize-none transition-all h-32"
                   />
                 </div>
 
@@ -578,9 +591,9 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   <button
                     onClick={handleSubmit}
                     disabled={!hasContent || isProcessing}
-                    className={`px-6 sm:px-8 py-3 rounded-lg font-medium text-base transition-all duration-200 flex items-center gap-2 ${
+                    className={`px-6 sm:px-8 py-3 rounded-xl font-medium text-base transition-all duration-200 flex items-center gap-2 ${
                       hasContent && !isProcessing
-                        ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-md hover:shadow-lg'
+                        ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-xl'
                         : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                     }`}
                   >
@@ -620,8 +633,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </div>
           </div>
 
-          {/* Showcase Section - Light emerald tint background */}
-          <section className="relative z-10 py-20 sm:py-28 bg-emerald-50/20">
+          {/* Showcase Section - Playful gradient background */}
+          <section className="relative z-10 py-20 sm:py-28 bg-gradient-to-br from-white via-purple-50/15 to-yellow-50/10">
             <div className="max-w-7xl mx-auto px-4 sm:px-8 relative">
               <div className="text-center mb-12 sm:mb-16">
                 <div className="mb-3">
@@ -638,9 +651,9 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
               {/* Feature Showcase Grid */}
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                 {/* Feature 1: Capture */}
-                <div className="bg-white rounded-xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-emerald-200">
+                <div className="bg-white rounded-xl p-6 sm:p-8 border-2 border-slate-200 shadow-md hover:shadow-lg transition-all duration-300 hover:border-purple-300 hover:scale-[1.02]">
                   <div className="mb-4">
-                    <div className="w-12 h-12 rounded-lg bg-emerald-600 flex items-center justify-center mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center mb-4 shadow-lg">
                       <Sparkles className="w-6 h-6 text-white" />
                     </div>
                     <h3 className="text-xl font-semibold text-slate-900 mb-2">Instant Capture</h3>
@@ -657,9 +670,9 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 </div>
 
                 {/* Feature 2: Organization */}
-                <div className="bg-white rounded-xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-emerald-200">
+                <div className="bg-white rounded-xl p-6 sm:p-8 border-2 border-slate-200 shadow-md hover:shadow-lg transition-all duration-300 hover:border-purple-300 hover:scale-[1.02]">
                   <div className="mb-4">
-                    <div className="w-12 h-12 rounded-lg bg-slate-800 flex items-center justify-center mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-700 to-purple-700 flex items-center justify-center mb-4 shadow-lg">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                       </svg>
@@ -672,7 +685,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                     <div className="space-y-3 text-sm">
                       <div className="flex items-start gap-2">
-                        <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-xs font-medium flex-shrink-0 mt-0.5">To-Do</span>
+                        <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-xs font-medium flex-shrink-0 mt-0.5 border border-purple-200">To-Do</span>
                         <p className="text-slate-700 text-xs italic flex-1">"I keep thinking about starting a side business - maybe a consulting gig for small businesses. I have all this experience but don't know where to start. Should I do it part-time first? What about my current job? Need to figure out pricing, services, and how to find clients."</p>
                       </div>
                     </div>
@@ -680,9 +693,9 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 </div>
 
                 {/* Feature 3: Search & Never Lose */}
-                <div className="bg-white rounded-xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-emerald-200">
+                <div className="bg-white rounded-xl p-6 sm:p-8 border-2 border-slate-200 shadow-md hover:shadow-lg transition-all duration-300 hover:border-purple-300 hover:scale-[1.02]">
                   <div className="mb-4">
-                    <div className="w-12 h-12 rounded-lg bg-indigo-600 flex items-center justify-center mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-4 shadow-lg">
                       <Search className="w-6 h-6 text-white" />
                     </div>
                     <h3 className="text-xl font-semibold text-slate-900 mb-1">Search & Never Lose</h3>
@@ -698,8 +711,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       </div>
                       <div className="space-y-2">
                         <p className="text-xs font-medium text-slate-700">1 result found</p>
-                        <div className="flex items-start gap-2 p-2 bg-white rounded border border-slate-100 hover:border-emerald-200 transition-colors">
-                          <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded text-[10px] font-medium mt-0.5 flex-shrink-0">To-Do</span>
+                        <div className="flex items-start gap-2 p-2 bg-white rounded-lg border-2 border-slate-100 hover:border-purple-200 transition-colors">
+                          <span className="px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded-lg text-[10px] font-medium mt-0.5 flex-shrink-0 border border-purple-200">To-Do</span>
                           <p className="text-xs text-slate-600 flex-1 italic">"I keep thinking about starting a side business - maybe a consulting gig for small businesses. I have all this experience but don't know where to start..."</p>
                         </div>
                       </div>
@@ -708,9 +721,9 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 </div>
 
                 {/* Feature 4: AI Insights */}
-                <div className="bg-white rounded-xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-emerald-200">
+                <div className="bg-white rounded-xl p-6 sm:p-8 border-2 border-slate-200 shadow-md hover:shadow-lg transition-all duration-300 hover:border-purple-300 hover:scale-[1.02]">
                   <div className="mb-4">
-                    <div className="w-12 h-12 rounded-lg bg-rose-500 flex items-center justify-center mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center mb-4 shadow-lg">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                       </svg>
@@ -738,9 +751,9 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 </div>
 
                 {/* Feature 5: Social Sharing */}
-                <div className="bg-white rounded-xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-emerald-200">
+                <div className="bg-white rounded-xl p-6 sm:p-8 border-2 border-slate-200 shadow-md hover:shadow-lg transition-all duration-300 hover:border-purple-300 hover:scale-[1.02]">
                   <div className="mb-4">
-                    <div className="w-12 h-12 rounded-lg bg-indigo-700 flex items-center justify-center mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center mb-4 shadow-lg">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                       </svg>
@@ -769,9 +782,9 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 </div>
 
                 {/* Feature 6: Companion */}
-                <div className="bg-white rounded-xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-emerald-200">
+                <div className="bg-white rounded-xl p-6 sm:p-8 border-2 border-slate-200 shadow-md hover:shadow-lg transition-all duration-300 hover:border-purple-300 hover:scale-[1.02]">
                   <div className="mb-4">
-                    <div className="w-12 h-12 rounded-lg bg-emerald-600 flex items-center justify-center mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 via-indigo-600 to-purple-600 flex items-center justify-center mb-4 shadow-lg">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                       </svg>
@@ -793,8 +806,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </div>
           </section>
 
-          {/* Footer - Slate background */}
-          <footer className="relative z-10 border-t border-slate-200 bg-slate-50">
+          {/* Footer - Playful gradient */}
+          <footer className="relative z-10 border-t border-purple-100 bg-gradient-to-br from-purple-50/30 via-indigo-50/20 to-white">
             <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 sm:py-16">
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 {/* Brand */}
@@ -811,7 +824,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 <div className="flex items-center gap-4">
                   <a
                     href="mailto:hello@thouthy.com"
-                    className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-emerald-600 hover:border-emerald-200 transition-all"
+                    className="p-2 rounded-lg bg-white/80 backdrop-blur-sm border-2 border-purple-200 text-slate-600 hover:text-purple-600 hover:border-purple-300 hover:scale-110 transition-all shadow-sm"
                     aria-label="Email"
                   >
                     <Mail className="w-5 h-5" />

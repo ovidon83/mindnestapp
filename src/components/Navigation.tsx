@@ -24,11 +24,14 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange }) =>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 py-3 sm:py-4">
           {/* Left: Logo */}
           <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 sm:w-12 sm:h-12 bg-emerald-600 rounded-lg flex items-center justify-center shadow-sm hover:shadow-md transition-all duration-300 group">
-              {/* Clean, modern brain icon */}
+            <div className="relative w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 group">
+              {/* Playful brain icon with sparkles */}
               <Brain className="w-6 h-6 sm:w-7 sm:h-7 text-white relative z-10 group-hover:scale-110 transition-transform duration-300" strokeWidth={2.5} fill="none" />
-              {/* Subtle hover glow */}
-              <div className="absolute inset-0 rounded-lg bg-emerald-500/0 group-hover:bg-emerald-500/20 transition-all duration-300"></div>
+              {/* Fun sparkles around the brain */}
+              <Sparkles className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 text-yellow-400 opacity-80 group-hover:opacity-100 group-hover:scale-125 transition-all duration-300" strokeWidth={2} />
+              <Sparkles className="absolute -bottom-0.5 -left-0.5 w-2 h-2 text-purple-300 opacity-70 group-hover:opacity-90 group-hover:scale-125 transition-all duration-300" strokeWidth={2} />
+              {/* Playful hover glow */}
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/0 to-yellow-500/0 group-hover:from-purple-500/20 group-hover:to-yellow-500/20 transition-all duration-300"></div>
             </div>
             <span className="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">Thouthy</span>
           </div>
