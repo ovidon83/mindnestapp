@@ -26,7 +26,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange }) =>
           <div className="flex items-center gap-3">
             <div className="relative w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 group overflow-hidden">
               {/* Subtle inner glow */}
-              <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               
               {/* Brain - more prominent and refined */}
               <Brain className="w-6 h-6 sm:w-7 sm:h-7 text-teal-400 relative z-10 group-hover:text-teal-300 transition-colors duration-300" strokeWidth={2} fill="none" />
@@ -48,10 +48,10 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange }) =>
                 const Icon = item.icon;
                 const isActive = currentView === item.id;
               const colorClasses = {
-                indigo: isActive ? 'bg-teal-50 text-teal-700 border border-teal-200' : 'text-slate-600 hover:text-slate-900 hover:bg-stone-50',
-                blue: isActive ? 'bg-slate-100 text-slate-700 border border-slate-200' : 'text-slate-600 hover:text-slate-900 hover:bg-stone-50',
-                slate: isActive ? 'bg-stone-50 text-slate-700 border border-stone-200' : 'text-slate-600 hover:text-slate-900 hover:bg-stone-50',
-                purple: isActive ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'text-slate-600 hover:text-slate-900 hover:bg-stone-50',
+                indigo: isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
+                blue: isActive ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
+                slate: isActive ? 'bg-slate-100 text-slate-700 border border-slate-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
+                purple: isActive ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
               };
                 
                 return (
@@ -72,7 +72,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange }) =>
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <button
               onClick={() => onViewChange('capture')}
-              className="px-4 py-2 text-sm font-medium bg-stone-50 text-slate-700 border border-stone-200 rounded-lg hover:bg-stone-100 transition-colors duration-200 flex items-center gap-2 min-h-[40px]"
+              className="px-4 py-2 text-sm font-medium bg-slate-50 text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors duration-200 flex items-center gap-2 min-h-[40px]"
             >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">New Thought</span>

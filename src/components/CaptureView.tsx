@@ -333,14 +333,14 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-neutral-50 to-stone-100 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 relative overflow-hidden">
       {/* Modern background elements - only show when not logged in */}
       {!user && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-stone-50/30 to-transparent"></div>
-          <div className="absolute top-20 left-10 w-96 h-96 bg-teal-100/20 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-amber-100/15 rounded-full blur-3xl"></div>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-slate-100/10 rounded-full blur-3xl"></div>
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-blue-50/20 to-transparent"></div>
+          <div className="absolute top-20 left-10 w-96 h-96 bg-emerald-200/15 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-rose-200/10 rounded-full blur-3xl"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-100/8 rounded-full blur-3xl"></div>
         </div>
       )}
 
@@ -406,9 +406,18 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
       {!user ? (
         <>
           {/* Hero Section - Separated and Modern */}
-          <section className="relative z-10 pt-16 sm:pt-24 pb-12 sm:pb-16">
-            {/* Discrete background */}
-            <div className="absolute inset-0 bg-gradient-to-b from-slate-50/30 via-transparent to-transparent -z-10"></div>
+          <section className="relative z-10 pt-16 sm:pt-24 pb-12 sm:pb-16 overflow-hidden">
+            {/* Unique background for hero - subtle mesh gradient */}
+            <div className="absolute inset-0 -z-10">
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/40 via-blue-50/30 to-emerald-50/20"></div>
+              <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-rose-100/20 to-transparent rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-emerald-100/20 to-transparent rounded-full blur-3xl"></div>
+              {/* Subtle pattern overlay */}
+              <div className="absolute inset-0 opacity-[0.02]" style={{
+                backgroundImage: `radial-gradient(circle at 2px 2px, rgb(30 41 59) 1px, transparent 0)`,
+                backgroundSize: '40px 40px'
+              }}></div>
+            </div>
             <div className="max-w-5xl mx-auto px-4 sm:px-8 text-center relative">
               {/* Main Headline */}
               <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight tracking-tight">
@@ -416,7 +425,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   Give every thought
                 </span>
                 <br />
-                <span className="text-teal-700">
+                <span className="text-emerald-700">
                   a meaning
                 </span>
               </h1>
@@ -434,14 +443,19 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
           </section>
 
           {/* Philosophy Section */}
-          <section className="relative z-10 py-16 sm:py-20">
-            {/* Discrete background */}
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-stone-50/20 to-transparent -z-10"></div>
+          <section className="relative z-10 py-16 sm:py-20 overflow-hidden">
+            {/* Unique background for philosophy - warm gradient with texture */}
+            <div className="absolute inset-0 -z-10">
+              <div className="absolute inset-0 bg-gradient-to-br from-rose-50/30 via-amber-50/20 to-emerald-50/25"></div>
+              <div className="absolute top-1/4 right-1/4 w-72 h-72 bg-gradient-to-br from-indigo-100/15 to-transparent rounded-full blur-3xl"></div>
+              <div className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-gradient-to-tr from-rose-100/15 to-transparent rounded-full blur-3xl"></div>
+              {/* Subtle diagonal lines pattern */}
+              <div className="absolute inset-0 opacity-[0.015]" style={{
+                backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 10px, rgb(30 41 59) 10px, rgb(30 41 59) 20px)`,
+              }}></div>
+            </div>
             <div className="max-w-5xl mx-auto px-4 sm:px-8 relative">
               <div className="relative">
-                {/* Decorative background element */}
-                <div className="absolute inset-0 bg-stone-50/30 rounded-3xl blur-3xl -z-10"></div>
-                
                 <div className="text-center space-y-8 sm:space-y-10">
                   {/* Main statement - larger and more prominent */}
                   <div className="relative inline-block">
@@ -449,14 +463,14 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       Thouthy is your thinking companion.
                     </p>
                     {/* Decorative underline */}
-                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-24 h-1 bg-teal-500 rounded-full"></div>
+                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-24 h-1 bg-emerald-500 rounded-full"></div>
                   </div>
                   
                   {/* Three motivations - elegant horizontal layout */}
                   <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-base sm:text-lg md:text-xl font-medium py-6">
-                    <span className="px-5 py-2.5 rounded-full bg-stone-100 border border-stone-200 text-slate-700 shadow-sm hover:shadow-md transition-all">Peace of mind</span>
-                    <span className="px-5 py-2.5 rounded-full bg-teal-50 border border-teal-200 text-teal-700 shadow-sm hover:shadow-md transition-all">Self-expression</span>
-                    <span className="px-5 py-2.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 shadow-sm hover:shadow-md transition-all">Leverage</span>
+                    <span className="px-5 py-2.5 rounded-full bg-slate-100/80 backdrop-blur-sm border border-slate-200/60 text-slate-700 shadow-sm hover:shadow-md transition-all">Peace of mind</span>
+                    <span className="px-5 py-2.5 rounded-full bg-emerald-50/80 backdrop-blur-sm border border-emerald-200/60 text-emerald-700 shadow-sm hover:shadow-md transition-all">Self-expression</span>
+                    <span className="px-5 py-2.5 rounded-full bg-rose-50/80 backdrop-blur-sm border border-rose-200/60 text-rose-700 shadow-sm hover:shadow-md transition-all">Leverage</span>
                   </div>
                   
                   {/* Final statement - emphasized */}
@@ -471,11 +485,19 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
           </section>
 
           {/* Sticky/Floating Capture Card - Always in view */}
-          <div className="relative z-20 -mt-8 mb-16">
-            {/* Discrete background */}
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-stone-50/10 to-transparent -z-10"></div>
+          <div className="relative z-20 -mt-8 mb-16 overflow-hidden">
+            {/* Unique background for capture card section */}
+            <div className="absolute inset-0 -z-10">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-50/40 via-indigo-50/20 to-emerald-50/30"></div>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-gradient-radial from-emerald-100/10 via-blue-100/5 to-transparent rounded-full blur-3xl"></div>
+              {/* Subtle dot pattern */}
+              <div className="absolute inset-0 opacity-[0.02]" style={{
+                backgroundImage: `radial-gradient(circle, rgb(30 41 59) 1px, transparent 1px)`,
+                backgroundSize: '24px 24px'
+              }}></div>
+            </div>
             <div className="max-w-2xl mx-auto px-4 sm:px-8 relative">
-              <div className="bg-white/95 backdrop-blur-lg rounded-3xl shadow-lg border border-stone-200/60 p-6 sm:p-8 lg:p-10 hover:shadow-xl transition-all duration-300">
+              <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl border border-slate-200/50 p-6 sm:p-8 lg:p-10 hover:shadow-2xl transition-all duration-300 ring-1 ring-slate-100/50">
                 <div className="mb-4">
                   <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 mb-2">What's on your mind</h2>
                 </div>
@@ -498,7 +520,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       }
                     }}
                     placeholder="Share your thoughts, tasks, ideas..."
-                    className="w-full p-5 text-base border-2 border-stone-200 bg-white rounded-xl hover:border-teal-300 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 resize-none transition-all h-32"
+                    className="w-full p-5 text-base border-2 border-slate-200 bg-white rounded-xl hover:border-emerald-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 resize-none transition-all h-32"
                   />
                 </div>
 
@@ -622,9 +644,21 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
           </div>
 
           {/* Showcase Section - App Features */}
-          <section className="relative z-10 py-20 sm:py-28">
-            {/* Discrete background */}
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-50/40 to-transparent -z-10"></div>
+          <section className="relative z-10 py-20 sm:py-28 overflow-hidden">
+            {/* Unique background for showcase - sophisticated gradient */}
+            <div className="absolute inset-0 -z-10">
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-50/50 via-indigo-50/30 to-emerald-50/40"></div>
+              <div className="absolute top-0 left-0 w-full h-full">
+                <div className="absolute top-20 left-20 w-96 h-96 bg-rose-100/10 rounded-full blur-3xl"></div>
+                <div className="absolute bottom-20 right-20 w-96 h-96 bg-emerald-100/10 rounded-full blur-3xl"></div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-indigo-100/8 rounded-full blur-3xl"></div>
+              </div>
+              {/* Subtle grid pattern */}
+              <div className="absolute inset-0 opacity-[0.01]" style={{
+                backgroundImage: `linear-gradient(rgb(30 41 59) 1px, transparent 1px), linear-gradient(90deg, rgb(30 41 59) 1px, transparent 1px)`,
+                backgroundSize: '50px 50px'
+              }}></div>
+            </div>
             <div className="max-w-7xl mx-auto px-4 sm:px-8 relative">
               <div className="text-center mb-12 sm:mb-16">
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-4">
@@ -640,7 +674,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 {/* Feature 1: Capture */}
                 <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300">
                   <div className="mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-teal-600 flex items-center justify-center mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-700 flex items-center justify-center mb-4 shadow-lg">
                       <Sparkles className="w-6 h-6 text-white" />
                     </div>
                     <h3 className="text-xl font-semibold text-slate-900 mb-2">Instant Capture</h3>
@@ -672,7 +706,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   <div className="bg-stone-50 rounded-xl p-4 border border-stone-200">
                     <div className="space-y-3 text-sm">
                       <div className="flex items-start gap-2">
-                        <span className="px-2 py-1 bg-teal-100 text-teal-700 rounded text-xs font-medium flex-shrink-0 mt-0.5">Insight</span>
+                        <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-xs font-medium flex-shrink-0 mt-0.5">Insight</span>
                         <p className="text-slate-700 text-xs italic flex-1">"for the most part expensive soccer academies don't offer more than free rec soccer in the US. Coaches focus only on fun, no intensity, no coach-driven development. Just more games, lots of travel and ton more money."</p>
                       </div>
                     </div>
@@ -698,8 +732,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       </div>
                       <div className="space-y-2">
                         <p className="text-xs font-medium text-slate-700">1 result found</p>
-                        <div className="flex items-start gap-2 p-2 bg-white rounded border border-stone-100 hover:border-teal-200 transition-colors">
-                          <span className="px-1.5 py-0.5 bg-teal-100 text-teal-700 rounded text-[10px] font-medium mt-0.5 flex-shrink-0">Insight</span>
+                        <div className="flex items-start gap-2 p-2 bg-white rounded border border-slate-100 hover:border-emerald-200 transition-colors">
+                          <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded text-[10px] font-medium mt-0.5 flex-shrink-0">Insight</span>
                           <p className="text-xs text-slate-600 flex-1 italic">"for the most part expensive soccer academies don't offer more than free rec soccer in the US. Coaches focus only on fun, no intensity, no coach-driven development. Just more games, lots of travel and ton more money."</p>
                         </div>
                       </div>
@@ -710,7 +744,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 {/* Feature 4: AI Insights */}
                 <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300">
                   <div className="mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-amber-600 flex items-center justify-center mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center mb-4 shadow-lg">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                       </svg>
@@ -739,7 +773,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 {/* Feature 5: Social Sharing */}
                 <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300">
                   <div className="mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-700 to-indigo-800 flex items-center justify-center mb-4 shadow-lg">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                       </svg>
@@ -760,7 +794,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                         <p className="text-xs text-slate-600 italic">"US soccer's problem: expensive academies that don't develop players. Rec soccer is free and just as good. We're paying for fun, not progress."</p>
                       </div>
                       <div className="flex items-start gap-2">
-                        <Instagram className="w-6 h-6 text-pink-600 flex-shrink-0" />
+                        <Instagram className="w-6 h-6 text-rose-600 flex-shrink-0" />
                         <p className="text-xs text-slate-600 italic">"Why are we paying thousands for soccer academies when rec leagues offer the same development? The real issue: we're prioritizing fun over growth. Time to rethink youth soccer in America."</p>
                       </div>
                     </div>
@@ -770,7 +804,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 {/* Feature 6: Companion */}
                 <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300">
                   <div className="mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-teal-700 flex items-center justify-center mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-700 flex items-center justify-center mb-4 shadow-lg">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                       </svg>
@@ -793,7 +827,18 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
           </section>
 
           {/* Footer */}
-          <footer className="relative z-10 border-t border-stone-200 bg-stone-50/50">
+          <footer className="relative z-10 border-t border-slate-200/60 overflow-hidden">
+            {/* Unique background for footer */}
+            <div className="absolute inset-0 -z-10">
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-100/60 via-blue-50/40 to-indigo-50/30"></div>
+              <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-transparent to-slate-50/20"></div>
+              {/* Subtle wave pattern */}
+              <div className="absolute bottom-0 left-0 right-0 h-24 opacity-[0.02]" style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10 Q 25 0, 50 10 T 100 10' stroke='%231e293b' fill='none'/%3E%3C/svg%3E")`,
+                backgroundSize: '100px 20px',
+                backgroundRepeat: 'repeat-x'
+              }}></div>
+            </div>
             <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 sm:py-16">
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 {/* Brand */}
@@ -810,7 +855,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 <div className="flex items-center gap-4">
                   <a
                     href="mailto:hello@thouthy.com"
-                    className="p-2 rounded-lg bg-white border border-stone-200 text-slate-600 hover:text-teal-600 hover:border-teal-200 transition-all"
+                    className="p-2 rounded-lg bg-white/80 backdrop-blur-sm border border-slate-200/60 text-slate-600 hover:text-emerald-600 hover:border-emerald-200 transition-all"
                     aria-label="Email"
                   >
                     <Mail className="w-5 h-5" />
@@ -837,7 +882,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     href="https://instagram.com/thouthy"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-pink-600 hover:border-pink-200 transition-all"
+                    className="p-2 rounded-lg bg-white/80 backdrop-blur-sm border border-slate-200/60 text-slate-600 hover:text-rose-600 hover:border-rose-200 transition-all"
                     aria-label="Instagram"
                   >
                     <Instagram className="w-5 h-5" />
@@ -846,7 +891,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
               </div>
 
               {/* Copyright */}
-              <div className="mt-8 pt-8 border-t border-stone-200 text-center">
+              <div className="mt-8 pt-8 border-t border-slate-200/60 text-center">
                 <p className="text-sm text-slate-500">
                   © {new Date().getFullYear()} Thouthy. All rights reserved.
                 </p>
@@ -879,7 +924,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 }
               }}
               placeholder="What's on your mind? Share your thoughts, tasks, ideas..."
-              className="w-full p-5 text-base border border-stone-200 bg-white rounded-lg hover:border-stone-300 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-200 resize-none transition-all h-32"
+              className="w-full p-5 text-base border border-slate-200 bg-white rounded-lg hover:border-slate-300 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-200 resize-none transition-all h-32"
             />
           </div>
 
@@ -962,8 +1007,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
               disabled={!hasContent || isProcessing}
               className={`px-8 py-3 rounded-xl font-medium text-base transition-all duration-200 flex items-center gap-2 ${
                 hasContent && !isProcessing
-                  ? 'bg-slate-900 text-white hover:bg-slate-800'
-                  : 'bg-stone-200 text-stone-400 cursor-not-allowed'
+                  ? 'bg-gradient-to-r from-slate-900 to-slate-800 text-white hover:from-slate-800 hover:to-slate-700 shadow-lg hover:shadow-xl'
+                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
               }`}
             >
               {isProcessing ? (

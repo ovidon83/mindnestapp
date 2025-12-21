@@ -156,7 +156,7 @@ const ShareItView: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/20 to-emerald-50/10 flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-slate-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-slate-600">Loading...</p>
@@ -257,14 +257,14 @@ const ShareItView: React.FC = () => {
                     
                     {/* Generating State with Progress */}
                     {generatingPosts.has(entry.id) && (
-                      <div className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg flex flex-col items-center gap-2">
+                      <div className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg flex flex-col items-center gap-2">
                         <div className="flex items-center gap-2">
                           <Loader2 className="w-4 h-4 animate-spin text-slate-600" />
                           <span className="text-sm font-medium text-slate-700">
                             {generationProgress[entry.id] || 'Generating drafts...'}
                           </span>
                         </div>
-                        <div className="w-full bg-stone-200 rounded-full h-1.5 overflow-hidden">
+                        <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
                           <div className="bg-slate-600 h-full rounded-full animate-pulse" style={{ width: '60%' }}></div>
                         </div>
                       </div>
@@ -310,7 +310,7 @@ const ShareItView: React.FC = () => {
                         const colorMap = {
                           linkedin: 'text-blue-600',
                           twitter: 'text-sky-500',
-                          instagram: 'text-amber-600',
+                          instagram: 'text-rose-600',
                         };
                         const Icon = iconMap[platform as keyof typeof iconMap];
                         const color = colorMap[platform as keyof typeof colorMap];
