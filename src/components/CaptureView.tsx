@@ -466,7 +466,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             <div className="max-w-2xl mx-auto px-4 sm:px-8">
               <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-xl border border-slate-200/50 p-6 sm:p-8 lg:p-10 hover:shadow-2xl transition-all duration-300">
                 <div className="mb-4">
-                  <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 mb-2">Start capturing</h2>
+                  <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 mb-2">What's on your mind</h2>
                   <p className="text-sm text-slate-500">Try it now - no signup required</p>
                 </div>
                 
