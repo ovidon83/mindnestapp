@@ -756,7 +756,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       </div>
                       <div className="flex items-start gap-2">
                         <div className="w-6 h-6 rounded bg-sky-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">𝕏</div>
-                        <p className="text-xs text-slate-600 italic">"Personal branding tip: Your unique perspective > perfect design. Share your process."</p>
+                        <p className="text-xs text-slate-600 italic">"Personal branding tip: Your unique perspective beats perfect design. Share your process."</p>
                       </div>
                     </div>
                   </div>
