@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { Entry, TrainingData } from '../types';
+import { Entry, TrainingData, UserProfile } from '../types';
 
 // Convert database entry to app Entry format
 // Handles both new (type) and old (category + entry_type) formats for backward compatibility
@@ -220,4 +220,143 @@ export async function fetchTrainingData(): Promise<TrainingData[]> {
     fileName: td.file_name,
     createdAt: new Date(td.created_at),
   }));
+}
+
+// User Profile functions
+export async function fetchUserProfile(): Promise<UserProfile | null> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
+  const { data, error } = await supabase
+    .from('user_profiles')
+    .select('*')
+    .eq('user_id', user.id)
+    .single();
+
+  if (error) {
+    if (error.code === 'PGRST116') {
+      // No profile found, return null
+      return null;
+    }
+    console.error('Error fetching user profile:', error);
+    throw error;
+  }
+
+  return {
+    id: data.id,
+    userId: data.user_id,
+    name: data.name || undefined,
+    role: data.role || undefined,
+    industry: data.industry || undefined,
+    location: data.location || undefined,
+    interests: data.interests || undefined,
+    domains: data.domains || undefined,
+    goals: data.goals || undefined,
+    priorities: data.priorities || undefined,
+    communicationStyle: data.communication_style || undefined,
+    preferredTone: data.preferred_tone || undefined,
+    workStyle: data.work_style || undefined,
+    timeManagement: data.time_management || undefined,
+    context: data.context || undefined,
+    createdAt: new Date(data.created_at),
+    updatedAt: new Date(data.updated_at),
+  };
+}
+
+export async function saveUserProfile(profile: Partial<UserProfile>): Promise<UserProfile> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
+  // Check if profile exists
+  const existing = await fetchUserProfile();
+  
+  const profileData: any = {
+    user_id: user.id,
+    name: profile.name || null,
+    role: profile.role || null,
+    industry: profile.industry || null,
+    location: profile.location || null,
+    interests: profile.interests || null,
+    domains: profile.domains || null,
+    goals: profile.goals || null,
+    priorities: profile.priorities || null,
+    communication_style: profile.communicationStyle || null,
+    preferred_tone: profile.preferredTone || null,
+    work_style: profile.workStyle || null,
+    time_management: profile.timeManagement || null,
+    context: profile.context || null,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (existing) {
+    // Update existing profile
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .update(profileData)
+      .eq('user_id', user.id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating user profile:', error);
+      throw error;
+    }
+
+    return {
+      id: data.id,
+      userId: data.user_id,
+      name: data.name || undefined,
+      role: data.role || undefined,
+      industry: data.industry || undefined,
+      location: data.location || undefined,
+      interests: data.interests || undefined,
+      domains: data.domains || undefined,
+      goals: data.goals || undefined,
+      priorities: data.priorities || undefined,
+      communicationStyle: data.communication_style || undefined,
+      preferredTone: data.preferred_tone || undefined,
+      workStyle: data.work_style || undefined,
+      timeManagement: data.time_management || undefined,
+      context: data.context || undefined,
+      createdAt: new Date(data.created_at),
+      updatedAt: new Date(data.updated_at),
+    };
+  } else {
+    // Create new profile
+    profileData.created_at = new Date().toISOString();
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .insert(profileData)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating user profile:', error);
+      throw error;
+    }
+
+    return {
+      id: data.id,
+      userId: data.user_id,
+      name: data.name || undefined,
+      role: data.role || undefined,
+      industry: data.industry || undefined,
+      location: data.location || undefined,
+      interests: data.interests || undefined,
+      domains: data.domains || undefined,
+      goals: data.goals || undefined,
+      priorities: data.priorities || undefined,
+      communicationStyle: data.communication_style || undefined,
+      preferredTone: data.preferred_tone || undefined,
+      workStyle: data.work_style || undefined,
+      timeManagement: data.time_management || undefined,
+      context: data.context || undefined,
+      createdAt: new Date(data.created_at),
+      updatedAt: new Date(data.updated_at),
+    };
+  }
 }

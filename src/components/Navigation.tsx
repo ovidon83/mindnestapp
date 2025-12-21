@@ -1,6 +1,6 @@
 import React from 'react';
 import { AppView } from '../types';
-import { Sparkles, Share2, Plus, Inbox, Eye } from 'lucide-react';
+import { Sparkles, Share2, Plus, Inbox, Eye, User } from 'lucide-react';
 import { useGenieNotesStore } from '../store';
 import UserAvatar from './UserAvatar';
 
@@ -15,6 +15,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange }) =>
     { id: 'mindbox' as AppView, label: 'Mindbox', icon: Inbox, color: 'indigo' },
     { id: 'shareit' as AppView, label: 'Share it', icon: Share2, color: 'blue' },
     { id: 'companion' as AppView, label: 'Companion', icon: Eye, color: 'slate' },
+    { id: 'profile' as AppView, label: 'Profile', icon: User, color: 'purple' },
   ];
 
   return (
@@ -41,6 +42,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange }) =>
                 indigo: isActive ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
                 blue: isActive ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
                 slate: isActive ? 'bg-slate-50 text-slate-700 border border-slate-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
+                purple: isActive ? 'bg-purple-50 text-purple-700 border border-purple-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
               };
                 
                 return (

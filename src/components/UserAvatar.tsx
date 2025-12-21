@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { LogOut, ChevronDown } from 'lucide-react';
+import { LogOut, ChevronDown, User } from 'lucide-react';
+import { useGenieNotesStore } from '../store';
 
 interface UserAvatarProps {
   user: any;
@@ -7,6 +8,7 @@ interface UserAvatarProps {
 }
 
 const UserAvatar: React.FC<UserAvatarProps> = ({ user, onLogout }) => {
+  const { setCurrentView } = useGenieNotesStore();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -73,6 +75,16 @@ const UserAvatar: React.FC<UserAvatarProps> = ({ user, onLogout }) => {
               <p className="text-sm font-medium text-gray-900">{userName}</p>
               <p className="text-xs text-gray-500 truncate mt-0.5">{user?.email}</p>
             </div>
+            <button
+              onClick={() => {
+                setCurrentView('profile');
+                setShowDropdown(false);
+              }}
+              className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <User className="w-4 h-4" />
+              <span>Profile</span>
+            </button>
             <button
               onClick={() => {
                 onLogout();

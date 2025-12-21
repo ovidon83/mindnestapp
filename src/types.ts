@@ -1,4 +1,4 @@
-export type AppView = 'capture' | 'mindbox' | 'shareit' | 'companion';
+export type AppView = 'capture' | 'mindbox' | 'shareit' | 'companion' | 'profile';
 
 // Merged category and type into a single type
 export type EntryType = 'todo' | 'insight' | 'journal';
@@ -54,4 +54,36 @@ export interface Post {
   createdAt: Date;
   updatedAt: Date;
   shared?: boolean; // Whether user marked as shared
+}
+
+export interface UserProfile {
+  id: string;
+  userId: string;
+  // Personal info
+  name?: string;
+  role?: string; // Job title, profession
+  industry?: string;
+  location?: string;
+  
+  // Interests & domains
+  interests?: string[]; // Array of interest tags
+  domains?: string[]; // Areas of expertise/knowledge
+  
+  // Goals & priorities
+  goals?: string[]; // Short-term and long-term goals
+  priorities?: string; // What matters most to the user
+  
+  // Communication & style preferences
+  communicationStyle?: 'concise' | 'detailed' | 'balanced';
+  preferredTone?: 'professional' | 'casual' | 'friendly' | 'analytical';
+  
+  // Work & productivity
+  workStyle?: 'structured' | 'flexible' | 'hybrid';
+  timeManagement?: 'morning' | 'afternoon' | 'evening' | 'flexible';
+  
+  // Context for AI
+  context?: string; // Free-form text about user's situation, background, etc.
+  
+  createdAt: Date;
+  updatedAt: Date;
 }

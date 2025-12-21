@@ -5,6 +5,7 @@ import CaptureView from './components/CaptureView';
 import MindboxView from './components/MindboxView';
 import ShareItView from './components/ShareItView';
 import CompanionView from './components/CompanionView';
+import ProfileView from './components/ProfileView';
 import Navigation from './components/Navigation';
 import Auth from './components/Auth';
 
@@ -77,6 +78,8 @@ const App: React.FC = () => {
             <ShareItView />
           ) : currentView === 'companion' ? (
             <CompanionView />
+          ) : currentView === 'profile' ? (
+            <ProfileView />
           ) : (
             <MindboxView />
           )}
