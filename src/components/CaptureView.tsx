@@ -398,49 +398,71 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
 
       {!user ? (
         <>
-          {/* Hero Section - Playful and Clean */}
+          {/* Hero Section - Super Playful and Fun */}
           <section className="relative z-10 pt-20 sm:pt-28 pb-16 sm:pb-20 overflow-hidden">
-            {/* Playful background with purple and yellow accents */}
+            {/* Vibrant playful background */}
             <div className="absolute inset-0 -z-10">
-              <div className="absolute inset-0 bg-gradient-to-b from-purple-50/40 via-indigo-50/20 to-white"></div>
-              {/* Subtle grid pattern - very light */}
-              <div className="absolute inset-0 opacity-[0.02]" style={{
-                backgroundImage: `linear-gradient(rgba(139, 92, 246, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(139, 92, 246, 0.1) 1px, transparent 1px)`,
-                backgroundSize: '60px 60px'
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-100/50 via-pink-50/30 via-yellow-50/20 to-white"></div>
+              {/* Fun grid pattern */}
+              <div className="absolute inset-0 opacity-[0.04]" style={{
+                backgroundImage: `linear-gradient(rgba(168, 85, 247, 0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(168, 85, 247, 0.15) 1px, transparent 1px)`,
+                backgroundSize: '50px 50px'
               }}></div>
-              {/* Playful floating orbs */}
-              <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-purple-200/15 rounded-full blur-3xl"></div>
-              <div className="absolute bottom-1/4 left-1/4 w-72 h-72 bg-yellow-200/10 rounded-full blur-3xl"></div>
+              {/* Multiple floating orbs - more playful */}
+              <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-purple-300/20 rounded-full blur-3xl animate-pulse"></div>
+              <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-yellow-300/15 rounded-full blur-3xl"></div>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-pink-300/10 rounded-full blur-3xl"></div>
+              {/* Floating decorative shapes */}
+              <div className="absolute top-20 right-20 w-16 h-16 bg-yellow-400/30 rounded-full blur-xl"></div>
+              <div className="absolute bottom-32 left-32 w-12 h-12 bg-purple-400/30 rounded-full blur-xl"></div>
             </div>
             <div className="max-w-5xl mx-auto px-4 sm:px-8 text-center relative">
-              {/* Small label */}
-              <div className="mb-4">
-                <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-100/60 text-purple-700 text-sm font-medium rounded-full border border-purple-200/50 shadow-sm">
-                  <Sparkles className="w-3.5 h-3.5 text-purple-600" />
-                  THINK SMARTER
+              {/* Small label - more playful */}
+              <div className="mb-6">
+                <span className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-200/80 to-pink-200/80 text-purple-800 text-sm font-bold rounded-full border-2 border-purple-300/50 shadow-lg backdrop-blur-sm">
+                  <Sparkles className="w-4 h-4 text-purple-600 animate-pulse" />
+                  ⚡ THINK SMARTER
                 </span>
               </div>
               
-              {/* Main Headline */}
-              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight tracking-tight">
+              {/* Main Headline - more vibrant */}
+              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-8 leading-tight tracking-tight">
                 <span className="text-slate-900">
                   Give every thought
                 </span>
                 <br />
                 <span className="relative inline-block">
-                  <span className="text-purple-600">a meaning</span>
-                  {/* Playful wavy underline */}
-                  <svg className="absolute -bottom-2 left-0 right-0 h-4 -z-10" viewBox="0 0 200 20" preserveAspectRatio="none">
-                    <path d="M0,15 Q50,5 100,15 T200,15" stroke="url(#yellowGradient)" strokeWidth="3" fill="none" strokeLinecap="round"/>
+                  <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 bg-clip-text text-transparent">a meaning</span>
+                  {/* More playful wavy underline */}
+                  <svg className="absolute -bottom-3 left-0 right-0 h-5 -z-10" viewBox="0 0 300 25" preserveAspectRatio="none">
+                    <path d="M0,20 Q75,5 150,20 T300,20" stroke="url(#yellowGradient)" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
                     <defs>
                       <linearGradient id="yellowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.8" />
-                        <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.8" />
+                        <stop offset="0%" stopColor="#fbbf24" stopOpacity="1" />
+                        <stop offset="50%" stopColor="#f59e0b" stopOpacity="1" />
+                        <stop offset="100%" stopColor="#fbbf24" stopOpacity="1" />
                       </linearGradient>
                     </defs>
                   </svg>
                 </span>
               </h1>
+              
+              {/* Floating hashtags - playful elements */}
+              <div className="absolute top-10 right-10 sm:right-20 hidden md:block">
+                <div className="px-3 py-1.5 bg-purple-200/60 backdrop-blur-sm rounded-full text-purple-700 text-xs font-bold border border-purple-300/50 shadow-md transform rotate-3 hover:rotate-6 transition-transform">
+                  #thoughts
+                </div>
+              </div>
+              <div className="absolute bottom-20 left-10 sm:left-20 hidden md:block">
+                <div className="px-3 py-1.5 bg-yellow-200/60 backdrop-blur-sm rounded-full text-yellow-700 text-xs font-bold border border-yellow-300/50 shadow-md transform -rotate-3 hover:-rotate-6 transition-transform">
+                  #ideas
+                </div>
+              </div>
+              <div className="absolute top-32 left-10 sm:left-20 hidden lg:block">
+                <div className="px-3 py-1.5 bg-pink-200/60 backdrop-blur-sm rounded-full text-pink-700 text-xs font-bold border border-pink-300/50 shadow-md transform rotate-6 hover:rotate-9 transition-transform">
+                  #insights
+                </div>
+              </div>
               
               {/* Sub-headline */}
               <p className="text-lg sm:text-xl md:text-2xl text-slate-600 mb-10 max-w-3xl mx-auto leading-relaxed font-light">
@@ -454,8 +476,11 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </div>
           </section>
 
-          {/* Philosophy Section - Playful purple tint */}
-          <section className="relative z-10 py-20 sm:py-24 bg-gradient-to-br from-purple-50/30 via-indigo-50/20 to-white">
+          {/* Philosophy Section - Vibrant and Fun */}
+          <section className="relative z-10 py-20 sm:py-24 bg-gradient-to-br from-yellow-50/40 via-purple-50/30 via-pink-50/20 to-white overflow-hidden">
+            {/* Floating decorative elements */}
+            <div className="absolute top-10 right-20 w-20 h-20 bg-purple-300/20 rounded-full blur-2xl"></div>
+            <div className="absolute bottom-10 left-20 w-16 h-16 bg-yellow-300/20 rounded-full blur-2xl"></div>
             <div className="max-w-5xl mx-auto px-4 sm:px-8 relative">
               <div className="text-center space-y-8 sm:space-y-10">
                 {/* Main statement */}
@@ -482,18 +507,27 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </div>
           </section>
 
-          {/* Sticky/Floating Capture Card - Section with playful background */}
-          <div className="relative z-20 -mt-8 mb-20 py-12">
-            {/* Background for capture section */}
-            <div className="absolute inset-0 -z-10 bg-gradient-to-b from-yellow-50/20 via-purple-50/10 to-white"></div>
+          {/* Sticky/Floating Capture Card - Super Attractive Design */}
+          <div className="relative z-20 -mt-8 mb-20 py-16">
+            {/* Vibrant background for capture section */}
+            <div className="absolute inset-0 -z-10 bg-gradient-to-br from-purple-100/30 via-pink-100/20 via-yellow-100/15 to-white"></div>
+            {/* Floating decorative shapes */}
+            <div className="absolute top-5 right-10 w-24 h-24 bg-purple-200/20 rounded-full blur-2xl"></div>
+            <div className="absolute bottom-5 left-10 w-20 h-20 bg-yellow-200/20 rounded-full blur-2xl"></div>
+            
             <div className="max-w-2xl mx-auto px-4 sm:px-8 relative">
-              <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-8 lg:p-10 hover:shadow-xl transition-all duration-300">
-                <div className="mb-4">
-                  <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 mb-2">What's on your mind</h2>
+              <div className="bg-gradient-to-br from-white via-purple-50/30 to-pink-50/20 rounded-3xl shadow-2xl border-2 border-purple-200/50 p-8 sm:p-10 lg:p-12 hover:shadow-3xl transition-all duration-300 backdrop-blur-sm">
+                <div className="mb-6">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2 flex items-center gap-2">
+                    <span className="text-3xl">💭</span>
+                    What's on your mind
+                  </h2>
+                  <p className="text-sm text-slate-600">Capture your thoughts instantly, anywhere</p>
                 </div>
                 
-                {/* Input Area */}
-                <div className="mb-6">
+                {/* Attractive Input Area */}
+                <div className="mb-6 relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 via-pink-400/20 to-yellow-400/20 rounded-2xl blur-xl -z-10"></div>
                   <textarea
                     value={transcript || inputText}
                     onChange={(e) => {
@@ -509,9 +543,12 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                         handleSubmit();
                       }
                     }}
-                    placeholder="Share your thoughts, tasks, ideas..."
-                    className="w-full p-5 text-base border-2 border-slate-200 bg-white rounded-xl hover:border-purple-300 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 resize-none transition-all h-32"
+                    placeholder="Share your thoughts, tasks, ideas... ✨"
+                    className="w-full p-6 text-base border-2 border-purple-200 bg-white/90 backdrop-blur-sm rounded-2xl hover:border-purple-400 focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-500/30 resize-none transition-all h-36 shadow-lg hover:shadow-xl"
                   />
+                  {/* Decorative corner elements */}
+                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full opacity-60 blur-sm"></div>
+                  <div className="absolute -bottom-2 -left-2 w-5 h-5 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full opacity-60 blur-sm"></div>
                 </div>
 
                 {/* Action Buttons */}
@@ -633,8 +670,12 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </div>
           </div>
 
-          {/* Showcase Section - Playful gradient background */}
-          <section className="relative z-10 py-20 sm:py-28 bg-gradient-to-br from-white via-purple-50/15 to-yellow-50/10">
+          {/* Showcase Section - Super Vibrant */}
+          <section className="relative z-10 py-20 sm:py-28 bg-gradient-to-br from-white via-purple-50/25 via-pink-50/15 to-yellow-50/20 overflow-hidden">
+            {/* More floating decorative elements */}
+            <div className="absolute top-20 left-10 w-32 h-32 bg-purple-300/15 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-20 right-10 w-28 h-28 bg-yellow-300/15 rounded-full blur-3xl"></div>
+            <div className="absolute top-1/2 right-1/4 w-24 h-24 bg-pink-300/10 rounded-full blur-2xl"></div>
             <div className="max-w-7xl mx-auto px-4 sm:px-8 relative">
               <div className="text-center mb-12 sm:mb-16">
                 <div className="mb-3">
@@ -806,8 +847,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </div>
           </section>
 
-          {/* Footer - Playful gradient */}
-          <footer className="relative z-10 border-t border-purple-100 bg-gradient-to-br from-purple-50/30 via-indigo-50/20 to-white">
+          {/* Footer - Vibrant gradient */}
+          <footer className="relative z-10 border-t-2 border-purple-200/50 bg-gradient-to-br from-purple-50/40 via-pink-50/20 to-yellow-50/10">
             <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 sm:py-16">
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 {/* Brand */}
@@ -869,14 +910,27 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
           </footer>
         </>
       ) : (
-        /* Logged in view - simpler layout */
+        /* Logged in view - attractive design */
         <div className="relative z-10 w-full max-w-3xl mx-auto px-4 sm:px-8 pt-8 pb-8">
-          {/* Main Input Card */}
-          <div id="capture-input" className="bg-white rounded-2xl shadow-sm border border-stone-100 p-8 sm:p-10 hover:shadow-md transition-shadow duration-200">
+          {/* Main Input Card - Playful and Attractive */}
+          <div id="capture-input" className="bg-gradient-to-br from-white via-purple-50/30 to-pink-50/20 rounded-3xl shadow-2xl border-2 border-purple-200/50 p-8 sm:p-10 hover:shadow-3xl transition-all duration-300 backdrop-blur-sm relative overflow-hidden">
+            {/* Decorative background elements */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-purple-200/10 rounded-full blur-3xl -z-10"></div>
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-yellow-200/10 rounded-full blur-3xl -z-10"></div>
+            
           <div className="relative z-10">
+            {/* Header */}
+            <div className="mb-6">
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2 flex items-center gap-2">
+                <span className="text-3xl">💭</span>
+                What's on your mind?
+              </h2>
+              <p className="text-sm text-slate-600">Capture your thoughts instantly</p>
+            </div>
 
-          {/* Input Area */}
-          <div className="mb-6">
+          {/* Attractive Input Area */}
+          <div className="mb-6 relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 via-pink-400/20 to-yellow-400/20 rounded-2xl blur-xl -z-10"></div>
             <textarea
               value={transcript || inputText}
               onChange={(e) => {
@@ -892,9 +946,12 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   handleSubmit();
                 }
               }}
-              placeholder="What's on your mind? Share your thoughts, tasks, ideas..."
-              className="w-full p-5 text-base border border-slate-200 bg-white rounded-lg hover:border-slate-300 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-200 resize-none transition-all h-32"
+              placeholder="Share your thoughts, tasks, ideas... ✨"
+              className="w-full p-6 text-base border-2 border-purple-200 bg-white/90 backdrop-blur-sm rounded-2xl hover:border-purple-400 focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-500/30 resize-none transition-all h-36 shadow-lg hover:shadow-xl"
             />
+            {/* Decorative corner elements */}
+            <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full opacity-60 blur-sm"></div>
+            <div className="absolute -bottom-2 -left-2 w-5 h-5 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full opacity-60 blur-sm"></div>
           </div>
 
           {/* Action Buttons */}
