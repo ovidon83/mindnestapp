@@ -642,8 +642,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   </div>
                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
                     <div className="space-y-2 text-sm text-slate-700">
-                      <p className="italic">"I want to build my personal brand as a designer and start sharing my work online. Need to figure out the best platform and content strategy."</p>
-                      <p className="text-xs text-slate-500 mt-2">💬 Voice or text input</p>
+                      <p className="italic">"ok so like soccer training in the US is all about fun in these expensive academy programs but coaches don't really push kids and there's no real development happening. parents paying thousands but rec soccer is free and honestly same level. that's why US soccer sucks. we're not developing players because everyone's just having fun and not getting better"</p>
+                      <p className="text-xs text-slate-500 mt-2">💬 Voice captured while driving</p>
                     </div>
                   </div>
                   <p className="text-sm text-slate-600">
@@ -664,16 +664,16 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center gap-2">
-                        <span className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-medium">To-Do</span>
-                        <span className="text-slate-600 flex-1">Build personal brand as designer</span>
+                        <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">Insight</span>
+                        <span className="text-slate-600 flex-1">US soccer training quality issue</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">Insight</span>
-                        <span className="text-slate-600 flex-1">LinkedIn is best for B2B designers</span>
+                        <span className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-medium">To-Do</span>
+                        <span className="text-slate-600 flex-1">Research academy vs rec soccer</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="px-2 py-1 bg-pink-100 text-pink-700 rounded text-xs font-medium">Thought</span>
-                        <span className="text-slate-600 flex-1">Content strategy ideas</span>
+                        <span className="text-slate-600 flex-1">Player development philosophy</span>
                       </div>
                     </div>
                   </div>
@@ -694,13 +694,13 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center gap-2 text-slate-600">
                         <Search className="w-4 h-4 text-slate-400" />
-                        <span className="italic">"personal brand"</span>
+                        <span className="italic">"soccer training"</span>
                       </div>
                       <div className="mt-3 space-y-1.5 pl-6">
-                        <p className="text-xs text-slate-700">✓ Found 5 entries</p>
-                        <p className="text-xs text-slate-500">• Build personal brand as designer</p>
-                        <p className="text-xs text-slate-500">• Content strategy ideas</p>
-                        <p className="text-xs text-slate-500">• Platform comparison notes</p>
+                        <p className="text-xs text-slate-700">✓ Found 4 entries</p>
+                        <p className="text-xs text-slate-500">• US soccer academy quality issue</p>
+                        <p className="text-xs text-slate-500">• Research academy vs rec soccer</p>
+                        <p className="text-xs text-slate-500">• Player development thoughts</p>
                       </div>
                     </div>
                   </div>
@@ -722,13 +722,13 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
                     <div className="space-y-2 text-sm text-slate-700">
                       <p className="font-medium text-xs text-slate-500 mb-2">AI Note:</p>
-                      <p className="italic text-xs">"Personal branding for designers works best with consistent visual identity and thought leadership content. LinkedIn + Dribbble combo is powerful..."</p>
+                      <p className="italic text-xs">"Research shows US youth soccer focuses on participation over development. European academies emphasize technical skills and competitive intensity. The pay-to-play model creates barriers..."</p>
                       <div className="mt-3 pt-2 border-t border-slate-200">
                         <p className="font-medium text-xs text-slate-500 mb-1">Sub-tasks:</p>
                         <ul className="text-xs space-y-1 text-slate-600">
-                          <li>• Define your unique design perspective</li>
-                          <li>• Create content calendar (2x/week)</li>
-                          <li>• Set up portfolio on Dribbble</li>
+                          <li>• Compare US vs European youth development models</li>
+                          <li>• Research cost-benefit of academy programs</li>
+                          <li>• Document specific development gaps</li>
                         </ul>
                       </div>
                     </div>
@@ -752,11 +752,11 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     <div className="space-y-3">
                       <div className="flex items-start gap-2">
                         <div className="w-6 h-6 rounded bg-blue-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">in</div>
-                        <p className="text-xs text-slate-600 italic">"3 months into building my personal brand as a designer, here's what's working: consistent visual identity + thought leadership on LinkedIn..."</p>
+                        <p className="text-xs text-slate-600 italic">"The pay-to-play model in US youth soccer is broken. Parents invest thousands in academy programs that prioritize fun over development. Meanwhile, free recreational leagues offer the same quality..."</p>
                       </div>
                       <div className="flex items-start gap-2">
                         <div className="w-6 h-6 rounded bg-sky-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">𝕏</div>
-                        <p className="text-xs text-slate-600 italic">"Personal branding tip: Your unique perspective beats perfect design. Share your process."</p>
+                        <p className="text-xs text-slate-600 italic">"US soccer's problem: expensive academies that don't develop players. Rec soccer is free and just as good. We're paying for fun, not progress."</p>
                       </div>
                     </div>
                   </div>
@@ -778,8 +778,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
                     <div className="space-y-2 text-sm text-slate-700">
                       <p className="font-medium text-xs text-slate-500 mb-2">Observation:</p>
-                      <p className="italic text-xs">"You're consistently thinking about career growth and personal branding. This suggests you're ready to take your professional presence to the next level. Consider starting with one platform before expanding."</p>
-                      <p className="text-xs text-slate-500 mt-3">Pattern detected: Career development focus</p>
+                      <p className="italic text-xs">"You're consistently reflecting on youth development and coaching philosophy. This suggests deep concern about systemic issues in sports education. Your insights about pay-to-play models could be valuable for other coaches and parents."</p>
+                      <p className="text-xs text-slate-500 mt-3">Pattern detected: Coaching & development focus</p>
                     </div>
                   </div>
                   <p className="text-sm text-slate-600">
