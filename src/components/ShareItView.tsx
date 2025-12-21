@@ -257,10 +257,10 @@ const ShareItView: React.FC = () => {
                     
                     {/* Generating State with Progress */}
                     {generatingPosts.has(entry.id) && (
-                      <div className="w-full px-4 py-3 bg-indigo-50 border border-indigo-200 rounded-lg flex flex-col items-center gap-2">
+                      <div className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg flex flex-col items-center gap-2">
                         <div className="flex items-center gap-2">
-                          <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
-                          <span className="text-sm font-medium text-indigo-700">
+                          <Loader2 className="w-4 h-4 animate-spin text-slate-600" />
+                          <span className="text-sm font-medium text-slate-700">
                             {generationProgress[entry.id] || 'Generating drafts...'}
                           </span>
                         </div>
