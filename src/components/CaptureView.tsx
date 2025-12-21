@@ -442,12 +442,10 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   </div>
                   
                   {/* Three motivations - elegant horizontal layout */}
-                  <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 md:gap-4 text-base sm:text-lg md:text-xl text-slate-600 font-medium py-4">
-                    <span className="px-4 py-2 rounded-full bg-slate-50 border border-slate-200/50">Peace of mind</span>
-                    <span className="text-slate-300 text-xl">•</span>
-                    <span className="px-4 py-2 rounded-full bg-slate-50 border border-slate-200/50">Self-expression</span>
-                    <span className="text-slate-300 text-xl">•</span>
-                    <span className="px-4 py-2 rounded-full bg-slate-50 border border-slate-200/50">Leverage</span>
+                  <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-base sm:text-lg md:text-xl font-medium py-6">
+                    <span className="px-5 py-2.5 rounded-full bg-gradient-to-r from-indigo-50 to-indigo-100 border border-indigo-200 text-indigo-700 shadow-sm hover:shadow-md transition-all">Peace of mind</span>
+                    <span className="px-5 py-2.5 rounded-full bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200 text-purple-700 shadow-sm hover:shadow-md transition-all">Self-expression</span>
+                    <span className="px-5 py-2.5 rounded-full bg-gradient-to-r from-pink-50 to-pink-100 border border-pink-200 text-pink-700 shadow-sm hover:shadow-md transition-all">Leverage</span>
                   </div>
                   
                   {/* Final statement - emphasized */}
