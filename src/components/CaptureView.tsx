@@ -642,11 +642,11 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   </div>
                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
                     <div className="space-y-2 text-sm text-slate-700">
-                      <p className="italic">"soccer academies in US are expensive but coaches don't push kids. rec soccer is free and same quality. that's why we're not producing players"</p>
+                      <p className="italic">"for the most part expensive soccer academies don't offer more than free rec soccer in the US. Coaches focus only on fun, no intensity, no coach-driven development. Just more games, lots of travel and ton more money."</p>
                       <p className="text-xs text-slate-500 mt-2">💬 Voice captured while driving</p>
                     </div>
                   </div>
-                  <p className="text-sm text-slate-600">
+                  <p className="text-sm text-slate-600 mt-4">
                     Voice, text, or upload—capture thoughts instantly, anywhere. No friction, just pure flow.
                   </p>
                 </div>
@@ -659,27 +659,19 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                       </svg>
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">Save & Organize</h3>
+                    <h3 className="text-xl font-semibold text-slate-900 mb-1">Save & Organize</h3>
+                    <p className="text-sm text-slate-600 mb-4">
+                      AI automatically classifies as Task, Insight, or Thought and saves everything securely.
+                    </p>
                   </div>
-                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">Insight</span>
-                        <span className="text-slate-600 flex-1 text-xs">Academy programs prioritize fun over development</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-medium">To-Do</span>
-                        <span className="text-slate-600 flex-1 text-xs">Research cost comparison: academy vs rec</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-medium">To-Do</span>
-                        <span className="text-slate-600 flex-1 text-xs">Compare US vs European youth development</span>
+                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                    <div className="space-y-3 text-sm">
+                      <div className="flex items-start gap-2">
+                        <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium flex-shrink-0 mt-0.5">Insight</span>
+                        <p className="text-slate-700 text-xs italic flex-1">"for the most part expensive soccer academies don't offer more than free rec soccer in the US. Coaches focus only on fun, no intensity, no coach-driven development. Just more games, lots of travel and ton more money."</p>
                       </div>
                     </div>
                   </div>
-                  <p className="text-sm text-slate-600">
-                    AI automatically classifies as Task, Insight, or Thought and saves everything securely.
-                  </p>
                 </div>
 
                 {/* Feature 3: Search & Never Lose */}
@@ -688,32 +680,26 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-4">
                       <Search className="w-6 h-6 text-white" />
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">Search & Never Lose</h3>
+                    <h3 className="text-xl font-semibold text-slate-900 mb-1">Search & Never Lose</h3>
+                    <p className="text-sm text-slate-600 mb-4">
+                      Instantly find any thought, idea, or task. Your entire mind archive, searchable forever.
+                    </p>
                   </div>
-                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
+                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                     <div className="space-y-3 text-sm">
                       <div className="flex items-center gap-2 text-slate-600 bg-white rounded-lg px-3 py-2 border border-slate-200">
                         <Search className="w-4 h-4 text-slate-400" />
                         <span className="text-xs italic text-slate-400">soccer... something about training</span>
                       </div>
                       <div className="space-y-2">
-                        <p className="text-xs font-medium text-slate-700">2 results found</p>
-                        <div className="space-y-1.5">
-                          <div className="flex items-start gap-2 p-2 bg-white rounded border border-slate-100 hover:border-indigo-200 transition-colors">
-                            <span className="px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded text-[10px] font-medium mt-0.5">Insight</span>
-                            <span className="text-xs text-slate-600 flex-1">Academy programs prioritize fun over development</span>
-                          </div>
-                          <div className="flex items-start gap-2 p-2 bg-white rounded border border-slate-100 hover:border-indigo-200 transition-colors">
-                            <span className="px-1.5 py-0.5 bg-indigo-100 text-indigo-700 rounded text-[10px] font-medium mt-0.5">To-Do</span>
-                            <span className="text-xs text-slate-600 flex-1">Research cost comparison: academy vs rec</span>
-                          </div>
+                        <p className="text-xs font-medium text-slate-700">1 result found</p>
+                        <div className="flex items-start gap-2 p-2 bg-white rounded border border-slate-100 hover:border-indigo-200 transition-colors">
+                          <span className="px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded text-[10px] font-medium mt-0.5 flex-shrink-0">Insight</span>
+                          <p className="text-xs text-slate-600 flex-1 italic">"for the most part expensive soccer academies don't offer more than free rec soccer in the US. Coaches focus only on fun, no intensity, no coach-driven development. Just more games, lots of travel and ton more money."</p>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <p className="text-sm text-slate-600">
-                    Instantly find any thought, idea, or task. Your entire mind archive, searchable forever.
-                  </p>
                 </div>
 
                 {/* Feature 4: AI Insights */}
@@ -724,9 +710,12 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                       </svg>
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">AI Insights & Next Steps</h3>
+                    <h3 className="text-xl font-semibold text-slate-900 mb-1">AI Insights & Next Steps</h3>
+                    <p className="text-sm text-slate-600 mb-4">
+                      Get contextual research-based notes and actionable sub-tasks for every entry.
+                    </p>
                   </div>
-                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
+                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                     <div className="space-y-2 text-sm text-slate-700">
                       <p className="font-medium text-xs text-slate-500 mb-2">AI Note:</p>
                       <p className="italic text-xs">"Research shows US youth soccer focuses on participation over development. European academies emphasize technical skills and competitive intensity. The pay-to-play model creates barriers..."</p>
@@ -740,9 +729,6 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       </div>
                     </div>
                   </div>
-                  <p className="text-sm text-slate-600">
-                    Get contextual research-based notes and actionable sub-tasks for every entry.
-                  </p>
                 </div>
 
                 {/* Feature 5: Social Sharing */}
@@ -753,9 +739,12 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                       </svg>
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">Post About Insights</h3>
+                    <h3 className="text-xl font-semibold text-slate-900 mb-1">Post About Insights</h3>
+                    <p className="text-sm text-slate-600 mb-4">
+                      Turn valuable insights into ready-to-post content for LinkedIn, Twitter, Instagram.
+                    </p>
                   </div>
-                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
+                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                     <div className="space-y-3">
                       <div className="flex items-start gap-2">
                         <div className="w-6 h-6 rounded bg-blue-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">in</div>
@@ -766,14 +755,11 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                         <p className="text-xs text-slate-600 italic">"US soccer's problem: expensive academies that don't develop players. Rec soccer is free and just as good. We're paying for fun, not progress."</p>
                       </div>
                       <div className="flex items-start gap-2">
-                        <div className="w-6 h-6 rounded bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-xs flex-shrink-0">📷</div>
+                        <Instagram className="w-6 h-6 text-pink-600 flex-shrink-0" />
                         <p className="text-xs text-slate-600 italic">"Why are we paying thousands for soccer academies when rec leagues offer the same development? The real issue: we're prioritizing fun over growth. Time to rethink youth soccer in America."</p>
                       </div>
                     </div>
                   </div>
-                  <p className="text-sm text-slate-600">
-                    Turn valuable insights into ready-to-post content for LinkedIn, Twitter, Instagram.
-                  </p>
                 </div>
 
                 {/* Feature 6: Companion */}
@@ -784,18 +770,18 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                       </svg>
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">Companion</h3>
+                    <h3 className="text-xl font-semibold text-slate-900 mb-1">Companion</h3>
+                    <p className="text-sm text-slate-600 mb-4">
+                      Get personalized observations and patterns from your thoughts. Your AI thinking companion.
+                    </p>
                   </div>
-                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
+                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                     <div className="space-y-2 text-sm text-slate-700">
                       <p className="font-medium text-xs text-slate-500 mb-2">Observation:</p>
                       <p className="italic text-xs">"You're consistently reflecting on youth development and coaching philosophy. This suggests deep concern about systemic issues in sports education. Your insights about pay-to-play models could be valuable for other coaches and parents."</p>
                       <p className="text-xs text-slate-500 mt-3">Pattern detected: Coaching & development focus</p>
                     </div>
                   </div>
-                  <p className="text-sm text-slate-600">
-                    Get personalized observations and patterns from your thoughts. Your AI thinking companion.
-                  </p>
                 </div>
               </div>
             </div>
