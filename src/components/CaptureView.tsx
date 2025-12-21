@@ -333,19 +333,17 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 relative overflow-hidden">
-      {/* Modern background elements - only show when not logged in */}
+    <div className="min-h-screen bg-white relative overflow-hidden">
+      {/* Clean base - no heavy gradients */}
       {!user && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-blue-50/20 to-transparent"></div>
-          <div className="absolute top-20 left-10 w-96 h-96 bg-emerald-200/15 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-10 w-[500px] h-[500px] bg-rose-200/10 rounded-full blur-3xl"></div>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-100/8 rounded-full blur-3xl"></div>
+          {/* Very subtle base tint */}
+          <div className="absolute inset-0 bg-gradient-to-b from-emerald-50/30 via-white to-white"></div>
         </div>
       )}
 
       {/* Navigation */}
-      <nav className="relative z-50 w-full px-4 sm:px-8 py-4 sm:py-6 backdrop-blur-sm bg-white/70 border-b border-stone-200/60">
+      <nav className="relative z-50 w-full px-4 sm:px-8 py-4 sm:py-6 bg-white border-b border-slate-100">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="relative w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 group overflow-hidden">
@@ -393,7 +391,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       onOrganizeClick('signup');
                     }
                   }}
-                  className="px-5 py-2.5 text-sm font-medium bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-all shadow-sm hover:shadow-md"
+                  className="px-5 py-2.5 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all shadow-sm hover:shadow-md"
                 >
                   Sign Up
                 </button>
@@ -405,34 +403,43 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
 
       {!user ? (
         <>
-          {/* Hero Section - Separated and Modern */}
-          <section className="relative z-10 pt-16 sm:pt-24 pb-12 sm:pb-16 overflow-hidden">
-            {/* Unique background for hero - subtle mesh gradient */}
+          {/* Hero Section - Clean and Modern */}
+          <section className="relative z-10 pt-20 sm:pt-28 pb-16 sm:pb-20 overflow-hidden">
+            {/* Clean background inspired by Clause - light green with subtle grid */}
             <div className="absolute inset-0 -z-10">
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/40 via-blue-50/30 to-emerald-50/20"></div>
-              <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-rose-100/20 to-transparent rounded-full blur-3xl"></div>
-              <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-emerald-100/20 to-transparent rounded-full blur-3xl"></div>
-              {/* Subtle pattern overlay */}
-              <div className="absolute inset-0 opacity-[0.02]" style={{
-                backgroundImage: `radial-gradient(circle at 2px 2px, rgb(30 41 59) 1px, transparent 0)`,
-                backgroundSize: '40px 40px'
+              <div className="absolute inset-0 bg-gradient-to-b from-emerald-50/50 via-emerald-50/30 to-white"></div>
+              {/* Subtle grid pattern - very light */}
+              <div className="absolute inset-0 opacity-[0.03]" style={{
+                backgroundImage: `linear-gradient(rgba(16, 185, 129, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(16, 185, 129, 0.1) 1px, transparent 1px)`,
+                backgroundSize: '60px 60px'
               }}></div>
+              {/* Single subtle accent orb */}
+              <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-emerald-100/20 rounded-full blur-3xl"></div>
             </div>
             <div className="max-w-5xl mx-auto px-4 sm:px-8 text-center relative">
+              {/* Small label */}
+              <div className="mb-4">
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-100/50 text-emerald-700 text-sm font-medium rounded-full border border-emerald-200/50">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  THINK SMARTER
+                </span>
+              </div>
+              
               {/* Main Headline */}
               <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight tracking-tight">
                 <span className="text-slate-900">
                   Give every thought
                 </span>
                 <br />
-                <span className="text-emerald-700">
-                  a meaning
+                <span className="relative inline-block">
+                  <span className="text-emerald-600">a meaning</span>
+                  <span className="absolute -bottom-2 left-0 right-0 h-3 bg-yellow-300/60 -z-10" style={{ transform: 'skewX(-12deg)' }}></span>
                 </span>
               </h1>
               
               {/* Sub-headline */}
-              <p className="text-lg sm:text-xl md:text-2xl text-slate-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-                Master your inner world and step into your most powerful self
+              <p className="text-lg sm:text-xl md:text-2xl text-slate-600 mb-10 max-w-3xl mx-auto leading-relaxed font-light">
+                Thouthy helps you capture, organize, and transform your thoughts into actionable insights, delivering clarity and meaning to your inner world.
               </p>
               
               {/* Email Subscription */}
@@ -442,36 +449,23 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </div>
           </section>
 
-          {/* Philosophy Section */}
-          <section className="relative z-10 py-16 sm:py-20 overflow-hidden">
-            {/* Unique background for philosophy - warm gradient with texture */}
-            <div className="absolute inset-0 -z-10">
-              <div className="absolute inset-0 bg-gradient-to-br from-rose-50/30 via-amber-50/20 to-emerald-50/25"></div>
-              <div className="absolute top-1/4 right-1/4 w-72 h-72 bg-gradient-to-br from-indigo-100/15 to-transparent rounded-full blur-3xl"></div>
-              <div className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-gradient-to-tr from-rose-100/15 to-transparent rounded-full blur-3xl"></div>
-              {/* Subtle diagonal lines pattern */}
-              <div className="absolute inset-0 opacity-[0.015]" style={{
-                backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 10px, rgb(30 41 59) 10px, rgb(30 41 59) 20px)`,
-              }}></div>
-            </div>
+          {/* Philosophy Section - Clean white background */}
+          <section className="relative z-10 py-20 sm:py-24 bg-white">
             <div className="max-w-5xl mx-auto px-4 sm:px-8 relative">
-              <div className="relative">
-                <div className="text-center space-y-8 sm:space-y-10">
-                  {/* Main statement - larger and more prominent */}
-                  <div className="relative inline-block">
-                    <p className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-slate-800">
-                      Thouthy is your thinking companion.
-                    </p>
-                    {/* Decorative underline */}
-                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-24 h-1 bg-emerald-500 rounded-full"></div>
-                  </div>
-                  
-                  {/* Three motivations - elegant horizontal layout */}
-                  <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-base sm:text-lg md:text-xl font-medium py-6">
-                    <span className="px-5 py-2.5 rounded-full bg-slate-100/80 backdrop-blur-sm border border-slate-200/60 text-slate-700 shadow-sm hover:shadow-md transition-all">Peace of mind</span>
-                    <span className="px-5 py-2.5 rounded-full bg-emerald-50/80 backdrop-blur-sm border border-emerald-200/60 text-emerald-700 shadow-sm hover:shadow-md transition-all">Self-expression</span>
-                    <span className="px-5 py-2.5 rounded-full bg-rose-50/80 backdrop-blur-sm border border-rose-200/60 text-rose-700 shadow-sm hover:shadow-md transition-all">Leverage</span>
-                  </div>
+              <div className="text-center space-y-8 sm:space-y-10">
+                {/* Main statement */}
+                <div className="relative inline-block">
+                  <p className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-slate-900">
+                    Thouthy is your thinking companion.
+                  </p>
+                </div>
+                
+                {/* Three motivations - clean pill design */}
+                <div className="flex flex-wrap items-center justify-center gap-4 text-base sm:text-lg md:text-xl font-medium py-8">
+                  <span className="px-6 py-3 rounded-full bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 transition-all shadow-sm">Peace of mind</span>
+                  <span className="px-6 py-3 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 transition-all shadow-sm">Self-expression</span>
+                  <span className="px-6 py-3 rounded-full bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 transition-all shadow-sm">Leverage</span>
+                </div>
                   
                   {/* Final statement - emphasized */}
                   <div className="pt-4">
@@ -484,20 +478,10 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </div>
           </section>
 
-          {/* Sticky/Floating Capture Card - Always in view */}
-          <div className="relative z-20 -mt-8 mb-16 overflow-hidden">
-            {/* Unique background for capture card section */}
-            <div className="absolute inset-0 -z-10">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-50/40 via-indigo-50/20 to-emerald-50/30"></div>
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-gradient-radial from-emerald-100/10 via-blue-100/5 to-transparent rounded-full blur-3xl"></div>
-              {/* Subtle dot pattern */}
-              <div className="absolute inset-0 opacity-[0.02]" style={{
-                backgroundImage: `radial-gradient(circle, rgb(30 41 59) 1px, transparent 1px)`,
-                backgroundSize: '24px 24px'
-              }}></div>
-            </div>
+          {/* Sticky/Floating Capture Card - Clean white card */}
+          <div className="relative z-20 -mt-8 mb-20">
             <div className="max-w-2xl mx-auto px-4 sm:px-8 relative">
-              <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl border border-slate-200/50 p-6 sm:p-8 lg:p-10 hover:shadow-2xl transition-all duration-300 ring-1 ring-slate-100/50">
+              <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-8 lg:p-10 hover:shadow-xl transition-all duration-300">
                 <div className="mb-4">
                   <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 mb-2">What's on your mind</h2>
                 </div>
@@ -520,7 +504,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       }
                     }}
                     placeholder="Share your thoughts, tasks, ideas..."
-                    className="w-full p-5 text-base border-2 border-slate-200 bg-white rounded-xl hover:border-emerald-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 resize-none transition-all h-32"
+                    className="w-full p-5 text-base border border-slate-200 bg-white rounded-lg hover:border-emerald-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 resize-none transition-all h-32"
                   />
                 </div>
 
@@ -601,10 +585,10 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   <button
                     onClick={handleSubmit}
                     disabled={!hasContent || isProcessing}
-                    className={`px-6 sm:px-8 py-3 rounded-xl font-medium text-base transition-all duration-200 flex items-center gap-2 ${
+                    className={`px-6 sm:px-8 py-3 rounded-lg font-medium text-base transition-all duration-200 flex items-center gap-2 ${
                       hasContent && !isProcessing
-                        ? 'bg-slate-900 text-white hover:bg-slate-800 shadow-md hover:shadow-lg'
-                        : 'bg-stone-200 text-stone-400 cursor-not-allowed'
+                        ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-md hover:shadow-lg'
+                        : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                     }`}
                   >
                     {isProcessing ? (
@@ -643,24 +627,13 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </div>
           </div>
 
-          {/* Showcase Section - App Features */}
-          <section className="relative z-10 py-20 sm:py-28 overflow-hidden">
-            {/* Unique background for showcase - sophisticated gradient */}
-            <div className="absolute inset-0 -z-10">
-              <div className="absolute inset-0 bg-gradient-to-br from-slate-50/50 via-indigo-50/30 to-emerald-50/40"></div>
-              <div className="absolute top-0 left-0 w-full h-full">
-                <div className="absolute top-20 left-20 w-96 h-96 bg-rose-100/10 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-20 right-20 w-96 h-96 bg-emerald-100/10 rounded-full blur-3xl"></div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-indigo-100/8 rounded-full blur-3xl"></div>
-              </div>
-              {/* Subtle grid pattern */}
-              <div className="absolute inset-0 opacity-[0.01]" style={{
-                backgroundImage: `linear-gradient(rgb(30 41 59) 1px, transparent 1px), linear-gradient(90deg, rgb(30 41 59) 1px, transparent 1px)`,
-                backgroundSize: '50px 50px'
-              }}></div>
-            </div>
+          {/* Showcase Section - Clean white background */}
+          <section className="relative z-10 py-20 sm:py-28 bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-8 relative">
               <div className="text-center mb-12 sm:mb-16">
+                <div className="mb-3">
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">FEATURES</span>
+                </div>
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-4">
                   See it in action
                 </h2>
@@ -672,9 +645,9 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
               {/* Feature Showcase Grid */}
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                 {/* Feature 1: Capture */}
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300">
+                <div className="bg-white rounded-xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-emerald-200">
                   <div className="mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-700 flex items-center justify-center mb-4 shadow-lg">
+                    <div className="w-12 h-12 rounded-lg bg-emerald-600 flex items-center justify-center mb-4">
                       <Sparkles className="w-6 h-6 text-white" />
                     </div>
                     <h3 className="text-xl font-semibold text-slate-900 mb-2">Instant Capture</h3>
@@ -691,9 +664,9 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 </div>
 
                 {/* Feature 2: Organization */}
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300">
+                <div className="bg-white rounded-xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-emerald-200">
                   <div className="mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-slate-700 flex items-center justify-center mb-4">
+                    <div className="w-12 h-12 rounded-lg bg-slate-800 flex items-center justify-center mb-4">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                       </svg>
@@ -714,9 +687,9 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 </div>
 
                 {/* Feature 3: Search & Never Lose */}
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300">
+                <div className="bg-white rounded-xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-emerald-200">
                   <div className="mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-slate-600 flex items-center justify-center mb-4">
+                    <div className="w-12 h-12 rounded-lg bg-indigo-600 flex items-center justify-center mb-4">
                       <Search className="w-6 h-6 text-white" />
                     </div>
                     <h3 className="text-xl font-semibold text-slate-900 mb-1">Search & Never Lose</h3>
@@ -742,9 +715,9 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 </div>
 
                 {/* Feature 4: AI Insights */}
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300">
+                <div className="bg-white rounded-xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-emerald-200">
                   <div className="mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center mb-4 shadow-lg">
+                    <div className="w-12 h-12 rounded-lg bg-rose-500 flex items-center justify-center mb-4">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                       </svg>
@@ -771,9 +744,9 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 </div>
 
                 {/* Feature 5: Social Sharing */}
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300">
+                <div className="bg-white rounded-xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-emerald-200">
                   <div className="mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-700 to-indigo-800 flex items-center justify-center mb-4 shadow-lg">
+                    <div className="w-12 h-12 rounded-lg bg-indigo-700 flex items-center justify-center mb-4">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                       </svg>
@@ -802,9 +775,9 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 </div>
 
                 {/* Feature 6: Companion */}
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300">
+                <div className="bg-white rounded-xl p-6 sm:p-8 border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 hover:border-emerald-200">
                   <div className="mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-700 flex items-center justify-center mb-4 shadow-lg">
+                    <div className="w-12 h-12 rounded-lg bg-emerald-600 flex items-center justify-center mb-4">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                       </svg>
@@ -826,19 +799,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </div>
           </section>
 
-          {/* Footer */}
-          <footer className="relative z-10 border-t border-slate-200/60 overflow-hidden">
-            {/* Unique background for footer */}
-            <div className="absolute inset-0 -z-10">
-              <div className="absolute inset-0 bg-gradient-to-br from-slate-100/60 via-blue-50/40 to-indigo-50/30"></div>
-              <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-transparent to-slate-50/20"></div>
-              {/* Subtle wave pattern */}
-              <div className="absolute bottom-0 left-0 right-0 h-24 opacity-[0.02]" style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10 Q 25 0, 50 10 T 100 10' stroke='%231e293b' fill='none'/%3E%3C/svg%3E")`,
-                backgroundSize: '100px 20px',
-                backgroundRepeat: 'repeat-x'
-              }}></div>
-            </div>
+          {/* Footer - Clean white */}
+          <footer className="relative z-10 border-t border-slate-200 bg-white">
             <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 sm:py-16">
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 {/* Brand */}
@@ -855,7 +817,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 <div className="flex items-center gap-4">
                   <a
                     href="mailto:hello@thouthy.com"
-                    className="p-2 rounded-lg bg-white/80 backdrop-blur-sm border border-slate-200/60 text-slate-600 hover:text-emerald-600 hover:border-emerald-200 transition-all"
+                    className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-emerald-600 hover:border-emerald-200 transition-all"
                     aria-label="Email"
                   >
                     <Mail className="w-5 h-5" />
@@ -891,7 +853,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
               </div>
 
               {/* Copyright */}
-              <div className="mt-8 pt-8 border-t border-slate-200/60 text-center">
+              <div className="mt-8 pt-8 border-t border-slate-200 text-center">
                 <p className="text-sm text-slate-500">
                   © {new Date().getFullYear()} Thouthy. All rights reserved.
                 </p>
