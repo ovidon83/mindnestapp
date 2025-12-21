@@ -346,19 +346,11 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
       <nav className="relative z-50 w-full px-4 sm:px-8 py-4 sm:py-6 bg-white border-b border-slate-100">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 group overflow-hidden">
-              {/* Subtle inner glow */}
-              <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              
-              {/* Brain - more prominent and refined */}
-              <Brain className="w-6 h-6 sm:w-7 sm:h-7 text-teal-400 relative z-10 group-hover:text-teal-300 transition-colors duration-300" strokeWidth={2} fill="none" />
-              
-              {/* Refined sparkles - fewer, more strategic placement */}
-              <Sparkles className="absolute top-1 right-1 w-2 h-2 sm:w-2.5 sm:h-2.5 text-amber-400 opacity-60 group-hover:opacity-90 transition-all duration-300 group-hover:scale-110" strokeWidth={2.5} />
-              <Sparkles className="absolute bottom-1 left-1 w-1.5 h-1.5 sm:w-2 sm:h-2 text-teal-300 opacity-50 group-hover:opacity-80 transition-all duration-300 group-hover:scale-110" strokeWidth={2.5} />
-              
-              {/* Subtle outer ring on hover */}
-              <div className="absolute inset-0 rounded-xl ring-1 ring-teal-500/0 group-hover:ring-teal-500/20 transition-all duration-300"></div>
+            <div className="relative w-10 h-10 sm:w-12 sm:h-12 bg-emerald-600 rounded-lg flex items-center justify-center shadow-sm hover:shadow-md transition-all duration-300 group">
+              {/* Clean, modern brain icon */}
+              <Brain className="w-6 h-6 sm:w-7 sm:h-7 text-white relative z-10 group-hover:scale-110 transition-transform duration-300" strokeWidth={2.5} fill="none" />
+              {/* Subtle hover glow */}
+              <div className="absolute inset-0 rounded-lg bg-emerald-500/0 group-hover:bg-emerald-500/20 transition-all duration-300"></div>
             </div>
             <span className="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">Thouthy</span>
           </div>
