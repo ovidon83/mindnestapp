@@ -447,20 +447,25 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 </span>
               </h1>
               
-              {/* Floating hashtags - playful elements */}
-              <div className="absolute top-10 right-10 sm:right-20 hidden md:block">
-                <div className="px-3 py-1.5 bg-purple-200/60 backdrop-blur-sm rounded-full text-purple-700 text-xs font-bold border border-purple-300/50 shadow-md transform rotate-3 hover:rotate-6 transition-transform">
-                  #thoughts
+              {/* Floating hashtags - super playful elements */}
+              <div className="absolute top-10 right-10 sm:right-20 hidden md:block animate-bounce" style={{ animationDuration: '3s' }}>
+                <div className="px-4 py-2 bg-gradient-to-r from-purple-300/80 to-pink-300/80 backdrop-blur-sm rounded-full text-purple-800 text-xs font-bold border-2 border-purple-400/60 shadow-lg transform rotate-3 hover:rotate-6 hover:scale-110 transition-all">
+                  #thoughts ✨
                 </div>
               </div>
-              <div className="absolute bottom-20 left-10 sm:left-20 hidden md:block">
-                <div className="px-3 py-1.5 bg-yellow-200/60 backdrop-blur-sm rounded-full text-yellow-700 text-xs font-bold border border-yellow-300/50 shadow-md transform -rotate-3 hover:-rotate-6 transition-transform">
-                  #ideas
+              <div className="absolute bottom-20 left-10 sm:left-20 hidden md:block animate-bounce" style={{ animationDuration: '4s', animationDelay: '0.5s' }}>
+                <div className="px-4 py-2 bg-gradient-to-r from-yellow-300/80 to-orange-300/80 backdrop-blur-sm rounded-full text-yellow-800 text-xs font-bold border-2 border-yellow-400/60 shadow-lg transform -rotate-3 hover:-rotate-6 hover:scale-110 transition-all">
+                  #ideas 💡
                 </div>
               </div>
-              <div className="absolute top-32 left-10 sm:left-20 hidden lg:block">
-                <div className="px-3 py-1.5 bg-pink-200/60 backdrop-blur-sm rounded-full text-pink-700 text-xs font-bold border border-pink-300/50 shadow-md transform rotate-6 hover:rotate-9 transition-transform">
-                  #insights
+              <div className="absolute top-32 left-10 sm:left-20 hidden lg:block animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '1s' }}>
+                <div className="px-4 py-2 bg-gradient-to-r from-pink-300/80 to-purple-300/80 backdrop-blur-sm rounded-full text-pink-800 text-xs font-bold border-2 border-pink-400/60 shadow-lg transform rotate-6 hover:rotate-9 hover:scale-110 transition-all">
+                  #insights 🚀
+                </div>
+              </div>
+              <div className="absolute top-1/2 right-5 hidden xl:block animate-pulse">
+                <div className="px-3 py-1.5 bg-yellow-300/70 backdrop-blur-sm rounded-full text-yellow-900 text-xs font-bold border-2 border-yellow-400/70 shadow-md transform rotate-12">
+                  #fun
                 </div>
               </div>
               
@@ -490,11 +495,11 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   </p>
                 </div>
                 
-                {/* Three motivations - playful pill design */}
-                <div className="flex flex-wrap items-center justify-center gap-4 text-base sm:text-lg md:text-xl font-medium py-8">
-                  <span className="px-6 py-3 rounded-full bg-white/80 backdrop-blur-sm border-2 border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300 transition-all shadow-md hover:shadow-lg">Peace of mind</span>
-                  <span className="px-6 py-3 rounded-full bg-white/80 backdrop-blur-sm border-2 border-yellow-200 text-yellow-700 hover:bg-yellow-50 hover:border-yellow-300 transition-all shadow-md hover:shadow-lg">Self-expression</span>
-                  <span className="px-6 py-3 rounded-full bg-white/80 backdrop-blur-sm border-2 border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:border-indigo-300 transition-all shadow-md hover:shadow-lg">Leverage</span>
+                {/* Three motivations - super playful pill design */}
+                <div className="flex flex-wrap items-center justify-center gap-4 text-base sm:text-lg md:text-xl font-bold py-8">
+                  <span className="px-8 py-4 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 backdrop-blur-sm border-2 border-purple-300 text-purple-800 hover:from-purple-200 hover:to-pink-200 hover:border-purple-400 hover:scale-110 transition-all shadow-lg hover:shadow-xl transform">✨ Peace of mind</span>
+                  <span className="px-8 py-4 rounded-full bg-gradient-to-r from-yellow-100 to-orange-100 backdrop-blur-sm border-2 border-yellow-300 text-yellow-800 hover:from-yellow-200 hover:to-orange-200 hover:border-yellow-400 hover:scale-110 transition-all shadow-lg hover:shadow-xl transform">💫 Self-expression</span>
+                  <span className="px-8 py-4 rounded-full bg-gradient-to-r from-indigo-100 to-purple-100 backdrop-blur-sm border-2 border-indigo-300 text-indigo-800 hover:from-indigo-200 hover:to-purple-200 hover:border-indigo-400 hover:scale-110 transition-all shadow-lg hover:shadow-xl transform">🚀 Leverage</span>
                 </div>
                 
                 {/* Final statement */}
@@ -516,18 +521,29 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             <div className="absolute bottom-5 left-10 w-20 h-20 bg-yellow-200/20 rounded-full blur-2xl"></div>
             
             <div className="max-w-2xl mx-auto px-4 sm:px-8 relative">
-              <div className="bg-gradient-to-br from-white via-purple-50/30 to-pink-50/20 rounded-3xl shadow-2xl border-2 border-purple-200/50 p-8 sm:p-10 lg:p-12 hover:shadow-3xl transition-all duration-300 backdrop-blur-sm">
+              <div className="bg-gradient-to-br from-white via-purple-50/40 to-pink-50/30 rounded-3xl shadow-2xl border-2 border-purple-300/60 p-8 sm:p-10 lg:p-12 hover:shadow-3xl transition-all duration-300 backdrop-blur-sm relative overflow-visible">
+                {/* Floating decorative elements around card */}
+                <div className="absolute -top-4 -right-4 w-8 h-8 bg-yellow-400/60 rounded-full blur-sm animate-pulse"></div>
+                <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-purple-400/60 rounded-full blur-sm animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                
                 <div className="mb-6">
-                  <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2 flex items-center gap-2">
-                    <span className="text-3xl">💭</span>
-                    What's on your mind
+                  <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2 flex items-center gap-3">
+                    <span className="text-4xl animate-bounce" style={{ animationDuration: '2s' }}>💭</span>
+                    <span>What's on your mind</span>
                   </h2>
-                  <p className="text-sm text-slate-600">Capture your thoughts instantly, anywhere</p>
+                  <p className="text-sm text-slate-600 flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-purple-500" />
+                    Capture your thoughts instantly, anywhere
+                  </p>
                 </div>
                 
-                {/* Attractive Input Area */}
+                {/* Super Attractive Input Area */}
                 <div className="mb-6 relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 via-pink-400/20 to-yellow-400/20 rounded-2xl blur-xl -z-10"></div>
+                  {/* Animated gradient glow background */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-400/30 via-pink-400/30 to-yellow-400/30 rounded-2xl blur-2xl -z-10 animate-pulse"></div>
+                  {/* Additional glow layers */}
+                  <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-yellow-500/20 rounded-2xl blur-xl -z-10"></div>
+                  
                   <textarea
                     value={transcript || inputText}
                     onChange={(e) => {
@@ -544,11 +560,14 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       }
                     }}
                     placeholder="Share your thoughts, tasks, ideas... ✨"
-                    className="w-full p-6 text-base border-2 border-purple-200 bg-white/90 backdrop-blur-sm rounded-2xl hover:border-purple-400 focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-500/30 resize-none transition-all h-36 shadow-lg hover:shadow-xl"
+                    className="w-full p-6 text-base border-2 border-purple-300 bg-white/95 backdrop-blur-md rounded-2xl hover:border-purple-500 focus:border-purple-600 focus:outline-none focus:ring-4 focus:ring-purple-500/40 resize-none transition-all h-40 shadow-xl hover:shadow-2xl relative z-10"
                   />
-                  {/* Decorative corner elements */}
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full opacity-60 blur-sm"></div>
-                  <div className="absolute -bottom-2 -left-2 w-5 h-5 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full opacity-60 blur-sm"></div>
+                  
+                  {/* Animated decorative corner elements */}
+                  <div className="absolute -top-3 -right-3 w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full opacity-70 blur-sm animate-pulse shadow-lg"></div>
+                  <div className="absolute -bottom-3 -left-3 w-7 h-7 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-full opacity-70 blur-sm animate-pulse shadow-lg" style={{ animationDelay: '0.5s' }}></div>
+                  <div className="absolute top-2 right-2 w-3 h-3 bg-purple-400 rounded-full opacity-50"></div>
+                  <div className="absolute bottom-2 left-2 w-2 h-2 bg-yellow-400 rounded-full opacity-50"></div>
                 </div>
 
                 {/* Action Buttons */}
@@ -912,25 +931,35 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
       ) : (
         /* Logged in view - attractive design */
         <div className="relative z-10 w-full max-w-3xl mx-auto px-4 sm:px-8 pt-8 pb-8">
-          {/* Main Input Card - Playful and Attractive */}
-          <div id="capture-input" className="bg-gradient-to-br from-white via-purple-50/30 to-pink-50/20 rounded-3xl shadow-2xl border-2 border-purple-200/50 p-8 sm:p-10 hover:shadow-3xl transition-all duration-300 backdrop-blur-sm relative overflow-hidden">
+          {/* Main Input Card - Super Playful and Attractive */}
+          <div id="capture-input" className="bg-gradient-to-br from-white via-purple-50/40 to-pink-50/30 rounded-3xl shadow-2xl border-2 border-purple-300/60 p-8 sm:p-10 hover:shadow-3xl transition-all duration-300 backdrop-blur-sm relative overflow-visible">
             {/* Decorative background elements */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-purple-200/10 rounded-full blur-3xl -z-10"></div>
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-yellow-200/10 rounded-full blur-3xl -z-10"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-purple-200/20 rounded-full blur-3xl -z-10 animate-pulse"></div>
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-yellow-200/20 rounded-full blur-3xl -z-10 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+            {/* Floating decorative elements */}
+            <div className="absolute -top-4 -right-4 w-8 h-8 bg-yellow-400/60 rounded-full blur-sm animate-bounce"></div>
+            <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-purple-400/60 rounded-full blur-sm animate-bounce" style={{ animationDuration: '2s' }}></div>
             
           <div className="relative z-10">
             {/* Header */}
             <div className="mb-6">
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2 flex items-center gap-2">
-                <span className="text-3xl">💭</span>
-                What's on your mind?
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2 flex items-center gap-3">
+                <span className="text-4xl animate-bounce" style={{ animationDuration: '2s' }}>💭</span>
+                <span>What's on your mind?</span>
               </h2>
-              <p className="text-sm text-slate-600">Capture your thoughts instantly</p>
+              <p className="text-sm text-slate-600 flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-purple-500" />
+                Capture your thoughts instantly
+              </p>
             </div>
 
-          {/* Attractive Input Area */}
+          {/* Super Attractive Input Area */}
           <div className="mb-6 relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 via-pink-400/20 to-yellow-400/20 rounded-2xl blur-xl -z-10"></div>
+            {/* Animated gradient glow background */}
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-400/30 via-pink-400/30 to-yellow-400/30 rounded-2xl blur-2xl -z-10 animate-pulse"></div>
+            {/* Additional glow layers */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-yellow-500/20 rounded-2xl blur-xl -z-10"></div>
+            
             <textarea
               value={transcript || inputText}
               onChange={(e) => {
@@ -947,11 +976,14 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 }
               }}
               placeholder="Share your thoughts, tasks, ideas... ✨"
-              className="w-full p-6 text-base border-2 border-purple-200 bg-white/90 backdrop-blur-sm rounded-2xl hover:border-purple-400 focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-500/30 resize-none transition-all h-36 shadow-lg hover:shadow-xl"
+              className="w-full p-6 text-base border-2 border-purple-300 bg-white/95 backdrop-blur-md rounded-2xl hover:border-purple-500 focus:border-purple-600 focus:outline-none focus:ring-4 focus:ring-purple-500/40 resize-none transition-all h-40 shadow-xl hover:shadow-2xl relative z-10"
             />
-            {/* Decorative corner elements */}
-            <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full opacity-60 blur-sm"></div>
-            <div className="absolute -bottom-2 -left-2 w-5 h-5 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full opacity-60 blur-sm"></div>
+            
+            {/* Animated decorative corner elements */}
+            <div className="absolute -top-3 -right-3 w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full opacity-70 blur-sm animate-pulse shadow-lg"></div>
+            <div className="absolute -bottom-3 -left-3 w-7 h-7 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-full opacity-70 blur-sm animate-pulse shadow-lg" style={{ animationDelay: '0.5s' }}></div>
+            <div className="absolute top-2 right-2 w-3 h-3 bg-purple-400 rounded-full opacity-50"></div>
+            <div className="absolute bottom-2 left-2 w-2 h-2 bg-yellow-400 rounded-full opacity-50"></div>
           </div>
 
           {/* Action Buttons */}
