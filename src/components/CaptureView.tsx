@@ -443,11 +443,11 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   
                   {/* Three motivations - elegant horizontal layout */}
                   <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 md:gap-4 text-base sm:text-lg md:text-xl text-slate-600 font-medium py-4">
-                    <span className="px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200/50">Some people just want peace</span>
+                    <span className="px-4 py-2 rounded-full bg-slate-50 border border-slate-200/50">Peace of mind</span>
                     <span className="text-slate-300 text-xl">•</span>
-                    <span className="px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200/50">Some want expression</span>
+                    <span className="px-4 py-2 rounded-full bg-slate-50 border border-slate-200/50">Self-expression</span>
                     <span className="text-slate-300 text-xl">•</span>
-                    <span className="px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200/50">Some want leverage</span>
+                    <span className="px-4 py-2 rounded-full bg-slate-50 border border-slate-200/50">Leverage</span>
                   </div>
                   
                   {/* Final statement - emphasized */}
