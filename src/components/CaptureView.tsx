@@ -487,7 +487,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                         handleSubmit();
                       }
                     }}
-                    placeholder="What's on your mind? Share your thoughts, tasks, ideas..."
+                    placeholder="Share your thoughts, tasks, ideas..."
                     className="w-full p-5 text-base border-2 border-slate-200 bg-white rounded-xl hover:border-indigo-300 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 resize-none transition-all h-32"
                   />
                 </div>
