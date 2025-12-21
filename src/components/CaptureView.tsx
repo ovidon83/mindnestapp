@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useGenieNotesStore } from '../store';
-import { Mic, MicOff, Sparkles, CheckCircle, Upload } from 'lucide-react';
+import { Mic, MicOff, Sparkles, CheckCircle, Upload, Search, Mail, Twitter, Linkedin, Instagram } from 'lucide-react';
 import { saveTrainingData } from '../lib/db';
 import UserAvatar from './UserAvatar';
 
@@ -641,14 +641,13 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     <h3 className="text-xl font-semibold text-slate-900 mb-2">Instant Capture</h3>
                   </div>
                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
-                    <div className="space-y-2">
-                      <div className="h-3 bg-slate-200 rounded w-3/4"></div>
-                      <div className="h-3 bg-slate-200 rounded w-full"></div>
-                      <div className="h-3 bg-slate-200 rounded w-5/6"></div>
+                    <div className="space-y-2 text-sm text-slate-700">
+                      <p className="italic">"I need to research immigration options for Canada by next month"</p>
+                      <p className="text-xs text-slate-500 mt-2">💬 Voice or text input</p>
                     </div>
                   </div>
                   <p className="text-sm text-slate-600">
-                    Voice, text, or upload—capture thoughts instantly, anywhere
+                    Voice, text, or upload—capture thoughts instantly, anywhere. No friction, just pure flow.
                   </p>
                 </div>
 
@@ -660,30 +659,56 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                       </svg>
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">Smart Organization</h3>
+                    <h3 className="text-xl font-semibold text-slate-900 mb-2">Save & Organize</h3>
                   </div>
                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
-                    <div className="space-y-3">
+                    <div className="space-y-2 text-sm">
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
-                        <div className="h-2 bg-indigo-200 rounded flex-1"></div>
+                        <span className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-medium">To-Do</span>
+                        <span className="text-slate-600 flex-1">Research Canada immigration</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-purple-500"></div>
-                        <div className="h-2 bg-purple-200 rounded flex-1"></div>
+                        <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">Insight</span>
+                        <span className="text-slate-600 flex-1">Design system patterns</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-pink-500"></div>
-                        <div className="h-2 bg-pink-200 rounded flex-1"></div>
+                        <span className="px-2 py-1 bg-pink-100 text-pink-700 rounded text-xs font-medium">Thought</span>
+                        <span className="text-slate-600 flex-1">Morning reflection</span>
                       </div>
                     </div>
                   </div>
                   <p className="text-sm text-slate-600">
-                    AI automatically categorizes and prioritizes your entries
+                    AI automatically classifies as Task, Insight, or Thought and saves everything securely.
                   </p>
                 </div>
 
-                {/* Feature 3: AI Insights */}
+                {/* Feature 3: Search & Never Lose */}
+                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <div className="mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-4">
+                      <Search className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-slate-900 mb-2">Search & Never Lose</h3>
+                  </div>
+                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2 text-slate-600">
+                        <Search className="w-4 h-4 text-slate-400" />
+                        <span className="italic">"immigration canada"</span>
+                      </div>
+                      <div className="mt-3 space-y-1.5 pl-6">
+                        <p className="text-xs text-slate-700">✓ Found 3 entries</p>
+                        <p className="text-xs text-slate-500">• Research Canada immigration</p>
+                        <p className="text-xs text-slate-500">• Visa requirements notes</p>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-sm text-slate-600">
+                    Instantly find any thought, idea, or task. Your entire mind archive, searchable forever.
+                  </p>
+                </div>
+
+                {/* Feature 4: AI Insights */}
                 <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300">
                   <div className="mb-4">
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center mb-4">
@@ -691,48 +716,23 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                       </svg>
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">AI Insights</h3>
+                    <h3 className="text-xl font-semibold text-slate-900 mb-2">AI Insights & Next Steps</h3>
                   </div>
                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
-                    <div className="space-y-2">
-                      <div className="h-2 bg-gradient-to-r from-indigo-200 to-purple-200 rounded w-full"></div>
-                      <div className="h-2 bg-gradient-to-r from-purple-200 to-pink-200 rounded w-4/5"></div>
-                      <div className="h-2 bg-gradient-to-r from-pink-200 to-indigo-200 rounded w-3/4"></div>
-                    </div>
-                  </div>
-                  <p className="text-sm text-slate-600">
-                    Get contextual notes and actionable sub-tasks for every entry
-                  </p>
-                </div>
-
-                {/* Feature 4: Time Management */}
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300">
-                  <div className="mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-4">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">Time Buckets</h3>
-                  </div>
-                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
-                    <div className="space-y-2 text-xs font-medium text-slate-600">
-                      <div className="flex items-center justify-between">
-                        <span>Today</span>
-                        <span className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded">3</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>This Week</span>
-                        <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded">5</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>Later</span>
-                        <span className="px-2 py-1 bg-pink-100 text-pink-700 rounded">12</span>
+                    <div className="space-y-2 text-sm text-slate-700">
+                      <p className="font-medium text-xs text-slate-500 mb-2">AI Note:</p>
+                      <p className="italic text-xs">"Consider Express Entry for skilled workers. Research CRS score requirements..."</p>
+                      <div className="mt-3 pt-2 border-t border-slate-200">
+                        <p className="font-medium text-xs text-slate-500 mb-1">Sub-tasks:</p>
+                        <ul className="text-xs space-y-1 text-slate-600">
+                          <li>• Check Express Entry eligibility</li>
+                          <li>• Calculate CRS score</li>
+                        </ul>
                       </div>
                     </div>
                   </div>
                   <p className="text-sm text-slate-600">
-                    Automatically organized by urgency: Today, This Week, Later
+                    Get contextual research-based notes and actionable sub-tasks for every entry.
                   </p>
                 </div>
 
@@ -744,17 +744,22 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                       </svg>
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">Share Insights</h3>
+                    <h3 className="text-xl font-semibold text-slate-900 mb-2">Post About Insights</h3>
                   </div>
                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded bg-blue-500 flex items-center justify-center text-white text-xs font-bold">in</div>
-                      <div className="w-8 h-8 rounded bg-sky-500 flex items-center justify-center text-white text-xs font-bold">𝕏</div>
-                      <div className="w-8 h-8 rounded bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-xs">📷</div>
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-2">
+                        <div className="w-6 h-6 rounded bg-blue-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">in</div>
+                        <p className="text-xs text-slate-600 italic">"Just discovered Express Entry for Canada immigration. Here's what I learned..."</p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <div className="w-6 h-6 rounded bg-sky-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">𝕏</div>
+                        <p className="text-xs text-slate-600 italic">"Express Entry = fastest path to Canada PR. Game changer."</p>
+                      </div>
                     </div>
                   </div>
                   <p className="text-sm text-slate-600">
-                    Turn insights into ready-to-post content for LinkedIn, Twitter, Instagram
+                    Turn valuable insights into ready-to-post content for LinkedIn, Twitter, Instagram.
                   </p>
                 </div>
 
@@ -766,53 +771,84 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                       </svg>
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">AI Companion</h3>
+                    <h3 className="text-xl font-semibold text-slate-900 mb-2">Companion</h3>
                   </div>
                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
-                    <div className="space-y-2">
-                      <div className="h-2 bg-indigo-200 rounded w-full"></div>
-                      <div className="h-2 bg-purple-200 rounded w-5/6"></div>
-                      <div className="h-2 bg-pink-200 rounded w-4/5"></div>
+                    <div className="space-y-2 text-sm text-slate-700">
+                      <p className="font-medium text-xs text-slate-500 mb-2">Observation:</p>
+                      <p className="italic text-xs">"You've been focusing heavily on immigration research. Consider breaking it into smaller actionable steps to reduce overwhelm."</p>
+                      <p className="text-xs text-slate-500 mt-3">Pattern detected: Career planning</p>
                     </div>
                   </div>
                   <p className="text-sm text-slate-600">
-                    Get personalized observations and patterns from your thoughts
+                    Get personalized observations and patterns from your thoughts. Your AI thinking companion.
                   </p>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* Benefits Section - Modern Cards */}
-          <section className="relative z-10 pb-20 sm:pb-32">
-            {/* Discrete background */}
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-pink-50/20 to-transparent -z-10"></div>
-            <div className="max-w-6xl mx-auto px-4 sm:px-8 relative">
-              <div className="grid md:grid-cols-3 gap-6 sm:gap-8">
-                <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-slate-200/50 hover:border-indigo-200 hover:shadow-lg transition-all duration-300">
-                  <div className="text-4xl sm:text-5xl mb-4">✨</div>
-                  <h3 className="font-semibold text-slate-900 text-lg sm:text-xl mb-3">AI-Powered Organization</h3>
-                  <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-                    Your thoughts are automatically categorized, tagged, and summarized
+          {/* Footer */}
+          <footer className="relative z-10 border-t border-slate-200 bg-slate-50/50">
+            <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 sm:py-16">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                {/* Brand */}
+                <div className="text-center md:text-left">
+                  <h3 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+                    Thouthy
+                  </h3>
+                  <p className="text-sm text-slate-600">
+                    Your thinking companion
                   </p>
                 </div>
-                <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-slate-200/50 hover:border-purple-200 hover:shadow-lg transition-all duration-300">
-                  <div className="text-4xl sm:text-5xl mb-4">📝</div>
-                  <h3 className="font-semibold text-slate-900 text-lg sm:text-xl mb-3">Turn Insights into Posts</h3>
-                  <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-                    AI identifies valuable insights and drafts ready-to-share content
-                  </p>
-                </div>
-                <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-slate-200/50 hover:border-pink-200 hover:shadow-lg transition-all duration-300">
-                  <div className="text-4xl sm:text-5xl mb-4">🔒</div>
-                  <h3 className="font-semibold text-slate-900 text-lg sm:text-xl mb-3">Never Lose a Thought</h3>
-                  <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-                    Everything is saved, organized, and searchable forever
-                  </p>
+
+                {/* Social Links */}
+                <div className="flex items-center gap-4">
+                  <a
+                    href="mailto:hello@thouthy.com"
+                    className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-indigo-600 hover:border-indigo-200 transition-all"
+                    aria-label="Email"
+                  >
+                    <Mail className="w-5 h-5" />
+                  </a>
+                  <a
+                    href="https://twitter.com/thouthy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-sky-500 hover:border-sky-200 transition-all"
+                    aria-label="Twitter"
+                  >
+                    <Twitter className="w-5 h-5" />
+                  </a>
+                  <a
+                    href="https://linkedin.com/company/thouthy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-all"
+                    aria-label="LinkedIn"
+                  >
+                    <Linkedin className="w-5 h-5" />
+                  </a>
+                  <a
+                    href="https://instagram.com/thouthy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-pink-600 hover:border-pink-200 transition-all"
+                    aria-label="Instagram"
+                  >
+                    <Instagram className="w-5 h-5" />
+                  </a>
                 </div>
               </div>
+
+              {/* Copyright */}
+              <div className="mt-8 pt-8 border-t border-slate-200 text-center">
+                <p className="text-sm text-slate-500">
+                  © {new Date().getFullYear()} Thouthy. All rights reserved.
+                </p>
+              </div>
             </div>
-          </section>
+          </footer>
         </>
       ) : (
         /* Logged in view - simpler layout */
