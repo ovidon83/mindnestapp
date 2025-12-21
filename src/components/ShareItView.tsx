@@ -248,7 +248,7 @@ const ShareItView: React.FC = () => {
                             });
                           }
                         }}
-                        className="w-full px-4 py-3 bg-slate-900 text-white border border-slate-800 rounded-lg font-medium hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
+                        className="w-full px-4 py-3 bg-white/80 text-slate-700 border-2 border-yellow-300 rounded-lg font-medium hover:border-yellow-400 hover:bg-yellow-50/80 transition-all shadow-sm backdrop-blur-sm flex items-center justify-center gap-2"
                       >
                         <Sparkles className="w-4 h-4" />
                         Generate Post Drafts
@@ -257,15 +257,15 @@ const ShareItView: React.FC = () => {
                     
                     {/* Generating State with Progress */}
                     {generatingPosts.has(entry.id) && (
-                      <div className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg flex flex-col items-center gap-2">
+                      <div className="w-full px-4 py-3 bg-yellow-50/80 border-2 border-yellow-200 rounded-lg flex flex-col items-center gap-2 backdrop-blur-sm">
                         <div className="flex items-center gap-2">
-                          <Loader2 className="w-4 h-4 animate-spin text-slate-600" />
-                          <span className="text-sm font-medium text-slate-700">
+                          <Loader2 className="w-4 h-4 animate-spin text-yellow-600" />
+                          <span className="text-sm font-medium text-yellow-700">
                             {generationProgress[entry.id] || 'Generating drafts...'}
                           </span>
                         </div>
-                        <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-                          <div className="bg-slate-600 h-full rounded-full animate-pulse" style={{ width: '60%' }}></div>
+                        <div className="w-full bg-yellow-200 rounded-full h-1.5 overflow-hidden">
+                          <div className="bg-yellow-500 h-full rounded-full animate-pulse" style={{ width: '60%' }}></div>
                         </div>
                       </div>
                     )}

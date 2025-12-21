@@ -79,24 +79,31 @@ const HomeView: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 relative">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50/30 via-blue-50/20 to-pink-50/20 relative overflow-hidden">
+      {/* Playful background elements */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-yellow-200/10 rounded-full blur-3xl -z-10"></div>
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-200/10 rounded-full blur-3xl -z-10"></div>
+      
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-slate-200">
+      <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-yellow-200/50 shadow-sm">
         <div className="w-full px-8 py-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900">My thoughts space</h1>
+              <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-2">
+                <span className="text-3xl">💭</span>
+                My thoughts space
+              </h1>
             </div>
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setCurrentView('posts')}
-                className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors px-3 py-2 rounded-lg hover:bg-slate-100"
+                className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors px-3 py-2 rounded-lg hover:bg-yellow-50 border border-transparent hover:border-yellow-200"
               >
                 Posts
               </button>
               <button
                 onClick={() => setCurrentView('capture')}
-                className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+                className="px-4 py-2 text-sm font-medium bg-white/80 text-slate-700 border-2 border-yellow-300 rounded-lg hover:border-yellow-400 hover:bg-yellow-50/80 transition-all shadow-sm backdrop-blur-sm"
               >
                 New Thought
               </button>
@@ -298,7 +305,7 @@ const HomeView: React.FC = () => {
             {!searchQuery && selectedCategory === 'all' && (
               <button
                 onClick={() => setCurrentView('capture')}
-                className="px-6 py-3 text-base font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+                className="px-6 py-3 text-base font-medium bg-white/80 text-slate-700 border-2 border-yellow-300 rounded-lg hover:border-yellow-400 hover:bg-yellow-50/80 transition-all shadow-sm backdrop-blur-sm"
               >
                 {selectedEntryType === 'journal' ? 'Add Journal Entry' : 'Capture Your First Thought'}
               </button>

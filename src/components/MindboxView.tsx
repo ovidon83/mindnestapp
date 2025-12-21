@@ -219,9 +219,13 @@ const MindboxView: React.FC = () => {
   }, [editingBadgeId, showTypeFilter, showDateFilter]);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50/30 via-blue-50/20 to-pink-50/20 relative overflow-hidden">
+      {/* Playful background elements */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-yellow-200/10 rounded-full blur-3xl -z-10"></div>
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-200/10 rounded-full blur-3xl -z-10"></div>
+      
       {/* Search and Filters Bar */}
-      <div className="bg-white border-b border-slate-200 px-4 sm:px-8 py-4">
+      <div className="bg-white/80 backdrop-blur-md border-b border-yellow-200/50 px-4 sm:px-8 py-4 shadow-sm">
         <div className="flex flex-wrap items-center gap-3">
           {/* Search - Simplified */}
           <div className="relative flex-1 min-w-[200px] max-w-md">
@@ -331,7 +335,7 @@ const MindboxView: React.FC = () => {
             {!searchQuery && (
               <button
                 onClick={() => setCurrentView('capture')}
-                className="px-5 py-2 text-sm font-medium bg-slate-50 text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors min-h-[36px]"
+                className="px-5 py-2 text-sm font-medium bg-white/80 text-slate-700 border-2 border-yellow-300 rounded-lg hover:border-yellow-400 hover:bg-yellow-50/80 transition-all shadow-sm backdrop-blur-sm min-h-[36px]"
               >
                 Capture Thought
               </button>
@@ -348,7 +352,7 @@ const MindboxView: React.FC = () => {
               return (
                 <div
                   key={entry.id}
-                  className={`bg-white rounded-lg p-5 border border-slate-200 hover:border-slate-300 transition-all duration-200 ${opacity} relative flex flex-col h-full`}
+                  className={`bg-white/90 backdrop-blur-sm rounded-xl p-5 border-2 border-yellow-200/50 hover:border-yellow-300 hover:shadow-lg transition-all duration-200 ${opacity} relative flex flex-col h-full`}
                 >
                   {/* Header: Date top-right + Badges */}
                   <div className="flex-shrink-0 flex items-start justify-between mb-4">

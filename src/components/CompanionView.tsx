@@ -72,14 +72,18 @@ const CompanionView: React.FC = () => {
 
   if (observations.length === 0 && !loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-stone-50 via-neutral-50 to-stone-100">
-        <div className="max-w-3xl mx-auto px-4 sm:px-8 py-12">
+      <div className="min-h-screen bg-gradient-to-br from-yellow-50/40 via-blue-50/30 to-pink-50/30 relative overflow-hidden">
+        {/* Playful background elements */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-yellow-200/15 rounded-full blur-3xl -z-10"></div>
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-200/15 rounded-full blur-3xl -z-10"></div>
+        
+        <div className="max-w-3xl mx-auto px-4 sm:px-8 py-12 relative z-10">
           <div className="text-center py-16">
             <div className="relative inline-block mb-6">
-              <div className="w-24 h-24 bg-slate-800 rounded-full flex items-center justify-center mx-auto shadow-lg">
-                <Sparkles className="w-12 h-12 text-teal-400" />
+              <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                <Sparkles className="w-12 h-12 text-white" />
               </div>
-              <div className="absolute -top-2 -right-2 w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center animate-bounce">
+              <div className="absolute -top-2 -right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center animate-bounce">
                 <Brain className="w-4 h-4 text-white" />
               </div>
             </div>
@@ -94,7 +98,7 @@ const CompanionView: React.FC = () => {
             <button
               onClick={updateObservations}
               disabled={loading || entries.length === 0}
-              className="px-6 py-3 bg-slate-900 text-white rounded-full font-medium hover:bg-slate-800 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto"
+              className="px-6 py-3 bg-white/80 text-slate-700 border-2 border-yellow-300 rounded-full font-medium hover:border-yellow-400 hover:bg-yellow-50/80 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto backdrop-blur-sm"
             >
               {loading ? (
                 <>
@@ -115,12 +119,18 @@ const CompanionView: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50/40 via-blue-50/30 to-pink-50/30 relative overflow-hidden">
+      {/* Playful background elements */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-yellow-200/15 rounded-full blur-3xl -z-10"></div>
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-200/15 rounded-full blur-3xl -z-10"></div>
+      <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-pink-200/10 rounded-full blur-3xl -z-10"></div>
+      
+      <div className="max-w-4xl mx-auto px-4 sm:px-8 py-8 relative z-10">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-slate-800 mb-2">
+            <h1 className="text-3xl font-bold text-slate-800 mb-2 flex items-center gap-2">
+              <span className="text-3xl">🤖</span>
               Your Companion
             </h1>
             {lastUpdated && (
@@ -132,7 +142,7 @@ const CompanionView: React.FC = () => {
           <button
             onClick={updateObservations}
             disabled={loading}
-            className="px-5 py-2.5 bg-slate-900 text-white rounded-full font-medium hover:bg-slate-800 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-5 py-2.5 bg-white/80 text-slate-700 border-2 border-yellow-300 rounded-full font-medium hover:border-yellow-400 hover:bg-yellow-50/80 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 backdrop-blur-sm"
           >
             {loading ? (
               <>
