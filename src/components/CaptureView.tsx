@@ -642,7 +642,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   </div>
                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
                     <div className="space-y-2 text-sm text-slate-700">
-                      <p className="italic">"ok so like soccer training in the US is all about fun in these expensive academy programs but coaches don't really push kids and there's no real development happening. parents paying thousands but rec soccer is free and honestly same level. that's why US soccer sucks. we're not developing players because everyone's just having fun and not getting better"</p>
+                      <p className="italic">"soccer academies in US are expensive but coaches don't push kids. rec soccer is free and same quality. that's why we're not producing players"</p>
                       <p className="text-xs text-slate-500 mt-2">💬 Voice captured while driving</p>
                     </div>
                   </div>
@@ -665,15 +665,15 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center gap-2">
                         <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">Insight</span>
-                        <span className="text-slate-600 flex-1">US soccer training quality issue</span>
+                        <span className="text-slate-600 flex-1 text-xs">Academy programs prioritize fun over development</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-medium">To-Do</span>
-                        <span className="text-slate-600 flex-1">Research academy vs rec soccer</span>
+                        <span className="text-slate-600 flex-1 text-xs">Research cost comparison: academy vs rec</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="px-2 py-1 bg-pink-100 text-pink-700 rounded text-xs font-medium">Thought</span>
-                        <span className="text-slate-600 flex-1">Player development philosophy</span>
+                        <span className="text-slate-600 flex-1 text-xs">Rec soccer quality matches expensive academies</span>
                       </div>
                     </div>
                   </div>
@@ -691,16 +691,23 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     <h3 className="text-xl font-semibold text-slate-900 mb-2">Search & Never Lose</h3>
                   </div>
                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2 text-slate-600">
+                    <div className="space-y-3 text-sm">
+                      <div className="flex items-center gap-2 text-slate-600 bg-white rounded-lg px-3 py-2 border border-slate-200">
                         <Search className="w-4 h-4 text-slate-400" />
-                        <span className="italic">"soccer training"</span>
+                        <span className="text-xs">academy programs</span>
                       </div>
-                      <div className="mt-3 space-y-1.5 pl-6">
-                        <p className="text-xs text-slate-700">✓ Found 4 entries</p>
-                        <p className="text-xs text-slate-500">• US soccer academy quality issue</p>
-                        <p className="text-xs text-slate-500">• Research academy vs rec soccer</p>
-                        <p className="text-xs text-slate-500">• Player development thoughts</p>
+                      <div className="space-y-2">
+                        <p className="text-xs font-medium text-slate-700">3 results found</p>
+                        <div className="space-y-1.5">
+                          <div className="flex items-start gap-2 p-2 bg-white rounded border border-slate-100 hover:border-indigo-200 transition-colors">
+                            <span className="px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded text-[10px] font-medium mt-0.5">Insight</span>
+                            <span className="text-xs text-slate-600 flex-1">Academy programs prioritize fun over development</span>
+                          </div>
+                          <div className="flex items-start gap-2 p-2 bg-white rounded border border-slate-100 hover:border-indigo-200 transition-colors">
+                            <span className="px-1.5 py-0.5 bg-indigo-100 text-indigo-700 rounded text-[10px] font-medium mt-0.5">To-Do</span>
+                            <span className="text-xs text-slate-600 flex-1">Research cost comparison: academy vs rec</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
