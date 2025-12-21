@@ -672,8 +672,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                         <span className="text-slate-600 flex-1 text-xs">Research cost comparison: academy vs rec</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="px-2 py-1 bg-pink-100 text-pink-700 rounded text-xs font-medium">Thought</span>
-                        <span className="text-slate-600 flex-1 text-xs">Rec soccer quality matches expensive academies</span>
+                        <span className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-medium">To-Do</span>
+                        <span className="text-slate-600 flex-1 text-xs">Compare US vs European youth development</span>
                       </div>
                     </div>
                   </div>
@@ -694,10 +694,10 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     <div className="space-y-3 text-sm">
                       <div className="flex items-center gap-2 text-slate-600 bg-white rounded-lg px-3 py-2 border border-slate-200">
                         <Search className="w-4 h-4 text-slate-400" />
-                        <span className="text-xs">academy programs</span>
+                        <span className="text-xs italic text-slate-400">soccer... something about training</span>
                       </div>
                       <div className="space-y-2">
-                        <p className="text-xs font-medium text-slate-700">3 results found</p>
+                        <p className="text-xs font-medium text-slate-700">2 results found</p>
                         <div className="space-y-1.5">
                           <div className="flex items-start gap-2 p-2 bg-white rounded border border-slate-100 hover:border-indigo-200 transition-colors">
                             <span className="px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded text-[10px] font-medium mt-0.5">Insight</span>
@@ -764,6 +764,10 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       <div className="flex items-start gap-2">
                         <div className="w-6 h-6 rounded bg-sky-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">𝕏</div>
                         <p className="text-xs text-slate-600 italic">"US soccer's problem: expensive academies that don't develop players. Rec soccer is free and just as good. We're paying for fun, not progress."</p>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <div className="w-6 h-6 rounded bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-xs flex-shrink-0">📷</div>
+                        <p className="text-xs text-slate-600 italic">"Why are we paying thousands for soccer academies when rec leagues offer the same development? The real issue: we're prioritizing fun over growth. Time to rethink youth soccer in America."</p>
                       </div>
                     </div>
                   </div>
