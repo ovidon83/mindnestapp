@@ -449,8 +449,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </div>
           </section>
 
-          {/* Philosophy Section - Clean white background */}
-          <section className="relative z-10 py-20 sm:py-24 bg-white">
+          {/* Philosophy Section - Light gray background */}
+          <section className="relative z-10 py-20 sm:py-24 bg-slate-50/50">
             <div className="max-w-5xl mx-auto px-4 sm:px-8 relative">
               <div className="text-center space-y-8 sm:space-y-10">
                 {/* Main statement */}
@@ -477,8 +477,10 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </div>
           </section>
 
-          {/* Sticky/Floating Capture Card - Clean white card */}
-          <div className="relative z-20 -mt-8 mb-20">
+          {/* Sticky/Floating Capture Card - Section with subtle background */}
+          <div className="relative z-20 -mt-8 mb-20 py-12">
+            {/* Background for capture section */}
+            <div className="absolute inset-0 -z-10 bg-gradient-to-b from-emerald-50/30 via-white to-white"></div>
             <div className="max-w-2xl mx-auto px-4 sm:px-8 relative">
               <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-8 lg:p-10 hover:shadow-xl transition-all duration-300">
                 <div className="mb-4">
@@ -626,8 +628,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </div>
           </div>
 
-          {/* Showcase Section - Clean white background */}
-          <section className="relative z-10 py-20 sm:py-28 bg-white">
+          {/* Showcase Section - Light emerald tint background */}
+          <section className="relative z-10 py-20 sm:py-28 bg-emerald-50/20">
             <div className="max-w-7xl mx-auto px-4 sm:px-8 relative">
               <div className="text-center mb-12 sm:mb-16">
                 <div className="mb-3">
@@ -653,8 +655,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   </div>
                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
                     <div className="space-y-2 text-sm text-slate-700">
-                      <p className="italic">"for the most part expensive soccer academies don't offer more than free rec soccer in the US. Coaches focus only on fun, no intensity, no coach-driven development. Just more games, lots of travel and ton more money."</p>
-                      <p className="text-xs text-slate-500 mt-2">💬 Voice captured while driving</p>
+                      <p className="italic">"I keep thinking about starting a side business - maybe a consulting gig for small businesses. I have all this experience but don't know where to start. Should I do it part-time first? What about my current job? Need to figure out pricing, services, and how to find clients."</p>
+                      <p className="text-xs text-slate-500 mt-2">💬 Voice captured during morning commute</p>
                     </div>
                   </div>
                   <p className="text-sm text-slate-600 mt-4">
@@ -675,11 +677,11 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       AI automatically classifies as Task, Insight, or Thought and saves everything securely.
                     </p>
                   </div>
-                  <div className="bg-stone-50 rounded-xl p-4 border border-stone-200">
+                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                     <div className="space-y-3 text-sm">
                       <div className="flex items-start gap-2">
-                        <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-xs font-medium flex-shrink-0 mt-0.5">Insight</span>
-                        <p className="text-slate-700 text-xs italic flex-1">"for the most part expensive soccer academies don't offer more than free rec soccer in the US. Coaches focus only on fun, no intensity, no coach-driven development. Just more games, lots of travel and ton more money."</p>
+                        <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-xs font-medium flex-shrink-0 mt-0.5">To-Do</span>
+                        <p className="text-slate-700 text-xs italic flex-1">"I keep thinking about starting a side business - maybe a consulting gig for small businesses. I have all this experience but don't know where to start. Should I do it part-time first? What about my current job? Need to figure out pricing, services, and how to find clients."</p>
                       </div>
                     </div>
                   </div>
@@ -700,13 +702,13 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     <div className="space-y-3 text-sm">
                       <div className="flex items-center gap-2 text-slate-600 bg-white rounded-lg px-3 py-2 border border-slate-200">
                         <Search className="w-4 h-4 text-slate-400" />
-                        <span className="text-xs italic text-slate-400">soccer... something about training</span>
+                        <span className="text-xs italic text-slate-400">side business... consulting</span>
                       </div>
                       <div className="space-y-2">
                         <p className="text-xs font-medium text-slate-700">1 result found</p>
                         <div className="flex items-start gap-2 p-2 bg-white rounded border border-slate-100 hover:border-emerald-200 transition-colors">
-                          <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded text-[10px] font-medium mt-0.5 flex-shrink-0">Insight</span>
-                          <p className="text-xs text-slate-600 flex-1 italic">"for the most part expensive soccer academies don't offer more than free rec soccer in the US. Coaches focus only on fun, no intensity, no coach-driven development. Just more games, lots of travel and ton more money."</p>
+                          <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-700 rounded text-[10px] font-medium mt-0.5 flex-shrink-0">To-Do</span>
+                          <p className="text-xs text-slate-600 flex-1 italic">"I keep thinking about starting a side business - maybe a consulting gig for small businesses. I have all this experience but don't know where to start..."</p>
                         </div>
                       </div>
                     </div>
@@ -729,13 +731,14 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                     <div className="space-y-2 text-sm text-slate-700">
                       <p className="font-medium text-xs text-slate-500 mb-2">AI Note:</p>
-                      <p className="italic text-xs">"Research shows US youth soccer focuses on participation over development. European academies emphasize technical skills and competitive intensity. The pay-to-play model creates barriers..."</p>
+                      <p className="italic text-xs">"Starting a consulting business part-time is a smart approach. Research shows 70% of successful consultants start while employed. Key considerations: define your niche, set clear boundaries with your current job, and validate demand before going full-time..."</p>
                       <div className="mt-3 pt-2 border-t border-slate-200">
                         <p className="font-medium text-xs text-slate-500 mb-1">Sub-tasks:</p>
                         <ul className="text-xs space-y-1 text-slate-600">
-                          <li>• Compare US vs European youth development models</li>
-                          <li>• Research cost-benefit of academy programs</li>
-                          <li>• Document specific development gaps</li>
+                          <li>• Research consulting rates in your industry</li>
+                          <li>• Define your service offerings and target market</li>
+                          <li>• Create a simple business plan and timeline</li>
+                          <li>• Set up a basic website or portfolio</li>
                         </ul>
                       </div>
                     </div>
@@ -759,15 +762,15 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     <div className="space-y-3">
                       <div className="flex items-start gap-2">
                         <div className="w-6 h-6 rounded bg-blue-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">in</div>
-                        <p className="text-xs text-slate-600 italic">"The pay-to-play model in US youth soccer is broken. Parents invest thousands in academy programs that prioritize fun over development. Meanwhile, free recreational leagues offer the same quality..."</p>
+                        <p className="text-xs text-slate-600 italic">"Thinking about starting a consulting side business? Here's what I learned: Start part-time while employed, define your niche clearly, and validate demand before going all-in. The key is testing the waters without burning bridges..."</p>
                       </div>
                       <div className="flex items-start gap-2">
                         <div className="w-6 h-6 rounded bg-sky-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">𝕏</div>
-                        <p className="text-xs text-slate-600 italic">"US soccer's problem: expensive academies that don't develop players. Rec soccer is free and just as good. We're paying for fun, not progress."</p>
+                        <p className="text-xs text-slate-600 italic">"Starting a side consulting business? Do it part-time first. Define your niche, validate demand, then scale. Most successful consultants started while employed."</p>
                       </div>
                       <div className="flex items-start gap-2">
                         <Instagram className="w-6 h-6 text-rose-600 flex-shrink-0" />
-                        <p className="text-xs text-slate-600 italic">"Why are we paying thousands for soccer academies when rec leagues offer the same development? The real issue: we're prioritizing fun over growth. Time to rethink youth soccer in America."</p>
+                        <p className="text-xs text-slate-600 italic">"The side hustle to full-time journey: Start small, validate, then scale. Here's how I'm building my consulting business while keeping my day job. The key? Clear boundaries and a solid plan."</p>
                       </div>
                     </div>
                   </div>
@@ -789,8 +792,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                     <div className="space-y-2 text-sm text-slate-700">
                       <p className="font-medium text-xs text-slate-500 mb-2">Observation:</p>
-                      <p className="italic text-xs">"You're consistently reflecting on youth development and coaching philosophy. This suggests deep concern about systemic issues in sports education. Your insights about pay-to-play models could be valuable for other coaches and parents."</p>
-                      <p className="text-xs text-slate-500 mt-3">Pattern detected: Coaching & development focus</p>
+                      <p className="italic text-xs">"You're consistently thinking about career growth and entrepreneurship. This pattern suggests you're ready to take the next step professionally. Your thoughts about consulting show both excitement and caution—a healthy balance. Consider starting with one small client to test the waters."</p>
+                      <p className="text-xs text-slate-500 mt-3">Pattern detected: Career growth & entrepreneurship</p>
                     </div>
                   </div>
                 </div>
@@ -798,8 +801,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </div>
           </section>
 
-          {/* Footer - Clean white */}
-          <footer className="relative z-10 border-t border-slate-200 bg-white">
+          {/* Footer - Slate background */}
+          <footer className="relative z-10 border-t border-slate-200 bg-slate-50">
             <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 sm:py-16">
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 {/* Brand */}
