@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useGenieNotesStore } from '../store';
-import { Mic, MicOff, Sparkles, CheckCircle, Upload, Search, Mail, Twitter, Linkedin, Instagram } from 'lucide-react';
+import { Mic, MicOff, Sparkles, CheckCircle, Upload, Search, Mail, Twitter, Linkedin, Instagram, Brain } from 'lucide-react';
 import { saveTrainingData } from '../lib/db';
 import UserAvatar from './UserAvatar';
 
@@ -348,8 +348,14 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
       <nav className="relative z-50 w-full px-4 sm:px-8 py-4 sm:py-6 backdrop-blur-sm bg-white/70 border-b border-stone-200/60">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 sm:w-12 sm:h-12 bg-slate-800 rounded-xl flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300">
-              <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-teal-400 relative z-10" strokeWidth={2.5} />
+            <div className="relative w-10 h-10 sm:w-12 sm:h-12 bg-slate-800 rounded-xl flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 group">
+              {/* Brain in center */}
+              <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-teal-400 relative z-10" strokeWidth={2.5} />
+              {/* Sparkles positioned around the brain like stars */}
+              <Sparkles className="absolute top-0.5 right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-400 opacity-80 group-hover:opacity-100 transition-opacity" strokeWidth={2} />
+              <Sparkles className="absolute bottom-1 left-1 w-2 h-2 sm:w-2.5 sm:h-2.5 text-teal-300 opacity-70 group-hover:opacity-90 transition-opacity" strokeWidth={2} />
+              <Sparkles className="absolute top-1.5 left-0.5 w-1.5 h-1.5 sm:w-2 sm:h-2 text-amber-300 opacity-60 group-hover:opacity-80 transition-opacity" strokeWidth={2} />
+              <Sparkles className="absolute bottom-0.5 right-1.5 w-2 h-2 sm:w-2.5 sm:h-2.5 text-teal-300 opacity-70 group-hover:opacity-90 transition-opacity" strokeWidth={2} />
             </div>
             <span className="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">Thouthy</span>
           </div>
