@@ -386,7 +386,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       onOrganizeClick('signup');
                     }
                   }}
-                  className="px-5 py-2.5 text-sm font-medium bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
+                  className="px-5 py-2.5 text-sm font-medium bg-white/80 text-slate-700 border-2 border-yellow-300 rounded-xl hover:border-yellow-400 hover:bg-yellow-50/80 transition-all shadow-md hover:shadow-lg backdrop-blur-sm"
                 >
                   Sign Up
                 </button>

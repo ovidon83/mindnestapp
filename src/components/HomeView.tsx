@@ -79,13 +79,17 @@ const HomeView: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50/30 via-blue-50/20 to-pink-50/20 relative overflow-hidden">
-      {/* Playful background elements */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-yellow-200/10 rounded-full blur-3xl -z-10"></div>
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-200/10 rounded-full blur-3xl -z-10"></div>
+    <div className="min-h-screen bg-gradient-to-br from-yellow-100/60 via-blue-100/50 to-pink-100/60 relative overflow-hidden">
+      {/* Playful background elements - MUCH more visible */}
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-yellow-300/30 rounded-full blur-3xl -z-10 animate-pulse"></div>
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-300/30 rounded-full blur-3xl -z-10"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-pink-300/25 rounded-full blur-3xl -z-10 animate-pulse" style={{ animationDelay: '1s' }}></div>
+      {/* Floating decorative shapes */}
+      <div className="absolute top-20 right-20 w-20 h-20 bg-yellow-400/40 rounded-full blur-2xl animate-bounce" style={{ animationDuration: '4s' }}></div>
+      <div className="absolute bottom-32 left-32 w-16 h-16 bg-blue-400/40 rounded-full blur-2xl animate-bounce" style={{ animationDuration: '5s', animationDelay: '0.5s' }}></div>
       
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-yellow-200/50 shadow-sm">
+      <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-md border-b-2 border-yellow-300/60 shadow-md">
         <div className="w-full px-8 py-8">
           <div className="flex items-center justify-between mb-6">
             <div>

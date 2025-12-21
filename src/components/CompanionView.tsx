@@ -80,10 +80,10 @@ const CompanionView: React.FC = () => {
         <div className="max-w-3xl mx-auto px-4 sm:px-8 py-12 relative z-10">
           <div className="text-center py-16">
             <div className="relative inline-block mb-6">
-              <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full flex items-center justify-center mx-auto shadow-lg">
+              <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full flex items-center justify-center mx-auto shadow-xl">
                 <Sparkles className="w-12 h-12 text-white" />
               </div>
-              <div className="absolute -top-2 -right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center animate-bounce">
+              <div className="absolute -top-2 -right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center animate-bounce shadow-lg">
                 <Brain className="w-4 h-4 text-white" />
               </div>
             </div>
@@ -119,11 +119,15 @@ const CompanionView: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50/40 via-blue-50/30 to-pink-50/30 relative overflow-hidden">
-      {/* Playful background elements */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-yellow-200/15 rounded-full blur-3xl -z-10"></div>
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-200/15 rounded-full blur-3xl -z-10"></div>
-      <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-pink-200/10 rounded-full blur-3xl -z-10"></div>
+    <div className="min-h-screen bg-gradient-to-br from-yellow-100/60 via-blue-100/50 to-pink-100/60 relative overflow-hidden">
+      {/* Playful background elements - MUCH more visible */}
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-yellow-300/30 rounded-full blur-3xl -z-10 animate-pulse"></div>
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-300/30 rounded-full blur-3xl -z-10"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-pink-300/25 rounded-full blur-3xl -z-10 animate-pulse" style={{ animationDelay: '1s' }}></div>
+      {/* Floating decorative shapes */}
+      <div className="absolute top-20 right-20 w-20 h-20 bg-yellow-400/40 rounded-full blur-2xl animate-bounce" style={{ animationDuration: '4s' }}></div>
+      <div className="absolute bottom-32 left-32 w-16 h-16 bg-blue-400/40 rounded-full blur-2xl animate-bounce" style={{ animationDuration: '5s', animationDelay: '0.5s' }}></div>
+      <div className="absolute top-1/3 left-1/4 w-12 h-12 bg-pink-400/40 rounded-full blur-xl animate-bounce" style={{ animationDuration: '3s', animationDelay: '1s' }}></div>
       
       <div className="max-w-4xl mx-auto px-4 sm:px-8 py-8 relative z-10">
         {/* Header */}
