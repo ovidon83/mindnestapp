@@ -466,13 +466,12 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   <span className="px-6 py-3 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 transition-all shadow-sm">Self-expression</span>
                   <span className="px-6 py-3 rounded-full bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 transition-all shadow-sm">Leverage</span>
                 </div>
-                  
-                  {/* Final statement - emphasized */}
-                  <div className="pt-4">
-                    <p className="text-xl sm:text-2xl md:text-3xl text-slate-900 font-semibold">
-                      All start in the same place.
-                    </p>
-                  </div>
+                
+                {/* Final statement */}
+                <div className="pt-4">
+                  <p className="text-xl sm:text-2xl md:text-3xl text-slate-900 font-semibold">
+                    All start in the same place.
+                  </p>
                 </div>
               </div>
             </div>
