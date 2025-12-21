@@ -642,7 +642,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   </div>
                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
                     <div className="space-y-2 text-sm text-slate-700">
-                      <p className="italic">"I need to research immigration options for Canada by next month"</p>
+                      <p className="italic">"I want to build my personal brand as a designer and start sharing my work online. Need to figure out the best platform and content strategy."</p>
                       <p className="text-xs text-slate-500 mt-2">💬 Voice or text input</p>
                     </div>
                   </div>
@@ -665,15 +665,15 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center gap-2">
                         <span className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-medium">To-Do</span>
-                        <span className="text-slate-600 flex-1">Research Canada immigration</span>
+                        <span className="text-slate-600 flex-1">Build personal brand as designer</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">Insight</span>
-                        <span className="text-slate-600 flex-1">Design system patterns</span>
+                        <span className="text-slate-600 flex-1">LinkedIn is best for B2B designers</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="px-2 py-1 bg-pink-100 text-pink-700 rounded text-xs font-medium">Thought</span>
-                        <span className="text-slate-600 flex-1">Morning reflection</span>
+                        <span className="text-slate-600 flex-1">Content strategy ideas</span>
                       </div>
                     </div>
                   </div>
@@ -694,12 +694,13 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center gap-2 text-slate-600">
                         <Search className="w-4 h-4 text-slate-400" />
-                        <span className="italic">"immigration canada"</span>
+                        <span className="italic">"personal brand"</span>
                       </div>
                       <div className="mt-3 space-y-1.5 pl-6">
-                        <p className="text-xs text-slate-700">✓ Found 3 entries</p>
-                        <p className="text-xs text-slate-500">• Research Canada immigration</p>
-                        <p className="text-xs text-slate-500">• Visa requirements notes</p>
+                        <p className="text-xs text-slate-700">✓ Found 5 entries</p>
+                        <p className="text-xs text-slate-500">• Build personal brand as designer</p>
+                        <p className="text-xs text-slate-500">• Content strategy ideas</p>
+                        <p className="text-xs text-slate-500">• Platform comparison notes</p>
                       </div>
                     </div>
                   </div>
@@ -721,12 +722,13 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
                     <div className="space-y-2 text-sm text-slate-700">
                       <p className="font-medium text-xs text-slate-500 mb-2">AI Note:</p>
-                      <p className="italic text-xs">"Consider Express Entry for skilled workers. Research CRS score requirements..."</p>
+                      <p className="italic text-xs">"Personal branding for designers works best with consistent visual identity and thought leadership content. LinkedIn + Dribbble combo is powerful..."</p>
                       <div className="mt-3 pt-2 border-t border-slate-200">
                         <p className="font-medium text-xs text-slate-500 mb-1">Sub-tasks:</p>
                         <ul className="text-xs space-y-1 text-slate-600">
-                          <li>• Check Express Entry eligibility</li>
-                          <li>• Calculate CRS score</li>
+                          <li>• Define your unique design perspective</li>
+                          <li>• Create content calendar (2x/week)</li>
+                          <li>• Set up portfolio on Dribbble</li>
                         </ul>
                       </div>
                     </div>
@@ -750,11 +752,11 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     <div className="space-y-3">
                       <div className="flex items-start gap-2">
                         <div className="w-6 h-6 rounded bg-blue-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">in</div>
-                        <p className="text-xs text-slate-600 italic">"Just discovered Express Entry for Canada immigration. Here's what I learned..."</p>
+                        <p className="text-xs text-slate-600 italic">"3 months into building my personal brand as a designer, here's what's working: consistent visual identity + thought leadership on LinkedIn..."</p>
                       </div>
                       <div className="flex items-start gap-2">
                         <div className="w-6 h-6 rounded bg-sky-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">𝕏</div>
-                        <p className="text-xs text-slate-600 italic">"Express Entry = fastest path to Canada PR. Game changer."</p>
+                        <p className="text-xs text-slate-600 italic">"Personal branding tip: Your unique perspective > perfect design. Share your process."</p>
                       </div>
                     </div>
                   </div>
@@ -776,8 +778,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
                     <div className="space-y-2 text-sm text-slate-700">
                       <p className="font-medium text-xs text-slate-500 mb-2">Observation:</p>
-                      <p className="italic text-xs">"You've been focusing heavily on immigration research. Consider breaking it into smaller actionable steps to reduce overwhelm."</p>
-                      <p className="text-xs text-slate-500 mt-3">Pattern detected: Career planning</p>
+                      <p className="italic text-xs">"You're consistently thinking about career growth and personal branding. This suggests you're ready to take your professional presence to the next level. Consider starting with one platform before expanding."</p>
+                      <p className="text-xs text-slate-500 mt-3">Pattern detected: Career development focus</p>
                     </div>
                   </div>
                   <p className="text-sm text-slate-600">
