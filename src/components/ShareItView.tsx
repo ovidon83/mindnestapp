@@ -202,7 +202,6 @@ const ShareItView: React.FC = () => {
                   {/* Decorative corner elements */}
                   <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400/50 rounded-full blur-sm"></div>
                   <div className="absolute -bottom-2 -left-2 w-5 h-5 bg-blue-400/50 rounded-full blur-sm"></div>
-                >
                   {/* Original Thought */}
                   <div className="p-5 flex-1 flex flex-col min-h-0">
                     <div className="text-sm text-slate-900 leading-relaxed flex-1 overflow-hidden mb-4">

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useGenieNotesStore } from '../store';
 import { Entry, Category, EntryType } from '../types';
 import { generateNextStep } from '../lib/ai';
-import { Plus, Trash2, Sparkles, Filter, X, ChevronDown, BookOpen, Lightbulb, Search, Clock } from 'lucide-react';
+import { Trash2, Sparkles, X, ChevronDown, BookOpen, Lightbulb, Search, Clock } from 'lucide-react';
 import UserAvatar from './UserAvatar';
 
 type DateFilter = 'all' | '30days' | '60days' | '90days' | 'custom';
@@ -10,7 +10,7 @@ type DateFilter = 'all' | '30days' | '60days' | '90days' | 'custom';
 const HomeView: React.FC = () => {
   const { entries, setCurrentView, deleteEntry, updateEntry, loading, user, signOut } = useGenieNotesStore();
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all');
-  const [selectedEntryType, setSelectedEntryType] = useState<'all' | 'thought' | 'journal'>('all');
+  const [selectedEntryType, setSelectedEntryType] = useState<'all' | EntryType | 'thought'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
@@ -48,8 +48,8 @@ const HomeView: React.FC = () => {
 
   // Filter entries by category, type, and date (but search is already applied above)
   const filteredEntries = (searchQuery ? searchMatches : entries).filter(entry => {
-    const matchesCategory = selectedCategory === 'all' || entry.category === selectedCategory;
-    const matchesEntryType = selectedEntryType === 'all' || entry.entryType === selectedEntryType;
+    const matchesCategory = selectedCategory === 'all' || entry.type === selectedCategory || entry.category === selectedCategory;
+    const matchesEntryType = selectedEntryType === 'all' || entry.type === selectedEntryType || entry.entryType === selectedEntryType;
     
     // Apply date filter
     if (dateFilter !== 'all') {
@@ -100,10 +100,10 @@ const HomeView: React.FC = () => {
             </div>
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setCurrentView('posts')}
+                onClick={() => setCurrentView('shareit')}
                 className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors px-3 py-2 rounded-lg hover:bg-yellow-50 border border-transparent hover:border-yellow-200"
               >
-                Posts
+                Share it
               </button>
               <button
                 onClick={() => setCurrentView('capture')}
@@ -302,7 +302,7 @@ const HomeView: React.FC = () => {
             <p className="text-base text-slate-600 mb-8">
               {searchQuery || selectedCategory !== 'all' || selectedEntryType !== 'all'
                 ? 'Try adjusting your filters'
-                : selectedEntryType === 'journal'
+                : (selectedEntryType !== 'all' && selectedEntryType === 'journal')
                 ? 'Start by adding your first journal entry'
                 : 'Start by capturing your first thought'}
             </p>
@@ -311,7 +311,7 @@ const HomeView: React.FC = () => {
                 onClick={() => setCurrentView('capture')}
                 className="px-6 py-3 text-base font-medium bg-white/80 text-slate-700 border-2 border-yellow-300 rounded-lg hover:border-yellow-400 hover:bg-yellow-50/80 transition-all shadow-sm backdrop-blur-sm"
               >
-                {selectedEntryType === 'journal' ? 'Add Journal Entry' : 'Capture Your First Thought'}
+                {(selectedEntryType !== 'all' && selectedEntryType === 'journal') ? 'Add Journal Entry' : 'Capture Your First Thought'}
               </button>
             )}
           </div>
@@ -371,10 +371,14 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onDelete, onUpdateCategory
     }
   };
 
-  const getTypeBadge = (entryType: EntryType) => {
+  const getTypeBadge = (entryType: EntryType | 'thought' | undefined) => {
+    if (!entryType) return 'bg-slate-100 text-slate-700';
     switch (entryType) {
-      case 'thought': return 'bg-cyan-100 text-cyan-700';
+      case 'todo': return 'bg-yellow-100 text-yellow-700';
+      case 'insight': return 'bg-blue-100 text-blue-700';
       case 'journal': return 'bg-amber-100 text-amber-700';
+      case 'thought': return 'bg-cyan-100 text-cyan-700'; // Legacy support
+      default: return 'bg-slate-100 text-slate-700';
     }
   };
 
@@ -406,7 +410,7 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onDelete, onUpdateCategory
           {/* Title and Delete */}
           <div className="flex items-start justify-between gap-3 mb-3">
             <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
-              {entry.entryType === 'journal' 
+              {(entry.type || entry.entryType) === 'journal' 
                 ? entry.originalText.split('\n')[0] || 'Journal Entry'
                 : entry.originalText.length > 60 
                   ? entry.originalText.substring(0, 60) + '...'
@@ -425,11 +429,21 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onDelete, onUpdateCategory
           {/* Badges Row */}
           <div className="flex items-center gap-2 flex-wrap mb-3">
             {/* Entry Type Badge */}
-            <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${getTypeBadge(entry.entryType)}`}>
-              {entry.entryType === 'journal' ? (
+            <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${getTypeBadge(entry.type || entry.entryType)}`}>
+              {(entry.type || entry.entryType) === 'journal' ? (
                 <>
                   <BookOpen className="w-3 h-3" />
                   Journal
+                </>
+              ) : (entry.type || entry.entryType) === 'insight' ? (
+                <>
+                  <Lightbulb className="w-3 h-3" />
+                  Insight
+                </>
+              ) : (entry.type || entry.entryType) === 'todo' ? (
+                <>
+                  <Lightbulb className="w-3 h-3" />
+                  To-Do
                 </>
               ) : (
                 <>
@@ -440,12 +454,13 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onDelete, onUpdateCategory
             </span>
             
             {/* Category Badge */}
+            {(entry.category || entry.type) && (
             <button
               onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
               disabled={isChangingCategory}
-              className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getCategoryBadge(entry.category)} hover:opacity-90 transition-opacity relative`}
+              className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getCategoryBadge((entry.category || entry.type) as Category)} hover:opacity-90 transition-opacity relative`}
             >
-              {entry.category === 'todo' ? 'To-Do' : entry.category.charAt(0).toUpperCase() + entry.category.slice(1)}
+              {(entry.category || entry.type) === 'todo' ? 'To-Do' : ((entry.category || entry.type) as string).charAt(0).toUpperCase() + ((entry.category || entry.type) as string).slice(1)}
                 {showCategoryDropdown && (
                   <>
                     <div 
@@ -458,7 +473,7 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onDelete, onUpdateCategory
                           key={cat}
                           onClick={async (e) => {
                             e.stopPropagation();
-                            if (cat === entry.category) {
+                            if (cat === (entry.category || entry.type)) {
                               setShowCategoryDropdown(false);
                               return;
                             }
@@ -473,7 +488,7 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onDelete, onUpdateCategory
                             }
                           }}
                           className={`w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 first:rounded-t-lg last:rounded-b-lg ${
-                            entry.category === cat ? 'font-medium bg-slate-50' : ''
+                            (entry.category || entry.type) === cat ? 'font-medium bg-slate-50' : ''
                           } ${getCategoryTextColor(cat)}`}
                         >
                           {cat === 'todo' ? 'To-Do' : cat.charAt(0).toUpperCase() + cat.slice(1)}
@@ -483,6 +498,7 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onDelete, onUpdateCategory
                   </>
                 )}
             </button>
+            )}
             <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
               <Clock className="w-3 h-3" />
               {formatDate(entry.createdAt)}
@@ -491,7 +507,7 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onDelete, onUpdateCategory
 
           {/* Content */}
           <div className="flex-1 mb-3">
-            {entry.entryType === 'journal' ? (
+            {(entry.type || entry.entryType) === 'journal' ? (
               <div>
                 <div className="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap line-clamp-3">
                   {entry.originalText.split('\n').slice(1).join('\n') || entry.originalText}
@@ -510,7 +526,7 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onDelete, onUpdateCategory
                 <p className="text-xs text-slate-700 leading-relaxed line-clamp-3 mb-2">
                   {entry.originalText}
                 </p>
-                {entry.category === 'todo' && entry.nextStep && (
+                {(entry.type || entry.category) === 'todo' && entry.nextStep && (
                   <div className="mt-2 p-2 bg-emerald-50 border border-emerald-100 rounded text-xs text-emerald-700">
                     <span className="font-medium">Next:</span> {entry.nextStep}
                   </div>
@@ -556,16 +572,16 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onDelete, onUpdateCategory
             >
               <div className="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  {entry.entryType === 'journal' ? (
+                  {(entry.type || entry.entryType) === 'journal' ? (
                     <span className="text-sm text-slate-600 flex items-center gap-1.5 font-medium">
                       <BookOpen className="w-4 h-4" />
                       Journal
                     </span>
-                  ) : (
-                    <span className={`text-sm inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getCategoryBadge(entry.category)}`}>
-                      {entry.category === 'todo' ? 'To-Do' : entry.category.charAt(0).toUpperCase() + entry.category.slice(1)}
+                  ) : (entry.category || entry.type) ? (
+                    <span className={`text-sm inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getCategoryBadge((entry.category || entry.type) as Category)}`}>
+                      {(entry.category || entry.type) === 'todo' ? 'To-Do' : ((entry.category || entry.type) as string).charAt(0).toUpperCase() + ((entry.category || entry.type) as string).slice(1)}
                     </span>
-                  )}
+                  ) : null}
                   <span className="inline-flex items-center gap-1 text-sm text-slate-500">
                     <Clock className="w-4 h-4" />
                     {formatDate(entry.createdAt)}
@@ -584,7 +600,7 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onDelete, onUpdateCategory
                   {entry.originalText}
                 </div>
                 
-                {entry.category === 'todo' && entry.nextStep && (
+                {(entry.type || entry.category) === 'todo' && entry.nextStep && (
                   <div className="mt-4 p-3 bg-emerald-50 border border-emerald-100 rounded-lg">
                     <div className="text-sm font-medium text-emerald-900 mb-1">Next Step</div>
                     <div className="text-sm text-emerald-700">→ {entry.nextStep}</div>
