@@ -333,17 +333,9 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
   }
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Clean base - no heavy gradients */}
-      {!user && (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {/* Very subtle base tint */}
-          <div className="absolute inset-0 bg-gradient-to-b from-emerald-50/30 via-white to-white"></div>
-        </div>
-      )}
-
-      {/* Navigation */}
-      <nav className="relative z-50 w-full px-4 sm:px-8 py-4 sm:py-6 bg-transparent">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Navigation - positioned absolutely at top */}
+      <nav className="fixed top-0 left-0 right-0 z-50 w-full px-4 sm:px-8 py-4 sm:py-6 bg-transparent">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="relative w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 group">
@@ -398,10 +390,10 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
 
       {!user ? (
         <>
-          {/* Hero Section - Super Playful and Fun */}
-          <section className="relative z-10 pt-20 sm:pt-28 pb-16 sm:pb-20 overflow-hidden">
-            {/* Vibrant playful background */}
-            <div className="absolute inset-0 -z-10">
+          {/* Hero Section - Super Playful and Fun - extends to top */}
+          <section className="relative z-10 pt-24 sm:pt-32 pb-16 sm:pb-20 overflow-hidden min-h-screen">
+            {/* Vibrant playful background - extends full screen */}
+            <div className="fixed inset-0 -z-10">
               <div className="absolute inset-0 bg-gradient-to-br from-purple-100/50 via-pink-50/30 via-yellow-50/20 to-white"></div>
               {/* Fun grid pattern */}
               <div className="absolute inset-0 opacity-[0.04]" style={{
