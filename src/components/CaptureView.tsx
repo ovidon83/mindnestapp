@@ -343,7 +343,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
       )}
 
       {/* Navigation */}
-      <nav className="relative z-50 w-full px-4 sm:px-8 py-4 sm:py-6 bg-white border-b border-slate-100">
+      <nav className="relative z-50 w-full px-4 sm:px-8 py-4 sm:py-6 bg-transparent">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="relative w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 group">
