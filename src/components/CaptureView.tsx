@@ -333,12 +333,18 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-purple-100/50 via-pink-50/30 via-yellow-50/20 to-white">
+    <div className="min-h-screen relative overflow-hidden bg-white">
       {/* Background layer - full screen for all browsers */}
       {!user && (
         <>
-          {/* Base gradient background - always visible */}
-          <div className="fixed inset-0 bg-gradient-to-br from-purple-100/50 via-pink-50/30 via-yellow-50/20 to-white pointer-events-none" style={{ zIndex: -1 }}></div>
+          {/* Solid white base - ensures light background in all browsers */}
+          <div className="fixed inset-0 bg-white pointer-events-none" style={{ zIndex: -2 }}></div>
+          
+          {/* Base gradient background - always visible with higher opacity for Cursor compatibility */}
+          <div className="fixed inset-0 pointer-events-none" style={{ 
+            zIndex: -1,
+            background: 'linear-gradient(to bottom right, rgba(243, 232, 255, 0.6), rgba(253, 242, 248, 0.4), rgba(254, 249, 195, 0.3), rgba(255, 255, 255, 1))'
+          }}></div>
           
           {/* Fun grid pattern */}
           <div className="fixed inset-0 opacity-[0.04] pointer-events-none" style={{ 
@@ -347,14 +353,29 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             backgroundSize: '50px 50px'
           }}></div>
           
-          {/* Multiple floating orbs - more playful */}
-          <div className="fixed top-1/4 right-1/4 w-[500px] h-[500px] bg-purple-300/20 rounded-full blur-3xl animate-pulse pointer-events-none" style={{ zIndex: -1 }}></div>
-          <div className="fixed bottom-1/4 left-1/4 w-[400px] h-[400px] bg-yellow-300/15 rounded-full blur-3xl pointer-events-none" style={{ zIndex: -1 }}></div>
-          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-pink-300/10 rounded-full blur-3xl pointer-events-none" style={{ zIndex: -1 }}></div>
+          {/* Multiple floating orbs - more playful with higher opacity */}
+          <div className="fixed top-1/4 right-1/4 w-[500px] h-[500px] rounded-full blur-3xl animate-pulse pointer-events-none" style={{ 
+            zIndex: -1,
+            backgroundColor: 'rgba(196, 181, 253, 0.25)'
+          }}></div>
+          <div className="fixed bottom-1/4 left-1/4 w-[400px] h-[400px] rounded-full blur-3xl pointer-events-none" style={{ 
+            zIndex: -1,
+            backgroundColor: 'rgba(253, 224, 71, 0.2)'
+          }}></div>
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full blur-3xl pointer-events-none" style={{ 
+            zIndex: -1,
+            backgroundColor: 'rgba(251, 207, 232, 0.15)'
+          }}></div>
           
           {/* Floating decorative shapes */}
-          <div className="fixed top-20 right-20 w-16 h-16 bg-yellow-400/30 rounded-full blur-xl pointer-events-none" style={{ zIndex: -1 }}></div>
-          <div className="fixed bottom-32 left-32 w-12 h-12 bg-purple-400/30 rounded-full blur-xl pointer-events-none" style={{ zIndex: -1 }}></div>
+          <div className="fixed top-20 right-20 w-16 h-16 rounded-full blur-xl pointer-events-none" style={{ 
+            zIndex: -1,
+            backgroundColor: 'rgba(253, 224, 71, 0.35)'
+          }}></div>
+          <div className="fixed bottom-32 left-32 w-12 h-12 rounded-full blur-xl pointer-events-none" style={{ 
+            zIndex: -1,
+            backgroundColor: 'rgba(196, 181, 253, 0.35)'
+          }}></div>
         </>
       )}
 
