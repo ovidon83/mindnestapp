@@ -334,6 +334,25 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
+      {/* Background layer - full screen for all browsers */}
+      {!user && (
+        <div className="fixed inset-0 -z-10">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-100/50 via-pink-50/30 via-yellow-50/20 to-white"></div>
+          {/* Fun grid pattern */}
+          <div className="absolute inset-0 opacity-[0.04]" style={{
+            backgroundImage: `linear-gradient(rgba(168, 85, 247, 0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(168, 85, 247, 0.15) 1px, transparent 1px)`,
+            backgroundSize: '50px 50px'
+          }}></div>
+          {/* Multiple floating orbs - more playful */}
+          <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-purple-300/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-yellow-300/15 rounded-full blur-3xl"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-pink-300/10 rounded-full blur-3xl"></div>
+          {/* Floating decorative shapes */}
+          <div className="absolute top-20 right-20 w-16 h-16 bg-yellow-400/30 rounded-full blur-xl"></div>
+          <div className="absolute bottom-32 left-32 w-12 h-12 bg-purple-400/30 rounded-full blur-xl"></div>
+        </div>
+      )}
+
       {/* Navigation - positioned absolutely at top */}
       <nav className="fixed top-0 left-0 right-0 z-50 w-full px-4 sm:px-8 py-4 sm:py-6 bg-transparent">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -392,22 +411,6 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
         <>
           {/* Hero Section - Super Playful and Fun - extends to top */}
           <section className="relative z-10 pt-24 sm:pt-32 pb-16 sm:pb-20 overflow-hidden min-h-screen">
-            {/* Vibrant playful background - extends full screen */}
-            <div className="fixed inset-0 -z-10">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-100/50 via-pink-50/30 via-yellow-50/20 to-white"></div>
-              {/* Fun grid pattern */}
-              <div className="absolute inset-0 opacity-[0.04]" style={{
-                backgroundImage: `linear-gradient(rgba(168, 85, 247, 0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(168, 85, 247, 0.15) 1px, transparent 1px)`,
-                backgroundSize: '50px 50px'
-              }}></div>
-              {/* Multiple floating orbs - more playful */}
-              <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-purple-300/20 rounded-full blur-3xl animate-pulse"></div>
-              <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-yellow-300/15 rounded-full blur-3xl"></div>
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-pink-300/10 rounded-full blur-3xl"></div>
-              {/* Floating decorative shapes */}
-              <div className="absolute top-20 right-20 w-16 h-16 bg-yellow-400/30 rounded-full blur-xl"></div>
-              <div className="absolute bottom-32 left-32 w-12 h-12 bg-purple-400/30 rounded-full blur-xl"></div>
-            </div>
             <div className="max-w-5xl mx-auto px-4 sm:px-8 text-center relative">
               {/* Small label - more playful */}
               <div className="mb-6">
