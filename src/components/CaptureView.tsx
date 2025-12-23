@@ -763,7 +763,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                             <span className="px-3 py-1.5 bg-purple-500 text-white rounded-lg text-xs font-bold">To Share</span>
                             <span className="text-xs text-slate-600">Ready to share</span>
                           </div>
-                          <div className="space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             {/* LinkedIn Post */}
                             <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
                               {/* LinkedIn Header */}
@@ -814,7 +814,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                             </div>
 
                             {/* X (Twitter) Post */}
-                            <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                            <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden flex flex-col">
                               {/* X Header */}
                               <div className="p-3 border-b border-gray-200 bg-white">
                                 <div className="flex items-center gap-2">
@@ -829,14 +829,14 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                                 </div>
                               </div>
                               {/* X Content */}
-                              <div className="p-4">
-                                <p className="text-sm text-gray-900 leading-relaxed mb-3">
+                              <div className="p-3 flex-1">
+                                <p className="text-xs text-gray-900 leading-relaxed mb-2">
                                   AI accelerates whatever you give it—good or bad. Messy code + lack of alignment = exponentially faster mess.
                                 </p>
-                                <p className="text-sm text-gray-900 leading-relaxed">
+                                <p className="text-xs text-gray-900 leading-relaxed">
                                   Quality gates matter more than ever. 🚀
                                 </p>
-                                <div className="flex items-center gap-6 mt-4 pt-3 border-t border-gray-200">
+                                <div className="flex items-center gap-4 mt-auto pt-2 border-t border-gray-200">
                                   <div className="flex items-center gap-1 text-gray-500">
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -860,7 +860,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                             </div>
 
                             {/* Instagram Post - Smaller */}
-                            <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden max-w-xs mx-auto">
+                            <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden flex flex-col">
                               {/* Instagram Header */}
                               <div className="p-2 border-b border-gray-200 flex items-center justify-between">
                                 <div className="flex items-center gap-2">
