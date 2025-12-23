@@ -27,15 +27,33 @@ export async function processThought(
           messages: [
             {
               role: 'system',
-              content: `Categorize and analyze the input. Return ONLY a JSON object:
+              content: `Analyze the thought and extract comprehensive metadata. The raw text is the source of truth. Return ONLY a JSON object:
               {
                 "type": "todo" | "insight" | "journal",
                 "tags": ["work" | "soccer" | "family" | "spirituality" | "business" | "tech" | "health" | "other"],
                 "summary": "one short sentence summarizing the thought",
-  "nextStep": "one short action item (only if type is todo, otherwise null)",
-  "aiHint": "subtle AI hint (1-2 sentences, reflective not prescriptive)",
-  "postingScore": number (0-100, higher for shareable insights/learnings)
-              }`
+                "nextStep": "one short action item (only if type is todo, otherwise null)",
+                "aiHint": "subtle AI hint (1-2 sentences, reflective not prescriptive)",
+                "postingScore": number (0-100, higher for shareable insights/learnings),
+                "metadata": {
+                  "actionable": boolean (true if contains clear actions or tasks),
+                  "shareable": boolean (true if insight/learning worth sharing),
+                  "recurring": boolean (true if mentions patterns, habits, or recurring themes),
+                  "thematic": boolean (true if part of a larger theme or topic),
+                  "hasDate": boolean (true if contains dates or time references),
+                  "hasMultipleActions": boolean (true if contains 2+ distinct actions),
+                  "sentiment": "positive" | "negative" | "neutral"
+                }
+              }
+              
+              Analyze content carefully:
+              - Detect dates (e.g., "tomorrow", "next week", "2024-01-15", "Monday")
+              - Count distinct actions (verbs that indicate tasks: "do", "create", "call", "meet", etc.)
+              - Identify if it's actionable (has verbs like "should", "need to", "must", action items)
+              - Identify if it's shareable (insights, learnings, reflections that could help others)
+              - Identify if it's recurring (mentions patterns, habits, "always", "often", "every time")
+              - Identify if it's thematic (part of ongoing topic, references previous thoughts)
+              - Determine sentiment from language tone`
             },
             {
               role: 'user',
@@ -61,9 +79,12 @@ export async function processThought(
             const postingScore = typeof parsed.postingScore === 'number' ? parsed.postingScore : 0;
             const aiHint = parsed.aiHint || 'Observation';
             
+            // Extract metadata with defaults
+            const metadata = parsed.metadata || {};
+            
             return {
               type,
-              originalText: rawInput,
+              originalText: rawInput, // Source of truth - always preserve raw text
               tags: Array.isArray(parsed.tags) ? parsed.tags.slice(0, 3) : [],
               summary: parsed.summary || rawInput.substring(0, 100),
               nextStep: type === 'todo' ? (parsed.nextStep || null) : undefined,
@@ -71,6 +92,17 @@ export async function processThought(
               aiHint,
               postingScore,
               inShareIt: postingScore >= 60,
+              metadata: {
+                actionable: metadata.actionable === true,
+                shareable: metadata.shareable === true || postingScore >= 60,
+                recurring: metadata.recurring === true,
+                thematic: metadata.thematic === true,
+                hasDate: metadata.hasDate === true,
+                hasMultipleActions: metadata.hasMultipleActions === true,
+                sentiment: metadata.sentiment === 'positive' || metadata.sentiment === 'negative' 
+                  ? metadata.sentiment 
+                  : 'neutral',
+              },
             };
           }
         }
@@ -81,17 +113,42 @@ export async function processThought(
   }
   
   // Fallback: basic entry structure (no API call)
+  // Still try to extract basic metadata from content
   const fallbackType = captureType || 'insight';
+  
+  // Basic heuristics for metadata when AI is unavailable
+  const lowerText = rawInput.toLowerCase();
+  const hasDate = /\b(tomorrow|yesterday|today|monday|tuesday|wednesday|thursday|friday|saturday|sunday|next week|last week|january|february|march|april|may|june|july|august|september|october|november|december|\d{1,2}\/\d{1,2}|\d{4})\b/i.test(rawInput);
+  const actionWords = (lowerText.match(/\b(do|create|call|meet|send|write|build|make|finish|complete|start|stop|need to|should|must|have to)\b/g) || []).length;
+  const hasMultipleActions = actionWords >= 2;
+  const actionable = actionWords > 0 || /\b(should|need to|must|have to|todo|task)\b/i.test(rawInput);
+  const shareable = /\b(learned|insight|realized|discovered|think|believe|opinion)\b/i.test(rawInput);
+  const recurring = /\b(always|often|usually|every time|pattern|habit|routine)\b/i.test(rawInput);
+  const thematic = /\b(also|another|similar|related|this topic|this subject)\b/i.test(rawInput);
+  
+  // Basic sentiment detection
+  const positiveWords = (lowerText.match(/\b(great|good|excellent|amazing|love|happy|excited|wonderful|fantastic|success)\b/g) || []).length;
+  const negativeWords = (lowerText.match(/\b(bad|terrible|hate|sad|angry|frustrated|disappointed|problem|issue|worried)\b/g) || []).length;
+  const sentiment = positiveWords > negativeWords ? 'positive' : negativeWords > positiveWords ? 'negative' : 'neutral';
   
   return {
     type: fallbackType,
-    originalText: rawInput,
+    originalText: rawInput, // Source of truth
     tags: [],
     summary: rawInput.substring(0, 100),
     postRecommendation: false,
     aiHint: 'Observation',
-    postingScore: 0,
+    postingScore: shareable ? 50 : 0,
     inShareIt: false,
+    metadata: {
+      actionable,
+      shareable,
+      recurring,
+      thematic,
+      hasDate,
+      hasMultipleActions,
+      sentiment,
+    },
   };
 }
 

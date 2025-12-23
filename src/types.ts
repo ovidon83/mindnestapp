@@ -8,10 +8,21 @@ export type Tag = 'work' | 'soccer' | 'family' | 'spirituality' | 'business' | '
 // Legacy types for backward compatibility (can be removed later)
 export type Category = 'todo' | 'insight' | 'idea'; // Deprecated - use EntryType instead
 
+// Metadata describing thought potential - allows same thought to surface as action, insight, etc.
+export interface ThoughtMetadata {
+  actionable: boolean; // Contains clear actions or tasks
+  shareable: boolean; // Insight/learning worth sharing with others
+  recurring: boolean; // Mentions patterns, habits, or recurring themes
+  thematic: boolean; // Part of a larger theme or ongoing topic
+  hasDate: boolean; // Contains dates or time references
+  hasMultipleActions: boolean; // Contains 2+ distinct actions
+  sentiment: 'positive' | 'negative' | 'neutral';
+}
+
 export interface Entry {
   id: string;
   type: EntryType; // Merged: 'todo' | 'insight' | 'journal'
-  originalText: string;
+  originalText: string; // Source of truth - raw text as captured
   tags: Tag[];
   summary: string;
   nextStep?: string; // Only for todos
@@ -25,6 +36,7 @@ export interface Entry {
   badgeOverride?: EntryType; // User override for badge type
   postingScore?: number; // Internal posting potential score (0-100, hidden from UI)
   inShareIt?: boolean; // Whether this entry is in Share it
+  metadata?: ThoughtMetadata; // AI-generated metadata describing thought potential
   
   // Legacy fields for backward compatibility (will be removed after migration)
   entryType?: 'thought' | 'journal'; // Deprecated

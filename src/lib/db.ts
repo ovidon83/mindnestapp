@@ -35,6 +35,16 @@ export function dbEntryToEntry(dbEntry: any): Entry {
     badgeOverride: dbEntry.badge_override || undefined,
     postingScore: dbEntry.posting_score || undefined,
     inShareIt: dbEntry.in_share_it || false,
+    // Metadata
+    metadata: dbEntry.metadata ? {
+      actionable: dbEntry.metadata.actionable || false,
+      shareable: dbEntry.metadata.shareable || false,
+      recurring: dbEntry.metadata.recurring || false,
+      thematic: dbEntry.metadata.thematic || false,
+      hasDate: dbEntry.metadata.hasDate || false,
+      hasMultipleActions: dbEntry.metadata.hasMultipleActions || false,
+      sentiment: dbEntry.metadata.sentiment || 'neutral',
+    } : undefined,
     // Legacy fields for backward compatibility
     entryType: dbEntry.entry_type || (entryType === 'journal' ? 'journal' : 'thought'),
     category: dbEntry.category || (entryType === 'todo' ? 'todo' : entryType === 'insight' ? 'insight' : 'idea'),
@@ -60,6 +70,8 @@ export function entryToDbEntry(entry: Entry): any {
     badge_override: entry.badgeOverride || null,
     posting_score: entry.postingScore || null,
     in_share_it: entry.inShareIt || false,
+    // Metadata (stored as JSONB in Supabase)
+    metadata: entry.metadata || null,
     // Legacy fields for backward compatibility
     entry_type: entry.entryType || (type === 'journal' ? 'journal' : 'thought'),
     category: entry.category || (type === 'todo' ? 'todo' : type === 'insight' ? 'insight' : 'idea'),
@@ -151,6 +163,7 @@ export async function updateEntry(id: string, updates: Partial<Entry>): Promise<
   if (updates.inShareIt !== undefined) updateData.in_share_it = updates.inShareIt;
   if (updates.aiHint !== undefined) updateData.ai_hint = updates.aiHint || null;
   if (updates.postingScore !== undefined) updateData.posting_score = updates.postingScore || null;
+  if (updates.metadata !== undefined) updateData.metadata = updates.metadata || null;
 
   const { data, error } = await (supabase as any)
     .from('entries')

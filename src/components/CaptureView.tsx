@@ -107,6 +107,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
   const [error, setError] = useState<string | null>(null);
   const [showUpload, setShowUpload] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [pendingText, setPendingText] = useState<string | null>(null); // Store text when not logged in
   
   const recognitionRef = useRef<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -246,12 +247,25 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
     }
   };
 
+  // Handle saving pending text after login
+  useEffect(() => {
+    if (user && pendingText) {
+      // User just logged in and we have pending text - restore it to inputText
+      // Don't auto-save - let user review and save manually
+      setInputText(pendingText);
+      setPendingText(null);
+      // Focus will be on the textarea so user can review and save
+    }
+  }, [user, pendingText]);
+
   const handleSubmit = async () => {
     const textToProcess = transcript || inputText;
     if (!textToProcess.trim()) return;
     
-    // If not logged in, trigger auth flow (default to signup for new users)
+    // If not logged in, preserve text and trigger auth flow
     if (!user) {
+      setPendingText(textToProcess.trim());
+      // Keep the text in the textarea so user sees it after login
       if (onOrganizeClick) {
         onOrganizeClick('signup');
       }
@@ -263,9 +277,13 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
     setShowSuccess(false);
     
     try {
-      // Always capture as thought - AI will determine if it's todo or insight
-      // Redirect to mindbox after saving
-      await processAndSave(textToProcess, 'thought');
+      // Determine if it's short-form or long-form (journal)
+      // Long-form: > 500 characters or multiple paragraphs
+      const isLongForm = textToProcess.trim().length > 500 || (textToProcess.match(/\n\n/g) || []).length >= 2;
+      const entryType = isLongForm ? 'journal' : 'thought';
+      
+      // Always capture as single canonical entity - AI will add metadata
+      await processAndSave(textToProcess, entryType);
       
       setShowSuccess(true);
       setInputText('');
@@ -276,7 +294,6 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
       setIsRedirecting(true);
       
       // Redirect will be handled by store after entry is saved
-      // The store will navigate to the appropriate view based on entry type
       setTimeout(() => {
         setIsRedirecting(false);
         setShowSuccess(false);
@@ -324,7 +341,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
     }
   };
 
-  const currentText = transcript || inputText;
+  // Show pending text if available (after login), otherwise show current input
+  const currentText = pendingText || transcript || inputText;
   const hasContent = currentText.trim().length > 0;
 
   // Show full-screen loader when processing or redirecting
@@ -468,9 +486,12 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   {/* Subtle gradient background */}
                   <div className="absolute inset-0 bg-gradient-to-r from-pink-50/50 via-orange-50/50 to-purple-50/50 rounded-xl sm:rounded-2xl"></div>
                   <textarea
-                    value={transcript || inputText}
+                    value={pendingText || transcript || inputText}
                     onChange={(e) => {
-                      if (transcript) {
+                      if (pendingText) {
+                        setPendingText(e.target.value);
+                        setInputText(e.target.value);
+                      } else if (transcript) {
                         setTranscript(e.target.value);
                       } else {
                         setInputText(e.target.value);
@@ -1111,9 +1132,12 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   <div className="absolute inset-0 bg-gradient-to-r from-pink-50/50 via-orange-50/50 to-purple-50/50 rounded-2xl"></div>
                   
             <textarea
-                    value={transcript || inputText}
+                    value={pendingText || transcript || inputText}
                     onChange={(e) => {
-                      if (transcript) {
+                      if (pendingText) {
+                        setPendingText(e.target.value);
+                        setInputText(e.target.value);
+                      } else if (transcript) {
                         setTranscript(e.target.value);
                       } else {
                         setInputText(e.target.value);
