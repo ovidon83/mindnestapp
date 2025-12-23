@@ -638,394 +638,202 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </div>
           </div>
 
-          {/* Showcase Section */}
-          <section className="py-12 sm:py-16 bg-white relative overflow-hidden">
-            {/* Subtle decorative elements */}
-            <div className="absolute top-20 left-10 w-40 h-40 bg-pink-100/20 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-20 right-10 w-36 h-36 bg-orange-100/20 rounded-full blur-3xl"></div>
+          {/* Showcase Section - Redesigned */}
+          <section className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-white via-slate-50/30 to-white relative overflow-hidden">
+            {/* Enhanced decorative elements */}
+            <div className="absolute top-20 left-10 w-64 h-64 bg-pink-100/30 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-20 right-10 w-56 h-56 bg-orange-100/30 rounded-full blur-3xl"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-100/20 rounded-full blur-3xl"></div>
             
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-              <div className="text-center mb-8 sm:mb-10 lg:mb-12">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-3 sm:mb-4">
-                  See it in <span className="bg-gradient-to-r from-pink-500 to-orange-500 bg-clip-text text-transparent italic">action</span>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+              <div className="text-center mb-12 sm:mb-16">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-4">
+                  See it in <span className="bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 bg-clip-text text-transparent italic">action</span>
                 </h2>
-                <p className="text-sm sm:text-base lg:text-lg text-slate-600 max-w-2xl mx-auto font-light px-2">
-                  Watch how a single thought flows from capture to potential action
+                <p className="text-base sm:text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto">
+                  One thought. Infinite possibilities.
                 </p>
-                </div>
+              </div>
 
-              {/* Natural Flow - User Journey */}
-              <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
-                {/* Capture - Simple card, user action only */}
-                <div className="p-5 sm:p-6 lg:p-8 bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-pink-100 hover:border-pink-300 transition-all">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-pink-400 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
-                      <Sparkles className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-3">
-                        <h3 className="text-xl sm:text-2xl font-bold text-slate-900">Capture</h3>
-                        <span className="px-2.5 py-1 rounded-full bg-blue-100 border border-blue-200 text-xs font-medium text-blue-700 flex items-center gap-1">
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                          </svg>
-                          On my morning walk
-                        </span>
+              {/* Hero Thought Card */}
+              <div className="max-w-3xl mx-auto mb-16">
+                <div className="bg-white rounded-2xl shadow-2xl border-2 border-pink-200 p-6 sm:p-8 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-pink-100/50 to-transparent rounded-bl-full"></div>
+                  <div className="relative">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-pink-400 rounded-xl flex items-center justify-center shadow-lg">
+                        <Sparkles className="w-5 h-5 text-white" />
                       </div>
-                      <div className="bg-gradient-to-br from-pink-50 to-pink-100/50 rounded-xl p-4 sm:p-5 border border-pink-200">
-                        <p className="text-sm sm:text-base text-slate-700 italic leading-relaxed">"AI is making everything faster. It accelerates whatever we put in its hands—the good and the bad. Give it messy code, lack of alignment, and so on... it'll speed up the mess exponentially."</p>
+                      <div>
+                        <h3 className="text-lg font-bold text-slate-900">You capture</h3>
+                        <p className="text-xs text-slate-500">On your morning walk</p>
                       </div>
                     </div>
-                  </div>
-                </div>
-
-                {/* What Thouthy does with it - Wrapped in border */}
-                <div className="relative mt-8 sm:mt-10 pt-8 sm:pt-10 border-2 border-dashed border-purple-300 rounded-2xl bg-gradient-to-br from-purple-50/30 via-pink-50/20 to-indigo-50/30">
-                  {/* Label at top of border */}
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <div className="px-4 py-2 bg-white border-2 border-purple-300 rounded-full shadow-md">
-                      <span className="text-sm sm:text-base font-bold text-slate-800">What Thouthy does with it</span>
+                    <div className="bg-gradient-to-br from-pink-50 to-pink-100/30 rounded-xl p-5 border border-pink-200">
+                      <p className="text-base sm:text-lg text-slate-800 leading-relaxed italic">
+                        "AI is making everything faster. It accelerates whatever we put in its hands—the good and the bad. Give it messy code, lack of alignment, and so on... it'll speed up the mess exponentially."
+                      </p>
                     </div>
-                  </div>
-                  
-                  <div className="space-y-6 sm:space-y-8 px-4 sm:px-6 pb-6 sm:pb-8">
-                    {/* Save & Analyze */}
-                <div className="p-5 sm:p-6 lg:p-8 bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-orange-100 hover:border-orange-300 transition-all">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-400 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                      </svg>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-3">Save & Analyze</h3>
-                      <div className="bg-gradient-to-br from-orange-50 to-orange-100/50 rounded-xl p-4 sm:p-5 border border-orange-200 space-y-3">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="px-3 py-1.5 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs font-bold shadow-md">Insight</span>
-                          <span className="text-xs text-slate-600">Auto-categorized</span>
-                        </div>
-                        <p className="text-sm text-slate-700 italic leading-relaxed">"AI is making everything faster. It accelerates whatever we put in its hands—the good and the bad..."</p>
-                        <div className="mt-3 pt-3 border-t border-orange-200">
-                          <p className="text-xs text-slate-600 font-medium mb-2">AI Analysis:</p>
-                          <p className="text-xs sm:text-sm text-slate-700">Identified as a critical insight about AI's amplifying effect on both quality and problems. Topic: AI acceleration, development practices, quality control, team alignment.</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Search Your Thoughts */}
-                <div className="p-5 sm:p-6 lg:p-8 bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-purple-100 hover:border-purple-300 transition-all">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-400 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
-                      <Search className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-3">Search Your Thoughts</h3>
-                      <div className="bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-xl p-4 sm:p-5 border border-purple-200">
-                        <div className="flex items-center gap-2 text-slate-600 bg-white rounded-lg px-4 py-3 mb-3 shadow-sm border border-purple-200">
-                          <Search className="w-4 h-4 text-purple-500" />
-                          <span className="text-sm text-slate-500">AI acceleration...</span>
-                        </div>
-                        <p className="text-sm text-slate-700 italic leading-relaxed mb-2">Found 3 related thoughts:</p>
-                        <ul className="text-xs sm:text-sm text-slate-600 space-y-1 ml-4">
-                          <li>• "AI amplifies both good and bad practices" (2 days ago)</li>
-                          <li>• "Speed without quality creates technical debt" (1 week ago)</li>
-                          <li>• "Alignment matters more with AI tools" (3 weeks ago)</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Act on What Matters */}
-                <div className="p-5 sm:p-6 lg:p-8 bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-orange-100 hover:border-orange-300 transition-all">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-400 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
-                    </div>
-                    <div className="flex-1 min-w-0 w-full">
-                      <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-3">Act on What Matters</h3>
-                      <div className="space-y-3 w-full">
-                        {/* To Share - Full Width, No Background */}
-                        <div className="rounded-xl p-4 sm:p-5 -mx-5 sm:-mx-6 md:-mx-8 lg:-mx-8 px-5 sm:px-6 md:px-8 lg:px-8 w-[calc(100%+2.5rem)] sm:w-[calc(100%+3rem)] md:w-[calc(100%+4rem)] lg:w-[calc(100%+4rem)]">
-                          <div className="flex items-center gap-2 mb-4">
-                            <span className="px-3 py-1.5 bg-purple-500 text-white rounded-lg text-xs font-bold">To Share</span>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 w-full">
-                            {/* LinkedIn Post */}
-                            <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
-                              <div className="p-3 bg-gray-50 flex items-center gap-2">
-                                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-                                  <span className="text-white text-xs font-bold">{userInitials}</span>
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="text-xs font-semibold text-gray-900 truncate">{userName}</div>
-                                  <div className="text-[10px] text-gray-500">Developer • 1st</div>
-                                </div>
-                                <Linkedin className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                              </div>
-                              <div className="p-3 flex-1 flex flex-col">
-                                <p className="text-xs text-gray-900 leading-relaxed mb-2">
-                                  AI accelerates everything—the good and the bad. Give it messy code and poor alignment, and it'll speed up the mess exponentially.
-                                </p>
-                                <p className="text-xs text-gray-900 leading-relaxed mb-2">
-                                  The key isn't slowing down AI. It's ensuring what we feed it is worth accelerating.
-                                </p>
-                                <p className="text-xs text-gray-900 leading-relaxed mb-3">
-                                  Quality gates and alignment checkpoints matter more than ever.
-                                </p>
-                                <div className="flex items-center gap-3 mt-auto pt-2 text-gray-500">
-                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                  </svg>
-                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                  </svg>
-                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342c-.2 0-.4-.01-.6-.03l-4.11.84c-.51.1-.94-.33-.84-.84l.84-4.11c.02-.2-.01-.4-.03-.6 0-.55.45-1 1-1h4.11c.51 0 .94.33 1.05.84l.84 4.11c.02.2.01.4.03.6 0 .55-.45 1-1 1zm6.316 0c-.2 0-.4-.01-.6-.03l-4.11.84c-.51.1-.94-.33-.84-.84l.84-4.11c.02-.2-.01-.4-.03-.6 0-.55.45-1 1-1h4.11c.51 0 .94.33 1.05.84l.84 4.11c.02.2.01.4.03.6 0 .55-.45 1-1 1z" />
-                                  </svg>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* X (Twitter) Post */}
-                            <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
-                              <div className="p-3 bg-white flex items-center gap-2">
-                                <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center flex-shrink-0">
-                                  <span className="text-white text-xs font-bold">{userInitials}</span>
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="text-xs font-semibold text-gray-900 truncate">{userName}</div>
-                                  <div className="text-[10px] text-gray-500">@username</div>
-                                </div>
-                                <Twitter className="w-4 h-4 text-sky-500 flex-shrink-0" />
-                              </div>
-                              <div className="p-3 flex-1 flex flex-col">
-                                <p className="text-xs text-gray-900 leading-relaxed mb-2">
-                                  AI accelerates whatever you give it—good or bad. Messy code + lack of alignment = exponentially faster mess.
-                                </p>
-                                <p className="text-xs text-gray-900 leading-relaxed mb-3">
-                                  Quality gates matter more than ever. 🚀
-                                </p>
-                                <div className="flex items-center gap-4 mt-auto pt-2 text-gray-500">
-                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                  </svg>
-                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342c-.2 0-.4-.01-.6-.03l-4.11.84c-.51.1-.94-.33-.84-.84l.84-4.11c.02-.2-.01-.4-.03-.6 0-.55.45-1 1-1h4.11c.51 0 .94.33 1.05.84l.84 4.11c.02.2.01.4.03.6 0 .55-.45 1-1 1zm6.316 0c-.2 0-.4-.01-.6-.03l-4.11.84c-.51.1-.94-.33-.84-.84l.84-4.11c.02-.2-.01-.4-.03-.6 0-.55.45-1 1-1h4.11c.51 0 .94.33 1.05.84l.84 4.11c.02.2.01.4.03.6 0 .55-.45 1-1 1z" />
-                                  </svg>
-                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                  </svg>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Instagram Post */}
-                            <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
-                              <div className="p-2.5 bg-white flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <div className="w-7 h-7 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <span className="text-white text-[10px] font-bold">{userInitials}</span>
-                                  </div>
-                                  <span className="text-xs font-semibold text-gray-900">{userName.toLowerCase().replace(/\s+/g, '')}</span>
-                                </div>
-                                <Instagram className="w-4 h-4 text-rose-600 flex-shrink-0" />
-                              </div>
-                              <div className="aspect-square bg-gradient-to-br from-purple-100 via-pink-100 to-orange-100 flex items-center justify-center">
-                                <div className="w-12 h-12 bg-white/90 rounded-lg flex items-center justify-center shadow-md">
-                                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                  </svg>
-                                </div>
-                              </div>
-                              <div className="p-2.5 bg-white flex flex-col flex-1">
-                                <div className="flex items-center gap-3 mb-2">
-                                  <svg className="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                  </svg>
-                                  <svg className="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                  </svg>
-                                  <svg className="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                                  </svg>
-                                  <div className="flex-1"></div>
-                                  <svg className="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                                  </svg>
-                                </div>
-                                <div className="text-xs font-semibold text-gray-900 mb-1.5">123 likes</div>
-                                <p className="text-xs text-gray-900 leading-relaxed">
-                                  <span className="font-semibold">{userName.toLowerCase().replace(/\s+/g, '')}</span>{' '}
-                                  AI is making everything faster. It amplifies whatever we put in—the good and the bad. My learning: clean inputs, clear alignment, then let AI accelerate the right things. 🚀
-                                </p>
-                                <p className="text-[10px] text-gray-500 mt-1.5">2 hours ago</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* To-Do - Second */}
-                        <div className="bg-gradient-to-br from-orange-50 to-orange-100/50 rounded-xl p-4 border border-orange-200">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="px-3 py-1.5 bg-orange-500 text-white rounded-lg text-xs font-bold">To-Do</span>
-                            <span className="text-xs text-slate-600">Suggested action</span>
-                          </div>
-                          <p className="text-sm text-slate-700">Establish quality gates and alignment checkpoints before using AI tools in development workflows.</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Mind Report */}
-                <div className="p-5 sm:p-6 lg:p-8 bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-indigo-100 hover:border-indigo-300 transition-all">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-400 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                      </svg>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-3">Mind Report</h3>
-                      <div className="bg-gradient-to-br from-indigo-50 via-purple-50/30 to-pink-50/20 rounded-xl p-5 sm:p-6 border-2 border-indigo-200/50 shadow-sm">
-                        <div className="mb-5">
-                          <div className="flex items-center justify-between mb-3">
-                            <span className="text-base font-bold text-slate-800">Last 30 Days</span>
-                            <div className="flex items-center gap-2">
-                              <button className="px-2 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-100 rounded transition-colors">30d</button>
-                              <button className="px-2 py-1 text-xs font-medium text-slate-500 hover:bg-slate-100 rounded transition-colors">60d</button>
-                              <button className="px-2 py-1 text-xs font-medium text-slate-500 hover:bg-slate-100 rounded transition-colors">90d</button>
-                            </div>
-                          </div>
-                          
-                          {/* Total Thoughts Overview */}
-                          <div className="bg-white rounded-xl p-4 border-2 border-indigo-200 text-center shadow-sm mb-4">
-                            <div className="text-3xl font-bold text-indigo-600 mb-1">47</div>
-                            <div className="text-xs font-medium text-slate-600 uppercase tracking-wide">Total Thoughts</div>
-                            <div className="text-xs text-orange-600 font-medium mt-1">↑ 12%</div>
-                          </div>
-
-                          {/* Breakdown by Type */}
-                          <div className="mb-4">
-                            <p className="text-xs font-semibold text-slate-700 mb-2">By Type:</p>
-                            <div className="grid grid-cols-3 gap-2 mb-3">
-                              <div className="bg-white rounded-lg p-3 border border-orange-200 text-center">
-                                <div className="text-xl font-bold text-orange-600 mb-0.5">12</div>
-                                <div className="text-xs text-slate-600">To-Dos</div>
-                                <div className="text-xs text-slate-500 mt-0.5">26%</div>
-                              </div>
-                              <div className="bg-white rounded-lg p-3 border border-purple-200 text-center">
-                                <div className="text-xl font-bold text-purple-600 mb-0.5">28</div>
-                                <div className="text-xs text-slate-600">Insights</div>
-                                <div className="text-xs text-slate-500 mt-0.5">60%</div>
-                              </div>
-                              <div className="bg-white rounded-lg p-3 border border-blue-200 text-center">
-                                <div className="text-xl font-bold text-blue-600 mb-0.5">7</div>
-                                <div className="text-xs text-slate-600">Journal</div>
-                                <div className="text-xs text-slate-500 mt-0.5">15%</div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Sentiment Breakdown */}
-                          <div className="mb-4">
-                            <p className="text-xs font-semibold text-slate-700 mb-2">Sentiment:</p>
-                            <div className="grid grid-cols-3 gap-2 mb-3">
-                              <div className="bg-white rounded-lg p-3 border border-orange-200 text-center">
-                                <div className="text-xl font-bold text-orange-600 mb-0.5">18</div>
-                                <div className="text-xs text-slate-600">Positive</div>
-                                <div className="text-xs text-slate-500 mt-0.5">38%</div>
-                              </div>
-                              <div className="bg-white rounded-lg p-3 border border-amber-200 text-center">
-                                <div className="text-xl font-bold text-amber-600 mb-0.5">15</div>
-                                <div className="text-xs text-slate-600">Neutral</div>
-                                <div className="text-xs text-slate-500 mt-0.5">32%</div>
-                              </div>
-                              <div className="bg-white rounded-lg p-3 border border-red-200 text-center">
-                                <div className="text-xl font-bold text-red-600 mb-0.5">14</div>
-                                <div className="text-xs text-slate-600">Negative</div>
-                                <div className="text-xs text-slate-500 mt-0.5">30%</div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Worth Sharing with Others */}
-                          <div className="mb-4">
-                            <p className="text-xs font-semibold text-slate-700 mb-2">Worth sharing with others:</p>
-                            <div className="bg-white rounded-lg p-3 border-2 border-purple-300 mb-3">
-                              <div className="text-center mb-3">
-                                <div className="text-2xl font-bold text-purple-600 mb-0.5">19</div>
-                                <div className="text-xs text-slate-600">High-value thoughts</div>
-                                <div className="text-xs text-slate-500 mt-0.5">40% of total</div>
-                              </div>
-                              <div className="pt-3 border-t border-purple-200">
-                                <p className="text-xs font-semibold text-slate-700 mb-2">By Topic:</p>
-                                <div className="space-y-2">
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-xs text-slate-600">AI & Development</span>
-                                    <span className="text-xs font-bold text-purple-600">8 thoughts</span>
-                                  </div>
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-xs text-slate-600">Workflow & Process</span>
-                                    <span className="text-xs font-bold text-purple-600">6 thoughts</span>
-                                  </div>
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-xs text-slate-600">Personal Growth</span>
-                                    <span className="text-xs font-bold text-purple-600">5 thoughts</span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="bg-gradient-to-br from-purple-50 to-pink-50/30 rounded-lg p-3 border border-purple-200">
-                              <p className="text-xs text-slate-700 leading-relaxed">
-                                <span className="font-semibold">Your thoughts on AI & Development</span> would make great, honest posts and can help others navigate the challenges of AI-powered workflows. Your insights on <span className="font-semibold">Workflow & Process</span> offer practical wisdom that many teams are seeking right now.
-                              </p>
-                            </div>
-                          </div> 
-                        </div>
-                        <div className="space-y-4">
-                          <div>
-                            <p className="text-sm font-bold text-slate-800 mb-2.5">Top Topics (All):</p>
-                            <div className="flex flex-wrap gap-2">
-                              <span className="px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg text-xs font-semibold shadow-sm">Software Development</span>
-                              <span className="px-3 py-1.5 bg-pink-100 text-pink-700 rounded-lg text-xs font-semibold shadow-sm">Health & Wellness</span>
-                              <span className="px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg text-xs font-semibold shadow-sm">AI Tools</span>
-                              <span className="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-xs font-semibold shadow-sm">Life Planning</span>
-                            </div>
-                          </div>
-                          <div className="pt-4 border-t-2 border-indigo-200/50">
-                            <p className="text-sm font-bold text-slate-800 mb-2">Key Insights:</p>
-                            <div className="space-y-2.5">
-                              <div className="bg-white/80 rounded-lg p-3 border border-indigo-200">
-                                <p className="text-xs font-semibold text-indigo-700 mb-1">📈 Work-Life Balance</p>
-                                <p className="text-xs text-slate-700">60% work thoughts, 40% personal. Your work focus increased 15% this month, while personal wellness thoughts remain steady. Consider maintaining balance.</p>
-                              </div>
-                              <div className="bg-white/80 rounded-lg p-3 border border-purple-200">
-                                <p className="text-xs font-semibold text-purple-700 mb-1">🔗 Cross-Domain Patterns</p>
-                                <p className="text-xs text-slate-700">"Process improvement" appears in both work (team processes) and personal (life planning) thoughts. You're applying systematic thinking across domains.</p>
-                              </div>
-                              <div className="bg-white/80 rounded-lg p-3 border border-pink-200">
-                                <p className="text-xs font-semibold text-pink-700 mb-1">⚡ Action Opportunity</p>
-                                <p className="text-xs text-slate-700">8 thoughts ready to post (5 work, 3 personal). Your work insights on AI development have high sharing potential, while personal wellness reflections could inspire others.</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
                   </div>
                 </div>
               </div>
-              
-              {/* Additional Features Grid */}
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-8 sm:mt-10 lg:mt-12">
+
+              {/* 4-Step Visual Flow */}
+              <div className="max-w-6xl mx-auto mb-16">
+                <div className="relative">
+                  {/* Connecting Line - Desktop Only */}
+                  <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-pink-200 via-orange-200 to-purple-200 transform -translate-y-1/2"></div>
+                  
+                  {/* Steps Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-4 relative">
+                    {/* Step 1: Analyze */}
+                    <div className="relative bg-white rounded-xl shadow-lg border-2 border-orange-200 p-5 hover:shadow-xl transition-all hover:scale-105">
+                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-400 rounded-full flex items-center justify-center shadow-lg z-10">
+                        <span className="text-white font-bold text-sm">1</span>
+                      </div>
+                      <div className="mt-4 text-center">
+                        <div className="w-12 h-12 bg-gradient-to-br from-orange-100 to-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3">
+                          <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                          </svg>
+                        </div>
+                        <h4 className="font-bold text-slate-900 mb-2">Analyzed</h4>
+                        <p className="text-xs text-slate-600 mb-3">Categorized as <span className="font-semibold text-orange-600">Insight</span></p>
+                        <div className="text-xs text-slate-500 italic">AI identifies patterns & context</div>
+                      </div>
+                    </div>
+
+                    {/* Step 2: Connect */}
+                    <div className="relative bg-white rounded-xl shadow-lg border-2 border-purple-200 p-5 hover:shadow-xl transition-all hover:scale-105">
+                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-400 rounded-full flex items-center justify-center shadow-lg z-10">
+                        <span className="text-white font-bold text-sm">2</span>
+                      </div>
+                      <div className="mt-4 text-center">
+                        <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-50 rounded-xl flex items-center justify-center mx-auto mb-3">
+                          <Search className="w-6 h-6 text-purple-600" />
+                        </div>
+                        <h4 className="font-bold text-slate-900 mb-2">Connected</h4>
+                        <p className="text-xs text-slate-600 mb-3">Found <span className="font-semibold text-purple-600">3 related thoughts</span></p>
+                        <div className="text-xs text-slate-500 italic">Links to your past insights</div>
+                      </div>
+                    </div>
+
+                    {/* Step 3: Act */}
+                    <div className="relative bg-white rounded-xl shadow-lg border-2 border-orange-200 p-5 hover:shadow-xl transition-all hover:scale-105">
+                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-400 rounded-full flex items-center justify-center shadow-lg z-10">
+                        <span className="text-white font-bold text-sm">3</span>
+                      </div>
+                      <div className="mt-4 text-center">
+                        <div className="w-12 h-12 bg-gradient-to-br from-orange-100 to-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3">
+                          <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                        </div>
+                        <h4 className="font-bold text-slate-900 mb-2">Action Ready</h4>
+                        <p className="text-xs text-slate-600 mb-3"><span className="font-semibold text-orange-600">To Share</span> + <span className="font-semibold text-orange-600">To-Do</span></p>
+                        <div className="text-xs text-slate-500 italic">Ready-to-post drafts created</div>
+                      </div>
+                    </div>
+
+                    {/* Step 4: Insights */}
+                    <div className="relative bg-white rounded-xl shadow-lg border-2 border-indigo-200 p-5 hover:shadow-xl transition-all hover:scale-105">
+                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 bg-gradient-to-br from-indigo-500 to-indigo-400 rounded-full flex items-center justify-center shadow-lg z-10">
+                        <span className="text-white font-bold text-sm">4</span>
+                      </div>
+                      <div className="mt-4 text-center">
+                        <div className="w-12 h-12 bg-gradient-to-br from-indigo-100 to-indigo-50 rounded-xl flex items-center justify-center mx-auto mb-3">
+                          <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                          </svg>
+                        </div>
+                        <h4 className="font-bold text-slate-900 mb-2">Insights</h4>
+                        <p className="text-xs text-slate-600 mb-3"><span className="font-semibold text-indigo-600">Trends & patterns</span></p>
+                        <div className="text-xs text-slate-500 italic">20-60-90 day reports</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Social Posts Preview - Compact */}
+              <div className="max-w-5xl mx-auto mb-16">
+                <div className="bg-gradient-to-br from-purple-50 via-pink-50/30 to-orange-50/30 rounded-2xl p-6 sm:p-8 border-2 border-purple-200">
+                  <div className="text-center mb-6">
+                    <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">Ready to share</h3>
+                    <p className="text-sm text-slate-600">Draft posts generated automatically</p>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* LinkedIn Preview */}
+                    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                      <div className="p-3 bg-gray-50 flex items-center gap-2 border-b">
+                        <div className="w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-[10px] font-bold">{userInitials}</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[10px] font-semibold text-gray-900 truncate">{userName}</div>
+                          <div className="text-[9px] text-gray-500">Developer • 1st</div>
+                        </div>
+                        <Linkedin className="w-3.5 h-3.5 text-blue-600" />
+                      </div>
+                      <div className="p-3">
+                        <p className="text-[10px] text-gray-900 leading-relaxed line-clamp-4">
+                          AI accelerates everything—the good and the bad. Quality gates matter more than ever.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* X Preview */}
+                    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                      <div className="p-3 bg-white flex items-center gap-2 border-b">
+                        <div className="w-7 h-7 bg-black rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-[10px] font-bold">{userInitials}</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[10px] font-semibold text-gray-900 truncate">{userName}</div>
+                          <div className="text-[9px] text-gray-500">@username</div>
+                        </div>
+                        <Twitter className="w-3.5 h-3.5 text-sky-500" />
+                      </div>
+                      <div className="p-3">
+                        <p className="text-[10px] text-gray-900 leading-relaxed line-clamp-4">
+                          AI accelerates whatever you give it—good or bad. Quality gates matter more than ever. 🚀
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Instagram Preview */}
+                    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                      <div className="p-2 bg-white flex items-center justify-between border-b">
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-6 h-6 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+                            <span className="text-white text-[9px] font-bold">{userInitials}</span>
+                          </div>
+                          <span className="text-[10px] font-semibold text-gray-900">{userName.toLowerCase().replace(/\s+/g, '')}</span>
+                        </div>
+                        <Instagram className="w-3.5 h-3.5 text-rose-600" />
+                      </div>
+                      <div className="aspect-square bg-gradient-to-br from-purple-100 via-pink-100 to-orange-100 flex items-center justify-center">
+                        <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <div className="p-2">
+                        <p className="text-[10px] text-gray-900 leading-relaxed line-clamp-2">
+                          <span className="font-semibold">{userName.toLowerCase().replace(/\s+/g, '')}</span> AI is making everything faster...
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          {/* Additional Features Grid */}
+          <section className="py-12 sm:py-16 bg-white">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
 
                 {/* Feature 4: AI Insights */}
                 <div className="p-4 sm:p-5 lg:p-6 bg-white rounded-xl sm:rounded-2xl shadow-sm hover:shadow-md transition-all border border-slate-200/60">
