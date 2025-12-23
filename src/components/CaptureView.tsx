@@ -25,16 +25,24 @@ const EmailSubscription: React.FC = () => {
     setMessage(null);
 
     try {
-      // Use Formspree - simple form submission service
-      const formspreeEndpoint = import.meta.env.VITE_FORMSPREE_ENDPOINT || 'https://formspree.io/f/YOUR_FORM_ID';
+      // Use EmailJS - simple email service
+      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'YOUR_SERVICE_ID';
+      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'YOUR_TEMPLATE_ID';
+      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'YOUR_PUBLIC_KEY';
       
-      const response = await fetch(formspreeEndpoint, {
+      const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          email,
-          _subject: 'New Thouthy Early Access Subscription',
-          _replyto: email 
+        body: JSON.stringify({
+          service_id: serviceId,
+          template_id: templateId,
+          user_id: publicKey,
+          template_params: {
+            email: email,
+            to_email: 'ovidon83@gmail.com',
+            subject: 'New Thouthy Early Access Subscription',
+            message: `New email subscription: ${email}`,
+          },
         }),
       });
 
@@ -43,7 +51,7 @@ const EmailSubscription: React.FC = () => {
         setEmail('');
       } else {
         const errorData = await response.json().catch(() => ({}));
-        setMessage({ type: 'error', text: errorData.error || 'Failed to subscribe. Please try again.' });
+        setMessage({ type: 'error', text: errorData.text || 'Failed to subscribe. Please try again.' });
       }
     } catch (error) {
       console.error('Subscription error:', error);
