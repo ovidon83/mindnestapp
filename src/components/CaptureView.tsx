@@ -832,13 +832,37 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                             </div>
                           </div>
 
-                          {/* Worth Sharing */}
+                          {/* Worth Sharing with Others */}
                           <div className="mb-4">
-                            <p className="text-xs font-semibold text-slate-700 mb-2">Worth Sharing:</p>
-                            <div className="bg-white rounded-lg p-3 border-2 border-purple-300 text-center">
-                              <div className="text-2xl font-bold text-purple-600 mb-0.5">19</div>
-                              <div className="text-xs text-slate-600">High-value thoughts</div>
-                              <div className="text-xs text-slate-500 mt-0.5">40% of total</div>
+                            <p className="text-xs font-semibold text-slate-700 mb-2">Worth sharing with others:</p>
+                            <div className="bg-white rounded-lg p-3 border-2 border-purple-300 mb-3">
+                              <div className="text-center mb-3">
+                                <div className="text-2xl font-bold text-purple-600 mb-0.5">19</div>
+                                <div className="text-xs text-slate-600">High-value thoughts</div>
+                                <div className="text-xs text-slate-500 mt-0.5">40% of total</div>
+                              </div>
+                              <div className="pt-3 border-t border-purple-200">
+                                <p className="text-xs font-semibold text-slate-700 mb-2">By Topic:</p>
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-xs text-slate-600">AI & Development</span>
+                                    <span className="text-xs font-bold text-purple-600">8 thoughts</span>
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-xs text-slate-600">Workflow & Process</span>
+                                    <span className="text-xs font-bold text-purple-600">6 thoughts</span>
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-xs text-slate-600">Personal Growth</span>
+                                    <span className="text-xs font-bold text-purple-600">5 thoughts</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="bg-gradient-to-br from-purple-50 to-pink-50/30 rounded-lg p-3 border border-purple-200">
+                              <p className="text-xs text-slate-700 leading-relaxed">
+                                <span className="font-semibold">Your thoughts on AI & Development</span> would make great, honest posts and can help others navigate the challenges of AI-powered workflows. Your insights on <span className="font-semibold">Workflow & Process</span> offer practical wisdom that many teams are seeking right now.
+                              </p>
                             </div>
                           </div> 
                         </div>
