@@ -759,7 +759,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                         </div>
                         
                         {/* To Share - Second, Full Width */}
-                        <div className="bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-xl p-4 sm:p-5 border border-purple-200 -mx-2 sm:-mx-4 md:-mx-6 lg:-mx-8 px-2 sm:px-4 md:px-6 lg:px-8">
+                        <div className="bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-xl p-4 sm:p-5 border border-purple-200 -mx-5 sm:-mx-6 md:-mx-8 lg:-mx-8 px-5 sm:px-6 md:px-8 lg:px-8">
                           <div className="flex items-center gap-2 mb-4">
                             <span className="px-3 py-1.5 bg-purple-500 text-white rounded-lg text-xs font-bold">To Share</span>
                           </div>
