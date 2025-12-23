@@ -750,7 +750,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-3">Act on What Matters</h3>
                       <div className="space-y-3 w-full">
                         {/* To Share - Full Width, No Background */}
-                        <div className="rounded-xl p-4 sm:p-5 -mx-5 sm:-mx-6 md:-mx-8 lg:-mx-8 px-5 sm:px-6 md:px-8 lg:px-8">
+                        <div className="rounded-xl p-4 sm:p-5 -mx-5 sm:-mx-6 md:-mx-8 lg:-mx-8 px-5 sm:px-6 md:px-8 lg:px-8 w-[calc(100%+2.5rem)] sm:w-[calc(100%+3rem)] md:w-[calc(100%+4rem)] lg:w-[calc(100%+4rem)]">
                           <div className="flex items-center gap-2 mb-4">
                             <span className="px-3 py-1.5 bg-purple-500 text-white rounded-lg text-xs font-bold">To Share</span>
                           </div>
