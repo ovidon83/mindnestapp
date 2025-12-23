@@ -869,6 +869,15 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                             </div>
                           </div>
                         </div>
+                        
+                        {/* To-Do - Second */}
+                        <div className="bg-gradient-to-br from-orange-50 to-orange-100/50 rounded-xl p-4 border border-orange-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="px-3 py-1.5 bg-orange-500 text-white rounded-lg text-xs font-bold">To-Do</span>
+                            <span className="text-xs text-slate-600">Suggested action</span>
+                          </div>
+                          <p className="text-sm text-slate-700">Establish quality gates and alignment checkpoints before using AI tools in development workflows.</p>
+                        </div>
                       </div>
                     </div>
                   </div>
