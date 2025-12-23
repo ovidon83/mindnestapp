@@ -71,7 +71,7 @@ export async function fetchEntries(): Promise<Entry[]> {
   const { data, error } = await supabase
     .from('entries')
     .select('*')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false }) as any;
 
   if (error) {
     console.error('Error fetching entries:', error);
@@ -102,7 +102,7 @@ export async function insertEntry(entry: Omit<Entry, 'id' | 'createdAt' | 'updat
 
   const { data, error } = await supabase
     .from('entries')
-    .insert(dbEntryWithUserId)
+    .insert(dbEntryWithUserId as any)
     .select()
     .single();
 
@@ -152,9 +152,9 @@ export async function updateEntry(id: string, updates: Partial<Entry>): Promise<
   if (updates.aiHint !== undefined) updateData.ai_hint = updates.aiHint || null;
   if (updates.postingScore !== undefined) updateData.posting_score = updates.postingScore || null;
 
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('entries')
-    .update(updateData)
+    .update(updateData as any)
     .eq('id', id)
     .select()
     .single();
@@ -194,7 +194,7 @@ export async function saveTrainingData(content: string, contentType: 'text' | 'f
       content,
       content_type: contentType,
       file_name: fileName || null,
-    });
+    } as any);
 
   if (error) {
     console.error('Error saving training data:', error);
@@ -233,7 +233,7 @@ export async function fetchUserProfile(): Promise<UserProfile | null> {
     .from('user_profiles')
     .select('*')
     .eq('user_id', user.id)
-    .single();
+    .single() as any;
 
   if (error) {
     if (error.code === 'PGRST116') {
@@ -294,9 +294,9 @@ export async function saveUserProfile(profile: Partial<UserProfile>): Promise<Us
 
   if (existing) {
     // Update existing profile
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('user_profiles')
-      .update(profileData)
+      .update(profileData as any)
       .eq('user_id', user.id)
       .select()
       .single();
@@ -306,31 +306,32 @@ export async function saveUserProfile(profile: Partial<UserProfile>): Promise<Us
       throw error;
     }
 
+    const updateData = data as any;
     return {
-      id: data.id,
-      userId: data.user_id,
-      name: data.name || undefined,
-      role: data.role || undefined,
-      industry: data.industry || undefined,
-      location: data.location || undefined,
-      interests: data.interests || undefined,
-      domains: data.domains || undefined,
-      goals: data.goals || undefined,
-      priorities: data.priorities || undefined,
-      communicationStyle: data.communication_style || undefined,
-      preferredTone: data.preferred_tone || undefined,
-      workStyle: data.work_style || undefined,
-      timeManagement: data.time_management || undefined,
-      context: data.context || undefined,
-      createdAt: new Date(data.created_at),
-      updatedAt: new Date(data.updated_at),
+      id: updateData.id,
+      userId: updateData.user_id,
+      name: updateData.name || undefined,
+      role: updateData.role || undefined,
+      industry: updateData.industry || undefined,
+      location: updateData.location || undefined,
+      interests: updateData.interests || undefined,
+      domains: updateData.domains || undefined,
+      goals: updateData.goals || undefined,
+      priorities: updateData.priorities || undefined,
+      communicationStyle: updateData.communication_style || undefined,
+      preferredTone: updateData.preferred_tone || undefined,
+      workStyle: updateData.work_style || undefined,
+      timeManagement: updateData.time_management || undefined,
+      context: updateData.context || undefined,
+      createdAt: new Date(updateData.created_at),
+      updatedAt: new Date(updateData.updated_at),
     };
   } else {
     // Create new profile
     profileData.created_at = new Date().toISOString();
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('user_profiles')
-      .insert(profileData)
+      .insert(profileData as any)
       .select()
       .single();
 
@@ -339,24 +340,25 @@ export async function saveUserProfile(profile: Partial<UserProfile>): Promise<Us
       throw error;
     }
 
+    const createdProfileData = data as any;
     return {
-      id: data.id,
-      userId: data.user_id,
-      name: data.name || undefined,
-      role: data.role || undefined,
-      industry: data.industry || undefined,
-      location: data.location || undefined,
-      interests: data.interests || undefined,
-      domains: data.domains || undefined,
-      goals: data.goals || undefined,
-      priorities: data.priorities || undefined,
-      communicationStyle: data.communication_style || undefined,
-      preferredTone: data.preferred_tone || undefined,
-      workStyle: data.work_style || undefined,
-      timeManagement: data.time_management || undefined,
-      context: data.context || undefined,
-      createdAt: new Date(data.created_at),
-      updatedAt: new Date(data.updated_at),
+      id: createdProfileData.id,
+      userId: createdProfileData.user_id,
+      name: createdProfileData.name || undefined,
+      role: createdProfileData.role || undefined,
+      industry: createdProfileData.industry || undefined,
+      location: createdProfileData.location || undefined,
+      interests: createdProfileData.interests || undefined,
+      domains: createdProfileData.domains || undefined,
+      goals: createdProfileData.goals || undefined,
+      priorities: createdProfileData.priorities || undefined,
+      communicationStyle: createdProfileData.communication_style || undefined,
+      preferredTone: createdProfileData.preferred_tone || undefined,
+      workStyle: createdProfileData.work_style || undefined,
+      timeManagement: createdProfileData.time_management || undefined,
+      context: createdProfileData.context || undefined,
+      createdAt: new Date(createdProfileData.created_at),
+      updatedAt: new Date(createdProfileData.updated_at),
     };
   }
 }

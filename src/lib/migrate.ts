@@ -12,7 +12,7 @@ export async function migrateExistingEntries(): Promise<void> {
   }
 
   // Fetch all entries
-  const { data: entries, error: fetchError } = await supabase
+  const { data: entries, error: fetchError } = await (supabase as any)
     .from('entries')
     .select('*')
     .eq('user_id', user.id);
@@ -29,7 +29,7 @@ export async function migrateExistingEntries(): Promise<void> {
   console.log(`Migrating ${entries.length} entries...`);
 
   // Update each entry
-  for (const entry of entries) {
+  for (const entry of (entries as any[])) {
     const updates: any = {};
     const dbEntry = dbEntryToEntry(entry);
     
@@ -73,23 +73,23 @@ export async function migrateExistingEntries(): Promise<void> {
     }
 
     // Update the entry
-    const { error: updateError } = await supabase
+    const { error: updateError } = await (supabase as any)
       .from('entries')
       .update(updates)
-      .eq('id', entry.id);
+      .eq('id', (entry as any).id);
 
     if (updateError) {
       console.error(`Error updating entry ${entry.id}:`, updateError);
     } else {
-      console.log(`Updated entry: ${entry.id} - type: ${type}, ai_hint: ${updates.ai_hint?.substring(0, 30)}..., posting_score: ${postingScore}`);
+      console.log(`Updated entry: ${(entry as any).id} - type: ${type}, ai_hint: ${updates.ai_hint?.substring(0, 30)}..., posting_score: ${postingScore}`);
       
       // If entry should be in Share it, generate post drafts
       if (postingScore >= 60) {
         try {
-          await generatePostForEntry(entry.id);
-          console.log(`Generated post drafts for entry ${entry.id}`);
+          await generatePostForEntry((entry as any).id);
+          console.log(`Generated post drafts for entry ${(entry as any).id}`);
         } catch (postError) {
-          console.error(`Error generating post for entry ${entry.id}:`, postError);
+          console.error(`Error generating post for entry ${(entry as any).id}:`, postError);
         }
       }
     }

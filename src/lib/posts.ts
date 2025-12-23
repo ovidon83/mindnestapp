@@ -88,7 +88,7 @@ export async function generateNextPost(): Promise<Post | null> {
       instagram_image_prompt: nextInsight.instagramImagePrompt || null,
       instagram_image_url: nextInsight.instagramImageUrl || null,
       status: 'draft',
-    })
+    } as any)
     .select()
     .single();
   
@@ -106,7 +106,7 @@ export async function updatePostStatus(postId: string, status: PostStatus): Prom
     throw new Error('User not authenticated');
   }
 
-  const { error } = await supabase
+  const { error } = await (supabase as any)
     .from('posts')
     .update({ status, updated_at: new Date().toISOString() })
     .eq('id', postId)
@@ -141,7 +141,7 @@ export async function updatePostDraft(
     updates.instagram_content = instagramContent;
   }
 
-  const { error } = await supabase
+  const { error } = await (supabase as any)
     .from('posts')
     .update(updates)
     .eq('id', postId)
@@ -210,7 +210,7 @@ export async function generatePostForEntry(entryId: string, forceGeneration: boo
       updateData.virality_score = analysis.viralityScore;
     }
     
-    const { error: updateError } = await supabase
+    const { error: updateError } = await (supabase as any)
       .from('posts')
       .update(updateData)
       .eq('id', existingPost.id)
@@ -250,7 +250,7 @@ export async function generatePostForEntry(entryId: string, forceGeneration: boo
       instagram_image_prompt: analysis.instagramImagePrompt || null,
       instagram_image_url: analysis.instagramImageUrl || null,
       status: 'draft',
-    })
+    } as any)
     .select()
     .single();
 
@@ -301,14 +301,14 @@ export async function regenerateSocialContent(postId: string): Promise<Post> {
     .select('*, entries!inner(*)')
     .eq('id', postId)
     .eq('user_id', user.id)
-    .single();
+    .single() as any;
 
   if (fetchError || !postData) {
     throw new Error(`Error fetching post: ${fetchError?.message || 'Post not found'}`);
   }
 
   // Get the entry (it's in the entries array from the join)
-  const entryData = Array.isArray(postData.entries) ? postData.entries[0] : postData.entries;
+  const entryData = Array.isArray((postData as any).entries) ? (postData as any).entries[0] : (postData as any).entries;
   if (!entryData) {
     throw new Error('Entry not found for this post');
   }
@@ -335,7 +335,7 @@ export async function regenerateSocialContent(postId: string): Promise<Post> {
   }
 
   // Update the post with new content
-  const { data: updatedData, error: updateError } = await supabase
+  const { data: updatedData, error: updateError } = await (supabase as any)
     .from('posts')
     .update({
       twitter_content: twitterContent,
@@ -368,7 +368,7 @@ export async function regenerateAllMissingSocialContent(): Promise<number> {
     .from('posts')
     .select('id, twitter_content, instagram_content')
     .eq('user_id', user.id)
-    .or('twitter_content.is.null,instagram_content.is.null');
+    .or('twitter_content.is.null,instagram_content.is.null') as any;
 
   if (error) {
     throw new Error(`Error fetching posts: ${error.message}`);
@@ -379,12 +379,12 @@ export async function regenerateAllMissingSocialContent(): Promise<number> {
   }
 
   let regenerated = 0;
-  for (const post of posts) {
+  for (const post of (posts as any[])) {
     try {
-      await regenerateSocialContent(post.id);
+      await regenerateSocialContent((post as any).id);
       regenerated++;
     } catch (error) {
-      console.error(`Error regenerating content for post ${post.id}:`, error);
+      console.error(`Error regenerating content for post ${(post as any).id}:`, error);
     }
   }
 
