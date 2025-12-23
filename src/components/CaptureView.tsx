@@ -87,7 +87,7 @@ const EmailSubscription: React.FC = () => {
       {message && (
         <div className={`absolute top-full mt-4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-lg text-sm whitespace-nowrap ${
           message.type === 'success' 
-            ? 'bg-green-50 text-green-700 border border-green-200' 
+            ? 'bg-purple-50 text-purple-700 border border-purple-200' 
             : 'bg-red-50 text-red-700 border border-red-200'
         }`}>
           {message.text}
@@ -616,8 +616,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
 
                 {/* Success Message */}
                 {showSuccess && (
-                  <div className="mt-6 p-4 bg-green-50 rounded-lg text-center">
-                    <div className="flex items-center justify-center gap-2 text-green-700">
+                  <div className="mt-6 p-4 bg-purple-50 rounded-lg text-center">
+                    <div className="flex items-center justify-center gap-2 text-purple-700">
                       <CheckCircle className="w-5 h-5" />
                       <span className="font-medium">
                         Thought captured and saved!
@@ -730,9 +730,9 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 </div>
 
                 {/* Act on What Matters */}
-                <div className="p-5 sm:p-6 lg:p-8 bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-emerald-100 hover:border-emerald-300 transition-all">
+                <div className="p-5 sm:p-6 lg:p-8 bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-orange-100 hover:border-orange-300 transition-all">
                   <div className="flex items-start gap-4 mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-400 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                    <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-400 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
@@ -741,9 +741,9 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-3">Act on What Matters</h3>
                       <div className="space-y-3">
                         {/* To-Do */}
-                        <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-xl p-4 border border-emerald-200">
+                        <div className="bg-gradient-to-br from-orange-50 to-orange-100/50 rounded-xl p-4 border border-orange-200">
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="px-3 py-1.5 bg-emerald-500 text-white rounded-lg text-xs font-bold">To-Do</span>
+                            <span className="px-3 py-1.5 bg-orange-500 text-white rounded-lg text-xs font-bold">To-Do</span>
                             <span className="text-xs text-slate-600">Suggested action</span>
                           </div>
                           <p className="text-sm text-slate-700">Establish quality gates and alignment checkpoints before using AI tools in development workflows.</p>
@@ -889,7 +889,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                           <div className="bg-white rounded-xl p-4 border-2 border-indigo-200 text-center shadow-sm mb-4">
                             <div className="text-3xl font-bold text-indigo-600 mb-1">47</div>
                             <div className="text-xs font-medium text-slate-600 uppercase tracking-wide">Total Thoughts</div>
-                            <div className="text-xs text-emerald-600 font-medium mt-1">↑ 12%</div>
+                            <div className="text-xs text-orange-600 font-medium mt-1">↑ 12%</div>
                           </div>
 
                           {/* Breakdown by Type */}
@@ -918,8 +918,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                           <div className="mb-4">
                             <p className="text-xs font-semibold text-slate-700 mb-2">Sentiment:</p>
                             <div className="grid grid-cols-3 gap-2 mb-3">
-                              <div className="bg-white rounded-lg p-3 border border-emerald-200 text-center">
-                                <div className="text-xl font-bold text-emerald-600 mb-0.5">18</div>
+                              <div className="bg-white rounded-lg p-3 border border-orange-200 text-center">
+                                <div className="text-xl font-bold text-orange-600 mb-0.5">18</div>
                                 <div className="text-xs text-slate-600">Positive</div>
                                 <div className="text-xs text-slate-500 mt-0.5">38%</div>
                               </div>
@@ -1321,8 +1321,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
 
             {/* Success Message */}
             {showSuccess && (
-              <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg text-center">
-                <div className="flex items-center justify-center gap-2 text-green-700">
+              <div className="mt-6 p-4 bg-purple-50 border border-purple-200 rounded-lg text-center">
+                <div className="flex items-center justify-center gap-2 text-purple-700">
                   <CheckCircle className="w-5 h-5" />
                   <span className="font-medium">
                     Thought captured and saved!

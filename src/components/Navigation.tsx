@@ -22,14 +22,12 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange }) =>
     <nav className="bg-white/60 backdrop-blur-sm sticky top-0 z-50 border-b border-slate-200/50">
       <div className="w-full px-4 sm:px-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 py-3 sm:py-4">
-          {/* Left: Logo */}
-          <div className="flex items-center gap-3">
-            <div className="relative w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-pink-500 via-orange-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-xl hover:shadow-2xl hover:scale-110 transition-all">
-              <Brain className="w-8 h-8 sm:w-10 sm:h-10 text-white relative z-10" strokeWidth={3} fill="white" fillOpacity="0.2" />
-              <div className="absolute inset-0 bg-gradient-to-br from-pink-400/40 via-orange-400/40 to-purple-400/40 rounded-2xl animate-pulse"></div>
-              <div className="absolute -inset-1 bg-gradient-to-br from-pink-500/20 via-orange-500/20 to-purple-500/20 rounded-2xl blur-md"></div>
+          {/* Left: Logo - Match landing page exactly */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="relative w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all">
+              <Brain className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-white relative z-10" strokeWidth={2.5} fill="white" fillOpacity="0.3" />
             </div>
-            <span className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-pink-600 via-orange-600 to-purple-600 bg-clip-text text-transparent tracking-tight">Thouthy</span>
+            <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">Thouthy</span>
           </div>
           
           {/* Middle: Navigation tabs - scrollable on mobile, inline on desktop */}

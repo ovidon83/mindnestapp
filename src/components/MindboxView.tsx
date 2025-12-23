@@ -321,8 +321,8 @@ const MindboxView: React.FC = () => {
       <div className="w-full px-4 sm:px-8 py-6">
         {sortedEntries.length === 0 ? (
           <div className="text-center py-16 sm:py-24">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 via-cyan-500 to-teal-600 rounded-lg flex items-center justify-center mx-auto mb-6 shadow-lg">
-              <Clock className="w-10 h-10 sm:w-12 sm:h-12 text-yellow-800" />
+            <div className="w-16 h-16 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 rounded-lg flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <Clock className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
             </div>
             <h3 className="text-xl sm:text-2xl font-semibold text-slate-900 mb-2">
               {searchQuery ? 'No thoughts match your search' : 'No thoughts yet'}
@@ -335,7 +335,7 @@ const MindboxView: React.FC = () => {
             {!searchQuery && (
               <button
                 onClick={() => setCurrentView('capture')}
-                className="px-5 py-2 text-sm font-medium bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-600 text-white rounded-lg hover:from-blue-700 hover:via-cyan-700 hover:to-teal-700 shadow-lg min-h-[36px]"
+                className="px-5 py-2 text-sm font-medium bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 text-white rounded-lg hover:from-pink-600 hover:via-orange-600 hover:to-purple-600 shadow-lg min-h-[36px]"
               >
                 💭 Capture Thought
               </button>
