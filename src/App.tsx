@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useGenieNotesStore } from './store';
-import { supabase } from './lib/supabase';
+import { supabase, hasSupabaseCredentials } from './lib/supabase';
 import CaptureView from './components/CaptureView';
 import MindboxView from './components/MindboxView';
 import ShareItView from './components/ShareItView';
@@ -16,12 +16,19 @@ const App: React.FC = () => {
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
 
   useEffect(() => {
+    if (!hasSupabaseCredentials) {
+      setInitializing(false);
+      return;
+    }
+
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
         loadEntries();
       }
+      setInitializing(false);
+    }).catch(() => {
       setInitializing(false);
     });
 
@@ -35,8 +42,36 @@ const App: React.FC = () => {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => subscription?.unsubscribe();
   }, [setUser, loadEntries]);
+
+  // Show error if Supabase credentials are missing
+  if (!hasSupabaseCredentials) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-6 border-2 border-red-200">
+          <div className="text-center">
+            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-bold text-slate-900 mb-2">Configuration Required</h2>
+            <p className="text-slate-600 mb-4">
+              Supabase credentials are missing. Please set the following environment variables in Render:
+            </p>
+            <div className="bg-slate-50 rounded-lg p-4 text-left mb-4">
+              <code className="text-sm text-slate-800 block mb-2">VITE_SUPABASE_URL</code>
+              <code className="text-sm text-slate-800">VITE_SUPABASE_ANON_KEY</code>
+            </div>
+            <p className="text-xs text-slate-500">
+              After setting these variables, redeploy your service on Render.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (initializing) {
   return (
