@@ -1252,8 +1252,6 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             )}
           </div>
         </div>
-      </div>
-        </div>
       )}
     </div>
   );
