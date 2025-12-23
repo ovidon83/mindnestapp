@@ -19,21 +19,17 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange }) =>
   ];
 
   return (
-    <nav className="bg-white sticky top-0 z-50 border-b border-slate-200">
+    <nav className="bg-white/60 backdrop-blur-sm sticky top-0 z-50 border-b border-slate-200/50">
       <div className="w-full px-4 sm:px-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 py-3 sm:py-4">
           {/* Left: Logo */}
           <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 group">
-              {/* Playful brain icon with sparkles */}
-              <Brain className="w-6 h-6 sm:w-7 sm:h-7 text-white relative z-10 group-hover:scale-110 transition-transform duration-300" strokeWidth={2.5} fill="none" />
-              {/* Fun sparkles around the brain */}
-              <Sparkles className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 text-yellow-400 opacity-80 group-hover:opacity-100 group-hover:scale-125 transition-all duration-300" strokeWidth={2} />
-              <Sparkles className="absolute -bottom-0.5 -left-0.5 w-2 h-2 text-purple-300 opacity-70 group-hover:opacity-90 group-hover:scale-125 transition-all duration-300" strokeWidth={2} />
-              {/* Playful hover glow */}
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/0 to-yellow-500/0 group-hover:from-purple-500/20 group-hover:to-yellow-500/20 transition-all duration-300"></div>
+            <div className="relative w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-pink-500 via-orange-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-xl hover:shadow-2xl hover:scale-110 transition-all">
+              <Brain className="w-8 h-8 sm:w-10 sm:h-10 text-white relative z-10" strokeWidth={3} fill="white" fillOpacity="0.2" />
+              <div className="absolute inset-0 bg-gradient-to-br from-pink-400/40 via-orange-400/40 to-purple-400/40 rounded-2xl animate-pulse"></div>
+              <div className="absolute -inset-1 bg-gradient-to-br from-pink-500/20 via-orange-500/20 to-purple-500/20 rounded-2xl blur-md"></div>
             </div>
-            <span className="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">Thouthy</span>
+            <span className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-pink-600 via-orange-600 to-purple-600 bg-clip-text text-transparent tracking-tight">Thouthy</span>
           </div>
           
           {/* Middle: Navigation tabs - scrollable on mobile, inline on desktop */}
@@ -45,7 +41,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange }) =>
               const colorClasses = {
                 indigo: isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
                 blue: isActive ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
-                slate: isActive ? 'bg-slate-100 text-slate-700 border border-slate-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
+                slate: isActive ? 'bg-slate-100 text-slate-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
                 purple: isActive ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
               };
                 
@@ -67,7 +63,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange }) =>
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <button
               onClick={() => onViewChange('capture')}
-              className="px-4 py-2 text-sm font-medium bg-slate-50 text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors duration-200 flex items-center gap-2 min-h-[40px]"
+              className="px-4 py-2 text-sm font-medium bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 text-white rounded-lg hover:from-pink-600 hover:via-orange-600 hover:to-purple-600 transition-all shadow-lg hover:shadow-xl flex items-center gap-2 min-h-[40px]"
             >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">New Thought</span>

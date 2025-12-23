@@ -25,7 +25,8 @@ const EmailSubscription: React.FC = () => {
     setMessage(null);
 
     try {
-      const response = await fetch('http://localhost:3001/api/subscribe', {
+      const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : window.location.origin);
+      const response = await fetch(`${apiUrl}/api/subscribe`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -40,7 +41,7 @@ const EmailSubscription: React.FC = () => {
         setEmail('');
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to subscribe. Please try again.' });
-      }
+    }
     } catch (error) {
       console.error('Subscription error:', error);
       setMessage({ type: 'error', text: 'Failed to subscribe. Please try again later.' });
@@ -51,22 +52,22 @@ const EmailSubscription: React.FC = () => {
 
   return (
     <div className="relative">
-      <form onSubmit={handleSubmit} className="flex items-center justify-center gap-3 max-w-md mx-auto">
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-md mx-auto">
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter your email"
-          className="flex-1 px-5 py-4 rounded-xl border-2 border-slate-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-base transition-all duration-200"
+          className="flex-1 px-4 sm:px-5 py-3 sm:py-4 rounded-xl border-2 border-slate-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base transition-all duration-200"
           disabled={isSubmitting}
         />
         <button
           type="submit"
           disabled={isSubmitting || !email}
-          className={`px-8 py-4 rounded-xl font-semibold text-base transition-all duration-200 ${
+          className={`px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-sm sm:text-base transition-all duration-200 min-h-[44px] ${
             isSubmitting || !email
               ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
-              : 'bg-slate-900 text-white hover:bg-slate-800'
+              : 'bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 text-white hover:from-purple-700 hover:via-pink-600 hover:to-orange-600 shadow-lg hover:shadow-xl font-bold'
           }`}
         >
           {isSubmitting ? 'Subscribing...' : 'Early Access'}
@@ -83,7 +84,7 @@ const EmailSubscription: React.FC = () => {
       )}
     </div>
   );
-};
+  };
 
 const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
   const { processAndSave, setCurrentView, user, signOut } = useGenieNotesStore();
@@ -104,7 +105,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
   const isSpeechRecognitionAvailable = () => {
     return 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
   };
-
+    
   // Initialize speech recognition
   useEffect(() => {
     if (isSpeechRecognitionAvailable()) {
@@ -119,7 +120,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
         // Accumulate transcript from all results
         recognitionRef.current.onresult = (event: any) => {
           let interimTranscript = '';
-          
+    
           // Process all results from resultIndex to accumulate new results
           for (let i = event.resultIndex; i < event.results.length; i++) {
             const transcript = event.results[i][0].transcript;
@@ -332,76 +333,26 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
     );
   }
 
-  return (
-    <div className="min-h-screen relative overflow-hidden bg-white">
-      {/* Background layer - full screen for all browsers */}
-      {!user && (
-        <>
-          {/* Solid white base - ensures light background in all browsers */}
-          <div className="fixed inset-0 bg-white pointer-events-none" style={{ zIndex: -2 }}></div>
-          
-          {/* Base gradient background - always visible with higher opacity for Cursor compatibility */}
-          <div className="fixed inset-0 pointer-events-none" style={{ 
-            zIndex: -1,
-            background: 'linear-gradient(to bottom right, rgba(243, 232, 255, 0.6), rgba(253, 242, 248, 0.4), rgba(254, 249, 195, 0.3), rgba(255, 255, 255, 1))'
-          }}></div>
-          
-          {/* Fun grid pattern */}
-          <div className="fixed inset-0 opacity-[0.04] pointer-events-none" style={{ 
-            zIndex: -1,
-            backgroundImage: `linear-gradient(rgba(168, 85, 247, 0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(168, 85, 247, 0.15) 1px, transparent 1px)`,
-            backgroundSize: '50px 50px'
-          }}></div>
-          
-          {/* Multiple floating orbs - more playful with higher opacity */}
-          <div className="fixed top-1/4 right-1/4 w-[500px] h-[500px] rounded-full blur-3xl animate-pulse pointer-events-none" style={{ 
-            zIndex: -1,
-            backgroundColor: 'rgba(196, 181, 253, 0.25)'
-          }}></div>
-          <div className="fixed bottom-1/4 left-1/4 w-[400px] h-[400px] rounded-full blur-3xl pointer-events-none" style={{ 
-            zIndex: -1,
-            backgroundColor: 'rgba(253, 224, 71, 0.2)'
-          }}></div>
-          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full blur-3xl pointer-events-none" style={{ 
-            zIndex: -1,
-            backgroundColor: 'rgba(251, 207, 232, 0.15)'
-          }}></div>
-          
-          {/* Floating decorative shapes */}
-          <div className="fixed top-20 right-20 w-16 h-16 rounded-full blur-xl pointer-events-none" style={{ 
-            zIndex: -1,
-            backgroundColor: 'rgba(253, 224, 71, 0.35)'
-          }}></div>
-          <div className="fixed bottom-32 left-32 w-12 h-12 rounded-full blur-xl pointer-events-none" style={{ 
-            zIndex: -1,
-            backgroundColor: 'rgba(196, 181, 253, 0.35)'
-          }}></div>
-        </>
-      )}
-
-      {/* Navigation - positioned absolutely at top */}
-      <nav className="fixed top-0 left-0 right-0 z-50 w-full px-4 sm:px-8 py-4 sm:py-6 bg-transparent">
+    return (
+    <div className="min-h-screen bg-white">
+      {/* Navigation */}
+      <nav className="sticky top-0 z-50 w-full px-4 sm:px-6 lg:px-8 py-3 sm:py-4 bg-white/95 backdrop-blur-md border-b-2 border-blue-100 shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 group">
-              {/* Playful brain icon with sparkles */}
-              <Brain className="w-6 h-6 sm:w-7 sm:h-7 text-white relative z-10 group-hover:scale-110 transition-transform duration-300" strokeWidth={2.5} fill="none" />
-              {/* Fun sparkles around the brain */}
-              <Sparkles className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 text-yellow-400 opacity-80 group-hover:opacity-100 group-hover:scale-125 transition-all duration-300" strokeWidth={2} />
-              <Sparkles className="absolute -bottom-0.5 -left-0.5 w-2 h-2 text-purple-300 opacity-70 group-hover:opacity-90 group-hover:scale-125 transition-all duration-300" strokeWidth={2} />
-              {/* Playful hover glow */}
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/0 to-yellow-500/0 group-hover:from-purple-500/20 group-hover:to-yellow-500/20 transition-all duration-300"></div>
-            </div>
-            <span className="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">Thouthy</span>
-          </div>
           <div className="flex items-center gap-3 sm:gap-4">
+            <div className="relative w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all">
+              <Brain className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-white relative z-10" strokeWidth={2.5} fill="white" fillOpacity="0.3" />
+            </div>
+            <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">Thouthy</span>
+          </div>
+          <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
             {user ? (
               <>
                 <button
                   onClick={() => setCurrentView('mindbox')}
-                  className="px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors"
+                  className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-slate-700 hover:text-slate-900 border border-transparent hover:border-slate-200 rounded-lg transition-all min-h-[40px] sm:min-h-[44px]"
                 >
-                  Mindbox
+                  <span className="hidden sm:inline">Mindbox</span>
+                  <span className="sm:hidden">Box</span>
                 </button>
                 <UserAvatar user={user} onLogout={signOut} />
               </>
@@ -413,7 +364,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       onOrganizeClick('login');
                     }
                   }}
-                  className="px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors"
+                  className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-slate-700 hover:text-slate-900 border border-transparent hover:border-slate-200 rounded-lg transition-all min-h-[40px] sm:min-h-[44px]"
                 >
                   Login
                 </button>
@@ -423,7 +374,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       onOrganizeClick('signup');
                     }
                   }}
-                  className="px-5 py-2.5 text-sm font-medium bg-white/80 text-slate-700 border-2 border-yellow-300 rounded-xl hover:border-yellow-400 hover:bg-yellow-50/80 transition-all shadow-md hover:shadow-lg backdrop-blur-sm"
+                  className="px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-purple-600 border border-purple-300 rounded-lg hover:border-purple-400 transition-all min-h-[40px] sm:min-h-[44px]"
                 >
                   Sign Up
                 </button>
@@ -435,139 +386,76 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
 
       {!user ? (
         <>
-          {/* Hero Section - Super Playful and Fun - extends to top */}
-          <section className="relative z-10 pt-24 sm:pt-32 pb-16 sm:pb-20 overflow-hidden min-h-screen">
-            <div className="max-w-5xl mx-auto px-4 sm:px-8 text-center relative">
-              {/* Small label - more playful */}
-              <div className="mb-6">
-                <span className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-200/80 to-orange-200/80 text-yellow-900 text-sm font-bold rounded-full border-2 border-yellow-300/50 shadow-lg backdrop-blur-sm">
-                  <Sparkles className="w-4 h-4 text-yellow-600 animate-pulse" />
-                  ⚡ THINK SMARTER
-                </span>
-              </div>
-              
-              {/* Main Headline - more vibrant */}
-              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-8 leading-tight tracking-tight">
-                <span className="text-slate-900">
-                  Give every thought
-                </span>
-                <br />
+          {/* Hero Section */}
+          <section className="py-12 sm:py-16 md:py-20 relative overflow-hidden flex items-center bg-gradient-to-br from-pink-50/30 via-orange-50/20 to-purple-50/30">
+            {/* Floating background elements - warm pastel colors */}
+            <div className="absolute top-10 left-10 w-96 h-96 bg-pink-200/25 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-10 right-10 w-80 h-80 bg-orange-200/25 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+            <div className="absolute top-1/2 right-1/4 w-72 h-72 bg-purple-200/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '3s' }}></div>
+            <div className="absolute top-1/3 left-1/4 w-64 h-64 bg-blue-200/20 rounded-full blur-3xl"></div>
+            
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 w-full">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 leading-tight">
+                <span className="text-slate-900">It's time to give your </span>
                 <span className="relative inline-block">
-                  <span className="bg-gradient-to-r from-yellow-600 via-orange-600 to-pink-600 bg-clip-text text-transparent">a meaning</span>
-                  {/* More playful wavy underline */}
-                  <svg className="absolute -bottom-3 left-0 right-0 h-5 -z-10" viewBox="0 0 300 25" preserveAspectRatio="none">
-                    <path d="M0,20 Q75,5 150,20 T300,20" stroke="url(#yellowGradient)" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                    <defs>
-                      <linearGradient id="yellowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#fbbf24" stopOpacity="1" />
-                        <stop offset="50%" stopColor="#f59e0b" stopOpacity="1" />
-                        <stop offset="100%" stopColor="#fbbf24" stopOpacity="1" />
-                      </linearGradient>
-                    </defs>
+                  <span className="text-purple-600 italic font-bold">thoughts</span>
+                  {/* Wavy underline */}
+                  <svg className="absolute -bottom-1 sm:-bottom-2 left-0 right-0 h-2 sm:h-3 -z-10" viewBox="0 0 200 15" preserveAspectRatio="none">
+                    <path d="M0,12 Q25,3 50,12 T100,12 T150,12 T200,12" stroke="#9333ea" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.8"/>
                   </svg>
                 </span>
-              </h1>
-              
-              {/* Floating hashtags - super playful elements */}
-              <div className="absolute top-10 right-10 sm:right-20 hidden md:block animate-bounce" style={{ animationDuration: '3s' }}>
-                <div className="px-4 py-2 bg-gradient-to-r from-blue-300/80 to-cyan-300/80 backdrop-blur-sm rounded-full text-blue-800 text-xs font-bold border-2 border-blue-400/60 shadow-lg transform rotate-3 hover:rotate-6 hover:scale-110 transition-all">
-                  #thoughts ✨
-                </div>
-              </div>
-              <div className="absolute bottom-20 left-10 sm:left-20 hidden md:block animate-bounce" style={{ animationDuration: '4s', animationDelay: '0.5s' }}>
-                <div className="px-4 py-2 bg-gradient-to-r from-yellow-300/80 to-orange-300/80 backdrop-blur-sm rounded-full text-yellow-800 text-xs font-bold border-2 border-yellow-400/60 shadow-lg transform -rotate-3 hover:-rotate-6 hover:scale-110 transition-all">
-                  #ideas 💡
-                </div>
-              </div>
-              <div className="absolute top-32 left-10 sm:left-20 hidden lg:block animate-bounce" style={{ animationDuration: '3.5s', animationDelay: '1s' }}>
-                <div className="px-4 py-2 bg-gradient-to-r from-pink-300/80 to-rose-300/80 backdrop-blur-sm rounded-full text-pink-800 text-xs font-bold border-2 border-pink-400/60 shadow-lg transform rotate-6 hover:rotate-9 hover:scale-110 transition-all">
-                  #insights 🚀
-                </div>
-              </div>
-              <div className="absolute top-1/2 right-5 hidden xl:block animate-pulse">
-                <div className="px-3 py-1.5 bg-yellow-300/70 backdrop-blur-sm rounded-full text-yellow-900 text-xs font-bold border-2 border-yellow-400/70 shadow-md transform rotate-12">
-                  #fun
-                </div>
-              </div>
-              
-              {/* Sub-headline */}
-              <p className="text-lg sm:text-xl md:text-2xl text-slate-600 mb-10 max-w-3xl mx-auto leading-relaxed font-light">
-                Thouthy helps you capture, organize, and transform your thoughts into actionable insights, delivering clarity and meaning to your inner world.
+                <span className="text-slate-900"> real </span>
+                <span className="relative inline-block">
+                  <span className="text-yellow-500 italic font-bold">meaning</span>
+                  {/* Wavy underline */}
+                  <svg className="absolute -bottom-1 sm:-bottom-2 left-0 right-0 h-2 sm:h-3 -z-10" viewBox="0 0 200 15" preserveAspectRatio="none">
+                    <path d="M0,12 Q25,3 50,12 T100,12 T150,12 T200,12" stroke="#eab308" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.8"/>
+                  </svg>
+                </span>
+                <span className="text-slate-900">.</span>
+            </h1>
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-slate-600 mb-6 sm:mb-8 max-w-2xl mx-auto font-normal leading-relaxed px-2">
+                Never lose a thought again — and let them empower you!
+                <br className="hidden sm:block" />
+                <span className="font-semibold text-slate-800">Save. Observe. Act.</span>
               </p>
-              
-              {/* Email Subscription */}
-              <div className="mt-10">
+              <div className="mt-6 sm:mt-8 px-2">
                 <EmailSubscription />
-              </div>
-            </div>
+          </div>
+                </div>
           </section>
 
-          {/* Philosophy Section - Vibrant and Fun */}
-          <section className="relative z-10 py-20 sm:py-24 bg-gradient-to-br from-yellow-50/40 via-blue-50/30 via-pink-50/20 to-white overflow-hidden">
-            {/* Floating decorative elements */}
-            <div className="absolute top-10 right-20 w-20 h-20 bg-blue-300/20 rounded-full blur-2xl"></div>
-            <div className="absolute bottom-10 left-20 w-16 h-16 bg-yellow-300/20 rounded-full blur-2xl"></div>
-            <div className="absolute top-1/2 left-1/2 w-24 h-24 bg-pink-300/15 rounded-full blur-2xl"></div>
-            <div className="max-w-5xl mx-auto px-4 sm:px-8 relative">
-              <div className="text-center space-y-8 sm:space-y-10">
-                {/* Main statement */}
-                <div className="relative inline-block">
-                  <p className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-slate-900">
-                    Thouthy is your thinking companion.
-                  </p>
-                </div>
-                
-                {/* Three motivations - super playful pill design */}
-                <div className="flex flex-wrap items-center justify-center gap-4 text-base sm:text-lg md:text-xl font-bold py-8">
-                  <span className="px-8 py-4 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 backdrop-blur-sm border-2 border-purple-300 text-purple-800 hover:from-purple-200 hover:to-pink-200 hover:border-purple-400 hover:scale-110 transition-all shadow-lg hover:shadow-xl transform">✨ Peace of mind</span>
-                  <span className="px-8 py-4 rounded-full bg-gradient-to-r from-yellow-100 to-orange-100 backdrop-blur-sm border-2 border-yellow-300 text-yellow-800 hover:from-yellow-200 hover:to-orange-200 hover:border-yellow-400 hover:scale-110 transition-all shadow-lg hover:shadow-xl transform">💫 Self-expression</span>
-                  <span className="px-8 py-4 rounded-full bg-gradient-to-r from-blue-100 to-cyan-100 backdrop-blur-sm border-2 border-blue-300 text-blue-800 hover:from-blue-200 hover:to-cyan-200 hover:border-blue-400 hover:scale-110 transition-all shadow-lg hover:shadow-xl transform">🚀 Leverage</span>
-                </div>
-                
-                {/* Final statement */}
-                <div className="pt-4">
-                  <p className="text-xl sm:text-2xl md:text-3xl text-slate-900 font-semibold">
-                    All start in the same place.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
+          {/* Capture Card */}
+          <div className="py-12 sm:py-16 bg-white relative overflow-visible">
+            {/* Floating background orbs - subtle */}
+            <div className="absolute top-10 right-10 w-80 h-80 bg-pink-100/30 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-10 left-10 w-72 h-72 bg-orange-100/30 rounded-full blur-3xl"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-purple-100/20 rounded-full blur-3xl"></div>
 
-          {/* Sticky/Floating Capture Card - Super Attractive Design */}
-          <div className="relative z-20 -mt-8 mb-20 py-16">
-            {/* Vibrant background for capture section */}
-            <div className="absolute inset-0 -z-10 bg-gradient-to-br from-yellow-100/30 via-blue-100/20 via-pink-100/15 to-white"></div>
-            {/* Floating decorative shapes */}
-            <div className="absolute top-5 right-10 w-24 h-24 bg-blue-200/20 rounded-full blur-2xl"></div>
-            <div className="absolute bottom-5 left-10 w-20 h-20 bg-yellow-200/20 rounded-full blur-2xl"></div>
-            <div className="absolute top-1/2 right-1/4 w-16 h-16 bg-pink-200/15 rounded-full blur-xl"></div>
-            
-            <div className="max-w-2xl mx-auto px-4 sm:px-8 relative">
-              <div className="bg-gradient-to-br from-white via-yellow-50/40 to-blue-50/30 rounded-3xl shadow-2xl border-2 border-yellow-300/60 p-8 sm:p-10 lg:p-12 hover:shadow-3xl transition-all duration-300 backdrop-blur-sm relative overflow-visible">
-                {/* Floating decorative elements around card */}
-                <div className="absolute -top-4 -right-4 w-8 h-8 bg-yellow-400/60 rounded-full blur-sm animate-pulse"></div>
-                <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-blue-400/60 rounded-full blur-sm animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-                <div className="absolute top-2 right-2 w-4 h-4 bg-pink-400/40 rounded-full blur-sm"></div>
-                
-                <div className="mb-6">
-                  <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2 flex items-center gap-3">
-                    <span className="text-4xl animate-bounce" style={{ animationDuration: '2s' }}>💭</span>
-                    <span>What's on your mind</span>
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+              <div className="p-6 sm:p-8 lg:p-10 xl:p-12 bg-white/50 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-lg border border-slate-200/50">
+                <div className="mb-6 sm:mb-8 lg:mb-10 text-center">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-3 sm:mb-4 leading-tight">
+                    <span className="text-slate-900">What's on your </span>
+                    <span className="bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 bg-clip-text text-transparent italic">mind?</span>
                   </h2>
-                  <p className="text-sm text-slate-600 flex items-center gap-1">
-                    <Sparkles className="w-3 h-3 text-yellow-500" />
-                    Capture your thoughts instantly, anywhere
-                  </p>
+                  {/* Floating example thoughts under heading */}
+                  <div className="mt-4 flex flex-wrap justify-center gap-3 sm:gap-4">
+                    <span className="px-4 py-2 rounded-full bg-emerald-50 border border-emerald-200 text-xs sm:text-sm text-emerald-800 font-medium shadow-sm">
+                      "State inspection for the Equinox"
+                    </span>
+                    <span className="px-4 py-2 rounded-full bg-indigo-50 border border-indigo-200 text-xs sm:text-sm text-indigo-800 font-medium shadow-sm">
+                      "AI is giving people a false sense of speed"
+                    </span>
+                    <span className="px-4 py-2 rounded-full bg-amber-50 border border-amber-200 text-xs sm:text-sm text-amber-800 font-medium shadow-sm">
+                      "Detox from information"
+                    </span>
+                  </div>
                 </div>
                 
-                {/* Super Attractive Input Area */}
-                <div className="mb-6 relative">
-                  {/* Animated gradient glow background */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/30 via-blue-400/30 to-pink-400/30 rounded-2xl blur-2xl -z-10 animate-pulse"></div>
-                  {/* Additional glow layers */}
-                  <div className="absolute -inset-1 bg-gradient-to-r from-yellow-500/20 via-blue-500/20 to-pink-500/20 rounded-2xl blur-xl -z-10"></div>
-                  
+                <div className="mb-6 sm:mb-8 relative">
+                  {/* Subtle gradient background */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-pink-50/50 via-orange-50/50 to-purple-50/50 rounded-xl sm:rounded-2xl"></div>
                   <textarea
                     value={transcript || inputText}
                     onChange={(e) => {
@@ -583,28 +471,22 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                         handleSubmit();
                       }
                     }}
-                    placeholder="Share your thoughts, tasks, ideas... ✨"
-                    className="w-full p-6 text-base border-2 border-yellow-300 bg-white/95 backdrop-blur-md rounded-2xl hover:border-yellow-500 focus:border-yellow-600 focus:outline-none focus:ring-4 focus:ring-yellow-500/40 resize-none transition-all h-40 shadow-xl hover:shadow-2xl relative z-10"
+                    placeholder="Share your thoughts, tasks, ideas..."
+                    className="relative w-full p-4 sm:p-6 text-sm sm:text-base lg:text-lg bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-pink-300/50 resize-none h-32 sm:h-44 lg:h-52 border border-slate-200/60 shadow-sm hover:border-pink-200/80 transition-all"
                   />
-                  
-                  {/* Animated decorative corner elements */}
-                  <div className="absolute -top-3 -right-3 w-8 h-8 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-full opacity-70 blur-sm animate-pulse shadow-lg"></div>
-                  <div className="absolute -bottom-3 -left-3 w-7 h-7 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full opacity-70 blur-sm animate-pulse shadow-lg" style={{ animationDelay: '0.5s' }}></div>
-                  <div className="absolute top-2 right-2 w-3 h-3 bg-yellow-400 rounded-full opacity-50"></div>
-                  <div className="absolute bottom-2 left-2 w-2 h-2 bg-blue-400 rounded-full opacity-50"></div>
-                </div>
+                    </div>
 
                 {/* Action Buttons */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 sm:gap-0">
                   <div className="flex items-center gap-2">
                     {/* Voice Input Button */}
                     {isSpeechRecognitionAvailable() ? (
                       <button
                         onClick={handleVoiceInput}
-                        className={`p-3 rounded-xl transition-all duration-200 ${
+                        className={`p-3 sm:p-3.5 rounded-lg sm:rounded-xl transition-all shadow-md hover:shadow-lg min-h-[44px] min-w-[44px] flex items-center justify-center ${
                           isRecording 
-                            ? 'bg-red-500 text-white shadow-md animate-pulse' 
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            ? 'bg-red-500 text-white shadow-lg animate-pulse' 
+                            : 'bg-gradient-to-br from-blue-100 to-cyan-100 text-blue-600 hover:from-blue-200 hover:to-cyan-200 hover:scale-105'
                         }`}
                         title={isRecording ? 'Stop recording' : 'Start voice input'}
                         type="button"
@@ -617,7 +499,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       </button>
                     ) : (
                       <button
-                        className="p-3 rounded-xl bg-slate-100 text-slate-400 cursor-not-allowed"
+                        className="p-3 sm:p-3.5 rounded-lg sm:rounded-xl bg-slate-100 text-slate-400 cursor-not-allowed min-h-[44px] min-w-[44px] flex items-center justify-center"
                         title="Voice input not supported in this browser"
                         type="button"
                         disabled
@@ -630,14 +512,14 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     <div className="relative">
                       <button
                         onClick={() => setShowUpload(!showUpload)}
-                        className="p-3 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors duration-200"
+                        className="p-3 sm:p-3.5 rounded-lg sm:rounded-xl bg-gradient-to-br from-blue-100 to-cyan-100 text-blue-600 hover:from-blue-200 hover:to-cyan-200 transition-all shadow-md hover:shadow-lg hover:scale-105 min-h-[44px] min-w-[44px] flex items-center justify-center"
                         title="Upload training data"
                       >
                         <Upload className="w-5 h-5" />
                       </button>
                       
                       {showUpload && (
-                        <div className="absolute left-0 mt-2 bg-white rounded-xl shadow-xl border border-slate-200 p-2 z-10 min-w-[140px]">
+                        <div className="absolute left-0 mt-2 bg-white rounded-lg shadow-lg p-2 z-10 min-w-[140px]">
                           <button
                             onClick={handleTextUpload}
                             className="block w-full text-left px-4 py-2 text-sm hover:bg-slate-50 rounded-lg transition-colors"
@@ -654,7 +536,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                               accept=".txt,.md,.doc,.docx"
                             />
                           </label>
-                        </div>
+                      </div>
                       )}
                     </div>
                     
@@ -663,28 +545,28 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       <div className="flex items-center gap-2 text-red-600 ml-2">
                         <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
                         <span className="text-sm font-medium">Recording...</span>
-                      </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
+                </div>
 
                   {/* Submit Button */}
                   <button
                     onClick={handleSubmit}
                     disabled={!hasContent || isProcessing}
-                    className={`px-6 sm:px-8 py-3 rounded-xl font-medium text-base transition-all duration-200 flex items-center gap-2 ${
+                    className={`w-full sm:w-auto px-6 sm:px-8 lg:px-10 py-3 sm:py-4 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base lg:text-lg flex items-center justify-center gap-2 transition-all shadow-xl hover:shadow-2xl min-h-[44px] ${
                       hasContent && !isProcessing
-                        ? 'bg-white/80 text-slate-700 border-2 border-yellow-300 hover:border-yellow-400 hover:bg-yellow-50/80 shadow-md hover:shadow-lg backdrop-blur-sm'
-                        : 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
+                        ? 'bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 text-white hover:from-pink-600 hover:via-orange-600 hover:to-purple-600 hover:scale-105'
+                        : 'bg-slate-100 text-slate-400 cursor-not-allowed'
                     }`}
                   >
                     {isProcessing ? (
                       <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         <span>Capturing...</span>
                       </>
                     ) : (
                       <>
-                        <Sparkles className="w-5 h-5" />
+                        <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
                         <span>Capture</span>
                       </>
                     )}
@@ -693,197 +575,342 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
 
                 {/* Error Message */}
                 {error && (
-                  <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                  <div className="mt-6 p-4 bg-red-50 rounded-lg">
                     <div className="text-sm text-red-700">{error}</div>
-                  </div>
-                )}
+                </div>
+              )}
 
                 {/* Success Message */}
                 {showSuccess && (
-                  <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-xl text-center">
+                  <div className="mt-6 p-4 bg-green-50 rounded-lg text-center">
                     <div className="flex items-center justify-center gap-2 text-green-700">
                       <CheckCircle className="w-5 h-5" />
                       <span className="font-medium">
                         Thought captured and saved!
                       </span>
                     </div>
-                  </div>
-                )}
+                </div>
+              )}
               </div>
             </div>
           </div>
 
-          {/* Showcase Section - Super Vibrant */}
-          <section className="relative z-10 py-20 sm:py-28 bg-gradient-to-br from-white via-yellow-50/25 via-blue-50/15 to-pink-50/20 overflow-hidden">
-            {/* More floating decorative elements */}
-            <div className="absolute top-20 left-10 w-32 h-32 bg-blue-300/15 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-20 right-10 w-28 h-28 bg-yellow-300/15 rounded-full blur-3xl"></div>
-            <div className="absolute top-1/2 right-1/4 w-24 h-24 bg-pink-300/10 rounded-full blur-2xl"></div>
-            <div className="absolute bottom-1/4 left-1/4 w-20 h-20 bg-cyan-300/10 rounded-full blur-2xl"></div>
-            <div className="max-w-7xl mx-auto px-4 sm:px-8 relative">
-              <div className="text-center mb-12 sm:mb-16">
-                <div className="mb-3">
-                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">FEATURES</span>
-                </div>
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-4">
-                  See it in action
+          {/* Showcase Section */}
+          <section className="py-12 sm:py-16 bg-white relative overflow-hidden">
+            {/* Subtle decorative elements */}
+            <div className="absolute top-20 left-10 w-40 h-40 bg-pink-100/20 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-20 right-10 w-36 h-36 bg-orange-100/20 rounded-full blur-3xl"></div>
+            
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+              <div className="text-center mb-8 sm:mb-10 lg:mb-12">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-3 sm:mb-4">
+                  See it in <span className="bg-gradient-to-r from-pink-500 to-orange-500 bg-clip-text text-transparent italic">action</span>
                 </h2>
-                <p className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto">
-                  Discover how Thouthy transforms your thoughts into organized, actionable insights
+                <p className="text-sm sm:text-base lg:text-lg text-slate-600 max-w-2xl mx-auto font-light px-2">
+                  Watch how a single thought flows from capture to potential action
                 </p>
-              </div>
+                </div>
 
-              {/* Feature Showcase Grid */}
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-                {/* Feature 1: Capture */}
-                <div className="bg-white rounded-xl p-6 sm:p-8 border-2 border-slate-200 shadow-md hover:shadow-lg transition-all duration-300 hover:border-yellow-300 hover:scale-[1.02]">
-                  <div className="mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center mb-4 shadow-lg">
+              {/* Natural Flow - User Journey */}
+              <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
+                {/* Capture - Simple card, user action only */}
+                <div className="p-5 sm:p-6 lg:p-8 bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-pink-100 hover:border-pink-300 transition-all">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-pink-400 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
                       <Sparkles className="w-6 h-6 text-white" />
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">Instant Capture</h3>
-                  </div>
-                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
-                    <div className="space-y-2 text-sm text-slate-700">
-                      <p className="italic">"I keep thinking about starting a side business - maybe a consulting gig for small businesses. I have all this experience but don't know where to start. Should I do it part-time first? What about my current job? Need to figure out pricing, services, and how to find clients."</p>
-                      <p className="text-xs text-slate-500 mt-2">💬 Voice captured during morning commute</p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-3">
+                        <h3 className="text-xl sm:text-2xl font-bold text-slate-900">Capture</h3>
+                        <span className="px-2.5 py-1 rounded-full bg-blue-100 border border-blue-200 text-xs font-medium text-blue-700 flex items-center gap-1">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                          On my walk this morning
+                        </span>
+                      </div>
+                      <div className="bg-gradient-to-br from-pink-50 to-pink-100/50 rounded-xl p-4 sm:p-5 border border-pink-200">
+                        <p className="text-sm sm:text-base text-slate-700 italic leading-relaxed">"AI is making everything faster. It accelerates whatever we put in its hands—the good and the bad. Give it messy code, lack of alignment, and so on... it'll speed up the mess exponentially."</p>
+                      </div>
                     </div>
                   </div>
-                  <p className="text-sm text-slate-600 mt-4">
-                    Voice, text, or upload—capture thoughts instantly, anywhere. No friction, just pure flow.
-                  </p>
                 </div>
 
-                {/* Feature 2: Organization */}
-                <div className="bg-white rounded-xl p-6 sm:p-8 border-2 border-slate-200 shadow-md hover:shadow-lg transition-all duration-300 hover:border-blue-300 hover:scale-[1.02]">
-                  <div className="mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center mb-4 shadow-lg">
+                {/* What Thouthy does with it - Wrapped in border */}
+                <div className="relative mt-8 sm:mt-10 pt-8 sm:pt-10 border-2 border-dashed border-orange-300 rounded-2xl bg-gradient-to-br from-orange-50/30 via-purple-50/20 to-pink-50/30">
+                  {/* Label at top of border */}
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                    <div className="px-4 py-2 bg-white border-2 border-orange-300 rounded-full shadow-md">
+                      <span className="text-sm sm:text-base font-bold text-slate-800">What Thouthy does with it</span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-6 sm:space-y-8 px-4 sm:px-6 pb-6 sm:pb-8">
+                    {/* Save & Analyze */}
+                <div className="p-5 sm:p-6 lg:p-8 bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-orange-100 hover:border-orange-300 transition-all">
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-400 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                       </svg>
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-1">Save & Organize</h3>
-                    <p className="text-sm text-slate-600 mb-4">
-                      AI automatically classifies as Task, Insight, or Thought and saves everything securely.
-                    </p>
-                  </div>
-                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                    <div className="space-y-3 text-sm">
-                      <div className="flex items-start gap-2">
-                        <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-xs font-medium flex-shrink-0 mt-0.5 border border-purple-200">To-Do</span>
-                        <p className="text-slate-700 text-xs italic flex-1">"I keep thinking about starting a side business - maybe a consulting gig for small businesses. I have all this experience but don't know where to start. Should I do it part-time first? What about my current job? Need to figure out pricing, services, and how to find clients."</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Feature 3: Search & Never Lose */}
-                <div className="bg-white rounded-xl p-6 sm:p-8 border-2 border-slate-200 shadow-md hover:shadow-lg transition-all duration-300 hover:border-pink-300 hover:scale-[1.02]">
-                  <div className="mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center mb-4 shadow-lg">
-                      <Search className="w-6 h-6 text-white" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-1">Search & Never Lose</h3>
-                    <p className="text-sm text-slate-600 mb-4">
-                      Instantly find any thought, idea, or task. Your entire mind archive, searchable forever.
-                    </p>
-                  </div>
-                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                    <div className="space-y-3 text-sm">
-                      <div className="flex items-center gap-2 text-slate-600 bg-white rounded-lg px-3 py-2 border border-slate-200">
-                        <Search className="w-4 h-4 text-slate-400" />
-                        <span className="text-xs italic text-slate-400">side business... consulting</span>
-                      </div>
-                      <div className="space-y-2">
-                        <p className="text-xs font-medium text-slate-700">1 result found</p>
-                        <div className="flex items-start gap-2 p-2 bg-white rounded-lg border-2 border-slate-100 hover:border-yellow-200 transition-colors">
-                          <span className="px-1.5 py-0.5 bg-yellow-100 text-yellow-700 rounded-lg text-[10px] font-medium mt-0.5 flex-shrink-0 border border-yellow-200">To-Do</span>
-                          <p className="text-xs text-slate-600 flex-1 italic">"I keep thinking about starting a side business - maybe a consulting gig for small businesses. I have all this experience but don't know where to start..."</p>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-3">Save & Analyze</h3>
+                      <div className="bg-gradient-to-br from-orange-50 to-orange-100/50 rounded-xl p-4 sm:p-5 border border-orange-200 space-y-3">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="px-3 py-1.5 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg text-xs font-bold shadow-md">Insight</span>
+                          <span className="text-xs text-slate-600">Auto-categorized</span>
+                        </div>
+                        <p className="text-sm text-slate-700 italic leading-relaxed">"AI is making everything faster. It accelerates whatever we put in its hands—the good and the bad..."</p>
+                        <div className="mt-3 pt-3 border-t border-orange-200">
+                          <p className="text-xs text-slate-600 font-medium mb-2">AI Analysis:</p>
+                          <p className="text-xs sm:text-sm text-slate-700">Identified as a critical insight about AI's amplifying effect on both quality and problems. Topic: AI acceleration, development practices, quality control, team alignment.</p>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Feature 4: AI Insights */}
-                <div className="bg-white rounded-xl p-6 sm:p-8 border-2 border-slate-200 shadow-md hover:shadow-lg transition-all duration-300 hover:border-purple-300 hover:scale-[1.02]">
-                  <div className="mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center mb-4 shadow-lg">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                      </svg>
+                {/* Search Your Thoughts */}
+                <div className="p-5 sm:p-6 lg:p-8 bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-purple-100 hover:border-purple-300 transition-all">
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-400 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                      <Search className="w-6 h-6 text-white" />
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-1">AI Insights & Next Steps</h3>
-                    <p className="text-sm text-slate-600 mb-4">
-                      Get contextual research-based notes and actionable sub-tasks for every entry.
-                    </p>
-                  </div>
-                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                    <div className="space-y-2 text-sm text-slate-700">
-                      <p className="font-medium text-xs text-slate-500 mb-2">AI Note:</p>
-                      <p className="italic text-xs">"Starting a consulting business part-time is a smart approach. Research shows 70% of successful consultants start while employed. Key considerations: define your niche, set clear boundaries with your current job, and validate demand before going full-time..."</p>
-                      <div className="mt-3 pt-2 border-t border-slate-200">
-                        <p className="font-medium text-xs text-slate-500 mb-1">Sub-tasks:</p>
-                        <ul className="text-xs space-y-1 text-slate-600">
-                          <li>• Research consulting rates in your industry</li>
-                          <li>• Define your service offerings and target market</li>
-                          <li>• Create a simple business plan and timeline</li>
-                          <li>• Set up a basic website or portfolio</li>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-3">Search Your Thoughts</h3>
+                      <div className="bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-xl p-4 sm:p-5 border border-purple-200">
+                        <div className="flex items-center gap-2 text-slate-600 bg-white rounded-lg px-4 py-3 mb-3 shadow-sm border border-purple-200">
+                          <Search className="w-4 h-4 text-purple-500" />
+                          <span className="text-sm text-slate-500">AI acceleration...</span>
+                        </div>
+                        <p className="text-sm text-slate-700 italic leading-relaxed mb-2">Found 3 related thoughts:</p>
+                        <ul className="text-xs sm:text-sm text-slate-600 space-y-1 ml-4">
+                          <li>• "AI amplifies both good and bad practices" (2 days ago)</li>
+                          <li>• "Speed without quality creates technical debt" (1 week ago)</li>
+                          <li>• "Alignment matters more with AI tools" (3 weeks ago)</li>
                         </ul>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Feature 5: Social Sharing */}
-                <div className="bg-white rounded-xl p-6 sm:p-8 border-2 border-slate-200 shadow-md hover:shadow-lg transition-all duration-300 hover:border-blue-300 hover:scale-[1.02]">
-                  <div className="mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center mb-4 shadow-lg">
+                {/* Act on What Matters */}
+                <div className="p-5 sm:p-6 lg:p-8 bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-emerald-100 hover:border-emerald-300 transition-all">
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-400 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-1">Post About Insights</h3>
-                    <p className="text-sm text-slate-600 mb-4">
-                      Turn valuable insights into ready-to-post content for LinkedIn, Twitter, Instagram.
-                    </p>
-                  </div>
-                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                    <div className="space-y-3">
-                      <div className="flex items-start gap-2">
-                        <div className="w-6 h-6 rounded bg-blue-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">in</div>
-                        <p className="text-xs text-slate-600 italic">"Thinking about starting a consulting side business? Here's what I learned: Start part-time while employed, define your niche clearly, and validate demand before going all-in. The key is testing the waters without burning bridges..."</p>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <div className="w-6 h-6 rounded bg-sky-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">𝕏</div>
-                        <p className="text-xs text-slate-600 italic">"Starting a side consulting business? Do it part-time first. Define your niche, validate demand, then scale. Most successful consultants started while employed."</p>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Instagram className="w-6 h-6 text-rose-600 flex-shrink-0" />
-                        <p className="text-xs text-slate-600 italic">"The side hustle to full-time journey: Start small, validate, then scale. Here's how I'm building my consulting business while keeping my day job. The key? Clear boundaries and a solid plan."</p>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-3">Act on What Matters</h3>
+                      <div className="space-y-3">
+                        {/* To-Do */}
+                        <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-xl p-4 border border-emerald-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="px-3 py-1.5 bg-emerald-500 text-white rounded-lg text-xs font-bold">To-Do</span>
+                            <span className="text-xs text-slate-600">Suggested action</span>
+                          </div>
+                          <p className="text-sm text-slate-700">Establish quality gates and alignment checkpoints before using AI tools in development workflows.</p>
+                        </div>
+                        {/* To-Post */}
+                        <div className="bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-xl p-4 border border-purple-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="px-3 py-1.5 bg-purple-500 text-white rounded-lg text-xs font-bold">To-Post</span>
+                            <span className="text-xs text-slate-600">Ready to share</span>
+                          </div>
+                          <div className="space-y-3">
+                            <div className="bg-white rounded-lg p-3 border border-purple-200">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Linkedin className="w-4 h-4 text-blue-600" />
+                                <span className="text-xs font-medium text-slate-700">LinkedIn</span>
+                              </div>
+                              <p className="text-xs text-slate-600 italic">"AI accelerates everything—the good and the bad. Give it messy code and poor alignment, and it'll speed up the mess exponentially. The key isn't slowing down AI, it's ensuring what we feed it is worth accelerating."</p>
+                            </div>
+                            <div className="bg-white rounded-lg p-3 border border-purple-200">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Twitter className="w-4 h-4 text-sky-500" />
+                                <span className="text-xs font-medium text-slate-700">X (Twitter)</span>
+                              </div>
+                              <p className="text-xs text-slate-600 italic">"AI accelerates whatever you give it—good or bad. Messy code + lack of alignment = exponentially faster mess. Quality gates matter more than ever."</p>
+                            </div>
+                            <div className="bg-white rounded-lg p-3 border border-purple-200">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Instagram className="w-4 h-4 text-rose-600" />
+                                <span className="text-xs font-medium text-slate-700">Instagram</span>
+                              </div>
+                              <p className="text-xs text-slate-600 italic">"AI is making everything faster. It amplifies whatever we put in—the good and the bad. My learning: clean inputs, clear alignment, then let AI accelerate the right things."</p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Feature 6: Companion */}
-                <div className="bg-white rounded-xl p-6 sm:p-8 border-2 border-slate-200 shadow-md hover:shadow-lg transition-all duration-300 hover:border-cyan-300 hover:scale-[1.02]">
-                  <div className="mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 via-blue-500 to-indigo-500 flex items-center justify-center mb-4 shadow-lg">
+                {/* Mind Report */}
+                <div className="p-5 sm:p-6 lg:p-8 bg-white rounded-xl sm:rounded-2xl shadow-lg border-2 border-indigo-100 hover:border-indigo-300 transition-all">
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-400 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
                       <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-3">Mind Report</h3>
+                      <div className="bg-gradient-to-br from-indigo-50 via-purple-50/30 to-pink-50/20 rounded-xl p-5 sm:p-6 border-2 border-indigo-200/50 shadow-sm">
+                        <div className="mb-5">
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-base font-bold text-slate-800">Last 30 Days</span>
+                            <div className="flex items-center gap-2">
+                              <button className="px-2 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-100 rounded transition-colors">30d</button>
+                              <button className="px-2 py-1 text-xs font-medium text-slate-500 hover:bg-slate-100 rounded transition-colors">60d</button>
+                              <button className="px-2 py-1 text-xs font-medium text-slate-500 hover:bg-slate-100 rounded transition-colors">90d</button>
+                            </div>
+                          </div>
+                          
+                          {/* Combined overview of all thoughts (work + personal together) */}
+                          <div className="grid grid-cols-3 gap-3 mb-4">
+                            <div className="bg-white rounded-xl p-4 border-2 border-indigo-200 text-center shadow-sm hover:shadow-md transition-shadow">
+                              <div className="text-3xl font-bold text-indigo-600 mb-1">47</div>
+                              <div className="text-xs font-medium text-slate-600 uppercase tracking-wide">Total Thoughts</div>
+                              <div className="text-xs text-emerald-600 font-medium mt-1">↑ 12%</div>
+                            </div>
+                            <div className="bg-white rounded-xl p-4 border-2 border-orange-200 text-center shadow-sm hover:shadow-md transition-shadow">
+                              <div className="text-3xl font-bold text-orange-600 mb-1">12</div>
+                              <div className="text-xs font-medium text-slate-600 uppercase tracking-wide">To-Dos</div>
+                              <div className="text-xs text-emerald-600 font-medium mt-1">↑ 8%</div>
+                            </div>
+                            <div className="bg-white rounded-xl p-4 border-2 border-purple-200 text-center shadow-sm hover:shadow-md transition-shadow">
+                              <div className="text-3xl font-bold text-purple-600 mb-1">8</div>
+                              <div className="text-xs font-medium text-slate-600 uppercase tracking-wide">To-Post</div>
+                              <div className="text-xs text-emerald-600 font-medium mt-1">↑ 25%</div>
+                            </div>
+                          </div>
+
+                          {/* Simple breakdown chips instead of explicit work/personal split */} 
+                        </div>
+                        <div className="space-y-4">
+                          <div>
+                            <p className="text-sm font-bold text-slate-800 mb-2.5">Top Topics (All):</p>
+                            <div className="flex flex-wrap gap-2">
+                              <span className="px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg text-xs font-semibold shadow-sm">Software Development</span>
+                              <span className="px-3 py-1.5 bg-pink-100 text-pink-700 rounded-lg text-xs font-semibold shadow-sm">Health & Wellness</span>
+                              <span className="px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg text-xs font-semibold shadow-sm">AI Tools</span>
+                              <span className="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-xs font-semibold shadow-sm">Life Planning</span>
+                            </div>
+                          </div>
+                          <div className="pt-4 border-t-2 border-indigo-200/50">
+                            <p className="text-sm font-bold text-slate-800 mb-2">Key Insights:</p>
+                            <div className="space-y-2.5">
+                              <div className="bg-white/80 rounded-lg p-3 border border-indigo-200">
+                                <p className="text-xs font-semibold text-indigo-700 mb-1">📈 Work-Life Balance</p>
+                                <p className="text-xs text-slate-700">60% work thoughts, 40% personal. Your work focus increased 15% this month, while personal wellness thoughts remain steady. Consider maintaining balance.</p>
+                              </div>
+                              <div className="bg-white/80 rounded-lg p-3 border border-purple-200">
+                                <p className="text-xs font-semibold text-purple-700 mb-1">🔗 Cross-Domain Patterns</p>
+                                <p className="text-xs text-slate-700">"Process improvement" appears in both work (team processes) and personal (life planning) thoughts. You're applying systematic thinking across domains.</p>
+                              </div>
+                              <div className="bg-white/80 rounded-lg p-3 border border-pink-200">
+                                <p className="text-xs font-semibold text-pink-700 mb-1">⚡ Action Opportunity</p>
+                                <p className="text-xs text-slate-700">8 thoughts ready to post (5 work, 3 personal). Your work insights on AI development have high sharing potential, while personal wellness reflections could inspire others.</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Additional Features Grid */}
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-8 sm:mt-10 lg:mt-12">
+
+                {/* Feature 4: AI Insights */}
+                <div className="p-4 sm:p-5 lg:p-6 bg-white rounded-xl sm:rounded-2xl shadow-sm hover:shadow-md transition-all border border-slate-200/60">
+                  <div className="mb-3 sm:mb-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-pink-500 to-pink-400 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                       </svg>
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-1">Companion</h3>
-                    <p className="text-sm text-slate-600 mb-4">
-                      Get personalized observations and patterns from your thoughts. Your AI thinking companion.
+                    <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2">AI Insights & Next Steps</h3>
+                    <p className="text-xs sm:text-sm text-slate-600 mb-3 sm:mb-4 font-light">
+                      Get contextual research-based notes and actionable sub-tasks for every entry.
                     </p>
                   </div>
-                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                    <div className="space-y-2 text-sm text-slate-700">
-                      <p className="font-medium text-xs text-slate-500 mb-2">Observation:</p>
-                      <p className="italic text-xs">"You're consistently thinking about career growth and entrepreneurship. This pattern suggests you're ready to take the next step professionally. Your thoughts about consulting show both excitement and caution—a healthy balance. Consider starting with one small client to test the waters."</p>
-                      <p className="text-xs text-slate-500 mt-3">Pattern detected: Career growth & entrepreneurship</p>
+                  <div className="bg-pink-50/50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-pink-200/40">
+                    <p className="text-xs sm:text-sm text-slate-700 italic mb-2 font-medium">"Starting a consulting business part-time is a smart approach..."</p>
+                    <ul className="text-xs space-y-1 text-slate-600 font-light">
+                      <li>• Research consulting rates</li>
+                      <li>• Define your service offerings</li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Feature 5: Social Sharing */}
+                <div className="p-4 sm:p-5 lg:p-6 bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] border-2 border-orange-100 hover:border-orange-300">
+                  <div className="mb-3 sm:mb-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-500 to-orange-400 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 shadow-lg">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2">Post About Insights</h3>
+                    <p className="text-xs sm:text-sm text-slate-600 mb-3 sm:mb-4 font-medium">
+                      Turn valuable insights into ready-to-post content for LinkedIn, Twitter, Instagram.
+                    </p>
+                  </div>
+                  <div className="bg-orange-50/50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-orange-200/40">
+                    <div className="flex items-center gap-2 mb-2">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" viewBox="0 0 24 24" fill="url(#instagram-gradient)">
+                        <defs>
+                          <linearGradient id="instagram-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#833AB4" />
+                            <stop offset="50%" stopColor="#FD1D1D" />
+                            <stop offset="100%" stopColor="#FCAF45" />
+                          </linearGradient>
+                        </defs>
+                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.98-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.98-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                      </svg>
+                      <span className="text-xs sm:text-sm text-slate-600 font-medium">Instagram</span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-700 italic leading-relaxed">"Gratitude practice works. Here's my daily routine that changed everything..."</p>
+                  </div>
+                </div>
+
+                {/* Feature 6: Companion */}
+                <div className="p-4 sm:p-5 lg:p-6 bg-white rounded-xl sm:rounded-2xl shadow-sm hover:shadow-md transition-all border border-slate-200/60">
+                  <div className="mb-3 sm:mb-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-500 to-purple-400 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2">Companion</h3>
+                    <p className="text-xs sm:text-sm text-slate-600 mb-3 sm:mb-4 font-light">
+                      Get personalized observations and patterns from your thoughts.
+                    </p>
+                  </div>
+                  <div className="bg-purple-50/50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-purple-200/40">
+                    <div className="flex items-start gap-2 mb-3">
+                      <div className="w-5 h-5 rounded-full bg-amber-100 border border-amber-300 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg className="w-3 h-3 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs font-semibold text-slate-800 mb-1">Pattern Detected</p>
+                        <p className="text-xs text-slate-700 mb-2">You've had more negative or critical thoughts lately (8 of your last 12 thoughts).</p>
+                        <div className="bg-white rounded-lg p-2 border border-purple-200">
+                          <p className="text-xs font-medium text-purple-700 mb-1">💡 Suggestion:</p>
+                          <p className="text-xs text-slate-600">Consider taking a break, practicing gratitude, or focusing on solutions rather than problems. Your thoughts show you're noticing issues—channel that into actionable improvements.</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -893,8 +920,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
 
           {/* Footer - Vibrant gradient */}
           <footer className="relative z-10 border-t-2 border-yellow-200/50 bg-gradient-to-br from-yellow-50/40 via-blue-50/20 to-pink-50/10">
-            <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 sm:py-16">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
                 {/* Brand */}
                 <div className="text-center md:text-left">
                   <h3 className="text-xl font-bold text-slate-800 mb-2">
@@ -941,114 +968,131 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   >
                     <Instagram className="w-5 h-5" />
                   </a>
-                </div>
               </div>
+          </div>
 
               {/* Copyright */}
               <div className="mt-8 pt-8 border-t border-slate-200 text-center">
                 <p className="text-sm text-slate-500">
                   © {new Date().getFullYear()} Thouthy. All rights reserved.
                 </p>
-              </div>
-            </div>
+        </div>
+      </div>
           </footer>
         </>
       ) : (
-        /* Logged in view - attractive design */
-        <div className="relative z-10 w-full max-w-3xl mx-auto px-4 sm:px-8 pt-8 pb-8">
-          {/* Main Input Card - Super Playful and Attractive */}
-          <div id="capture-input" className="bg-gradient-to-br from-white via-yellow-50/40 to-blue-50/30 rounded-3xl shadow-2xl border-2 border-yellow-300/60 p-8 sm:p-10 hover:shadow-3xl transition-all duration-300 backdrop-blur-sm relative overflow-visible">
-            {/* Decorative background elements */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-200/20 rounded-full blur-3xl -z-10 animate-pulse"></div>
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-yellow-200/20 rounded-full blur-3xl -z-10 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-            {/* Floating decorative elements */}
-            <div className="absolute -top-4 -right-4 w-8 h-8 bg-yellow-400/60 rounded-full blur-sm animate-bounce"></div>
-            <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-blue-400/60 rounded-full blur-sm animate-bounce" style={{ animationDuration: '2s' }}></div>
-            <div className="absolute top-2 right-2 w-4 h-4 bg-pink-400/40 rounded-full blur-sm"></div>
-            
-          <div className="relative z-10">
-            {/* Header */}
-            <div className="mb-6">
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2 flex items-center gap-3">
-                <span className="text-4xl animate-bounce" style={{ animationDuration: '2s' }}>💭</span>
-                <span>What's on your mind?</span>
-              </h2>
-              <p className="text-sm text-slate-600 flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-yellow-500" />
-                Capture your thoughts instantly
-              </p>
+        /* Logged in view - colorful design */
+        <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-8 pt-8 pb-8 overflow-visible">
+          {/* Thought pills - left side (closer and more visible) */}
+          <div className="hidden xl:flex flex-col gap-4 absolute left-0 top-1/2 -translate-y-1/2 z-20" style={{ left: 'calc((100% - 80rem) / 2 - 8rem)' }}>
+            <div className="px-5 py-3 bg-white rounded-full text-sm font-medium text-slate-700 shadow-sm border border-pink-200/60 hover:shadow-md transition-all whitespace-nowrap">
+              "Schedule dentist appointment"
             </div>
+            <div className="px-5 py-3 bg-white rounded-full text-sm font-medium text-slate-700 shadow-sm border border-orange-200/60 hover:shadow-md transition-all whitespace-nowrap">
+              "Startups need to slow down"
+            </div>
+            <div className="px-5 py-3 bg-white rounded-full text-sm font-medium text-slate-700 shadow-sm border border-purple-200/60 hover:shadow-md transition-all whitespace-nowrap">
+              "Renew car insurance"
+            </div>
+          </div>
+          
+          {/* Thought pills - right side (closer and more visible) */}
+          <div className="hidden xl:flex flex-col gap-4 absolute right-0 top-1/2 -translate-y-1/2 z-20" style={{ right: 'calc((100% - 80rem) / 2 - 8rem)' }}>
+            <div className="px-5 py-3 bg-white rounded-full text-sm font-medium text-slate-700 shadow-sm border border-pink-200/60 hover:shadow-md transition-all whitespace-nowrap">
+              "Gratitude practice works"
+          </div>
+            <div className="px-5 py-3 bg-white rounded-full text-sm font-medium text-slate-700 shadow-sm border border-orange-200/60 hover:shadow-md transition-all whitespace-nowrap">
+              "The best ideas come when walking"
+            </div>
+            <div className="px-5 py-3 bg-white rounded-full text-sm font-medium text-slate-700 shadow-sm border border-purple-200/60 hover:shadow-md transition-all whitespace-nowrap">
+              "Post about productivity tips"
+            </div>
+          </div>
+          
+          {/* Main Input Card */}
+          <div id="capture-input" className="bg-white/50 backdrop-blur-sm rounded-3xl p-10 sm:p-12 relative overflow-hidden shadow-lg border border-slate-200/50">
+            {/* Subtle background orbs */}
+            <div className="absolute top-5 right-5 w-64 h-64 bg-pink-100/20 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-5 left-5 w-56 h-56 bg-orange-100/20 rounded-full blur-3xl"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-purple-100/15 rounded-full blur-3xl"></div>
+            
+            <div className="relative z-10 bg-white/50 backdrop-blur-sm rounded-2xl p-8">
+              {/* Header */}
+              <div className="mb-8 text-center">
+                <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4">
+                  <span className="text-slate-900">What's on your </span>
+                  <span className="bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 bg-clip-text text-transparent italic">mind?</span>
+                </h2>
+                <p className="text-lg sm:text-xl text-slate-600 font-light">
+                  Capture your thoughts instantly, anywhere
+          </p>
+        </div>
 
-          {/* Super Attractive Input Area */}
-          <div className="mb-6 relative">
-            {/* Animated gradient glow background */}
-            <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/30 via-blue-400/30 to-pink-400/30 rounded-2xl blur-2xl -z-10 animate-pulse"></div>
-            {/* Additional glow layers */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-yellow-500/20 via-blue-500/20 to-pink-500/20 rounded-2xl blur-xl -z-10"></div>
-            
+              {/* Input Area */}
+              <div className="mb-8 relative">
+                {/* Text area container */}
+                <div className="relative">
+                  {/* Subtle gradient background */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-pink-50/50 via-orange-50/50 to-purple-50/50 rounded-2xl"></div>
+                  
             <textarea
-              value={transcript || inputText}
-              onChange={(e) => {
-                if (transcript) {
-                  setTranscript(e.target.value);
-                } else {
-                  setInputText(e.target.value);
-                }
-              }}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSubmit();
-                }
-              }}
-              placeholder="Share your thoughts, tasks, ideas... ✨"
-              className="w-full p-6 text-base border-2 border-yellow-300 bg-white/95 backdrop-blur-md rounded-2xl hover:border-yellow-500 focus:border-yellow-600 focus:outline-none focus:ring-4 focus:ring-yellow-500/40 resize-none transition-all h-40 shadow-xl hover:shadow-2xl relative z-10"
-            />
-            
-            {/* Animated decorative corner elements */}
-            <div className="absolute -top-3 -right-3 w-8 h-8 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-full opacity-70 blur-sm animate-pulse shadow-lg"></div>
-            <div className="absolute -bottom-3 -left-3 w-7 h-7 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full opacity-70 blur-sm animate-pulse shadow-lg" style={{ animationDelay: '0.5s' }}></div>
-            <div className="absolute top-2 right-2 w-3 h-3 bg-yellow-400 rounded-full opacity-50"></div>
-            <div className="absolute bottom-2 left-2 w-2 h-2 bg-blue-400 rounded-full opacity-50"></div>
+                    value={transcript || inputText}
+                    onChange={(e) => {
+                      if (transcript) {
+                        setTranscript(e.target.value);
+                      } else {
+                        setInputText(e.target.value);
+                      }
+                    }}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSubmit();
+                      }
+                    }}
+                    placeholder="Share your thoughts, tasks, ideas..."
+                    className="relative w-full p-6 text-base sm:text-lg bg-white/80 backdrop-blur-sm rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-pink-300/50 resize-none transition-all h-48 sm:h-56 border border-slate-200/60 shadow-sm hover:border-pink-200/80"
+                  />
+                </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {/* Voice Input Button */}
-              {isSpeechRecognitionAvailable() ? (
-                <button
-                  onClick={handleVoiceInput}
-                  className={`p-3 rounded-lg transition-all duration-200 ${
-                    isRecording 
-                      ? 'bg-red-500 text-white shadow-md animate-pulse' 
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                  title={isRecording ? 'Stop recording' : 'Start voice input'}
-                  type="button"
-                >
-                  {isRecording ? (
-                    <MicOff className="w-5 h-5" />
+              {/* Action Buttons */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {/* Voice Input Button */}
+                  {isSpeechRecognitionAvailable() ? (
+                    <button
+                      onClick={handleVoiceInput}
+                      className={`p-3 rounded-lg transition-all ${
+                        isRecording 
+                          ? 'bg-red-500 text-white shadow-lg' 
+                          : 'bg-gradient-to-br from-blue-100 to-cyan-100 text-blue-600 hover:from-blue-200 hover:to-cyan-200'
+                      }`}
+                      title={isRecording ? 'Stop recording' : 'Start voice input'}
+                      type="button"
+                    >
+                      {isRecording ? (
+                        <MicOff className="w-5 h-5" />
+                      ) : (
+                        <Mic className="w-5 h-5" />
+                      )}
+                    </button>
                   ) : (
-                    <Mic className="w-5 h-5" />
+                    <button
+                      className="p-3 rounded-lg bg-slate-100 text-slate-400 cursor-not-allowed"
+                      title="Voice input not supported in this browser"
+                      type="button"
+                      disabled
+                    >
+                      <Mic className="w-5 h-5" />
+                    </button>
                   )}
-                </button>
-              ) : (
-                <button
-                  className="p-3 rounded-lg bg-slate-100 text-slate-400 cursor-not-allowed"
-                  title="Voice input not supported in this browser"
-                  type="button"
-                  disabled
-                >
-                  <Mic className="w-5 h-5" />
-                </button>
-              )}
               
               {/* Training Upload Button */}
               <div className="relative">
                 <button
                   onClick={() => setShowUpload(!showUpload)}
-                  className="p-3 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors duration-200"
+                  className="p-3.5 rounded-xl bg-gradient-to-br from-blue-100 to-cyan-100 text-blue-600 hover:from-blue-200 hover:to-cyan-200 transition-all shadow-md hover:shadow-lg hover:scale-105"
                   title="Upload training data"
                 >
                   <Upload className="w-5 h-5" />
@@ -1089,10 +1133,10 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             <button
               onClick={handleSubmit}
               disabled={!hasContent || isProcessing}
-              className={`px-8 py-3 rounded-xl font-medium text-base transition-all duration-200 flex items-center gap-2 ${
+              className={`px-10 py-4 rounded-xl font-bold text-base sm:text-lg transition-all flex items-center gap-2 shadow-xl hover:shadow-2xl ${
                 hasContent && !isProcessing
-                  ? 'bg-white/80 text-slate-700 border-2 border-yellow-300 hover:border-yellow-400 hover:bg-yellow-50/80 shadow-md hover:shadow-lg backdrop-blur-sm'
-                  : 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
+                  ? 'bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 text-white hover:from-pink-600 hover:via-orange-600 hover:to-purple-600 hover:scale-105'
+                  : 'bg-slate-100 text-slate-400 cursor-not-allowed'
               }`}
             >
               {isProcessing ? (
@@ -1113,7 +1157,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
           {error && (
             <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
               <div className="text-sm text-red-700">{error}</div>
-            </div>
+              </div>
           )}
 
           {/* Success Message */}
@@ -1124,11 +1168,11 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 <span className="font-medium">
                   Thought captured and saved!
                 </span>
-              </div>
-            </div>
-          )}
             </div>
           </div>
+          )}
+        </div>
+      </div>
         </div>
       )}
     </div>

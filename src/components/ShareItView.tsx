@@ -166,19 +166,15 @@ const ShareItView: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-100/60 via-blue-100/50 to-pink-100/60 relative overflow-hidden">
-      {/* Playful background elements - MUCH more visible */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-yellow-300/30 rounded-full blur-3xl -z-10 animate-pulse"></div>
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-300/30 rounded-full blur-3xl -z-10"></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-pink-300/25 rounded-full blur-3xl -z-10 animate-pulse" style={{ animationDelay: '1s' }}></div>
-      {/* Floating decorative shapes */}
-      <div className="absolute top-20 right-20 w-20 h-20 bg-yellow-400/40 rounded-full blur-2xl animate-bounce" style={{ animationDuration: '4s' }}></div>
-      <div className="absolute bottom-32 left-32 w-16 h-16 bg-blue-400/40 rounded-full blur-2xl animate-bounce" style={{ animationDuration: '5s', animationDelay: '0.5s' }}></div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50/30 via-white to-cyan-50/30 relative">
+      {/* Subtle background elements */}
+      <div className="fixed top-20 right-20 w-96 h-96 bg-blue-100/10 rounded-full blur-3xl -z-10 animate-pulse"></div>
+      <div className="fixed bottom-20 left-20 w-80 h-80 bg-cyan-100/10 rounded-full blur-3xl -z-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
       {/* Content */}
       <div className="w-full px-4 sm:px-8 py-4 sm:py-6">
         {shareItEntries.length === 0 ? (
           <div className="text-center py-16 sm:py-20">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-yellow-200 to-orange-200 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 via-cyan-500 to-teal-600 rounded-lg flex items-center justify-center mx-auto mb-6 shadow-lg">
               <Share2 className="w-10 h-10 sm:w-12 sm:h-12 text-yellow-800" />
             </div>
             <h3 className="text-xl sm:text-2xl font-semibold text-slate-900 mb-2">
@@ -197,11 +193,8 @@ const ShareItView: React.FC = () => {
               return (
                 <div
                   key={entry.id}
-                  className="bg-white/95 backdrop-blur-md rounded-2xl border-2 border-yellow-300/70 overflow-hidden flex flex-col h-full hover:border-yellow-400 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 relative"
+                  className="bg-white rounded-xl overflow-hidden flex flex-col h-full transition-all relative hover:shadow-xl hover:scale-[1.03] border-2 border-slate-100 hover:border-blue-300 hover:bg-gradient-to-br hover:from-blue-50/30 hover:to-cyan-50/30"
                 >
-                  {/* Decorative corner elements */}
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400/50 rounded-full blur-sm"></div>
-                  <div className="absolute -bottom-2 -left-2 w-5 h-5 bg-blue-400/50 rounded-full blur-sm"></div>
                   {/* Original Thought */}
                   <div className="p-5 flex-1 flex flex-col min-h-0">
                     <div className="text-sm text-slate-900 leading-relaxed flex-1 overflow-hidden mb-4">
@@ -258,7 +251,7 @@ const ShareItView: React.FC = () => {
                             });
                           }
                         }}
-                        className="w-full px-4 py-3 bg-white/80 text-slate-700 border-2 border-yellow-300 rounded-lg font-medium hover:border-yellow-400 hover:bg-yellow-50/80 transition-all shadow-sm backdrop-blur-sm flex items-center justify-center gap-2"
+                        className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-600 text-white rounded-lg font-medium hover:from-blue-700 hover:via-cyan-700 hover:to-teal-700 transition-all shadow-lg flex items-center justify-center gap-2"
                       >
                         <Sparkles className="w-4 h-4" />
                         Generate Post Drafts
@@ -267,7 +260,7 @@ const ShareItView: React.FC = () => {
                     
                     {/* Generating State with Progress */}
                     {generatingPosts.has(entry.id) && (
-                      <div className="w-full px-4 py-3 bg-yellow-50/80 border-2 border-yellow-200 rounded-lg flex flex-col items-center gap-2 backdrop-blur-sm">
+                      <div className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg flex flex-col items-center gap-2">
                         <div className="flex items-center gap-2">
                           <Loader2 className="w-4 h-4 animate-spin text-yellow-600" />
                           <span className="text-sm font-medium text-yellow-700">
@@ -409,24 +402,24 @@ const ShareItView: React.FC = () => {
                                     </button>
                                     {post.draftContent && (
                                       <>
-                                        <button
-                                          onClick={() => handleCopy(post.draftContent, `linkedin-${post.id}`)}
-                                          className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded transition-colors"
-                                          title="Copy"
-                                        >
-                                          {copiedId === `linkedin-${post.id}` ? (
-                                            <Check className="w-3 h-3 text-green-600" />
-                                          ) : (
-                                            <Copy className="w-3 h-3" />
-                                          )}
-                                        </button>
-                                        <button
-                                          onClick={() => handleEditDraft(post, 'linkedin')}
-                                          className="p-1.5 border border-slate-200 text-slate-500 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                                          title="Edit"
-                                        >
-                                          <Edit2 className="w-3 h-3" />
-                                        </button>
+                                    <button
+                                      onClick={() => handleCopy(post.draftContent, `linkedin-${post.id}`)}
+                                      className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded transition-colors"
+                                      title="Copy"
+                                    >
+                                      {copiedId === `linkedin-${post.id}` ? (
+                                        <Check className="w-3 h-3 text-green-600" />
+                                      ) : (
+                                        <Copy className="w-3 h-3" />
+                                      )}
+                                    </button>
+                                    <button
+                                      onClick={() => handleEditDraft(post, 'linkedin')}
+                                      className="p-1.5 border border-slate-200 text-slate-500 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                      title="Edit"
+                                    >
+                                      <Edit2 className="w-3 h-3" />
+                                    </button>
                                       </>
                                     )}
                                   </>
@@ -443,8 +436,8 @@ const ShareItView: React.FC = () => {
                             ) : (
                               <div className="space-y-2">
                                 {post.draftContent ? (
-                                  <div className="p-2 bg-slate-50 border border-slate-200 rounded text-xs text-slate-800 whitespace-pre-line leading-relaxed max-h-[300px] overflow-y-auto">
-                                    {post.draftContent}
+                              <div className="p-2 bg-slate-50 border border-slate-200 rounded text-xs text-slate-800 whitespace-pre-line leading-relaxed max-h-[300px] overflow-y-auto">
+                                {post.draftContent}
                                   </div>
                                 ) : generatingPosts.has(entry.id) ? (
                                   <div className="flex flex-col items-center justify-center py-8 border border-slate-200 rounded bg-slate-50">
@@ -495,30 +488,30 @@ const ShareItView: React.FC = () => {
                                     </button>
                                   </>
                                 ) : (
-                                  <>
-                                    <button
-                                      onClick={async () => {
-                                        setGeneratingPosts(prev => new Set(prev).add(entry.id));
-                                        try {
-                                          await deletePost(post.id);
-                                          await generatePostForEntry(entry.id);
-                                          await loadPosts();
-                                        } catch (error) {
-                                          console.error('Error regenerating draft:', error);
-                                          alert('Error regenerating draft. Please try again.');
-                                        } finally {
-                                          setGeneratingPosts(prev => {
-                                            const next = new Set(prev);
-                                            next.delete(entry.id);
-                                            return next;
-                                          });
-                                        }
-                                      }}
-                                      className="p-2 border border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700 rounded transition-colors"
-                                      title="Regenerate draft"
-                                    >
-                                      <RefreshCcw className="w-3.5 h-3.5" />
-                                    </button>
+                                      <>
+                                        <button
+                                          onClick={async () => {
+                                            setGeneratingPosts(prev => new Set(prev).add(entry.id));
+                                            try {
+                                              await deletePost(post.id);
+                                              await generatePostForEntry(entry.id);
+                                              await loadPosts();
+                                            } catch (error) {
+                                              console.error('Error regenerating draft:', error);
+                                              alert('Error regenerating draft. Please try again.');
+                                            } finally {
+                                              setGeneratingPosts(prev => {
+                                                const next = new Set(prev);
+                                                next.delete(entry.id);
+                                                return next;
+                                              });
+                                            }
+                                          }}
+                                          className="p-2 border border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700 rounded transition-colors"
+                                          title="Regenerate draft"
+                                        >
+                                          <RefreshCcw className="w-3.5 h-3.5" />
+                                        </button>
                                     {post.twitterContent && (
                                       <>
                                         <button
@@ -561,8 +554,8 @@ const ShareItView: React.FC = () => {
                             ) : (
                               <div className="space-y-2">
                                 {post.twitterContent ? (
-                                  <div className="p-2 bg-slate-50 border border-slate-200 rounded text-xs text-slate-800 max-h-[300px] overflow-y-auto">
-                                    <div className="whitespace-pre-wrap">{post.twitterContent}</div>
+                              <div className="p-2 bg-slate-50 border border-slate-200 rounded text-xs text-slate-800 max-h-[300px] overflow-y-auto">
+                                  <div className="whitespace-pre-wrap">{post.twitterContent}</div>
                                   </div>
                                 ) : generatingPosts.has(entry.id) ? (
                                   <div className="flex flex-col items-center justify-center py-8 border border-slate-200 rounded bg-slate-50">
@@ -687,7 +680,7 @@ const ShareItView: React.FC = () => {
                                     ) : (
                                       <>
                                         <Instagram className="w-8 h-8 text-slate-400 mb-2" />
-                                        <div className="text-xs text-slate-500">Image not generated</div>
+                                    <div className="text-xs text-slate-500">Image not generated</div>
                                       </>
                                     )}
                                   </div>
@@ -698,7 +691,7 @@ const ShareItView: React.FC = () => {
                                   <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg">
                                     <div className="text-xs font-medium text-slate-600 mb-1.5">Caption:</div>
                                     <div className="text-sm text-slate-800 whitespace-pre-line leading-relaxed max-h-[200px] overflow-y-auto">
-                                      {post.instagramContent}
+                                    {post.instagramContent}
                                     </div>
                                   </div>
                                 )}
@@ -726,7 +719,7 @@ const ShareItView: React.FC = () => {
                     </button>
                     {post && (
                       <div className="flex items-center gap-2">
-                        {post.status === 'shared' ? (
+                        {post.status === 'posted' ? (
                           <div className="px-3 py-1.5 text-xs font-medium bg-green-50 border border-green-200 text-green-700 rounded flex items-center gap-1.5">
                             <Check className="w-3.5 h-3.5" />
                             <span className="hidden sm:inline">Shared</span>

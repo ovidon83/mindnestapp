@@ -214,7 +214,7 @@ const Auth: React.FC<AuthProps> = ({ onAuthSuccess, initialMode = 'login', onMod
               className={`w-full py-3 rounded-lg font-semibold text-lg transition-all duration-200 ${
                 loading
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl'
+                  : 'bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 text-white hover:from-pink-600 hover:via-orange-600 hover:to-purple-600 shadow-lg hover:shadow-xl'
               }`}
             >
               {loading ? 'Loading...' : isLogin ? 'Sign In' : 'Sign Up'}

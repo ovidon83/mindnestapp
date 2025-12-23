@@ -66,7 +66,7 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
           
           // Navigate to mindbox after saving
           get().setCurrentView('mindbox');
-          
+        
           // Post generation is now user-initiated only
           // Users can manually add entries to ShareIt and generate posts when ready
           // This saves tokens and gives users full control

@@ -323,9 +323,9 @@ export async function regenerateSocialContent(postId: string): Promise<Post> {
   const { generateTwitterPost, generateInstagramPost, generateInstagramImagePrompt, generateInstagramImage } = await import('./ai');
   
   const [twitterContent, instagramContent, instagramImagePrompt] = await Promise.all([
-    generateTwitterPost(entryObj),
-    generateInstagramPost(entryObj),
-    generateInstagramImagePrompt(entryObj)
+    generateTwitterPost(entryObj.originalText),
+    generateInstagramPost(entryObj.originalText),
+    generateInstagramImagePrompt(entryObj.originalText)
   ]);
 
   // Generate the actual image if we have a prompt

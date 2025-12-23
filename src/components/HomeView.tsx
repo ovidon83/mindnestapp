@@ -60,7 +60,7 @@ const HomeView: React.FC = () => {
     }
     
     return matchesCategory && matchesEntryType;
-  });
+      });
 
   // Sort entries by date (newest first)
   const sortedEntries = [...filteredEntries].sort((a, b) => {
@@ -79,47 +79,42 @@ const HomeView: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-100/60 via-blue-100/50 to-pink-100/60 relative overflow-hidden">
-      {/* Playful background elements - MUCH more visible */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-yellow-300/30 rounded-full blur-3xl -z-10 animate-pulse"></div>
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-300/30 rounded-full blur-3xl -z-10"></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-pink-300/25 rounded-full blur-3xl -z-10 animate-pulse" style={{ animationDelay: '1s' }}></div>
-      {/* Floating decorative shapes */}
-      <div className="absolute top-20 right-20 w-20 h-20 bg-yellow-400/40 rounded-full blur-2xl animate-bounce" style={{ animationDuration: '4s' }}></div>
-      <div className="absolute bottom-32 left-32 w-16 h-16 bg-blue-400/40 rounded-full blur-2xl animate-bounce" style={{ animationDuration: '5s', animationDelay: '0.5s' }}></div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50/30 via-white to-cyan-50/30 relative">
+      {/* Subtle background elements */}
+      <div className="fixed top-20 right-20 w-96 h-96 bg-blue-100/10 rounded-full blur-3xl -z-10 animate-pulse"></div>
+      <div className="fixed bottom-20 left-20 w-80 h-80 bg-cyan-100/10 rounded-full blur-3xl -z-10 animate-pulse" style={{ animationDelay: '2s' }}></div>
       
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-md border-b-2 border-yellow-300/60 shadow-md">
+      <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-md border-b-2 border-blue-100 shadow-sm">
         <div className="w-full px-8 py-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-2">
-                <span className="text-3xl">💭</span>
-                My thoughts space
+              <h1 className="text-3xl font-bold text-slate-900">
+                My <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">thoughts</span>
               </h1>
             </div>
             <div className="flex items-center gap-3">
-              <button
+                  <button
                 onClick={() => setCurrentView('shareit')}
-                className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors px-3 py-2 rounded-lg hover:bg-yellow-50 border border-transparent hover:border-yellow-200"
-              >
+                className="text-sm font-medium text-slate-600 hover:text-slate-900 px-3 py-2"
+                  >
                 Share it
-              </button>
-              <button
+                  </button>
+                  <button
                 onClick={() => setCurrentView('capture')}
-                className="px-4 py-2 text-sm font-medium bg-white/80 text-slate-700 border-2 border-yellow-300 rounded-lg hover:border-yellow-400 hover:bg-yellow-50/80 transition-all shadow-sm backdrop-blur-sm"
+                className="px-4 py-2 text-sm font-medium bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-600 text-white rounded-lg hover:from-blue-700 hover:via-cyan-700 hover:to-teal-700 shadow-lg"
               >
                 New Thought
-              </button>
+                  </button>
               {/* User Avatar - Inline with header */}
               {user && (
                 <div className="ml-2">
                   <UserAvatar user={user} onLogout={signOut} />
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </div>
-
+              </div>
+              
           {/* Search and Filters - Inline */}
           <div className="flex items-center gap-3">
             {/* Search - Smaller */}
@@ -129,7 +124,7 @@ const HomeView: React.FC = () => {
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white transition-colors"
+                className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 rounded-lg focus:bg-white transition-colors"
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
               {searchQuery && (
@@ -141,7 +136,7 @@ const HomeView: React.FC = () => {
                 </button>
               )}
             </div>
-
+            
             {/* Category Dropdown */}
             <div className="relative">
               <button
@@ -149,7 +144,7 @@ const HomeView: React.FC = () => {
                   setShowCategoryDropdown(!showCategoryDropdown);
                   setShowTypeDropdown(false);
                 }}
-                className="px-4 py-2 text-sm font-medium bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-2 min-w-[140px] justify-between"
+                className="px-4 py-2 text-sm font-medium bg-white rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-2 min-w-[140px] justify-between"
               >
                 <span className="text-slate-700">
                   {getCategoryDisplayName(selectedCategory)}
@@ -175,12 +170,12 @@ const HomeView: React.FC = () => {
                         }`}
                       >
                         {cat === 'all' ? 'All Categories' : cat === 'todo' ? 'To-Do' : cat.charAt(0).toUpperCase() + cat.slice(1)}
-                      </button>
+                    </button>
                     ))}
                   </div>
                 </>
-              )}
-            </div>
+            )}
+          </div>
 
             {/* Entry Type Dropdown */}
             <div className="relative">
@@ -238,11 +233,11 @@ const HomeView: React.FC = () => {
                         )}
                       </button>
                     ))}
-                  </div>
+              </div>
                 </>
               )}
             </div>
-
+            
             {/* Date Filter Dropdown */}
             <div className="relative">
               <button
@@ -307,12 +302,12 @@ const HomeView: React.FC = () => {
                 : 'Start by capturing your first thought'}
             </p>
             {!searchQuery && selectedCategory === 'all' && (
-              <button
+            <button
                 onClick={() => setCurrentView('capture')}
-                className="px-6 py-3 text-base font-medium bg-white/80 text-slate-700 border-2 border-yellow-300 rounded-lg hover:border-yellow-400 hover:bg-yellow-50/80 transition-all shadow-sm backdrop-blur-sm"
-              >
+                className="px-6 py-3 text-base font-medium bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-600 text-white rounded-lg hover:from-blue-700 hover:via-cyan-700 hover:to-teal-700 shadow-lg"
+            >
                 {(selectedEntryType !== 'all' && selectedEntryType === 'journal') ? 'Add Journal Entry' : 'Capture Your First Thought'}
-              </button>
+            </button>
             )}
           </div>
         ) : (
@@ -405,7 +400,7 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onDelete, onUpdateCategory
 
   return (
     <>
-      <div className="group bg-white border border-slate-200 rounded-lg hover:border-slate-300 hover:shadow-lg transition-all h-full flex flex-col">
+      <div className="group bg-white rounded-xl transition-all h-full flex flex-col hover:shadow-xl hover:scale-[1.03] border-2 border-slate-100 hover:border-blue-300 hover:bg-gradient-to-br hover:from-blue-50/30 hover:to-cyan-50/30">
         <div className="p-4 flex-1 flex flex-col">
           {/* Title and Delete */}
           <div className="flex items-start justify-between gap-3 mb-3">
@@ -469,7 +464,7 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onDelete, onUpdateCategory
                     />
                     <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-lg border border-slate-200 z-30 min-w-[120px] py-1">
                       {(['todo', 'insight', 'idea'] as Category[]).map((cat) => (
-                        <button
+            <button
                           key={cat}
                           onClick={async (e) => {
                             e.stopPropagation();
@@ -490,9 +485,9 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onDelete, onUpdateCategory
                           className={`w-full text-left px-3 py-1.5 text-xs hover:bg-slate-50 first:rounded-t-lg last:rounded-b-lg ${
                             (entry.category || entry.type) === cat ? 'font-medium bg-slate-50' : ''
                           } ${getCategoryTextColor(cat)}`}
-                        >
+            >
                           {cat === 'todo' ? 'To-Do' : cat.charAt(0).toUpperCase() + cat.slice(1)}
-                        </button>
+            </button>
                       ))}
                     </div>
                   </>
@@ -504,7 +499,7 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onDelete, onUpdateCategory
               {formatDate(entry.createdAt)}
             </span>
           </div>
-
+          
           {/* Content */}
           <div className="flex-1 mb-3">
             {(entry.type || entry.entryType) === 'journal' ? (
@@ -513,14 +508,14 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onDelete, onUpdateCategory
                   {entry.originalText.split('\n').slice(1).join('\n') || entry.originalText}
                 </div>
                 {(entry.originalText.split('\n').length > 4 || entry.originalText.length > 150) && (
-                  <button
+            <button
                     onClick={() => setShowModal(true)}
                     className="mt-2 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
-                  >
+            >
                     Show more
-                  </button>
-                )}
-              </div>
+            </button>
+          )}
+        </div>
             ) : (
               <div>
                 <p className="text-xs text-slate-700 leading-relaxed line-clamp-3 mb-2">
@@ -532,15 +527,15 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onDelete, onUpdateCategory
                   </div>
                 )}
                 {entry.originalText.length > 150 && (
-                  <button
+              <button
                     onClick={() => setShowModal(true)}
                     className="mt-2 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
-                  >
+              >
                     Show more
-                  </button>
+              </button>
                 )}
-              </div>
-            )}
+            </div>
+          )}
           </div>
 
           {/* Tags */}
@@ -604,7 +599,7 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onDelete, onUpdateCategory
                   <div className="mt-4 p-3 bg-emerald-50 border border-emerald-100 rounded-lg">
                     <div className="text-sm font-medium text-emerald-900 mb-1">Next Step</div>
                     <div className="text-sm text-emerald-700">→ {entry.nextStep}</div>
-                  </div>
+                </div>
                 )}
 
                 {entry.tags.length > 0 && (
@@ -616,12 +611,12 @@ const EntryCard: React.FC<EntryCardProps> = ({ entry, onDelete, onUpdateCategory
                       >
                         {tag}
                       </span>
-                    ))}
-                  </div>
-                )}
-              </div>
+              ))}
             </div>
-          </div>
+          )}
+        </div>
+      </div>
+    </div>
         </>
       )}
     </>

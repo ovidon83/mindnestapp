@@ -28,14 +28,14 @@ export async function processThought(
             {
               role: 'system',
               content: `Categorize and analyze the input. Return ONLY a JSON object:
-{
-  "type": "todo" | "insight" | "journal",
-  "tags": ["work" | "soccer" | "family" | "spirituality" | "business" | "tech" | "health" | "other"],
-  "summary": "one short sentence summarizing the thought",
+              {
+                "type": "todo" | "insight" | "journal",
+                "tags": ["work" | "soccer" | "family" | "spirituality" | "business" | "tech" | "health" | "other"],
+                "summary": "one short sentence summarizing the thought",
   "nextStep": "one short action item (only if type is todo, otherwise null)",
   "aiHint": "subtle AI hint (1-2 sentences, reflective not prescriptive)",
   "postingScore": number (0-100, higher for shareable insights/learnings)
-}`
+              }`
             },
             {
               role: 'user',
@@ -211,15 +211,15 @@ export async function analyzeEntryForPost(entry: Entry, options?: any, forceGene
   const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
   
   if (!apiKey) {
-    return {
-      shouldPost: false,
-      viralityScore: 0,
-      draftContent: '',
-      twitterContent: '',
-      instagramContent: '',
-      instagramImagePrompt: '',
-      instagramImageUrl: '',
-    };
+  return {
+    shouldPost: false,
+    viralityScore: 0,
+    draftContent: '',
+    twitterContent: '',
+    instagramContent: '',
+    instagramImagePrompt: '',
+    instagramImageUrl: '',
+  };
   }
 
   // If no options provided, generate everything. Otherwise respect the options.
