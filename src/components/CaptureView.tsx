@@ -781,26 +781,66 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                             </div>
                           </div>
                           
-                          {/* Combined overview of all thoughts (work + personal together) */}
-                          <div className="grid grid-cols-3 gap-3 mb-4">
-                            <div className="bg-white rounded-xl p-4 border-2 border-indigo-200 text-center shadow-sm hover:shadow-md transition-shadow">
-                              <div className="text-3xl font-bold text-indigo-600 mb-1">47</div>
-                              <div className="text-xs font-medium text-slate-600 uppercase tracking-wide">Total Thoughts</div>
-                              <div className="text-xs text-emerald-600 font-medium mt-1">↑ 12%</div>
-                            </div>
-                            <div className="bg-white rounded-xl p-4 border-2 border-orange-200 text-center shadow-sm hover:shadow-md transition-shadow">
-                              <div className="text-3xl font-bold text-orange-600 mb-1">12</div>
-                              <div className="text-xs font-medium text-slate-600 uppercase tracking-wide">To-Dos</div>
-                              <div className="text-xs text-emerald-600 font-medium mt-1">↑ 8%</div>
-                            </div>
-                            <div className="bg-white rounded-xl p-4 border-2 border-purple-200 text-center shadow-sm hover:shadow-md transition-shadow">
-                              <div className="text-3xl font-bold text-purple-600 mb-1">8</div>
-                              <div className="text-xs font-medium text-slate-600 uppercase tracking-wide">To-Post</div>
-                              <div className="text-xs text-emerald-600 font-medium mt-1">↑ 25%</div>
+                          {/* Total Thoughts Overview */}
+                          <div className="bg-white rounded-xl p-4 border-2 border-indigo-200 text-center shadow-sm mb-4">
+                            <div className="text-3xl font-bold text-indigo-600 mb-1">47</div>
+                            <div className="text-xs font-medium text-slate-600 uppercase tracking-wide">Total Thoughts</div>
+                            <div className="text-xs text-emerald-600 font-medium mt-1">↑ 12%</div>
+                          </div>
+
+                          {/* Breakdown by Type */}
+                          <div className="mb-4">
+                            <p className="text-xs font-semibold text-slate-700 mb-2">By Type:</p>
+                            <div className="grid grid-cols-3 gap-2 mb-3">
+                              <div className="bg-white rounded-lg p-3 border border-orange-200 text-center">
+                                <div className="text-xl font-bold text-orange-600 mb-0.5">12</div>
+                                <div className="text-xs text-slate-600">To-Dos</div>
+                                <div className="text-xs text-slate-500 mt-0.5">26%</div>
+                              </div>
+                              <div className="bg-white rounded-lg p-3 border border-purple-200 text-center">
+                                <div className="text-xl font-bold text-purple-600 mb-0.5">28</div>
+                                <div className="text-xs text-slate-600">Insights</div>
+                                <div className="text-xs text-slate-500 mt-0.5">60%</div>
+                              </div>
+                              <div className="bg-white rounded-lg p-3 border border-blue-200 text-center">
+                                <div className="text-xl font-bold text-blue-600 mb-0.5">7</div>
+                                <div className="text-xs text-slate-600">Journal</div>
+                                <div className="text-xs text-slate-500 mt-0.5">15%</div>
+                              </div>
                             </div>
                           </div>
 
-                          {/* Simple breakdown chips instead of explicit work/personal split */} 
+                          {/* Sentiment Breakdown */}
+                          <div className="mb-4">
+                            <p className="text-xs font-semibold text-slate-700 mb-2">Sentiment:</p>
+                            <div className="grid grid-cols-3 gap-2 mb-3">
+                              <div className="bg-white rounded-lg p-3 border border-emerald-200 text-center">
+                                <div className="text-xl font-bold text-emerald-600 mb-0.5">18</div>
+                                <div className="text-xs text-slate-600">Positive</div>
+                                <div className="text-xs text-slate-500 mt-0.5">38%</div>
+                              </div>
+                              <div className="bg-white rounded-lg p-3 border border-amber-200 text-center">
+                                <div className="text-xl font-bold text-amber-600 mb-0.5">15</div>
+                                <div className="text-xs text-slate-600">Neutral</div>
+                                <div className="text-xs text-slate-500 mt-0.5">32%</div>
+                              </div>
+                              <div className="bg-white rounded-lg p-3 border border-red-200 text-center">
+                                <div className="text-xl font-bold text-red-600 mb-0.5">14</div>
+                                <div className="text-xs text-slate-600">Negative</div>
+                                <div className="text-xs text-slate-500 mt-0.5">30%</div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Worth Sharing */}
+                          <div className="mb-4">
+                            <p className="text-xs font-semibold text-slate-700 mb-2">Worth Sharing:</p>
+                            <div className="bg-white rounded-lg p-3 border-2 border-purple-300 text-center">
+                              <div className="text-2xl font-bold text-purple-600 mb-0.5">19</div>
+                              <div className="text-xs text-slate-600">High-value thoughts</div>
+                              <div className="text-xs text-slate-500 mt-0.5">40% of total</div>
+                            </div>
+                          </div> 
                         </div>
                         <div className="space-y-4">
                           <div>
