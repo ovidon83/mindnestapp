@@ -70,8 +70,8 @@ export function entryToDbEntry(entry: Entry): any {
     badge_override: entry.badgeOverride || null,
     posting_score: entry.postingScore || null,
     in_share_it: entry.inShareIt || false,
-    // Metadata (stored as JSONB in Supabase)
-    metadata: entry.metadata || null,
+    // Metadata (stored as JSONB in Supabase) - only include if it exists and is not null
+    ...(entry.metadata ? { metadata: entry.metadata } : {}),
     // Legacy fields for backward compatibility
     entry_type: entry.entryType || (type === 'journal' ? 'journal' : 'thought'),
     category: entry.category || (type === 'todo' ? 'todo' : type === 'insight' ? 'insight' : 'idea'),
@@ -163,7 +163,14 @@ export async function updateEntry(id: string, updates: Partial<Entry>): Promise<
   if (updates.inShareIt !== undefined) updateData.in_share_it = updates.inShareIt;
   if (updates.aiHint !== undefined) updateData.ai_hint = updates.aiHint || null;
   if (updates.postingScore !== undefined) updateData.posting_score = updates.postingScore || null;
-  if (updates.metadata !== undefined) updateData.metadata = updates.metadata || null;
+  if (updates.metadata !== undefined) {
+    // Only include metadata if it's not null/undefined
+    if (updates.metadata) {
+      updateData.metadata = updates.metadata;
+    } else {
+      updateData.metadata = null;
+    }
+  }
 
   const { data, error } = await (supabase as any)
     .from('entries')

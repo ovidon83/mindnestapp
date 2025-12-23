@@ -39,10 +39,10 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange }) =>
                 const Icon = item.icon;
                 const isActive = currentView === item.id;
               const colorClasses = {
-                indigo: isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
-                blue: isActive ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
+                indigo: isActive ? 'bg-orange-50 text-orange-700 border border-orange-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
+                blue: isActive ? 'bg-purple-50 text-purple-700 border border-purple-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
                 slate: isActive ? 'bg-slate-100 text-slate-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
-                purple: isActive ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
+                purple: isActive ? 'bg-pink-50 text-pink-700 border border-pink-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
               };
                 
                 return (
