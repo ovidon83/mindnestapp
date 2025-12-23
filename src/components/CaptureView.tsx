@@ -25,23 +25,39 @@ const EmailSubscription: React.FC = () => {
     setMessage(null);
 
     try {
+      // Try API first (saves to CSV + sends email)
       const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : window.location.origin);
       const response = await fetch(`${apiUrl}/api/subscribe`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
 
-      const data = await response.json();
-
       if (response.ok) {
+        const data = await response.json();
         setMessage({ type: 'success', text: data.message || 'Successfully subscribed!' });
         setEmail('');
       } else {
-        setMessage({ type: 'error', text: data.error || 'Failed to subscribe. Please try again.' });
-    }
+        // If API fails, try Supabase as fallback (saves to DB but no email)
+        const { supabase, hasSupabaseCredentials } = await import('../lib/supabase');
+        if (hasSupabaseCredentials) {
+          const { error: supabaseError } = await (supabase as any)
+            .from('subscriptions')
+            .insert({ 
+              email, 
+              created_at: new Date().toISOString() 
+            } as any);
+
+          if (supabaseError) {
+            throw new Error('Failed to subscribe');
+          }
+          setMessage({ type: 'success', text: 'Successfully subscribed! (Email notification may be delayed)' });
+          setEmail('');
+        } else {
+          const errorData = await response.json().catch(() => ({}));
+          setMessage({ type: 'error', text: errorData.error || 'Failed to subscribe. Please try again.' });
+        }
+      }
     } catch (error) {
       console.error('Subscription error:', error);
       setMessage({ type: 'error', text: 'Failed to subscribe. Please try again later.' });
@@ -417,7 +433,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
               <p className="text-sm sm:text-base md:text-lg lg:text-xl text-slate-600 mb-6 sm:mb-8 max-w-2xl mx-auto font-normal leading-relaxed px-2">
                 Never lose a thought again — and let them empower you!
                 <br className="hidden sm:block" />
-                <span className="font-semibold text-slate-800">Save. Observe. Act.</span>
+                <span className="font-semibold text-slate-800">Capture. Observe. Act.</span>
               </p>
               <div className="mt-6 sm:mt-8 px-2">
                 <EmailSubscription />
@@ -437,7 +453,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 <div className="mb-6 sm:mb-8 lg:mb-10 text-center">
                   <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-3 sm:mb-4 leading-tight">
                     <span className="text-slate-900">What's on your </span>
-                    <span className="bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 bg-clip-text text-transparent italic">mind?</span>
+                    <span className="bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 bg-clip-text text-transparent italic pr-1">mind?</span>
                   </h2>
                   {/* Floating example thoughts under heading */}
                   <div className="mt-4 flex flex-wrap justify-center gap-3 sm:gap-4">
@@ -445,10 +461,10 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       "State inspection for the Equinox"
                     </span>
                     <span className="px-4 py-2 rounded-full bg-indigo-50 border border-indigo-200 text-xs sm:text-sm text-indigo-800 font-medium shadow-sm">
-                      "AI is giving people a false sense of speed"
+                      "AI can give startups a false sense of speed"
                     </span>
                     <span className="px-4 py-2 rounded-full bg-amber-50 border border-amber-200 text-xs sm:text-sm text-amber-800 font-medium shadow-sm">
-                      "Detox from information"
+                      "Need an information detox!"
                     </span>
                   </div>
                 </div>
@@ -626,7 +642,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                           </svg>
-                          On my walk this morning
+                          On my morning walk
                         </span>
                       </div>
                       <div className="bg-gradient-to-br from-pink-50 to-pink-100/50 rounded-xl p-4 sm:p-5 border border-pink-200">
@@ -637,10 +653,10 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 </div>
 
                 {/* What Thouthy does with it - Wrapped in border */}
-                <div className="relative mt-8 sm:mt-10 pt-8 sm:pt-10 border-2 border-dashed border-orange-300 rounded-2xl bg-gradient-to-br from-orange-50/30 via-purple-50/20 to-pink-50/30">
+                <div className="relative mt-8 sm:mt-10 pt-8 sm:pt-10 border-2 border-dashed border-purple-300 rounded-2xl bg-gradient-to-br from-purple-50/30 via-pink-50/20 to-indigo-50/30">
                   {/* Label at top of border */}
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <div className="px-4 py-2 bg-white border-2 border-orange-300 rounded-full shadow-md">
+                    <div className="px-4 py-2 bg-white border-2 border-purple-300 rounded-full shadow-md">
                       <span className="text-sm sm:text-base font-bold text-slate-800">What Thouthy does with it</span>
                     </div>
                   </div>
@@ -919,7 +935,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
           </section>
 
           {/* Footer - Vibrant gradient */}
-          <footer className="relative z-10 border-t-2 border-yellow-200/50 bg-gradient-to-br from-yellow-50/40 via-blue-50/20 to-pink-50/10">
+          <footer className="relative z-10 border-t-2 border-slate-200/50 bg-gradient-to-br from-slate-50/40 via-blue-50/20 to-pink-50/10">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
               <div className="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
                 {/* Brand */}
@@ -936,7 +952,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 <div className="flex items-center gap-4">
                   <a
                     href="mailto:hello@thouthy.com"
-                    className="p-2 rounded-lg bg-white/80 backdrop-blur-sm border-2 border-yellow-200 text-slate-600 hover:text-yellow-600 hover:border-yellow-300 hover:scale-110 transition-all shadow-sm"
+                    className="p-2 rounded-lg bg-white/80 backdrop-blur-sm border-2 border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-300 hover:scale-110 transition-all shadow-sm"
                     aria-label="Email"
                   >
                     <Mail className="w-5 h-5" />

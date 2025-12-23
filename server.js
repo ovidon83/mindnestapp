@@ -40,7 +40,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Subscription endpoint
+// Subscription endpoint (for backward compatibility)
 app.post('/api/subscribe', async (req, res) => {
   try {
     const { email } = req.body;
@@ -76,6 +76,40 @@ app.post('/api/subscribe', async (req, res) => {
   } catch (error) {
     console.error('Subscription error:', error);
     res.status(500).json({ error: 'Failed to process subscription' });
+  }
+});
+
+// Notification-only endpoint (for Supabase subscriptions)
+app.post('/api/subscribe/notify', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ error: 'Valid email is required' });
+    }
+
+    // Send notification email
+    const timestamp = new Date().toISOString();
+    try {
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: 'ovidon83@gmail.com',
+        subject: 'New Thouthy Subscription',
+        text: `New email subscription: ${email}\nTimestamp: ${timestamp}`,
+        html: `
+          <h2>New Thouthy Subscription</h2>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Timestamp:</strong> ${timestamp}</p>
+        `,
+      });
+      res.json({ success: true, message: 'Notification sent' });
+    } catch (emailError) {
+      console.error('Error sending notification email:', emailError);
+      res.status(500).json({ error: 'Failed to send notification' });
+    }
+  } catch (error) {
+    console.error('Notification error:', error);
+    res.status(500).json({ error: 'Failed to process notification' });
   }
 });
 
