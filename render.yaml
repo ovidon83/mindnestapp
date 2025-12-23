@@ -6,4 +6,19 @@ services:
     startCommand: npm start
     envVars:
       - key: NODE_VERSION
-        value: 18.17.0 
+        value: 18.17.0
+  
+  - type: web
+    name: thouthy-subscription-api
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_VERSION
+        value: 18.17.0
+      - key: PORT
+        value: 10000
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false 
