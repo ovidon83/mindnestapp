@@ -98,7 +98,7 @@ const EmailSubscription: React.FC = () => {
   };
 
 const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
-  const { processAndSave, setCurrentView, user, signOut } = useGenieNotesStore();
+  const { processAndSave, setCurrentView, user, signOut, pendingText, setPendingText } = useGenieNotesStore();
   const [inputText, setInputText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -107,7 +107,6 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
   const [error, setError] = useState<string | null>(null);
   const [showUpload, setShowUpload] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const [pendingText, setPendingText] = useState<string | null>(null); // Store text when not logged in
   
   const recognitionRef = useRef<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -259,7 +258,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
         setPendingText(null);
       }, 100);
     }
-  }, [user, pendingText, setCurrentView]);
+  }, [user, pendingText, setCurrentView, setPendingText]);
 
   const handleSubmit = async () => {
     const textToProcess = transcript || inputText;

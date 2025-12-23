@@ -10,6 +10,7 @@ interface GenieNotesStore {
   currentView: AppView;
   user: any | null;
   loading: boolean;
+  pendingText: string | null; // Text waiting to be saved after login
   
   // Auth
   setUser: (user: any) => void;
@@ -23,6 +24,7 @@ interface GenieNotesStore {
   
   // App state
   setCurrentView: (view: AppView) => void;
+  setPendingText: (text: string | null) => void;
 }
 
 export const useGenieNotesStore = create<GenieNotesStore>()(
@@ -32,6 +34,7 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
       currentView: 'mindbox', // Default to mindbox view
       user: null,
       loading: false,
+      pendingText: null,
 
       setUser: (user) => {
         set({ user });
@@ -98,6 +101,10 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
 
       setCurrentView: (view: AppView) => {
         set({ currentView: view });
+      },
+
+      setPendingText: (text: string | null) => {
+        set({ pendingText: text });
       },
     }),
     {

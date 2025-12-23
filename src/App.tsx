@@ -34,9 +34,14 @@ const App: React.FC = () => {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const wasLoggedOut = !useGenieNotesStore.getState().user && session?.user;
       setUser(session?.user ?? null);
       if (session?.user) {
         loadEntries();
+        // If user just logged in and there's pending text, navigate to capture view
+        if (wasLoggedOut && useGenieNotesStore.getState().pendingText) {
+          useGenieNotesStore.getState().setCurrentView('capture');
+        }
       } else {
         useGenieNotesStore.setState({ entries: [] });
       }
