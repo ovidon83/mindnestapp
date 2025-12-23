@@ -749,17 +749,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     <div className="flex-1 min-w-0 w-full">
                       <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-3">Act on What Matters</h3>
                       <div className="space-y-3 w-full">
-                        {/* To-Do - First */}
-                        <div className="bg-gradient-to-br from-orange-50 to-orange-100/50 rounded-xl p-4 border border-orange-200">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="px-3 py-1.5 bg-orange-500 text-white rounded-lg text-xs font-bold">To-Do</span>
-                            <span className="text-xs text-slate-600">Suggested action</span>
-                          </div>
-                          <p className="text-sm text-slate-700">Establish quality gates and alignment checkpoints before using AI tools in development workflows.</p>
-                        </div>
-                        
-                        {/* To Share - Second, Full Width */}
-                        <div className="bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-xl p-4 sm:p-5 border border-purple-200 -mx-5 sm:-mx-6 md:-mx-8 lg:-mx-8 px-5 sm:px-6 md:px-8 lg:px-8">
+                        {/* To Share - Full Width, No Background */}
+                        <div className="rounded-xl p-4 sm:p-5 -mx-5 sm:-mx-6 md:-mx-8 lg:-mx-8 px-5 sm:px-6 md:px-8 lg:px-8">
                           <div className="flex items-center gap-2 mb-4">
                             <span className="px-3 py-1.5 bg-purple-500 text-white rounded-lg text-xs font-bold">To Share</span>
                           </div>
