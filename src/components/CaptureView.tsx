@@ -25,38 +25,25 @@ const EmailSubscription: React.FC = () => {
     setMessage(null);
 
     try {
-      // Try API first (saves to CSV + sends email)
-      const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : window.location.origin);
-      const response = await fetch(`${apiUrl}/api/subscribe`, {
+      // Use Formspree - simple form submission service
+      const formspreeEndpoint = import.meta.env.VITE_FORMSPREE_ENDPOINT || 'https://formspree.io/f/YOUR_FORM_ID';
+      
+      const response = await fetch(formspreeEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ 
+          email,
+          _subject: 'New Thouthy Early Access Subscription',
+          _replyto: email 
+        }),
       });
 
       if (response.ok) {
-        const data = await response.json();
-        setMessage({ type: 'success', text: data.message || 'Successfully subscribed!' });
+        setMessage({ type: 'success', text: 'Successfully subscribed! We\'ll be in touch soon.' });
         setEmail('');
       } else {
-        // If API fails, try Supabase as fallback (saves to DB but no email)
-        const { supabase, hasSupabaseCredentials } = await import('../lib/supabase');
-        if (hasSupabaseCredentials) {
-          const { error: supabaseError } = await (supabase as any)
-            .from('subscriptions')
-            .insert({ 
-              email, 
-              created_at: new Date().toISOString() 
-            } as any);
-
-          if (supabaseError) {
-            throw new Error('Failed to subscribe');
-          }
-          setMessage({ type: 'success', text: 'Successfully subscribed! (Email notification may be delayed)' });
-          setEmail('');
-        } else {
-          const errorData = await response.json().catch(() => ({}));
-          setMessage({ type: 'error', text: errorData.error || 'Failed to subscribe. Please try again.' });
-        }
+        const errorData = await response.json().catch(() => ({}));
+        setMessage({ type: 'error', text: errorData.error || 'Failed to subscribe. Please try again.' });
       }
     } catch (error) {
       console.error('Subscription error:', error);
