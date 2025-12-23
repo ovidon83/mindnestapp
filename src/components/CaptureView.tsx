@@ -750,12 +750,12 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-3">Act on What Matters</h3>
                       <div className="space-y-3">
                         {/* To Share - First */}
-                        <div className="bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-xl p-5 border border-purple-200">
+                        <div className="bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-xl p-4 sm:p-5 border border-purple-200">
                           <div className="flex items-center gap-2 mb-4">
                             <span className="px-3 py-1.5 bg-purple-500 text-white rounded-lg text-xs font-bold">To Share</span>
                             <span className="text-xs text-slate-600">Ready to share</span>
                           </div>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-full">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 w-full">
                             {/* LinkedIn Post */}
                             <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
                               <div className="p-3 bg-gray-50 flex items-center gap-2">
