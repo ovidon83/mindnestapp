@@ -765,32 +765,32 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             {/* LinkedIn Post */}
-                            <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                            <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden flex flex-col">
                               {/* LinkedIn Header */}
-                              <div className="p-3 border-b border-gray-200 bg-gray-50">
+                              <div className="p-2 border-b border-gray-200 bg-gray-50">
                                 <div className="flex items-center gap-2">
-                                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                                    <span className="text-white text-xs font-bold">{userInitials}</span>
+                                  <div className="w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <span className="text-white text-[10px] font-bold">{userInitials}</span>
                                   </div>
-                                  <div className="flex-1">
-                                    <div className="text-sm font-semibold text-gray-900">{userName}</div>
-                                    <div className="text-xs text-gray-500">Software Developer • 1st</div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="text-xs font-semibold text-gray-900 truncate">{userName}</div>
+                                    <div className="text-[10px] text-gray-500">Developer • 1st</div>
                                   </div>
-                                  <Linkedin className="w-5 h-5 text-blue-600" />
+                                  <Linkedin className="w-4 h-4 text-blue-600 flex-shrink-0" />
                                 </div>
                               </div>
                               {/* LinkedIn Content */}
-                              <div className="p-4">
-                                <p className="text-sm text-gray-900 leading-relaxed mb-3">
+                              <div className="p-3 flex-1">
+                                <p className="text-xs text-gray-900 leading-relaxed mb-2">
                                   AI accelerates everything—the good and the bad. Give it messy code and poor alignment, and it'll speed up the mess exponentially.
                                 </p>
-                                <p className="text-sm text-gray-900 leading-relaxed mb-3">
+                                <p className="text-xs text-gray-900 leading-relaxed mb-2">
                                   The key isn't slowing down AI. It's ensuring what we feed it is worth accelerating.
                                 </p>
-                                <p className="text-sm text-gray-900 leading-relaxed mb-3">
+                                <p className="text-xs text-gray-900 leading-relaxed mb-2">
                                   Quality gates and alignment checkpoints matter more than ever. Clean inputs, clear requirements, then let AI amplify the right things.
                                 </p>
-                                <div className="flex items-center gap-4 mt-4 pt-3 border-t border-gray-200">
+                                <div className="flex items-center gap-3 mt-auto pt-2 border-t border-gray-200">
                                   <div className="flex items-center gap-1 text-gray-600">
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -816,16 +816,16 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                             {/* X (Twitter) Post */}
                             <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden flex flex-col">
                               {/* X Header */}
-                              <div className="p-3 border-b border-gray-200 bg-white">
+                              <div className="p-2 border-b border-gray-200 bg-white">
                                 <div className="flex items-center gap-2">
-                                  <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center">
-                                    <span className="text-white text-xs font-bold">{userInitials}</span>
+                                  <div className="w-7 h-7 bg-black rounded-full flex items-center justify-center">
+                                    <span className="text-white text-[10px] font-bold">{userInitials}</span>
                                   </div>
-                                  <div className="flex-1">
-                                    <div className="text-sm font-semibold text-gray-900">{userName}</div>
-                                    <div className="text-xs text-gray-500">@username</div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="text-xs font-semibold text-gray-900 truncate">{userName}</div>
+                                    <div className="text-[10px] text-gray-500">@username</div>
                                   </div>
-                                  <Twitter className="w-5 h-5 text-sky-500" />
+                                  <Twitter className="w-4 h-4 text-sky-500 flex-shrink-0" />
                                 </div>
                               </div>
                               {/* X Content */}
