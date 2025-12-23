@@ -748,33 +748,114 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                           </div>
                           <p className="text-sm text-slate-700">Establish quality gates and alignment checkpoints before using AI tools in development workflows.</p>
                         </div>
-                        {/* To-Post */}
+                        {/* To Share */}
                         <div className="bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-xl p-4 border border-purple-200">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="px-3 py-1.5 bg-purple-500 text-white rounded-lg text-xs font-bold">To-Post</span>
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="px-3 py-1.5 bg-purple-500 text-white rounded-lg text-xs font-bold">To Share</span>
                             <span className="text-xs text-slate-600">Ready to share</span>
                           </div>
-                          <div className="space-y-3">
-                            <div className="bg-white rounded-lg p-3 border border-purple-200">
-                              <div className="flex items-center gap-2 mb-1">
-                                <Linkedin className="w-4 h-4 text-blue-600" />
-                                <span className="text-xs font-medium text-slate-700">LinkedIn</span>
+                          <div className="space-y-4">
+                            {/* LinkedIn Post */}
+                            <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                              {/* LinkedIn Header */}
+                              <div className="p-3 border-b border-gray-200 bg-gray-50">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                    <span className="text-white text-xs font-bold">OD</span>
+                                  </div>
+                                  <div className="flex-1">
+                                    <div className="text-sm font-semibold text-gray-900">Your Name</div>
+                                    <div className="text-xs text-gray-500">Software Developer • 1st</div>
+                                  </div>
+                                  <Linkedin className="w-5 h-5 text-blue-600" />
+                                </div>
                               </div>
-                              <p className="text-xs text-slate-600 italic">"AI accelerates everything—the good and the bad. Give it messy code and poor alignment, and it'll speed up the mess exponentially. The key isn't slowing down AI, it's ensuring what we feed it is worth accelerating."</p>
+                              {/* LinkedIn Content */}
+                              <div className="p-4">
+                                <p className="text-sm text-gray-900 leading-relaxed mb-3">
+                                  AI accelerates everything—the good and the bad. Give it messy code and poor alignment, and it'll speed up the mess exponentially.
+                                </p>
+                                <p className="text-sm text-gray-900 leading-relaxed mb-3">
+                                  The key isn't slowing down AI. It's ensuring what we feed it is worth accelerating.
+                                </p>
+                                <p className="text-sm text-gray-900 leading-relaxed mb-3">
+                                  Quality gates and alignment checkpoints matter more than ever. Clean inputs, clear requirements, then let AI amplify the right things.
+                                </p>
+                                <div className="flex items-center gap-4 mt-4 pt-3 border-t border-gray-200">
+                                  <div className="flex items-center gap-1 text-gray-600">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                    </svg>
+                                    <span className="text-xs">Like</span>
+                                  </div>
+                                  <div className="flex items-center gap-1 text-gray-600">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                    </svg>
+                                    <span className="text-xs">Comment</span>
+                                  </div>
+                                  <div className="flex items-center gap-1 text-gray-600">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342c-.2 0-.4-.01-.6-.03l-4.11.84c-.51.1-.94-.33-.84-.84l.84-4.11c.02-.2-.01-.4-.03-.6 0-.55.45-1 1-1h4.11c.51 0 .94.33 1.05.84l.84 4.11c.02.2.01.4.03.6 0 .55-.45 1-1 1zm6.316 0c-.2 0-.4-.01-.6-.03l-4.11.84c-.51.1-.94-.33-.84-.84l.84-4.11c.02-.2-.01-.4-.03-.6 0-.55.45-1 1-1h4.11c.51 0 .94.33 1.05.84l.84 4.11c.02.2.01.4.03.6 0 .55-.45 1-1 1z" />
+                                    </svg>
+                                    <span className="text-xs">Repost</span>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
-                            <div className="bg-white rounded-lg p-3 border border-purple-200">
-                              <div className="flex items-center gap-2 mb-1">
-                                <Twitter className="w-4 h-4 text-sky-500" />
-                                <span className="text-xs font-medium text-slate-700">X (Twitter)</span>
+
+                            {/* Instagram Post */}
+                            <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                              {/* Instagram Header */}
+                              <div className="p-3 border-b border-gray-200 flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-8 h-8 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-full flex items-center justify-center">
+                                    <span className="text-white text-xs font-bold">OD</span>
+                                  </div>
+                                  <span className="text-sm font-semibold text-gray-900">yourname</span>
+                                </div>
+                                <Instagram className="w-5 h-5 text-rose-600" />
                               </div>
-                              <p className="text-xs text-slate-600 italic">"AI accelerates whatever you give it—good or bad. Messy code + lack of alignment = exponentially faster mess. Quality gates matter more than ever."</p>
-                            </div>
-                            <div className="bg-white rounded-lg p-3 border border-purple-200">
-                              <div className="flex items-center gap-2 mb-1">
-                                <Instagram className="w-4 h-4 text-rose-600" />
-                                <span className="text-xs font-medium text-slate-700">Instagram</span>
+                              {/* Instagram Image Placeholder */}
+                              <div className="aspect-square bg-gradient-to-br from-purple-100 via-pink-100 to-orange-100 flex items-center justify-center relative">
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <div className="text-center">
+                                    <div className="w-16 h-16 bg-white/80 rounded-lg flex items-center justify-center mx-auto mb-2 shadow-lg">
+                                      <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                      </svg>
+                                    </div>
+                                    <p className="text-xs text-gray-600 font-medium">Image placeholder</p>
+                                  </div>
+                                </div>
                               </div>
-                              <p className="text-xs text-slate-600 italic">"AI is making everything faster. It amplifies whatever we put in—the good and the bad. My learning: clean inputs, clear alignment, then let AI accelerate the right things."</p>
+                              {/* Instagram Actions */}
+                              <div className="p-3 border-b border-gray-200">
+                                <div className="flex items-center gap-4 mb-2">
+                                  <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                  </svg>
+                                  <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                  </svg>
+                                  <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                  </svg>
+                                  <div className="flex-1"></div>
+                                  <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                                  </svg>
+                                </div>
+                                <div className="text-sm font-semibold text-gray-900 mb-1">123 likes</div>
+                              </div>
+                              {/* Instagram Caption */}
+                              <div className="p-3">
+                                <p className="text-sm text-gray-900">
+                                  <span className="font-semibold">yourname</span>{' '}
+                                  AI is making everything faster. It amplifies whatever we put in—the good and the bad. My learning: clean inputs, clear alignment, then let AI accelerate the right things. 🚀
+                                </p>
+                                <p className="text-xs text-gray-500 mt-2">2 hours ago</p>
+                              </div>
                             </div>
                           </div>
                         </div>
