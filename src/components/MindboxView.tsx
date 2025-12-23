@@ -154,9 +154,9 @@ const MindboxView: React.FC = () => {
   const getBadgeInfo = (type: EntryType) => {
     switch (type) {
       case 'todo':
-        return { label: 'To-Do', icon: CheckSquare, color: 'emerald' };
+        return { label: 'To-Do', icon: CheckSquare, color: 'orange' };
       case 'insight':
-        return { label: 'Insight', icon: Lightbulb, color: 'emerald' };
+        return { label: 'Insight', icon: Lightbulb, color: 'purple' };
       case 'journal':
         return { label: 'Journal', icon: BookOpen, color: 'rose' };
     }
@@ -371,11 +371,15 @@ const MindboxView: React.FC = () => {
                               onClick={() => handleBadgeChange(entry.id, type)}
                                   className={`px-3 py-1.5 rounded text-xs font-medium transition-colors flex items-center gap-2 border ${
                                 badgeType === type
-                                  ? info.color === 'emerald'
-                                        ? 'bg-yellow-50 text-yellow-700 border-yellow-200'
+                                  ? info.color === 'orange'
+                                        ? 'bg-orange-50 text-orange-700 border-orange-200'
+                                        : info.color === 'purple'
+                                        ? 'bg-purple-50 text-purple-700 border-purple-200'
                                         : 'bg-pink-50 text-pink-700 border-pink-200'
-                                  : info.color === 'emerald'
-                                      ? 'text-yellow-600 hover:bg-yellow-50 border-yellow-100'
+                                  : info.color === 'orange'
+                                      ? 'text-orange-600 hover:bg-orange-50 border-orange-100'
+                                      : info.color === 'purple'
+                                      ? 'text-purple-600 hover:bg-purple-50 border-purple-100'
                                       : 'text-pink-600 hover:bg-pink-50 border-pink-100'
                               }`}
                             >
@@ -389,11 +393,13 @@ const MindboxView: React.FC = () => {
                       <button
                         onClick={() => setEditingBadgeId(entry.id)}
                             className={`px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors duration-200 border ${
-                          badgeInfo.color === 'emerald'
-                                ? 'bg-yellow-50 text-yellow-700 border-yellow-200'
+                          badgeInfo.color === 'orange'
+                                ? 'bg-orange-50 text-orange-700 border-orange-200'
+                                : badgeInfo.color === 'purple'
+                                ? 'bg-purple-50 text-purple-700 border-purple-200'
                                 : badgeInfo.color === 'rose'
                                 ? 'bg-pink-50 text-pink-700 border-pink-200'
-                                : 'bg-yellow-50 text-yellow-700 border-yellow-200'
+                                : 'bg-orange-50 text-orange-700 border-orange-200'
                         }`}
                       >
                         <BadgeIcon className="w-3 h-3" />
@@ -440,7 +446,7 @@ const MindboxView: React.FC = () => {
                     <div className="flex items-center justify-between gap-3">
                       {!entry.inShareIt ? (
                         addedToShareIt === entry.id ? (
-                          <div className="px-4 py-2 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 flex-1 justify-center">
+                          <div className="px-4 py-2 text-sm font-medium text-purple-700 bg-purple-50 border border-purple-200 rounded-lg flex items-center gap-2 flex-1 justify-center">
                             <Check className="w-4 h-4" />
                             <span>Added to Share it</span>
                           </div>
