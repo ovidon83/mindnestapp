@@ -1572,38 +1572,25 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
 
       {/* Email Subscription Modal */}
       {showEmailModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200" onClick={() => setShowEmailModal(false)}>
-          <div className="bg-gradient-to-br from-white via-purple-50/30 to-pink-50/30 rounded-3xl shadow-2xl max-w-lg w-full p-8 sm:p-10 relative border border-purple-100/50 animate-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
-            {/* Decorative gradient orbs */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-2xl -z-0"></div>
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-br from-orange-400/20 to-pink-400/20 rounded-full blur-2xl -z-0"></div>
-            
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowEmailModal(false)}>
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 relative" onClick={(e) => e.stopPropagation()}>
             <button
               onClick={() => setShowEmailModal(false)}
-              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all duration-200 z-10"
+              className="absolute top-4 right-4 p-1 text-slate-400 hover:text-slate-600 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
             
-            <div className="relative z-10">
-              {/* Icon */}
-              <div className="flex justify-center mb-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
-                  <Sparkles className="w-8 h-8 text-white" />
-                </div>
-              </div>
-              
-              <div className="text-center mb-8">
-                <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-3">
-                  Get <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 bg-clip-text text-transparent">Early Access</span>
-                </h2>
-                <p className="text-lg text-slate-600 leading-relaxed">
-                  Be among the first to experience how Thouthy transforms your thoughts into meaningful action.
-                </p>
-              </div>
-              
-              <EmailSubscription variant="modal" onSuccess={() => setShowEmailModal(false)} />
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold text-slate-900 mb-1">
+                Get Early Access
+              </h2>
+              <p className="text-sm text-slate-600">
+                Join the waitlist.
+              </p>
             </div>
+            
+            <EmailSubscription variant="modal" onSuccess={() => setShowEmailModal(false)} />
           </div>
         </div>
       )}
