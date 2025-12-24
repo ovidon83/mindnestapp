@@ -454,13 +454,24 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 </span>
                 <span className="text-slate-900">.</span>
             </h1>
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-slate-600 mb-4 sm:mb-6 max-w-2xl mx-auto font-normal leading-relaxed px-2">
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-700 mb-6 sm:mb-8 max-w-3xl mx-auto font-normal leading-relaxed px-2">
                 Thoughts are born in your mind, not meant to live there forever. Capture them, step back, and let <span className="font-bold text-slate-900">Thouty</span> reveal which ones carry real potential — and which you can safely let go.
               </p>
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-slate-600 mb-4 sm:mb-6 max-w-2xl mx-auto font-normal leading-relaxed px-2">
-                Less noise. More intention. Better action.
+              <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-slate-800 mb-6 sm:mb-8 max-w-3xl mx-auto font-medium leading-relaxed px-2 italic">
+                When something matters, we help you see what it could become.
               </p>
-              <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-slate-900 mb-6 sm:mb-8">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 mb-6 sm:mb-8">
+                <p className="text-sm sm:text-base md:text-lg text-slate-600 font-medium">
+                  Less noise.
+                </p>
+                <p className="text-sm sm:text-base md:text-lg text-slate-600 font-medium">
+                  More intention.
+                </p>
+                <p className="text-sm sm:text-base md:text-lg text-slate-600 font-medium">
+                  Better action.
+                </p>
+              </div>
+              <p className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 mb-6 sm:mb-8 tracking-wide">
                 Capture. Observe. Act.
               </p>
               <div className="mt-6 sm:mt-8 px-2">
