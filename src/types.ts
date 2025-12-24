@@ -1,46 +1,61 @@
-export type AppView = 'capture' | 'mindbox' | 'shareit' | 'companion' | 'profile';
-
-// Merged category and type into a single type
-export type EntryType = 'todo' | 'insight' | 'journal';
+export type AppView = 'capture' | 'thoughts' | 'actions' | 'profile';
 
 export type Tag = 'work' | 'soccer' | 'family' | 'spirituality' | 'business' | 'tech' | 'health' | 'other';
 
-// Legacy types for backward compatibility (can be removed later)
-export type Category = 'todo' | 'insight' | 'idea'; // Deprecated - use EntryType instead
+export type PotentialType = 'Post' | 'Conversation' | 'Explore Further' | 'Email' | 'Article' | 'Project';
 
-// Metadata describing thought potential - allows same thought to surface as action, insight, etc.
-export interface ThoughtMetadata {
-  actionable: boolean; // Contains clear actions or tasks
-  shareable: boolean; // Insight/learning worth sharing with others
-  recurring: boolean; // Mentions patterns, habits, or recurring themes
-  thematic: boolean; // Part of a larger theme or ongoing topic
-  hasDate: boolean; // Contains dates or time references
-  hasMultipleActions: boolean; // Contains 2+ distinct actions
-  sentiment: 'positive' | 'negative' | 'neutral';
+export interface Potential {
+  id: string;
+  type: PotentialType;
+  title: string;
+  description?: string;
+  draft?: string; // Draft content for this potential
+  createdAt: Date;
 }
 
-export interface Entry {
+// Core Thought entity - single top-level entity
+export interface Thought {
   id: string;
-  type: EntryType; // Merged: 'todo' | 'insight' | 'journal'
-  originalText: string; // Source of truth - raw text as captured
+  originalText: string; // Source of truth - raw text as captured, editable
   tags: Tag[];
-  summary: string;
-  nextStep?: string; // Only for todos
-  completed?: boolean; // Only for todos - marks if todo is done
-  postRecommendation: boolean;
+  summary: string; // AI-generated summary
+  isSpark: boolean; // Whether this thought is marked as a Spark (by AI or user)
+  potentials: Potential[]; // Max 2-3 potentials per thought (only if isSpark is true)
   createdAt: Date;
   updatedAt: Date;
   
-  // New fields for Mindbox
-  aiHint?: string; // Single AI hint line (e.g., "Possible next step: ...", "Might be worth sharing.")
-  badgeOverride?: EntryType; // User override for badge type
-  postingScore?: number; // Internal posting potential score (0-100, hidden from UI)
-  inShareIt?: boolean; // Whether this entry is in Share it
-  metadata?: ThoughtMetadata; // AI-generated metadata describing thought potential
-  
-  // Legacy fields for backward compatibility (will be removed after migration)
-  entryType?: 'thought' | 'journal'; // Deprecated
-  category?: Category; // Deprecated
+  // Legacy fields for backward compatibility during migration
+  type?: 'todo' | 'insight' | 'journal';
+  entryType?: 'thought' | 'journal';
+  category?: 'todo' | 'insight' | 'idea';
+}
+
+// Action - separate entity, always linked to a Thought
+export interface Action {
+  id: string;
+  thoughtId: string; // Always linked to original thought
+  type: 'post' | 'email' | 'conversation' | 'exploration' | 'article' | 'project';
+  title: string;
+  content: string; // Draft content (post draft, email draft, etc.)
+  completed: boolean; // Whether user marked this action as completed
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Legacy Entry type for backward compatibility during migration
+export interface Entry {
+  id: string;
+  type: 'todo' | 'insight' | 'journal';
+  originalText: string;
+  tags: Tag[];
+  summary: string;
+  nextStep?: string;
+  completed?: boolean;
+  postRecommendation: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  entryType?: 'thought' | 'journal';
+  category?: 'todo' | 'insight' | 'idea';
 }
 
 export interface TrainingData {

@@ -2,15 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useGenieNotesStore } from './store';
 import { supabase, hasSupabaseCredentials } from './lib/supabase';
 import CaptureView from './components/CaptureView';
-import MindboxView from './components/MindboxView';
-import ShareItView from './components/ShareItView';
-import CompanionView from './components/CompanionView';
+import ThoughtsView from './components/ThoughtsView';
+import ActionsView from './components/ActionsView';
 import ProfileView from './components/ProfileView';
-import Navigation from './components/Navigation';
 import Auth from './components/Auth';
 
 const App: React.FC = () => {
-  const { currentView, user, setUser, loadEntries } = useGenieNotesStore();
+  const { currentView, user, setUser, loadThoughts, loadActions } = useGenieNotesStore();
   const [initializing, setInitializing] = useState(true);
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
@@ -25,7 +23,8 @@ const App: React.FC = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        loadEntries();
+        loadThoughts();
+        loadActions();
       }
       setInitializing(false);
     }).catch(() => {
@@ -37,13 +36,14 @@ const App: React.FC = () => {
       const wasLoggedOut = !useGenieNotesStore.getState().user && session?.user;
       setUser(session?.user ?? null);
       if (session?.user) {
-        loadEntries();
+        loadThoughts();
+        loadActions();
         // If user just logged in and there's pending text, navigate to capture view
         if (wasLoggedOut && useGenieNotesStore.getState().pendingText) {
           useGenieNotesStore.getState().setCurrentView('capture');
         }
       } else {
-        useGenieNotesStore.setState({ entries: [] });
+        useGenieNotesStore.setState({ thoughts: [], actions: [] });
       }
     });
 
@@ -104,24 +104,16 @@ const App: React.FC = () => {
       ) : (
         // Authenticated: Show normal app views
         <>
-          {currentView !== 'capture' && (
-            <Navigation 
-              currentView={currentView} 
-              onViewChange={(view) => useGenieNotesStore.getState().setCurrentView(view)} 
-            />
-          )}
           {currentView === 'capture' ? (
             <CaptureView />
-          ) : currentView === 'mindbox' ? (
-            <MindboxView />
-          ) : currentView === 'shareit' ? (
-            <ShareItView />
-          ) : currentView === 'companion' ? (
-            <CompanionView />
+          ) : currentView === 'thoughts' ? (
+            <ThoughtsView />
+          ) : currentView === 'actions' ? (
+            <ActionsView />
           ) : currentView === 'profile' ? (
             <ProfileView />
           ) : (
-            <MindboxView />
+            <ThoughtsView />
           )}
         </>
       )}

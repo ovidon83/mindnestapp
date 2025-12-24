@@ -1,12 +1,14 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Entry, AppView } from '../types';
-import { fetchEntries, insertEntry, updateEntry as updateEntryDb, deleteEntry as deleteEntryDb } from '../lib/db';
-import { processThought } from '../lib/ai';
+import { Thought, Action, AppView, Potential } from '../types';
+import { fetchThoughts, insertThought, updateThought as updateThoughtDb, deleteThought as deleteThoughtDb } from '../lib/thoughts-db';
+import { fetchActions, insertAction, updateAction as updateActionDb, deleteAction as deleteActionDb } from '../lib/thoughts-db';
+import { processThoughtMVP } from '../lib/process-thought-mvp';
 import { supabase } from '../lib/supabase';
 
 interface GenieNotesStore {
-  entries: Entry[];
+  thoughts: Thought[];
+  actions: Action[];
   currentView: AppView;
   user: any | null;
   loading: boolean;
@@ -14,13 +16,23 @@ interface GenieNotesStore {
   
   // Auth
   setUser: (user: any) => void;
-  loadEntries: () => Promise<void>;
+  loadThoughts: () => Promise<void>;
+  loadActions: () => Promise<void>;
   signOut: () => Promise<void>;
   
-  // Entry management
-  processAndSave: (rawInput: string, entryType?: 'thought' | 'journal') => Promise<void>;
-  updateEntry: (id: string, updates: Partial<Entry>) => Promise<void>;
-  deleteEntry: (id: string) => Promise<void>;
+  // Thought management
+  processAndSaveThought: (rawInput: string) => Promise<void>;
+  updateThought: (id: string, updates: Partial<Thought>) => Promise<void>;
+  deleteThought: (id: string) => Promise<void>;
+  addSpark: (thoughtId: string) => Promise<void>;
+  removeSpark: (thoughtId: string) => Promise<void>;
+  addPotential: (thoughtId: string, potential: Potential) => Promise<void>;
+  removePotential: (thoughtId: string, potentialId: string) => Promise<void>;
+  
+  // Action management
+  createAction: (thoughtId: string, type: Action['type'], title: string, content: string) => Promise<void>;
+  updateAction: (id: string, updates: Partial<Action>) => Promise<void>;
+  deleteAction: (id: string) => Promise<void>;
   
   // App state
   setCurrentView: (view: AppView) => void;
@@ -30,8 +42,9 @@ interface GenieNotesStore {
 export const useGenieNotesStore = create<GenieNotesStore>()(
   persist(
     (set, get) => ({
-      entries: [],
-      currentView: 'mindbox', // Default to mindbox view
+      thoughts: [],
+      actions: [],
+      currentView: 'thoughts', // Default to thoughts view
       user: null,
       loading: false,
       pendingText: null,
@@ -40,61 +53,132 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         set({ user });
       },
 
-      loadEntries: async () => {
+      loadThoughts: async () => {
         set({ loading: true });
         try {
-          const entries = await fetchEntries();
-          set({ entries, loading: false });
+          const thoughts = await fetchThoughts();
+          set({ thoughts, loading: false });
         } catch (error) {
-          console.error('Error loading entries:', error);
+          console.error('Error loading thoughts:', error);
           set({ loading: false });
+        }
+      },
+
+      loadActions: async () => {
+        try {
+          const actions = await fetchActions();
+          set({ actions });
+        } catch (error) {
+          console.error('Error loading actions:', error);
         }
       },
 
       signOut: async () => {
         await supabase.auth.signOut();
-        set({ user: null, entries: [] });
+        set({ user: null, thoughts: [], actions: [] });
       },
       
-      processAndSave: async (rawInput: string, entryType: 'thought' | 'journal' = 'thought', captureType?: 'todo' | 'insight' | 'journal') => {
+      processAndSaveThought: async (rawInput: string) => {
         try {
-          // Process with AI
-          const processedEntry = await processThought(rawInput, entryType, captureType);
+          // Process with AI to detect Spark and suggest Potentials
+          const processedThought = await processThoughtMVP(rawInput);
           
           // Save to database
-          const newEntry = await insertEntry(processedEntry);
+          await insertThought(processedThought);
           
-          // Reload entries to get the full entry with all fields
-          await get().loadEntries();
+          // Reload thoughts
+          await get().loadThoughts();
           
-          // Navigate to mindbox after saving
-          get().setCurrentView('mindbox');
-        
-          // Post generation is now user-initiated only
-          // Users can manually add entries to ShareIt and generate posts when ready
-          // This saves tokens and gives users full control
+          // Navigate to thoughts view after saving
+          get().setCurrentView('thoughts');
         } catch (error) {
-          console.error('Error processing and saving:', error);
+          console.error('Error processing and saving thought:', error);
           throw error;
         }
       },
 
-      updateEntry: async (id: string, updates: Partial<Entry>) => {
+      updateThought: async (id: string, updates: Partial<Thought>) => {
         try {
-          await updateEntryDb(id, updates);
-          await get().loadEntries();
+          await updateThoughtDb(id, updates);
+          await get().loadThoughts();
         } catch (error) {
-          console.error('Error updating entry:', error);
+          console.error('Error updating thought:', error);
           throw error;
         }
       },
 
-      deleteEntry: async (id: string) => {
+      deleteThought: async (id: string) => {
         try {
-          await deleteEntryDb(id);
-          await get().loadEntries();
+          await deleteThoughtDb(id);
+          await get().loadThoughts();
         } catch (error) {
-          console.error('Error deleting entry:', error);
+          console.error('Error deleting thought:', error);
+          throw error;
+        }
+      },
+
+      addSpark: async (thoughtId: string) => {
+        const thought = get().thoughts.find(t => t.id === thoughtId);
+        if (thought) {
+          await get().updateThought(thoughtId, { isSpark: true });
+        }
+      },
+
+      removeSpark: async (thoughtId: string) => {
+        const thought = get().thoughts.find(t => t.id === thoughtId);
+        if (thought) {
+          await get().updateThought(thoughtId, { isSpark: false, potentials: [] });
+        }
+      },
+
+      addPotential: async (thoughtId: string, potential: Potential) => {
+        const thought = get().thoughts.find(t => t.id === thoughtId);
+        if (thought && thought.isSpark && thought.potentials.length < 3) {
+          const newPotentials = [...thought.potentials, potential];
+          await get().updateThought(thoughtId, { potentials: newPotentials });
+        }
+      },
+
+      removePotential: async (thoughtId: string, potentialId: string) => {
+        const thought = get().thoughts.find(t => t.id === thoughtId);
+        if (thought) {
+          const newPotentials = thought.potentials.filter(p => p.id !== potentialId);
+          await get().updateThought(thoughtId, { potentials: newPotentials });
+        }
+      },
+
+      createAction: async (thoughtId: string, type: Action['type'], title: string, content: string) => {
+        try {
+          await insertAction({
+            thoughtId,
+            type,
+            title,
+            content,
+            completed: false,
+          });
+          await get().loadActions();
+        } catch (error) {
+          console.error('Error creating action:', error);
+          throw error;
+        }
+      },
+
+      updateAction: async (id: string, updates: Partial<Action>) => {
+        try {
+          await updateActionDb(id, updates);
+          await get().loadActions();
+        } catch (error) {
+          console.error('Error updating action:', error);
+          throw error;
+        }
+      },
+
+      deleteAction: async (id: string) => {
+        try {
+          await deleteActionDb(id);
+          await get().loadActions();
+        } catch (error) {
+          console.error('Error deleting action:', error);
           throw error;
         }
       },

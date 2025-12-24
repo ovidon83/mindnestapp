@@ -156,7 +156,7 @@ const EmailSubscription: React.FC<EmailSubscriptionProps> = ({ onSuccess, varian
   };
 
 const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
-  const { processAndSave, setCurrentView, user, signOut, pendingText, setPendingText } = useGenieNotesStore();
+  const { processAndSaveThought, setCurrentView, user, signOut, pendingText, setPendingText } = useGenieNotesStore();
   
   // Get user name from signup flow
   const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'Your Name';
@@ -343,13 +343,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
     setShowSuccess(false);
     
     try {
-      // Determine if it's short-form or long-form (journal)
-      // Long-form: > 500 characters or multiple paragraphs
-      const isLongForm = textToProcess.trim().length > 500 || (textToProcess.match(/\n\n/g) || []).length >= 2;
-      const entryType = isLongForm ? 'journal' : 'thought';
-      
-      // Always capture as single canonical entity - AI will add metadata
-      await processAndSave(textToProcess, entryType);
+      // Process and save thought (AI will detect Spark and suggest Potentials)
+      await processAndSaveThought(textToProcess.trim());
       
       setShowSuccess(true);
       setInputText('');
@@ -359,7 +354,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
       // Show redirecting state
       setIsRedirecting(true);
       
-      // Redirect will be handled by store after entry is saved
+      // Redirect will be handled by store after thought is saved
       setTimeout(() => {
         setIsRedirecting(false);
         setShowSuccess(false);
@@ -367,7 +362,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
       
     } catch (error: any) {
       console.error('Error processing input:', error);
-      setError(error?.message || 'Failed to save entry. Make sure the database table exists.');
+      setError(error?.message || 'Failed to save thought. Make sure the database table exists.');
       setTimeout(() => setError(null), 5000);
       setIsRedirecting(false);
     } finally {
@@ -443,11 +438,11 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             {user ? (
               <>
                 <button
-                  onClick={() => setCurrentView('mindbox')}
+                  onClick={() => setCurrentView('thoughts')}
                   className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-slate-700 hover:text-slate-900 border border-transparent hover:border-slate-200 rounded-lg transition-all min-h-[40px] sm:min-h-[44px]"
                 >
-                  <span className="hidden sm:inline">Mindbox</span>
-                  <span className="sm:hidden">Box</span>
+                  <span className="hidden sm:inline">Thoughts</span>
+                  <span className="sm:hidden">Thoughts</span>
                 </button>
                 <UserAvatar user={user} onLogout={signOut} />
               </>
@@ -491,7 +486,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 </p>
               </div>
               <p className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 mb-6 sm:mb-8 tracking-wide">
-                Capture. Observe. Act
+                Capture. Find spark & potential. Act
               </p>
               <div className="mt-6 sm:mt-8 px-2">
                 <EmailSubscription onSuccess={() => setShowEmailModal(false)} />
