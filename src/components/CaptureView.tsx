@@ -753,11 +753,11 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       </div>
                     </div>
 
-                    {/* Social Posts - Platform Specific */}
+                    {/* Share with the world - Platform Specific */}
                     <div className="mb-6">
-                      <h4 className="text-sm font-semibold text-slate-700 mb-4">Post</h4>
+                      <h4 className="text-sm font-semibold text-slate-700 mb-4">Share with the world</h4>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {/* LinkedIn */}
+                        {/* LinkedIn - Professional, value-driven, hook + story + insight */}
                         <div className="bg-white rounded-lg border-2 border-blue-100 shadow-sm overflow-hidden">
                           <div className="p-3 bg-blue-50 flex items-center gap-2 border-b border-blue-100">
                             <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
@@ -770,19 +770,22 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                             <Linkedin className="w-4 h-4 text-blue-600 flex-shrink-0" />
                           </div>
                           <div className="p-3">
+                            <p className="text-xs text-gray-900 leading-relaxed font-medium mb-2">
+                              AI doesn't just accelerate your work. It amplifies everything—including your mistakes.
+                            </p>
+                            <p className="text-xs text-gray-900 leading-relaxed mb-2">
+                              Give it messy code? You'll ship 10x messier code faster. Give it clear problems? You'll get 10x better solutions.
+                            </p>
+                            <p className="text-xs text-gray-900 leading-relaxed mb-2">
+                              The lesson: quality gates and alignment aren't optional anymore. They're survival.
+                            </p>
                             <p className="text-xs text-gray-900 leading-relaxed">
-                              AI accelerates everything—the good and the bad. It 10x's whatever you put in its hands.
-                            </p>
-                            <p className="text-xs text-gray-900 leading-relaxed mt-2">
-                              Give it messy code? You'll get 10x messier code faster. Give it clear problems? You'll get 10x better solutions.
-                            </p>
-                            <p className="text-xs text-gray-900 leading-relaxed mt-2">
-                              The lesson: quality gates and alignment matter more than ever. What are you feeding your AI?
+                              What are you feeding your AI?
                             </p>
                           </div>
                         </div>
 
-                        {/* Twitter/X */}
+                        {/* Twitter/X - Short, punchy, conversational, line breaks */}
                         <div className="bg-white rounded-lg border-2 border-slate-200 shadow-sm overflow-hidden">
                           <div className="p-3 bg-white flex items-center gap-2 border-b border-slate-200">
                             <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center flex-shrink-0">
@@ -798,20 +801,22 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                             <p className="text-xs text-gray-900 leading-relaxed">
                               AI 10x's whatever you give it.
                             </p>
-                            <p className="text-xs text-gray-900 leading-relaxed mt-2">
+                            <p className="text-xs text-gray-900 leading-relaxed mt-1.5">
                               Bugs → 10x bugs
-                              <br />
+                            </p>
+                            <p className="text-xs text-gray-900 leading-relaxed mt-1.5">
                               Technical debt → 10x debt
-                              <br />
+                            </p>
+                            <p className="text-xs text-gray-900 leading-relaxed mt-1.5">
                               Bad decisions → 10x bad decisions
                             </p>
-                            <p className="text-xs text-gray-900 leading-relaxed mt-2">
-                              Quality gates aren't optional anymore. 🚀
+                            <p className="text-xs text-gray-900 leading-relaxed mt-2 font-medium">
+                              Quality gates aren't optional anymore.
                             </p>
                           </div>
                         </div>
 
-                        {/* Instagram */}
+                        {/* Instagram - Visual-first, personal, engaging, emojis */}
                         <div className="bg-white rounded-lg border-2 border-rose-100 shadow-sm overflow-hidden">
                           <div className="p-2 bg-white flex items-center justify-between border-b border-rose-100">
                             <div className="flex items-center gap-2">
@@ -831,64 +836,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                             <p className="text-xs text-gray-900 leading-relaxed">
                               <span className="font-semibold">{userName.toLowerCase().replace(/\s+/g, '')}</span> AI accelerates everything—bugs, technical debt, bad decisions. It 10x's whatever you put in. Quality gates are non-negotiable. 💡
                             </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Conversations */}
-                    <div className="mb-6">
-                      <h4 className="text-sm font-semibold text-slate-700 mb-4">Conversations</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Slack */}
-                        <div className="bg-white rounded-lg border-2 border-purple-100 shadow-sm overflow-hidden">
-                          <div className="p-3 bg-purple-50 flex items-center gap-2 border-b border-purple-100">
-                            <div className="w-8 h-8 bg-purple-600 rounded flex items-center justify-center flex-shrink-0">
-                              <span className="text-white text-xs font-bold">{userInitials}</span>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-xs font-semibold text-gray-900 truncate">{userName}</div>
-                              <div className="text-[10px] text-gray-500">Today at 2:30 PM</div>
-                            </div>
-                            <div className="w-5 h-5 bg-purple-600 rounded flex items-center justify-center flex-shrink-0">
-                              <span className="text-white text-[8px] font-bold">#</span>
-                            </div>
-                          </div>
-                          <div className="p-3">
-                            <p className="text-xs text-gray-900 leading-relaxed mb-2">
-                              AI amplifies everything—good and bad. Quality gates are critical.
-                            </p>
-                            <p className="text-xs text-gray-900 leading-relaxed mb-2">
-                              What we put in determines what we get out—10x.
-                            </p>
-                            <p className="text-xs text-gray-900 leading-relaxed">
-                              Technical debt compounds faster with AI. We need better processes.
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Email */}
-                        <div className="bg-white rounded-lg border-2 border-blue-100 shadow-sm overflow-hidden">
-                          <div className="p-3 bg-blue-50 flex items-center gap-2 border-b border-blue-100">
-                            <Mail className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <div className="text-xs font-semibold text-gray-900">New Message</div>
-                              <div className="text-[10px] text-gray-500">Draft ready</div>
-                            </div>
-                          </div>
-                          <div className="p-3">
-                            <p className="text-xs font-medium text-gray-900 mb-2">To: [Name]</p>
-                            <p className="text-xs font-medium text-gray-900 mb-2">Subject: AI Quality Gates - A Critical Discussion</p>
-                            <div className="border-t border-gray-200 pt-2 mt-2">
-                              <p className="text-xs text-gray-700 mb-1">Hi [Name],</p>
-                              <p className="text-xs text-gray-700 mb-1">
-                                I've been thinking about how AI accelerates everything we give it—including technical debt and bad decisions.
-                              </p>
-                              <p className="text-xs text-gray-700 mb-1">
-                                Quality gates aren't optional anymore. Would love to discuss our approach to this.
-                              </p>
-                              <p className="text-xs text-gray-700">Best,</p>
-                            </div>
+                            <p className="text-xs text-gray-500 mt-1.5">#AI #Tech #QualityGates</p>
                           </div>
                         </div>
                       </div>
