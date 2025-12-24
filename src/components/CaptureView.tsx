@@ -455,14 +455,11 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </h1>
               <div className="max-w-3xl mx-auto px-2 mb-8 sm:mb-10">
                 <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-700 mb-4 sm:mb-6 font-normal leading-relaxed">
-                  Capture every thought. <span className="font-semibold text-slate-900">Thouthy</span> will observe, and find the spark and potential.
-                </p>
-                <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-slate-800 font-medium leading-relaxed italic">
-                  When something matters, Thouthy shows you what it can become.
+                  Capture every thought. <span className="font-semibold text-slate-900">Thouthy</span> identifies the ones with real potential — and turns them into action.
                 </p>
               </div>
               <p className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 mb-6 sm:mb-8 tracking-wide">
-                Capture. Observe. Act.
+                Capture. Observe. Act
               </p>
               <div className="mt-6 sm:mt-8 px-2">
                 <EmailSubscription />
@@ -656,193 +653,136 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   See it in <span className="bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 bg-clip-text text-transparent italic">action</span>
                 </h2>
                 <p className="text-base sm:text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto">
-                  One thought. Infinite possibilities.
+                  How a single thought turns into meaning and action over time.
                 </p>
               </div>
 
-              {/* Hero Thought Card */}
-              <div className="max-w-3xl mx-auto mb-16">
-                <div className="bg-white rounded-2xl shadow-2xl border-2 border-pink-200 p-6 sm:p-8 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-pink-100/50 to-transparent rounded-bl-full"></div>
-                  <div className="relative">
+              {/* Flow: Capture → Spark → Potential → Action */}
+              <div className="max-w-5xl mx-auto space-y-8 sm:space-y-12">
+                
+                {/* Step 1: Raw Thought Captured */}
+                <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-6 sm:p-8">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
+                      <Mic className="w-4 h-4 text-slate-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-medium text-slate-900">You capture</h3>
+                      <p className="text-xs text-slate-500">Voice or text, instantly</p>
+                    </div>
+                  </div>
+                  <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                    <p className="text-sm sm:text-base text-slate-800 leading-relaxed">
+                      "AI is really accelerating everything! Including bugs, misalignment, bad decisions, technical debt. It 10x whatever you put in its hands."
+                    </p>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-3 italic">Saved as a living thought — always editable</p>
+                </div>
+
+                {/* Step 2: Spark Detected */}
+                <div className="relative">
+                  <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-amber-200 to-amber-300 transform -translate-x-1/2 hidden sm:block"></div>
+                  <div className="bg-white rounded-xl shadow-lg border-2 border-amber-200 p-6 sm:p-8 relative">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-pink-400 rounded-xl flex items-center justify-center shadow-lg">
-                        <Sparkles className="w-5 h-5 text-white" />
+                      <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
+                        <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                        </svg>
                       </div>
                       <div>
-                        <h3 className="text-lg font-bold text-slate-900">You capture</h3>
-                        <p className="text-xs text-slate-500">On your morning walk</p>
+                        <h3 className="text-base font-medium text-slate-900">Spark detected</h3>
+                        <p className="text-xs text-slate-500">A sign this thought matters</p>
                       </div>
                     </div>
-                    <div className="bg-gradient-to-br from-pink-50 to-pink-100/30 rounded-xl p-5 border border-pink-200">
-                      <p className="text-base sm:text-lg text-slate-800 leading-relaxed italic">
-                        "AI is really accelerating everything! Including bugs, misalignment, bad decisions, technical debt. It 10x whatever you put in its hands."
+                    <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
+                      <p className="text-sm text-slate-700 mb-2">
+                        <span className="font-semibold text-amber-700">Why it matters:</span> Strong opinion, clear problem, recurring theme
                       </p>
+                      <p className="text-xs text-slate-600 italic">You can also mark thoughts as Sparks yourself</p>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* 5-Card Feature Flow */}
-              <div className="max-w-6xl mx-auto mb-16">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
-                  {/* Card 1: Analyze */}
-                  <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-5 hover:shadow-xl transition-all">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-500 to-orange-400 rounded-lg flex items-center justify-center mb-3">
-                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                      </svg>
+                {/* Step 3: Potential Revealed */}
+                <div className="relative">
+                  <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-purple-200 to-purple-300 transform -translate-x-1/2 hidden sm:block"></div>
+                  <div className="bg-white rounded-xl shadow-lg border-2 border-purple-200 p-6 sm:p-8 relative">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="text-base font-medium text-slate-900">This thought could become...</h3>
+                        <p className="text-xs text-slate-500">Potential revealed</p>
+                      </div>
                     </div>
-                    <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2">Analyze</h3>
-                    <div className="bg-orange-50 rounded-lg p-3 border border-orange-200">
-                      <p className="text-xs text-slate-700 italic">"Categorized as Insight"</p>
-                      <p className="text-xs text-slate-600 mt-1">Theme: Technology acceleration</p>
+                    <div className="space-y-3">
+                      <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                        <div className="flex items-start justify-between mb-2">
+                          <span className="text-xs font-semibold text-purple-700">Post</span>
+                          <span className="text-xs text-slate-500">Draft ready</span>
+                        </div>
+                        <p className="text-sm text-slate-700 leading-relaxed">
+                          "AI 10x's whatever you give it—bugs, technical debt, bad decisions. Quality gates aren't optional anymore."
+                        </p>
+                      </div>
+                      <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                        <div className="flex items-start justify-between mb-2">
+                          <span className="text-xs font-semibold text-purple-700">Conversation</span>
+                          <span className="text-xs text-slate-500">Talking points</span>
+                        </div>
+                        <p className="text-sm text-slate-700 leading-relaxed">
+                          Key points to discuss: quality gates, AI's amplifying effect, technical debt management
+                        </p>
+                      </div>
+                      <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                        <div className="flex items-start justify-between mb-2">
+                          <span className="text-xs font-semibold text-purple-700">Idea to explore</span>
+                          <span className="text-xs text-slate-500">Next steps</span>
+                        </div>
+                        <p className="text-sm text-slate-700 leading-relaxed">
+                          Research: AI quality frameworks, technical debt measurement tools
+                        </p>
+                      </div>
                     </div>
+                    <p className="text-xs text-slate-500 mt-4 italic">You can add your own Potential anytime</p>
                   </div>
+                </div>
 
-                  {/* Card 2: Search */}
-                  <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-5 hover:shadow-xl transition-all">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-500 to-purple-400 rounded-lg flex items-center justify-center mb-3">
-                      <Search className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                {/* Step 4: Action Taken */}
+                <div className="relative">
+                  <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-emerald-200 to-emerald-300 transform -translate-x-1/2 hidden sm:block"></div>
+                  <div className="bg-white rounded-xl shadow-lg border-2 border-emerald-200 p-6 sm:p-8 relative">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
+                        <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="text-base font-medium text-slate-900">Action taken</h3>
+                        <p className="text-xs text-slate-500">Linked back to the original thought</p>
+                      </div>
                     </div>
-                    <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2">Search</h3>
-                    <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
-                      <p className="text-xs text-slate-700 italic">"Found 3 related thoughts"</p>
-                      <p className="text-xs text-slate-600 mt-1">• Technical debt concerns</p>
-                      <p className="text-xs text-slate-600">• AI impact on development</p>
-                    </div>
-                  </div>
-
-                  {/* Card 3: Action */}
-                  <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-5 hover:shadow-xl transition-all">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-emerald-400 rounded-lg flex items-center justify-center mb-3">
-                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2">Action</h3>
-                    <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-200">
-                      <p className="text-xs text-slate-700 italic">"Next steps generated"</p>
-                      <p className="text-xs text-slate-600 mt-1">• Review code quality processes</p>
-                      <p className="text-xs text-slate-600">• Document AI best practices</p>
-                    </div>
-                  </div>
-
-                  {/* Card 4: Insights */}
-                  <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-5 hover:shadow-xl transition-all">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 to-indigo-400 rounded-lg flex items-center justify-center mb-3">
-                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2">Insights</h3>
-                    <div className="bg-indigo-50 rounded-lg p-3 border border-indigo-200">
-                      <p className="text-xs text-slate-700 italic">"Research-based context"</p>
-                      <p className="text-xs text-slate-600 mt-1">AI amplifies both quality and technical debt. Quality gates are critical.</p>
-                    </div>
-                  </div>
-
-                  {/* Card 5: Companion */}
-                  <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-5 hover:shadow-xl transition-all">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-pink-500 to-pink-400 rounded-lg flex items-center justify-center mb-3">
-                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2">Companion</h3>
-                    <div className="bg-pink-50 rounded-lg p-3 border border-pink-200">
-                      <div className="flex items-start gap-2 mb-2">
-                        <div className="w-4 h-4 rounded-full bg-amber-100 border border-amber-300 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <svg className="w-2.5 h-2.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    <div className="bg-emerald-50 rounded-lg p-4 border border-emerald-200">
+                      <div className="flex items-start gap-3">
+                        <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                           </svg>
                         </div>
                         <div className="flex-1">
-                          <p className="text-xs font-semibold text-slate-800">Pattern Detected</p>
-                          <p className="text-xs text-slate-700">You've been thinking about AI's dual nature (3 of last 5 thoughts).</p>
+                          <p className="text-sm font-medium text-slate-900 mb-1">Posted on LinkedIn</p>
+                          <p className="text-xs text-slate-600">Using the draft from Potential</p>
+                          <p className="text-xs text-slate-500 mt-2 italic">Always connected to your original thought</p>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Social Posts Preview - Compact */}
-              <div className="max-w-5xl mx-auto mb-16">
-                <div className="bg-gradient-to-br from-purple-50 via-pink-50/30 to-orange-50/30 rounded-2xl p-6 sm:p-8 border-2 border-purple-200">
-                  <div className="text-center mb-6">
-                    <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">Ready to share</h3>
-                    <p className="text-sm text-slate-600">Draft posts generated automatically</p>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* LinkedIn Preview */}
-                    <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                      <div className="p-3 bg-gray-50 flex items-center gap-2 border-b">
-                        <div className="w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-                          <span className="text-white text-[10px] font-bold">{userInitials}</span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-[10px] font-semibold text-gray-900 truncate">{userName}</div>
-                          <div className="text-[9px] text-gray-500">Developer • 1st</div>
-                        </div>
-                        <Linkedin className="w-3.5 h-3.5 text-blue-600" />
-                      </div>
-                      <div className="p-3">
-                        <p className="text-[10px] text-gray-900 leading-relaxed line-clamp-4">
-                          AI is accelerating everything—including bugs, misalignment, and technical debt. It 10x whatever you put in its hands. The lesson? Quality gates and alignment matter more than ever. What are you feeding your AI?
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* X Preview */}
-                    <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                      <div className="p-3 bg-white flex items-center gap-2 border-b">
-                        <div className="w-7 h-7 bg-black rounded-full flex items-center justify-center flex-shrink-0">
-                          <span className="text-white text-[10px] font-bold">{userInitials}</span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-[10px] font-semibold text-gray-900 truncate">{userName}</div>
-                          <div className="text-[9px] text-gray-500">@username</div>
-                        </div>
-                        <Twitter className="w-3.5 h-3.5 text-sky-500" />
-                      </div>
-                      <div className="p-3">
-                        <p className="text-[10px] text-gray-900 leading-relaxed line-clamp-4">
-                          AI 10x's whatever you give it.
-                          
-                          Bugs → 10x bugs
-                          Technical debt → 10x debt
-                          Bad decisions → 10x bad decisions
-                          
-                          Quality gates aren't optional anymore. 🚀
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Instagram Preview */}
-                    <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                      <div className="p-2 bg-white flex items-center justify-between border-b">
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-6 h-6 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
-                            <span className="text-white text-[9px] font-bold">{userInitials}</span>
-                          </div>
-                          <span className="text-[10px] font-semibold text-gray-900">{userName.toLowerCase().replace(/\s+/g, '')}</span>
-                        </div>
-                        <Instagram className="w-3.5 h-3.5 text-rose-600" />
-                      </div>
-                      <div className="aspect-square bg-gradient-to-br from-purple-100 via-pink-100 to-orange-100 flex items-center justify-center">
-                        <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                      <div className="p-2">
-                        <p className="text-[10px] text-gray-900 leading-relaxed line-clamp-2">
-                          <span className="font-semibold">{userName.toLowerCase().replace(/\s+/g, '')}</span> AI accelerates everything—bugs, technical debt, bad decisions. It 10x's whatever you put in. Quality gates are non-negotiable. 💡
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
 
             </div>
