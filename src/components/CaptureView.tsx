@@ -128,23 +128,13 @@ const EmailSubscription: React.FC<EmailSubscriptionProps> = ({ onSuccess, varian
         <button
           type="submit"
           disabled={isSubmitting || !email}
-          className={`w-full py-4 rounded-xl font-bold text-base transition-all duration-200 ${
+          className={`w-full py-3 rounded-lg font-medium text-sm transition-all duration-200 ${
             isSubmitting || !email
               ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-              : 'bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 text-white hover:from-purple-700 hover:via-pink-600 hover:to-orange-600 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2'
+              : 'bg-slate-900 text-white hover:bg-slate-800'
           }`}
         >
-          {isSubmitting ? (
-            <>
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              <span>Subscribing...</span>
-            </>
-          ) : (
-            <>
-              <Sparkles className="w-5 h-5" />
-              <span>Join Early Access</span>
-            </>
-          )}
+          {isSubmitting ? 'Subscribing...' : 'Join Early Access'}
         </button>
       </form>
       {message && (
