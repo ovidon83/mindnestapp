@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useGenieNotesStore } from '../store';
-import { Mic, MicOff, Sparkles, CheckCircle, Upload, Search, Mail, Twitter, Linkedin, Instagram, Brain, Lightbulb } from 'lucide-react';
+import { Mic, MicOff, Sparkles, CheckCircle, Upload, Search, Mail, Twitter, Linkedin, Instagram, Brain, Lightbulb, X } from 'lucide-react';
 import { saveTrainingData } from '../lib/db';
 import UserAvatar from './UserAvatar';
 
@@ -49,6 +49,12 @@ const EmailSubscription: React.FC = () => {
       if (response.ok) {
         setMessage({ type: 'success', text: 'Successfully subscribed! We\'ll be in touch soon.' });
         setEmail('');
+        // Close modal after 2 seconds on success
+        if (onSuccess) {
+          setTimeout(() => {
+            onSuccess();
+          }, 2000);
+        }
       } else {
         const errorData = await response.json().catch(() => ({}));
         setMessage({ type: 'error', text: errorData.text || 'Failed to subscribe. Please try again.' });
@@ -116,6 +122,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
   const [error, setError] = useState<string | null>(null);
   const [showUpload, setShowUpload] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
   
   const recognitionRef = useRef<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -273,13 +280,9 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
     const textToProcess = transcript || inputText;
     if (!textToProcess.trim()) return;
     
-    // If not logged in, preserve text and trigger auth flow
+    // If not logged in, show email subscription modal
     if (!user) {
-      setPendingText(textToProcess.trim());
-      // Keep the text in the textarea so user sees it after login
-      if (onOrganizeClick) {
-        onOrganizeClick('signup');
-      }
+      setShowEmailModal(true);
       return;
     }
     
@@ -396,30 +399,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 </button>
                 <UserAvatar user={user} onLogout={signOut} />
               </>
-            ) : (
-              <>
-                <button
-                  onClick={() => {
-                    if (onOrganizeClick) {
-                      onOrganizeClick('login');
-                    }
-                  }}
-                  className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-slate-700 hover:text-slate-900 border border-transparent hover:border-slate-200 rounded-lg transition-all min-h-[40px] sm:min-h-[44px]"
-                >
-                  Login
-                </button>
-                <button
-                  onClick={() => {
-                    if (onOrganizeClick) {
-                      onOrganizeClick('signup');
-                    }
-                  }}
-                  className="px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-purple-600 border border-purple-300 rounded-lg hover:border-purple-400 transition-all min-h-[40px] sm:min-h-[44px]"
-                >
-                  Sign Up
-                </button>
-              </>
-            )}
+            ) : null}
           </div>
         </div>
       </nav>
@@ -1524,6 +1504,29 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Email Subscription Modal */}
+      {showEmailModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowEmailModal(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setShowEmailModal(false)}
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="mb-6">
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">
+                Get Early Access
+              </h2>
+              <p className="text-slate-600">
+                Join the waitlist to be among the first to experience Thouthy.
+              </p>
+            </div>
+            <EmailSubscription />
           </div>
         </div>
       )}
