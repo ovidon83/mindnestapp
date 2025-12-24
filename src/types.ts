@@ -56,6 +56,20 @@ export interface Entry {
   updatedAt: Date;
   entryType?: 'thought' | 'journal';
   category?: 'todo' | 'insight' | 'idea';
+  // Legacy fields for backward compatibility
+  aiHint?: string;
+  badgeOverride?: 'todo' | 'insight' | 'journal';
+  postingScore?: number;
+  inShareIt?: boolean;
+  metadata?: {
+    actionable: boolean;
+    shareable: boolean;
+    recurring: boolean;
+    thematic: boolean;
+    hasDate: boolean;
+    hasMultipleActions: boolean;
+    sentiment: 'positive' | 'negative' | 'neutral';
+  };
 }
 
 export interface TrainingData {
