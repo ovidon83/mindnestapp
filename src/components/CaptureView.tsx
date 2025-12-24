@@ -671,84 +671,91 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     </div>
                     <div className="bg-gradient-to-br from-pink-50 to-pink-100/30 rounded-xl p-5 border border-pink-200">
                       <p className="text-base sm:text-lg text-slate-800 leading-relaxed italic">
-                        "AI is making everything faster. It accelerates whatever we put in its hands—the good and the bad. Give it messy code, lack of alignment, and so on... it'll speed up the mess exponentially."
+                        "AI is really accelerating everything! Including bugs, misalignment, bad decisions, technical debt. It 10x whatever you put in its hands."
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* 4-Step Visual Flow */}
+              {/* 5-Card Feature Flow */}
               <div className="max-w-6xl mx-auto mb-16">
-                <div className="relative">
-                  {/* Connecting Line - Desktop Only */}
-                  <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-pink-200 via-orange-200 to-purple-200 transform -translate-y-1/2"></div>
-                  
-                  {/* Steps Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-4 relative">
-                    {/* Step 1: Analyze */}
-                    <div className="relative bg-white rounded-xl shadow-lg border-2 border-orange-200 p-5 hover:shadow-xl transition-all hover:scale-105">
-                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-400 rounded-full flex items-center justify-center shadow-lg z-10">
-                        <span className="text-white font-bold text-sm">1</span>
-                      </div>
-                      <div className="mt-4 text-center">
-                        <div className="w-12 h-12 bg-gradient-to-br from-orange-100 to-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3">
-                          <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
+                  {/* Card 1: Analyze */}
+                  <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-5 hover:shadow-xl transition-all">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-500 to-orange-400 rounded-lg flex items-center justify-center mb-3">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2">Analyze</h3>
+                    <div className="bg-orange-50 rounded-lg p-3 border border-orange-200">
+                      <p className="text-xs text-slate-700 italic">"Categorized as Insight"</p>
+                      <p className="text-xs text-slate-600 mt-1">Theme: Technology acceleration</p>
+                    </div>
+                  </div>
+
+                  {/* Card 2: Search */}
+                  <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-5 hover:shadow-xl transition-all">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-500 to-purple-400 rounded-lg flex items-center justify-center mb-3">
+                      <Search className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                    </div>
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2">Search</h3>
+                    <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
+                      <p className="text-xs text-slate-700 italic">"Found 3 related thoughts"</p>
+                      <p className="text-xs text-slate-600 mt-1">• Technical debt concerns</p>
+                      <p className="text-xs text-slate-600">• AI impact on development</p>
+                    </div>
+                  </div>
+
+                  {/* Card 3: Action */}
+                  <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-5 hover:shadow-xl transition-all">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-emerald-400 rounded-lg flex items-center justify-center mb-3">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2">Action</h3>
+                    <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-200">
+                      <p className="text-xs text-slate-700 italic">"Next steps generated"</p>
+                      <p className="text-xs text-slate-600 mt-1">• Review code quality processes</p>
+                      <p className="text-xs text-slate-600">• Document AI best practices</p>
+                    </div>
+                  </div>
+
+                  {/* Card 4: Insights */}
+                  <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-5 hover:shadow-xl transition-all">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 to-indigo-400 rounded-lg flex items-center justify-center mb-3">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2">Insights</h3>
+                    <div className="bg-indigo-50 rounded-lg p-3 border border-indigo-200">
+                      <p className="text-xs text-slate-700 italic">"Research-based context"</p>
+                      <p className="text-xs text-slate-600 mt-1">AI amplifies both quality and technical debt. Quality gates are critical.</p>
+                    </div>
+                  </div>
+
+                  {/* Card 5: Companion */}
+                  <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 sm:p-5 hover:shadow-xl transition-all">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-pink-500 to-pink-400 rounded-lg flex items-center justify-center mb-3">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2">Companion</h3>
+                    <div className="bg-pink-50 rounded-lg p-3 border border-pink-200">
+                      <div className="flex items-start gap-2 mb-2">
+                        <div className="w-4 h-4 rounded-full bg-amber-100 border border-amber-300 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <svg className="w-2.5 h-2.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                           </svg>
                         </div>
-                        <h4 className="font-bold text-slate-900 mb-2">Analyzed</h4>
-                        <p className="text-xs text-slate-600 mb-3">Categorized as <span className="font-semibold text-orange-600">Insight</span></p>
-                        <div className="text-xs text-slate-500 italic">AI identifies patterns & context</div>
-                      </div>
-                    </div>
-
-                    {/* Step 2: Connect */}
-                    <div className="relative bg-white rounded-xl shadow-lg border-2 border-purple-200 p-5 hover:shadow-xl transition-all hover:scale-105">
-                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-400 rounded-full flex items-center justify-center shadow-lg z-10">
-                        <span className="text-white font-bold text-sm">2</span>
-                      </div>
-                      <div className="mt-4 text-center">
-                        <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-50 rounded-xl flex items-center justify-center mx-auto mb-3">
-                          <Search className="w-6 h-6 text-purple-600" />
+                        <div className="flex-1">
+                          <p className="text-xs font-semibold text-slate-800">Pattern Detected</p>
+                          <p className="text-xs text-slate-700">You've been thinking about AI's dual nature (3 of last 5 thoughts).</p>
                         </div>
-                        <h4 className="font-bold text-slate-900 mb-2">Connected</h4>
-                        <p className="text-xs text-slate-600 mb-3">Found <span className="font-semibold text-purple-600">3 related thoughts</span></p>
-                        <div className="text-xs text-slate-500 italic">Links to your past insights</div>
-                      </div>
-                    </div>
-
-                    {/* Step 3: Act */}
-                    <div className="relative bg-white rounded-xl shadow-lg border-2 border-orange-200 p-5 hover:shadow-xl transition-all hover:scale-105">
-                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-400 rounded-full flex items-center justify-center shadow-lg z-10">
-                        <span className="text-white font-bold text-sm">3</span>
-                      </div>
-                      <div className="mt-4 text-center">
-                        <div className="w-12 h-12 bg-gradient-to-br from-orange-100 to-orange-50 rounded-xl flex items-center justify-center mx-auto mb-3">
-                          <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                          </svg>
-                        </div>
-                        <h4 className="font-bold text-slate-900 mb-2">Action Ready</h4>
-                        <p className="text-xs text-slate-600 mb-3"><span className="font-semibold text-orange-600">To Share</span> + <span className="font-semibold text-orange-600">To-Do</span></p>
-                        <div className="text-xs text-slate-500 italic">Ready-to-post drafts created</div>
-                      </div>
-                    </div>
-
-                    {/* Step 4: Insights */}
-                    <div className="relative bg-white rounded-xl shadow-lg border-2 border-indigo-200 p-5 hover:shadow-xl transition-all hover:scale-105">
-                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 bg-gradient-to-br from-indigo-500 to-indigo-400 rounded-full flex items-center justify-center shadow-lg z-10">
-                        <span className="text-white font-bold text-sm">4</span>
-                      </div>
-                      <div className="mt-4 text-center">
-                        <div className="w-12 h-12 bg-gradient-to-br from-indigo-100 to-indigo-50 rounded-xl flex items-center justify-center mx-auto mb-3">
-                          <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                          </svg>
-                        </div>
-                        <h4 className="font-bold text-slate-900 mb-2">Insights</h4>
-                        <p className="text-xs text-slate-600 mb-3"><span className="font-semibold text-indigo-600">Trends & patterns</span></p>
-                        <div className="text-xs text-slate-500 italic">20-60-90 day reports</div>
                       </div>
                     </div>
                   </div>
@@ -777,7 +784,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       </div>
                       <div className="p-3">
                         <p className="text-[10px] text-gray-900 leading-relaxed line-clamp-4">
-                          AI accelerates everything—the good and the bad. Quality gates matter more than ever.
+                          AI is accelerating everything—including bugs, misalignment, and technical debt. It 10x whatever you put in its hands. The lesson? Quality gates and alignment matter more than ever. What are you feeding your AI?
                         </p>
                       </div>
                     </div>
@@ -796,7 +803,13 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       </div>
                       <div className="p-3">
                         <p className="text-[10px] text-gray-900 leading-relaxed line-clamp-4">
-                          AI accelerates whatever you give it—good or bad. Quality gates matter more than ever. 🚀
+                          AI 10x's whatever you give it.
+                          
+                          Bugs → 10x bugs
+                          Technical debt → 10x debt
+                          Bad decisions → 10x bad decisions
+                          
+                          Quality gates aren't optional anymore. 🚀
                         </p>
                       </div>
                     </div>
@@ -819,7 +832,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       </div>
                       <div className="p-2">
                         <p className="text-[10px] text-gray-900 leading-relaxed line-clamp-2">
-                          <span className="font-semibold">{userName.toLowerCase().replace(/\s+/g, '')}</span> AI is making everything faster...
+                          <span className="font-semibold">{userName.toLowerCase().replace(/\s+/g, '')}</span> AI accelerates everything—bugs, technical debt, bad decisions. It 10x's whatever you put in. Quality gates are non-negotiable. 💡
                         </p>
                       </div>
                     </div>
@@ -827,99 +840,6 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 </div>
               </div>
 
-            </div>
-          </section>
-
-          {/* Additional Features Grid */}
-          <section className="py-12 sm:py-16 bg-white">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-
-                {/* Feature 4: AI Insights */}
-                <div className="p-4 sm:p-5 lg:p-6 bg-white rounded-xl sm:rounded-2xl shadow-sm hover:shadow-md transition-all border border-slate-200/60">
-                  <div className="mb-3 sm:mb-4">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-pink-500 to-pink-400 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4">
-                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2">AI Insights & Next Steps</h3>
-                    <p className="text-xs sm:text-sm text-slate-600 mb-3 sm:mb-4 font-light">
-                      Get contextual research-based notes and actionable sub-tasks for every entry.
-                    </p>
-                  </div>
-                  <div className="bg-pink-50/50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-pink-200/40">
-                    <p className="text-xs sm:text-sm text-slate-700 italic mb-2 font-medium">"Starting a consulting business part-time is a smart approach..."</p>
-                    <ul className="text-xs space-y-1 text-slate-600 font-light">
-                      <li>• Research consulting rates</li>
-                      <li>• Define your service offerings</li>
-                    </ul>
-                  </div>
-                </div>
-
-                {/* Feature 5: Social Sharing */}
-                <div className="p-4 sm:p-5 lg:p-6 bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] border-2 border-orange-100 hover:border-orange-300">
-                  <div className="mb-3 sm:mb-4">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-500 to-orange-400 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 shadow-lg">
-                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2">Post About Insights</h3>
-                    <p className="text-xs sm:text-sm text-slate-600 mb-3 sm:mb-4 font-medium">
-                      Turn valuable insights into ready-to-post content for LinkedIn, Twitter, Instagram.
-                    </p>
-                  </div>
-                  <div className="bg-orange-50/50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-orange-200/40">
-                    <div className="flex items-center gap-2 mb-2">
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" viewBox="0 0 24 24" fill="url(#instagram-gradient)">
-                        <defs>
-                          <linearGradient id="instagram-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#833AB4" />
-                            <stop offset="50%" stopColor="#FD1D1D" />
-                            <stop offset="100%" stopColor="#FCAF45" />
-                          </linearGradient>
-                        </defs>
-                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.98-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.98-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                      </svg>
-                      <span className="text-xs sm:text-sm text-slate-600 font-medium">Instagram</span>
-                    </div>
-                    <p className="text-xs sm:text-sm text-slate-700 italic leading-relaxed">"Gratitude practice works. Here's my daily routine that changed everything..."</p>
-                  </div>
-                </div>
-
-                {/* Feature 6: Companion */}
-                <div className="p-4 sm:p-5 lg:p-6 bg-white rounded-xl sm:rounded-2xl shadow-sm hover:shadow-md transition-all border border-slate-200/60">
-                  <div className="mb-3 sm:mb-4">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-500 to-purple-400 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4">
-                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2">Companion</h3>
-                    <p className="text-xs sm:text-sm text-slate-600 mb-3 sm:mb-4 font-light">
-                      Get personalized observations and patterns from your thoughts.
-                    </p>
-                  </div>
-                  <div className="bg-purple-50/50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-purple-200/40">
-                    <div className="flex items-start gap-2 mb-3">
-                      <div className="w-5 h-5 rounded-full bg-amber-100 border border-amber-300 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <svg className="w-3 h-3 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                        </svg>
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-xs font-semibold text-slate-800 mb-1">Pattern Detected</p>
-                        <p className="text-xs text-slate-700 mb-2">You've had more negative or critical thoughts lately (8 of your last 12 thoughts).</p>
-                        <div className="bg-white rounded-lg p-2 border border-purple-200">
-                          <p className="text-xs font-medium text-purple-700 mb-1">💡 Suggestion:</p>
-                          <p className="text-xs text-slate-600">Consider taking a break, practicing gratitude, or focusing on solutions rather than problems. Your thoughts show you're noticing issues—channel that into actionable improvements.</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </section>
 
