@@ -836,42 +836,63 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       </div>
                     </div>
 
-                    {/* Other Potentials */}
-                    <div className="space-y-4">
-                      {/* Conversation */}
-                      <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <svg className="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                            </svg>
-                            <span className="text-sm font-semibold text-slate-700">Conversation</span>
+                    {/* Conversations */}
+                    <div className="mb-6">
+                      <h4 className="text-sm font-semibold text-slate-700 mb-4">Conversations</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Slack */}
+                        <div className="bg-white rounded-lg border-2 border-purple-100 shadow-sm overflow-hidden">
+                          <div className="p-3 bg-purple-50 flex items-center gap-2 border-b border-purple-100">
+                            <div className="w-8 h-8 bg-purple-600 rounded flex items-center justify-center flex-shrink-0">
+                              <span className="text-white text-xs font-bold">{userInitials}</span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-xs font-semibold text-gray-900 truncate">{userName}</div>
+                              <div className="text-[10px] text-gray-500">Today at 2:30 PM</div>
+                            </div>
+                            <div className="w-5 h-5 bg-purple-600 rounded flex items-center justify-center flex-shrink-0">
+                              <span className="text-white text-[8px] font-bold">#</span>
+                            </div>
                           </div>
-                          <span className="text-xs text-slate-500">Talking points</span>
+                          <div className="p-3">
+                            <p className="text-xs text-gray-900 leading-relaxed mb-2">
+                              AI amplifies everything—good and bad. Quality gates are critical.
+                            </p>
+                            <p className="text-xs text-gray-900 leading-relaxed mb-2">
+                              What we put in determines what we get out—10x.
+                            </p>
+                            <p className="text-xs text-gray-900 leading-relaxed">
+                              Technical debt compounds faster with AI. We need better processes.
+                            </p>
+                          </div>
                         </div>
-                        <div className="space-y-2">
-                          <p className="text-xs text-slate-600">• "AI amplifies everything—good and bad. Quality gates are critical."</p>
-                          <p className="text-xs text-slate-600">• "What we put in determines what we get out—10x."</p>
-                          <p className="text-xs text-slate-600">• "Technical debt compounds faster with AI. We need better processes."</p>
-                        </div>
-                      </div>
 
-                      {/* Email */}
-                      <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <Mail className="w-4 h-4 text-slate-600" />
-                            <span className="text-sm font-semibold text-slate-700">Email</span>
+                        {/* Email */}
+                        <div className="bg-white rounded-lg border-2 border-blue-100 shadow-sm overflow-hidden">
+                          <div className="p-3 bg-blue-50 flex items-center gap-2 border-b border-blue-100">
+                            <Mail className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <div className="text-xs font-semibold text-gray-900">New Message</div>
+                              <div className="text-[10px] text-gray-500">Draft ready</div>
+                            </div>
                           </div>
-                          <span className="text-xs text-slate-500">Draft ready</span>
-                        </div>
-                        <div className="space-y-2">
-                          <p className="text-xs font-medium text-slate-700">Subject: AI Quality Gates - A Critical Discussion</p>
-                          <p className="text-xs text-slate-600">Hi [Name],</p>
-                          <p className="text-xs text-slate-600">I've been thinking about how AI accelerates everything we give it—including technical debt and bad decisions. Quality gates aren't optional anymore. Would love to discuss our approach to this.</p>
-                          <p className="text-xs text-slate-600">Best,</p>
+                          <div className="p-3">
+                            <p className="text-xs font-medium text-gray-900 mb-2">To: [Name]</p>
+                            <p className="text-xs font-medium text-gray-900 mb-2">Subject: AI Quality Gates - A Critical Discussion</p>
+                            <div className="border-t border-gray-200 pt-2 mt-2">
+                              <p className="text-xs text-gray-700 mb-1">Hi [Name],</p>
+                              <p className="text-xs text-gray-700 mb-1">
+                                I've been thinking about how AI accelerates everything we give it—including technical debt and bad decisions.
+                              </p>
+                              <p className="text-xs text-gray-700 mb-1">
+                                Quality gates aren't optional anymore. Would love to discuss our approach to this.
+                              </p>
+                              <p className="text-xs text-gray-700">Best,</p>
+                            </div>
+                          </div>
                         </div>
                       </div>
+                    </div>
 
                       {/* Idea to Explore */}
                       <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
