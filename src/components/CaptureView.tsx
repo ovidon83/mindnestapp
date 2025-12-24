@@ -8,7 +8,11 @@ interface CaptureViewProps {
   onOrganizeClick?: (mode?: 'login' | 'signup') => void;
 }
 
-const EmailSubscription: React.FC = () => {
+interface EmailSubscriptionProps {
+  onSuccess?: () => void;
+}
+
+const EmailSubscription: React.FC<EmailSubscriptionProps> = ({ onSuccess }) => {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -442,7 +446,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 Capture. Observe. Act
               </p>
               <div className="mt-6 sm:mt-8 px-2">
-                <EmailSubscription />
+                <EmailSubscription onSuccess={() => setShowEmailModal(false)} />
           </div>
                 </div>
           </section>
