@@ -484,13 +484,13 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   {/* Floating example thoughts under heading */}
                   <div className="mt-4 flex flex-wrap justify-center gap-3 sm:gap-4">
                     <span className="px-4 py-2 rounded-full bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 font-medium shadow-sm">
-                      "State inspection for the Equinox"
+                      "I see lack of authenticity in social media"
                     </span>
                     <span className="px-4 py-2 rounded-full bg-indigo-50 border border-indigo-200 text-xs sm:text-sm text-indigo-800 font-medium shadow-sm">
                       "AI can give startups a false sense of speed"
                     </span>
                     <span className="px-4 py-2 rounded-full bg-amber-50 border border-amber-200 text-xs sm:text-sm text-amber-800 font-medium shadow-sm">
-                      "Need an information detox!"
+                      "Need to spend more time in nature!"
                     </span>
                   </div>
                 </div>
@@ -683,8 +683,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       </div>
                     </div>
                     <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-                      <p className="text-sm sm:text-base text-slate-800 leading-relaxed">
-                        "AI is really accelerating everything! Including bugs, misalignment, bad decisions, technical debt. It 10x whatever you put in its hands."
+                      <p className="text-sm sm:text-base text-slate-800 leading-relaxed italic">
+                        "AI speeds everything up. Good and bad stuff. 10x multiplier."
                       </p>
                     </div>
                     <p className="text-xs text-slate-500 mt-3 italic">Saved as a living thought — always editable</p>
@@ -876,8 +876,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                                     </svg>
                                   </div>
                                 </div>
-                                <p className="text-xs text-slate-600 mb-1">"AI 10x's whatever you give it—quality gates aren't optional anymore."</p>
-                                <p className="text-xs text-slate-500 italic">From: "AI is really accelerating everything..."</p>
+                                <p className="text-xs text-slate-600 mb-1">"AI doesn't just accelerate your work. It amplifies everything—including your mistakes. Give it messy code? You'll ship 10x messier code faster. Quality gates aren't optional anymore."</p>
+                                <p className="text-xs text-slate-500 italic">From: "AI speeds everything up. Good and bad stuff. 10x multiplier."</p>
                               </div>
                             </div>
                           </div>
@@ -899,8 +899,8 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                                     </svg>
                                   </div>
                                 </div>
-                                <p className="text-xs text-slate-600 mb-1">Document quality gates for AI-assisted development</p>
-                                <p className="text-xs text-slate-500 italic">From: "AI is really accelerating everything..."</p>
+                                <p className="text-xs text-slate-600 mb-1">Created guide: "Quality Gates for AI-Assisted Development" - Framework for ensuring AI amplifies quality, not technical debt</p>
+                                <p className="text-xs text-slate-500 italic">From: "AI speeds everything up. Good and bad stuff. 10x multiplier."</p>
                               </div>
                             </div>
                           </div>
@@ -1150,13 +1150,13 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 {/* Floating example thoughts under heading */}
                 <div className="mt-4 flex flex-wrap justify-center gap-3 sm:gap-4">
                   <span className="px-4 py-2 rounded-full bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 font-medium shadow-sm">
-                    "State inspection for the Equinox"
+                    "I see lack of authenticity in social media"
                   </span>
                   <span className="px-4 py-2 rounded-full bg-indigo-50 border border-indigo-200 text-xs sm:text-sm text-indigo-800 font-medium shadow-sm">
                     "AI can give startups a false sense of speed"
                   </span>
                   <span className="px-4 py-2 rounded-full bg-amber-50 border border-amber-200 text-xs sm:text-sm text-amber-800 font-medium shadow-sm">
-                    "Need an information detox!"
+                    "Need to spend more time in nature!"
                   </span>
                 </div>
               </div>
