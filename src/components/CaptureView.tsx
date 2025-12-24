@@ -661,16 +661,18 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
               <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
                 
                 {/* User Section */}
-                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-6 sm:p-8 border border-blue-200/60">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
-                      <span className="text-white text-[10px] font-bold">You</span>
+                <div className="bg-white rounded-2xl p-6 sm:p-8 border-2 border-blue-300 relative">
+                  <div className="absolute -top-3 left-6 bg-white px-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-[10px] font-bold">You</span>
+                      </div>
+                      <h3 className="text-xs font-semibold text-blue-700 uppercase tracking-wide">What you do</h3>
                     </div>
-                    <h3 className="text-xs font-semibold text-blue-900 uppercase tracking-wide">What you do</h3>
                   </div>
                   
                   {/* Step 1: Raw Thought Captured */}
-                  <div className="bg-white rounded-xl shadow-sm border border-blue-100 p-6 sm:p-8">
+                  <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 sm:p-8 mt-2">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                         <Mic className="w-4 h-4 text-blue-600" />
@@ -702,12 +704,14 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 </div>
 
                 {/* Thouthy Section */}
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 sm:p-8 border border-purple-200/60">
-                  <div className="flex items-center gap-2 mb-6">
-                    <div className="w-5 h-5 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center">
-                      <Sparkles className="w-3 h-3 text-white" />
+                <div className="bg-white rounded-2xl p-6 sm:p-8 border-2 border-purple-300 relative">
+                  <div className="absolute -top-3 left-6 bg-white px-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center">
+                        <Sparkles className="w-3 h-3 text-white" />
+                      </div>
+                      <h3 className="text-xs font-semibold text-purple-700 uppercase tracking-wide">What Thouthy does</h3>
                     </div>
-                    <h3 className="text-xs font-semibold text-purple-900 uppercase tracking-wide">What Thouthy does</h3>
                   </div>
 
                     {/* Step 2: Spark Detected */}
