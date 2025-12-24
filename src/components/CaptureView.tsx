@@ -10,9 +10,10 @@ interface CaptureViewProps {
 
 interface EmailSubscriptionProps {
   onSuccess?: () => void;
+  variant?: 'hero' | 'modal';
 }
 
-const EmailSubscription: React.FC<EmailSubscriptionProps> = ({ onSuccess }) => {
+const EmailSubscription: React.FC<EmailSubscriptionProps> = ({ onSuccess, variant = 'hero' }) => {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -71,6 +72,45 @@ const EmailSubscription: React.FC<EmailSubscriptionProps> = ({ onSuccess }) => {
     }
   };
 
+  // Hero variant - simple horizontal layout
+  if (variant === 'hero') {
+    return (
+      <div className="relative">
+        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-md mx-auto">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your email"
+            className="flex-1 px-4 sm:px-5 py-3 sm:py-4 rounded-xl border-2 border-slate-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base transition-all duration-200"
+            disabled={isSubmitting}
+          />
+          <button
+            type="submit"
+            disabled={isSubmitting || !email}
+            className={`px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-sm sm:text-base transition-all duration-200 min-h-[44px] ${
+              isSubmitting || !email
+                ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                : 'bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 text-white hover:from-purple-700 hover:via-pink-600 hover:to-orange-600 shadow-lg hover:shadow-xl font-bold'
+            }`}
+          >
+            {isSubmitting ? 'Subscribing...' : 'Early Access'}
+          </button>
+        </form>
+        {message && (
+          <div className={`absolute top-full mt-4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-lg text-sm whitespace-nowrap ${
+            message.type === 'success' 
+              ? 'bg-purple-50 text-purple-700 border border-purple-200' 
+              : 'bg-red-50 text-red-700 border border-red-200'
+          }`}>
+            {message.text}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Modal variant - enhanced vertical layout
   return (
     <div className="relative">
       <form onSubmit={handleSubmit} className="space-y-4">
