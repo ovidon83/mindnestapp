@@ -1602,7 +1602,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 </p>
               </div>
               
-              <EmailSubscription onSuccess={() => setShowEmailModal(false)} />
+              <EmailSubscription variant="modal" onSuccess={() => setShowEmailModal(false)} />
             </div>
           </div>
         </div>
