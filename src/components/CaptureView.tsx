@@ -882,22 +882,24 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                             </div>
                           </div>
 
-                          {/* Action 2: X */}
+                          {/* Action 2: Document */}
                           <div className="bg-emerald-50 rounded-lg p-4 border border-emerald-200 hover:bg-emerald-100/50 transition-colors">
                             <div className="flex items-start gap-3">
-                              <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center flex-shrink-0">
-                                <Twitter className="w-4 h-4 text-white" />
+                              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-1">
-                                  <p className="text-sm font-semibold text-slate-900">Posted on X</p>
+                                  <p className="text-sm font-semibold text-slate-900">Document created</p>
                                   <div className="w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
                                     <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                     </svg>
                                   </div>
                                 </div>
-                                <p className="text-xs text-slate-600 mb-1">"AI 10x's whatever you give it. Quality gates aren't optional anymore. 🚀"</p>
+                                <p className="text-xs text-slate-600 mb-1">Document quality gates for AI-assisted development</p>
                                 <p className="text-xs text-slate-500 italic">From: "AI is really accelerating everything..."</p>
                               </div>
                             </div>
