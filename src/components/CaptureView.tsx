@@ -901,6 +901,162 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </div>
           </section>
 
+          {/* Mind Report Section */}
+          <section className="py-16 sm:py-20 lg:py-24 bg-white relative overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+              <div className="text-center mb-12 sm:mb-16">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-4">
+                  Mind <span className="bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 bg-clip-text text-transparent italic">Report</span>
+                </h2>
+                <p className="text-base sm:text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto">
+                  Insights from your thoughts over time.
+                </p>
+              </div>
+
+              <div className="max-w-5xl mx-auto">
+                <div className="bg-gradient-to-br from-slate-50 to-white rounded-2xl shadow-xl border-2 border-slate-200 p-6 sm:p-8 lg:p-10">
+                  
+                  {/* Overview Stats */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8">
+                    <div className="text-center">
+                      <div className="text-3xl sm:text-4xl font-bold text-slate-900 mb-1">127</div>
+                      <div className="text-xs sm:text-sm text-slate-600">Total Thoughts</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl sm:text-4xl font-bold text-amber-600 mb-1">23</div>
+                      <div className="text-xs sm:text-sm text-slate-600">Sparks</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl sm:text-4xl font-bold text-purple-600 mb-1">18</div>
+                      <div className="text-xs sm:text-sm text-slate-600">Potentials</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl sm:text-4xl font-bold text-emerald-600 mb-1">12</div>
+                      <div className="text-xs sm:text-sm text-slate-600">Actions Taken</div>
+                    </div>
+                  </div>
+
+                  {/* Breakdown by Type */}
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold text-slate-900 mb-4">Breakdown by Type</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm text-slate-700">Sparks</span>
+                          <span className="text-sm font-semibold text-slate-900">23 (18%)</span>
+                        </div>
+                        <div className="w-full bg-slate-200 rounded-full h-2.5">
+                          <div className="bg-amber-500 h-2.5 rounded-full" style={{ width: '18%' }}></div>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm text-slate-700">Potentials</span>
+                          <span className="text-sm font-semibold text-slate-900">18 (14%)</span>
+                        </div>
+                        <div className="w-full bg-slate-200 rounded-full h-2.5">
+                          <div className="bg-purple-500 h-2.5 rounded-full" style={{ width: '14%' }}></div>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm text-slate-700">Actions Taken</span>
+                          <span className="text-sm font-semibold text-slate-900">12 (9%)</span>
+                        </div>
+                        <div className="w-full bg-slate-200 rounded-full h-2.5">
+                          <div className="bg-emerald-500 h-2.5 rounded-full" style={{ width: '9%' }}></div>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm text-slate-700">Regular Thoughts</span>
+                          <span className="text-sm font-semibold text-slate-900">74 (58%)</span>
+                        </div>
+                        <div className="w-full bg-slate-200 rounded-full h-2.5">
+                          <div className="bg-slate-400 h-2.5 rounded-full" style={{ width: '58%' }}></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Types Breakdown */}
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold text-slate-900 mb-4">Actions Taken by Type</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                        <div className="text-2xl font-bold text-blue-600 mb-1">5</div>
+                        <div className="text-xs text-slate-600">LinkedIn Posts</div>
+                      </div>
+                      <div className="bg-sky-50 rounded-lg p-4 border border-sky-200">
+                        <div className="text-2xl font-bold text-sky-600 mb-1">3</div>
+                        <div className="text-xs text-slate-600">Twitter Posts</div>
+                      </div>
+                      <div className="bg-rose-50 rounded-lg p-4 border border-rose-200">
+                        <div className="text-2xl font-bold text-rose-600 mb-1">2</div>
+                        <div className="text-xs text-slate-600">Instagram Posts</div>
+                      </div>
+                      <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                        <div className="text-2xl font-bold text-purple-600 mb-1">2</div>
+                        <div className="text-xs text-slate-600">Other Actions</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Patterns Detected */}
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold text-slate-900 mb-4">Patterns Detected</h3>
+                    <div className="space-y-3">
+                      <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
+                        <div className="flex items-start gap-3">
+                          <div className="w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-semibold text-slate-900 mb-1">Recurring Theme</p>
+                            <p className="text-xs text-slate-700">You've been thinking about AI's impact on development (8 thoughts in the last 30 days)</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-indigo-50 rounded-lg p-4 border border-indigo-200">
+                        <div className="flex items-start gap-3">
+                          <div className="w-5 h-5 bg-indigo-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-semibold text-slate-900 mb-1">Growth Trend</p>
+                            <p className="text-xs text-slate-700">Your thought capture rate increased 40% this month compared to last</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="bg-emerald-50 rounded-lg p-4 border border-emerald-200">
+                        <div className="flex items-start gap-3">
+                          <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-semibold text-slate-900 mb-1">Action Rate</p>
+                            <p className="text-xs text-slate-700">67% of your Potentials have been acted upon (12 of 18)</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Time Period */}
+                  <div className="text-center pt-4 border-t border-slate-200">
+                    <p className="text-xs text-slate-500">Report period: Last 90 days</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* Footer - Vibrant gradient */}
           <footer className="relative z-10 border-t-2 border-slate-200/50 bg-gradient-to-br from-slate-50/40 via-blue-50/20 to-pink-50/10">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
