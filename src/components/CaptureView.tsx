@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useGenieNotesStore } from '../store';
-import { Mic, MicOff, Sparkles, CheckCircle, Upload, Search, Mail, Twitter, Linkedin, Instagram, Brain } from 'lucide-react';
+import { Mic, MicOff, Sparkles, CheckCircle, Upload, Search, Mail, Twitter, Linkedin, Instagram, Brain, Lightbulb } from 'lucide-react';
 import { saveTrainingData } from '../lib/db';
 import UserAvatar from './UserAvatar';
 
