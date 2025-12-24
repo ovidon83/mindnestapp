@@ -660,53 +660,87 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
               {/* Flow: Capture → Spark → Potential → Action */}
               <div className="max-w-5xl mx-auto space-y-8 sm:space-y-12">
                 
-                {/* Step 1: Raw Thought Captured */}
-                <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-6 sm:p-8">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
-                      <Mic className="w-4 h-4 text-slate-600" />
-                    </div>
-                    <div>
-                      <h3 className="text-base font-medium text-slate-900">You capture</h3>
-                      <p className="text-xs text-slate-500">Voice or text, instantly</p>
-                    </div>
-                  </div>
-                  <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-                    <p className="text-sm sm:text-base text-slate-800 leading-relaxed">
-                      "AI is really accelerating everything! Including bugs, misalignment, bad decisions, technical debt. It 10x whatever you put in its hands."
-                    </p>
-                  </div>
-                  <p className="text-xs text-slate-500 mt-3 italic">Saved as a living thought — always editable</p>
-                </div>
-
-                {/* Step 2: Spark Detected */}
+                {/* User Section */}
                 <div className="relative">
-                  <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-amber-200 to-amber-300 transform -translate-x-1/2 hidden sm:block"></div>
-                  <div className="bg-white rounded-xl shadow-lg border-2 border-amber-200 p-6 sm:p-8 relative">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
-                        <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                        </svg>
+                  <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-6 sm:p-8 border-2 border-blue-200">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">You</span>
                       </div>
-                      <div>
-                        <h3 className="text-base font-medium text-slate-900">Spark detected</h3>
-                        <p className="text-xs text-slate-500">A sign this thought matters</p>
-                      </div>
+                      <h3 className="text-sm font-semibold text-blue-900 uppercase tracking-wide">What you do</h3>
                     </div>
-                    <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
-                      <p className="text-sm text-slate-700 mb-2">
-                        <span className="font-semibold text-amber-700">Why it matters:</span> Strong opinion, clear problem, recurring theme
-                      </p>
-                      <p className="text-xs text-slate-600 italic">You can also mark thoughts as Sparks yourself</p>
+                    
+                    {/* Step 1: Raw Thought Captured */}
+                    <div className="bg-white rounded-xl shadow-md border border-blue-100 p-6 sm:p-8">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <Mic className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <div>
+                          <h3 className="text-base font-medium text-slate-900">You capture</h3>
+                          <p className="text-xs text-slate-500">Voice or text, instantly</p>
+                        </div>
+                      </div>
+                      <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                        <p className="text-sm sm:text-base text-slate-800 leading-relaxed">
+                          "AI is really accelerating everything! Including bugs, misalignment, bad decisions, technical debt. It 10x whatever you put in its hands."
+                        </p>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-3 italic">Saved as a living thought — always editable</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Step 3: Potential Revealed */}
+                {/* Visual Divider */}
+                <div className="relative flex items-center justify-center py-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t-2 border-dashed border-slate-300"></div>
+                  </div>
+                  <div className="relative bg-white px-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
+                      <Brain className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Thouthy Section */}
                 <div className="relative">
-                  <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-purple-200 to-purple-300 transform -translate-x-1/2 hidden sm:block"></div>
-                  <div className="bg-white rounded-xl shadow-lg border-2 border-purple-200 p-6 sm:p-8 relative">
+                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 sm:p-8 border-2 border-purple-200">
+                    <div className="flex items-center gap-2 mb-6">
+                      <div className="w-6 h-6 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center">
+                        <Sparkles className="w-4 h-4 text-white" />
+                      </div>
+                      <h3 className="text-sm font-semibold text-purple-900 uppercase tracking-wide">What Thouthy does</h3>
+                    </div>
+
+                    {/* Step 2: Spark Detected */}
+                    <div className="relative mb-6">
+                      <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-amber-200 to-amber-300 transform -translate-x-1/2 hidden sm:block"></div>
+                      <div className="bg-white rounded-xl shadow-md border-2 border-amber-200 p-6 sm:p-8 relative">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
+                            <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <h3 className="text-base font-medium text-slate-900">Spark detected</h3>
+                            <p className="text-xs text-slate-500">Automatically — a sign this thought matters</p>
+                          </div>
+                        </div>
+                        <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
+                          <p className="text-sm text-slate-700 mb-2">
+                            <span className="font-semibold text-amber-700">Why it matters:</span> Strong opinion, clear problem, recurring theme
+                          </p>
+                          <p className="text-xs text-slate-600 italic">You can also mark thoughts as Sparks yourself</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Step 3: Potential Revealed */}
+                    <div className="relative mb-6">
+                      <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-purple-200 to-purple-300 transform -translate-x-1/2 hidden sm:block"></div>
+                      <div className="bg-white rounded-xl shadow-md border-2 border-purple-200 p-6 sm:p-8 relative">
                     <div className="flex items-center gap-3 mb-6">
                       <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
                         <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -858,36 +892,37 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       </div>
                     </div>
 
-                    <p className="text-xs text-slate-500 mt-6 italic text-center">You can add your own Potential anytime</p>
-                  </div>
-                </div>
-
-                {/* Step 4: Action Taken */}
-                <div className="relative">
-                  <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-emerald-200 to-emerald-300 transform -translate-x-1/2 hidden sm:block"></div>
-                  <div className="bg-white rounded-xl shadow-lg border-2 border-emerald-200 p-6 sm:p-8 relative">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
-                        <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="text-base font-medium text-slate-900">Action taken</h3>
-                        <p className="text-xs text-slate-500">Linked back to the original thought</p>
+                        <p className="text-xs text-slate-500 mt-6 italic text-center">You can add your own Potential anytime</p>
                       </div>
                     </div>
-                    <div className="bg-emerald-50 rounded-lg p-4 border border-emerald-200">
-                      <div className="flex items-start gap-3">
-                        <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
+
+                    {/* Step 4: Action Taken */}
+                    <div className="relative">
+                      <div className="bg-white rounded-xl shadow-md border-2 border-emerald-200 p-6 sm:p-8">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
+                            <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <h3 className="text-base font-medium text-slate-900">Action taken</h3>
+                            <p className="text-xs text-slate-500">You choose when to act — linked back to the original thought</p>
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-slate-900 mb-1">Posted on LinkedIn</p>
-                          <p className="text-xs text-slate-600">Using the draft from Potential</p>
-                          <p className="text-xs text-slate-500 mt-2 italic">Always connected to your original thought</p>
+                        <div className="bg-emerald-50 rounded-lg p-4 border border-emerald-200">
+                          <div className="flex items-start gap-3">
+                            <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-slate-900 mb-1">Posted on LinkedIn</p>
+                              <p className="text-xs text-slate-600">Using the draft from Potential</p>
+                              <p className="text-xs text-slate-500 mt-2 italic">Always connected to your original thought</p>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
