@@ -435,8 +435,24 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             <div className="absolute top-1/3 left-1/4 w-64 h-64 bg-blue-200/20 rounded-full blur-3xl"></div>
             
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 w-full">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 leading-tight text-slate-900">
-                Give your thoughts real meaning.
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 leading-tight">
+                <span className="text-slate-900">Give your </span>
+                <span className="relative inline-block">
+                  <span className="text-purple-600 italic font-bold">thoughts</span>
+                  {/* Wavy underline */}
+                  <svg className="absolute -bottom-1 sm:-bottom-2 left-0 right-0 h-2 sm:h-3 -z-10" viewBox="0 0 200 15" preserveAspectRatio="none">
+                    <path d="M0,12 Q25,3 50,12 T100,12 T150,12 T200,12" stroke="#9333ea" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.8"/>
+                  </svg>
+                </span>
+                <span className="text-slate-900"> real </span>
+                <span className="relative inline-block">
+                  <span className="text-yellow-500 italic font-bold">meaning</span>
+                  {/* Wavy underline */}
+                  <svg className="absolute -bottom-1 sm:-bottom-2 left-0 right-0 h-2 sm:h-3 -z-10" viewBox="0 0 200 15" preserveAspectRatio="none">
+                    <path d="M0,12 Q25,3 50,12 T100,12 T150,12 T200,12" stroke="#eab308" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.8"/>
+                  </svg>
+                </span>
+                <span className="text-slate-900">.</span>
             </h1>
               <p className="text-sm sm:text-base md:text-lg lg:text-xl text-slate-600 mb-4 sm:mb-6 max-w-2xl mx-auto font-normal leading-relaxed px-2">
                 Thoughts are born in your mind, not meant to live there forever. Capture them, step back, and let <span className="font-bold text-slate-900">Thouty</span> reveal which ones carry real potential — and which you can safely let go.
