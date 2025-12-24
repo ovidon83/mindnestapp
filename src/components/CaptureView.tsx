@@ -73,34 +73,52 @@ const EmailSubscription: React.FC<EmailSubscriptionProps> = ({ onSuccess }) => {
 
   return (
     <div className="relative">
-      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-md mx-auto">
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter your email"
-          className="flex-1 px-4 sm:px-5 py-3 sm:py-4 rounded-xl border-2 border-slate-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base transition-all duration-200"
-          disabled={isSubmitting}
-        />
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="relative">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="your@email.com"
+            className="w-full px-5 py-4 rounded-xl border-2 border-slate-200 focus:border-purple-400 focus:outline-none focus:ring-4 focus:ring-purple-100 text-base transition-all duration-200 bg-white shadow-sm hover:border-purple-300"
+            disabled={isSubmitting}
+          />
+          <Mail className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+        </div>
         <button
           type="submit"
           disabled={isSubmitting || !email}
-          className={`px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-sm sm:text-base transition-all duration-200 min-h-[44px] ${
+          className={`w-full py-4 rounded-xl font-bold text-base transition-all duration-200 ${
             isSubmitting || !email
-              ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
-              : 'bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 text-white hover:from-purple-700 hover:via-pink-600 hover:to-orange-600 shadow-lg hover:shadow-xl font-bold'
+              ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+              : 'bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 text-white hover:from-purple-700 hover:via-pink-600 hover:to-orange-600 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2'
           }`}
         >
-          {isSubmitting ? 'Subscribing...' : 'Early Access'}
+          {isSubmitting ? (
+            <>
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>Subscribing...</span>
+            </>
+          ) : (
+            <>
+              <Sparkles className="w-5 h-5" />
+              <span>Join Early Access</span>
+            </>
+          )}
         </button>
       </form>
       {message && (
-        <div className={`absolute top-full mt-4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-lg text-sm whitespace-nowrap ${
+        <div className={`mt-4 px-4 py-3 rounded-xl text-sm text-center animate-in fade-in slide-in-from-top-2 duration-300 ${
           message.type === 'success' 
-            ? 'bg-purple-50 text-purple-700 border border-purple-200' 
+            ? 'bg-gradient-to-r from-purple-50 to-pink-50 text-purple-700 border border-purple-200' 
             : 'bg-red-50 text-red-700 border border-red-200'
         }`}>
-          {message.text}
+          <div className="flex items-center justify-center gap-2">
+            {message.type === 'success' ? (
+              <CheckCircle className="w-5 h-5" />
+            ) : null}
+            <span>{message.text}</span>
+          </div>
         </div>
       )}
     </div>
@@ -1514,23 +1532,38 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
 
       {/* Email Subscription Modal */}
       {showEmailModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowEmailModal(false)}>
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200" onClick={() => setShowEmailModal(false)}>
+          <div className="bg-gradient-to-br from-white via-purple-50/30 to-pink-50/30 rounded-3xl shadow-2xl max-w-lg w-full p-8 sm:p-10 relative border border-purple-100/50 animate-in zoom-in-95 duration-300" onClick={(e) => e.stopPropagation()}>
+            {/* Decorative gradient orbs */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-2xl -z-0"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-br from-orange-400/20 to-pink-400/20 rounded-full blur-2xl -z-0"></div>
+            
             <button
               onClick={() => setShowEmailModal(false)}
-              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 transition-colors"
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all duration-200 z-10"
             >
               <X className="w-5 h-5" />
             </button>
-            <div className="mb-6">
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">
-                Get Early Access
-              </h2>
-              <p className="text-slate-600">
-                Join the waitlist to be among the first to experience Thouthy.
-              </p>
+            
+            <div className="relative z-10">
+              {/* Icon */}
+              <div className="flex justify-center mb-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Sparkles className="w-8 h-8 text-white" />
+                </div>
+              </div>
+              
+              <div className="text-center mb-8">
+                <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-3">
+                  Get <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 bg-clip-text text-transparent">Early Access</span>
+                </h2>
+                <p className="text-lg text-slate-600 leading-relaxed">
+                  Be among the first to experience how Thouthy transforms your thoughts into meaningful action.
+                </p>
+              </div>
+              
+              <EmailSubscription onSuccess={() => setShowEmailModal(false)} />
             </div>
-            <EmailSubscription />
           </div>
         </div>
       )}
