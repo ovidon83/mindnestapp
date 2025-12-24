@@ -452,12 +452,16 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     <path d="M0,12 Q25,3 50,12 T100,12 T150,12 T200,12" stroke="#eab308" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.8"/>
                   </svg>
                 </span>
-                <span className="text-slate-900">.</span>
             </h1>
-              <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-slate-800 mb-8 sm:mb-10 max-w-3xl mx-auto font-medium leading-relaxed px-2">
-                When something matters, we help you see what it could become.
-              </p>
-              <p className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 mb-6 sm:mb-8 tracking-wide">
+              <div className="max-w-3xl mx-auto px-2 mb-8 sm:mb-10">
+                <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-700 mb-4 sm:mb-6 font-normal leading-relaxed">
+                  Capture every thought. <span className="font-semibold text-slate-900">Thouthy</span> will observe, and find the spark and potential.
+                </p>
+                <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-slate-800 font-medium leading-relaxed italic">
+                  When something matters, Thouthy shows you what it can become.
+                </p>
+              </div>
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 mb-6 sm:mb-8 tracking-wide">
                 Capture. Observe. Act.
               </p>
               <div className="mt-6 sm:mt-8 px-2">
