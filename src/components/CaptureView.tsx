@@ -867,28 +867,57 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     {/* Step 4: Action Taken */}
                     <div className="relative">
                       <div className="bg-white rounded-xl shadow-md border-2 border-emerald-200 p-6 sm:p-8">
-                        <div className="flex items-center gap-3 mb-4">
+                        <div className="flex items-center gap-3 mb-6">
                           <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
                             <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                           </div>
                           <div>
-                            <h3 className="text-base font-medium text-slate-900">Action taken</h3>
-                            <p className="text-xs text-slate-500">You choose when to act — linked back to the original thought</p>
+                            <h3 className="text-base font-medium text-slate-900">Actions taken</h3>
+                            <p className="text-xs text-slate-500">You choose when to act — always linked back to the original thought</p>
                           </div>
                         </div>
-                        <div className="bg-emerald-50 rounded-lg p-4 border border-emerald-200">
-                          <div className="flex items-start gap-3">
-                            <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                              </svg>
+                        <div className="space-y-3">
+                          {/* Action 1: LinkedIn */}
+                          <div className="bg-emerald-50 rounded-lg p-4 border border-emerald-200 hover:bg-emerald-100/50 transition-colors">
+                            <div className="flex items-start gap-3">
+                              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <Linkedin className="w-4 h-4 text-white" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <p className="text-sm font-semibold text-slate-900">Posted on LinkedIn</p>
+                                  <div className="w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                  </div>
+                                </div>
+                                <p className="text-xs text-slate-600 mb-1">"AI 10x's whatever you give it—quality gates aren't optional anymore."</p>
+                                <p className="text-xs text-slate-500 italic">From: "AI is really accelerating everything..."</p>
+                              </div>
                             </div>
-                            <div className="flex-1">
-                              <p className="text-sm font-medium text-slate-900 mb-1">Posted on LinkedIn</p>
-                              <p className="text-xs text-slate-600">Using the draft from Potential</p>
-                              <p className="text-xs text-slate-500 mt-2 italic">Always connected to your original thought</p>
+                          </div>
+
+                          {/* Action 2: Twitter */}
+                          <div className="bg-emerald-50 rounded-lg p-4 border border-emerald-200 hover:bg-emerald-100/50 transition-colors">
+                            <div className="flex items-start gap-3">
+                              <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center flex-shrink-0">
+                                <Twitter className="w-4 h-4 text-white" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <p className="text-sm font-semibold text-slate-900">Posted on Twitter</p>
+                                  <div className="w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                  </div>
+                                </div>
+                                <p className="text-xs text-slate-600 mb-1">"AI 10x's whatever you give it. Quality gates aren't optional anymore. 🚀"</p>
+                                <p className="text-xs text-slate-500 italic">From: "AI is really accelerating everything..."</p>
+                              </div>
                             </div>
                           </div>
                         </div>
