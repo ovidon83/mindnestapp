@@ -674,6 +674,263 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </div>
           </section>
 
+          {/* Main Thoughts View Section */}
+          <section className="py-16 sm:py-20 lg:py-24 bg-white relative overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+              <div className="text-center mb-12 sm:mb-16">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-4">
+                  All your <span className="bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 bg-clip-text text-transparent italic">thoughts</span>
+                </h2>
+                <p className="text-base sm:text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto">
+                  Every thought captured, organized, and ready to become something more.
+                </p>
+              </div>
+
+              <div className="max-w-6xl mx-auto">
+                {/* Search Bar Preview */}
+                <div className="mb-8 flex items-center justify-center">
+                  <div className="relative w-full max-w-md">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+                    <input
+                      type="text"
+                      placeholder="Search your thoughts..."
+                      className="w-full pl-10 pr-4 py-3 bg-white rounded-xl border-2 border-slate-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
+                      readOnly
+                    />
+                  </div>
+                </div>
+
+                {/* Thoughts Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {/* Work - Tech - Spark + Potential */}
+                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
+                        AI speeds everything up. Good and bad stuff. 10x multiplier.
+                      </h3>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap mb-3">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-amber-100 text-amber-700">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                        </svg>
+                        Spark
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-700">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Potential
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        2 days ago
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Personal - Positive - Regular thought */}
+                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
+                        Morning coffee ritual is my favorite part of the day
+                      </h3>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap mb-3">
+                      <span className="px-2 py-0.5 text-xs text-slate-600 bg-slate-50 rounded-md">routine</span>
+                      <span className="px-2 py-0.5 text-xs text-slate-600 bg-slate-50 rounded-md">wellbeing</span>
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        3 days ago
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Work - Challenging - Insight */}
+                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
+                        Team meetings feel unproductive. Too many voices, no clear decisions.
+                      </h3>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap mb-3">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-indigo-100 text-indigo-700">
+                        <Lightbulb className="w-3 h-3" />
+                        Insight
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        1 day ago
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Personal - Positive - To-Do */}
+                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
+                        Need to spend more time in nature!
+                      </h3>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap mb-3">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-emerald-100 text-emerald-700">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        To-Do
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        1 week ago
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Tech - Work - Spark only */}
+                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
+                        AI can give startups a false sense of speed
+                      </h3>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap mb-3">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-amber-100 text-amber-700">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                        </svg>
+                        Spark
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        1 week ago
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Work - Action taken */}
+                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
+                        Quality gates aren't optional anymore
+                      </h3>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap mb-3">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-emerald-100 text-emerald-700">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Action
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        3 days ago
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Tech - Insight + Potential */}
+                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
+                        Technical debt compounds faster with AI
+                      </h3>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap mb-3">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-indigo-100 text-indigo-700">
+                        <Lightbulb className="w-3 h-3" />
+                        Insight
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-700">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Potential
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        4 days ago
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Personal - Challenging - Regular thought */}
+                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
+                        Feeling overwhelmed with information overload lately
+                      </h3>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap mb-3">
+                      <span className="px-2 py-0.5 text-xs text-slate-600 bg-slate-50 rounded-md">personal</span>
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        5 days ago
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Work - Positive - Regular thought */}
+                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
+                        Finally found a solution to that bug. Feels great!
+                      </h3>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap mb-3">
+                      <span className="px-2 py-0.5 text-xs text-slate-600 bg-slate-50 rounded-md">work</span>
+                      <span className="px-2 py-0.5 text-xs text-slate-600 bg-slate-50 rounded-md">win</span>
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        6 hours ago
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Personal - Positive - Journal entry */}
+                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
+                        Grateful for the quiet moments that help me recharge
+                      </h3>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap mb-3">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-amber-100 text-amber-700">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                        Journal
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        1 week ago
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* Sparks Section */}
           <section className="py-16 sm:py-20 lg:py-24 bg-white relative overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -898,243 +1155,6 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                           <p className="text-xs text-slate-500 italic">From: "AI speeds everything up. Good and bad stuff. 10x multiplier."</p>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Main Thoughts View Section */}
-          <section className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-white via-slate-50/30 to-white relative overflow-hidden">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-              <div className="text-center mb-12 sm:mb-16">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-4">
-                  All your <span className="bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 bg-clip-text text-transparent italic">thoughts</span>
-                </h2>
-                <p className="text-base sm:text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto">
-                  Every thought captured, organized, and ready to become something more.
-                </p>
-              </div>
-
-              <div className="max-w-6xl mx-auto">
-                {/* Search Bar Preview */}
-                <div className="mb-8 flex items-center justify-center">
-                  <div className="relative w-full max-w-md">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
-                    <input
-                      type="text"
-                      placeholder="Search your thoughts..."
-                      className="w-full pl-10 pr-4 py-3 bg-white rounded-xl border-2 border-slate-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
-                      readOnly
-                    />
-                  </div>
-                </div>
-
-                {/* Thoughts Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {/* Thought Card 1 - Spark + Potential */}
-                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
-                        AI speeds everything up. Good and bad stuff. 10x multiplier.
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap mb-3">
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-amber-100 text-amber-700">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                        </svg>
-                        Spark
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-700">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                        Potential
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        2 days ago
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Thought Card 2 - Insight only */}
-                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
-                        I see lack of authenticity in social media
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap mb-3">
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-indigo-100 text-indigo-700">
-                        <Lightbulb className="w-3 h-3" />
-                        Insight
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        5 days ago
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Thought Card 3 - To-Do */}
-                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
-                        Need to spend more time in nature!
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap mb-3">
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-emerald-100 text-emerald-700">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                        To-Do
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        1 week ago
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Thought Card 4 - Regular thought with tags */}
-                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
-                        Morning coffee ritual is my favorite part of the day
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap mb-3">
-                      <span className="px-2 py-0.5 text-xs text-slate-600 bg-slate-50 rounded-md">routine</span>
-                      <span className="px-2 py-0.5 text-xs text-slate-600 bg-slate-50 rounded-md">wellbeing</span>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        3 days ago
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Thought Card 5 - Spark only */}
-                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
-                        AI can give startups a false sense of speed
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap mb-3">
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-amber-100 text-amber-700">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                        </svg>
-                        Spark
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        1 week ago
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Thought Card 6 - Action taken */}
-                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
-                        Quality gates aren't optional anymore
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap mb-3">
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-emerald-100 text-emerald-700">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Action
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        3 days ago
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Thought Card 7 - Insight + Potential */}
-                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
-                        Technical debt compounds faster with AI
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap mb-3">
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-indigo-100 text-indigo-700">
-                        <Lightbulb className="w-3 h-3" />
-                        Insight
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-700">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                        Potential
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        4 days ago
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Thought Card 8 - Regular thought, no badges */}
-                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
-                        Why do we optimize for busy instead of effective?
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap mb-3">
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        6 days ago
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Thought Card 9 - Journal entry */}
-                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
-                        Today I realized that building in public...
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap mb-3">
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-amber-100 text-amber-700">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                        </svg>
-                        Journal
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        1 week ago
-                      </span>
                     </div>
                   </div>
                 </div>
