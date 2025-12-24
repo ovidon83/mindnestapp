@@ -692,14 +692,12 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 </div>
 
                 {/* Subtle Transition */}
-                <div className="relative flex items-center justify-center py-2">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-slate-200"></div>
-                  </div>
-                  <div className="relative bg-white px-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-md">
-                      <Brain className="w-4 h-4 text-white" />
-                    </div>
+                <div className="flex items-center justify-center py-4">
+                  <div className="flex flex-col items-center gap-1">
+                    <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                    <div className="w-px h-4 bg-gradient-to-b from-blue-300 to-purple-300"></div>
                   </div>
                 </div>
 
