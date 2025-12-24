@@ -1,5 +1,8 @@
 export type AppView = 'capture' | 'thoughts' | 'actions' | 'profile';
 
+// Legacy type for backward compatibility
+export type EntryType = 'todo' | 'insight' | 'journal';
+
 export type Tag = 'work' | 'soccer' | 'family' | 'spirituality' | 'business' | 'tech' | 'health' | 'other';
 
 export type PotentialType = 'Post' | 'Conversation' | 'Explore Further' | 'Email' | 'Article' | 'Project';

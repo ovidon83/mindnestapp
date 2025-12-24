@@ -48,7 +48,7 @@ const App: React.FC = () => {
     });
 
     return () => subscription?.unsubscribe();
-  }, [setUser, loadEntries]);
+  }, [setUser, loadThoughts, loadActions]);
 
   // Show error if Supabase credentials are missing
   if (!hasSupabaseCredentials) {
