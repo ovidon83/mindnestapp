@@ -840,33 +840,6 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     </div>
                   </div>
 
-                  {/* Tech - Insight + Potential */}
-                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
-                        Technical debt compounds faster with AI
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap mb-3">
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-indigo-100 text-indigo-700">
-                        <Lightbulb className="w-3 h-3" />
-                        Insight
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-700">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                        Potential
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        4 days ago
-                      </span>
-                    </div>
-                  </div>
-
                   {/* Personal - Challenging - Regular thought */}
                   <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
                     <div className="flex items-start justify-between gap-3 mb-3">
