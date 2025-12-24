@@ -1017,7 +1017,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold text-slate-900 mb-6">Share with the world</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {/* LinkedIn */}
+                      {/* LinkedIn - Long-form professional content */}
                       <div className="bg-white rounded-lg border-2 border-blue-100 shadow-sm overflow-hidden">
                         <div className="p-3 bg-blue-50 flex items-center gap-2 border-b border-blue-100">
                           <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
@@ -1027,22 +1027,27 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                             <div className="text-xs font-semibold text-gray-900 truncate">{userName}</div>
                             <div className="text-[10px] text-gray-500">Developer • 1st</div>
                           </div>
-                          <Linkedin className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                          <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center flex-shrink-0">
+                            <Linkedin className="w-4 h-4 text-white" />
+                          </div>
                         </div>
-                        <div className="p-3">
-                          <p className="text-xs text-gray-900 leading-relaxed font-medium mb-2">
+                        <div className="p-4">
+                          <p className="text-xs text-gray-900 leading-relaxed mb-3">
                             AI doesn't just accelerate your work. It amplifies everything—including your mistakes.
                           </p>
-                          <p className="text-xs text-gray-900 leading-relaxed mb-2">
-                            Give it messy code? You'll ship 10x messier code faster. Give it clear problems? You'll get 10x better solutions.
+                          <p className="text-xs text-gray-900 leading-relaxed mb-3">
+                            Give it messy code? You'll ship 10x messier code faster. Give it clear problems? You'll get 10x better solutions. Give it well-defined processes? You'll scale 10x more effectively.
+                          </p>
+                          <p className="text-xs text-gray-900 leading-relaxed mb-3">
+                            The lesson here is simple: quality gates and alignment aren't optional anymore. They're survival. Without them, AI becomes a force multiplier for chaos rather than progress.
                           </p>
                           <p className="text-xs text-gray-900 leading-relaxed">
-                            Quality gates aren't optional anymore. They're survival.
+                            What are you feeding your AI? That's the question every team should be asking themselves daily.
                           </p>
                         </div>
                       </div>
 
-                      {/* X */}
+                      {/* X - Short and punchy */}
                       <div className="bg-white rounded-lg border-2 border-slate-200 shadow-sm overflow-hidden">
                         <div className="p-3 bg-white flex items-center gap-2 border-b border-slate-200">
                           <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center flex-shrink-0">
@@ -1052,16 +1057,18 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                             <div className="text-xs font-semibold text-gray-900 truncate">{userName}</div>
                             <div className="text-[10px] text-gray-500">@username</div>
                           </div>
-                          <Twitter className="w-4 h-4 text-sky-500 flex-shrink-0" />
+                          <div className="w-6 h-6 bg-black rounded flex items-center justify-center flex-shrink-0">
+                            <Twitter className="w-4 h-4 text-white" />
+                          </div>
                         </div>
                         <div className="p-3">
-                          <p className="text-xs text-gray-900 leading-relaxed">
+                          <p className="text-sm text-gray-900 leading-relaxed">
                             AI 10x's whatever you give it. Quality gates aren't optional anymore. 🚀
                           </p>
                         </div>
                       </div>
 
-                      {/* Instagram */}
+                      {/* Instagram - Medium length, personal */}
                       <div className="bg-white rounded-lg border-2 border-rose-100 shadow-sm overflow-hidden">
                         <div className="p-2 bg-white flex items-center justify-between border-b border-rose-100">
                           <div className="flex items-center gap-2">
@@ -1070,18 +1077,23 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                             </div>
                             <span className="text-xs font-semibold text-gray-900">{userName.toLowerCase().replace(/\s+/g, '')}</span>
                           </div>
-                          <Instagram className="w-4 h-4 text-rose-600 flex-shrink-0" />
+                          <div className="w-6 h-6 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded flex items-center justify-center flex-shrink-0">
+                            <Instagram className="w-4 h-4 text-white" />
+                          </div>
                         </div>
                         <div className="aspect-square bg-gradient-to-br from-purple-100 via-pink-100 to-orange-100 flex items-center justify-center">
                           <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
                         </div>
-                        <div className="p-2">
-                          <p className="text-xs text-gray-900 leading-relaxed">
-                            <span className="font-semibold">{userName.toLowerCase().replace(/\s+/g, '')}</span> AI accelerates everything—bugs, technical debt, bad decisions. It 10x's whatever you put in. Quality gates are non-negotiable. 💡
+                        <div className="p-3">
+                          <p className="text-xs text-gray-900 leading-relaxed mb-2">
+                            <span className="font-semibold">{userName.toLowerCase().replace(/\s+/g, '')}</span> AI accelerates everything—bugs, technical debt, bad decisions. It 10x's whatever you put in.
                           </p>
-                          <p className="text-xs text-gray-500 mt-1.5">#AI #Tech #QualityGates</p>
+                          <p className="text-xs text-gray-900 leading-relaxed">
+                            The real lesson? Quality gates are non-negotiable. Without them, you're just moving faster in the wrong direction. 💡
+                          </p>
+                          <p className="text-xs text-gray-500 mt-2">#AI #Tech #QualityGates #Development</p>
                         </div>
                       </div>
                     </div>
