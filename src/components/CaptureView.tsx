@@ -640,277 +640,268 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </div>
           </div>
 
-          {/* Showcase Section - Redesigned */}
+          {/* Capture Section */}
           <section className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-white via-slate-50/30 to-white relative overflow-hidden">
-            {/* Enhanced decorative elements */}
-            <div className="absolute top-20 left-10 w-64 h-64 bg-pink-100/30 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-20 right-10 w-56 h-56 bg-orange-100/30 rounded-full blur-3xl"></div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-100/20 rounded-full blur-3xl"></div>
-            
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
               <div className="text-center mb-12 sm:mb-16">
                 <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-4">
-                  See it in <span className="bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 bg-clip-text text-transparent italic">action</span>
+                  <span className="bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent">Capture</span>
                 </h2>
                 <p className="text-base sm:text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto">
-                  How a single thought turns into meaning and action over time.
+                  Voice or text, instantly. Your thoughts saved as living entities.
                 </p>
               </div>
 
-              {/* Flow: Capture → Spark → Potential → Action */}
-              <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
-                
-                {/* User Section */}
-                <div className="bg-white rounded-2xl p-6 sm:p-8 border-2 border-blue-300 relative">
-                  <div className="absolute -top-3 left-6 bg-white px-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
-                        <span className="text-white text-[10px] font-bold">You</span>
-                      </div>
-                      <h3 className="text-xs font-semibold text-blue-700 uppercase tracking-wide">What you do</h3>
+              <div className="max-w-3xl mx-auto">
+                <div className="bg-white rounded-2xl shadow-xl border-2 border-blue-200 p-6 sm:p-8">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                      <Mic className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-900">You capture</h3>
+                      <p className="text-sm text-slate-500">Any thought, anytime</p>
                     </div>
                   </div>
-                  
-                  {/* Step 1: Raw Thought Captured */}
-                  <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 sm:p-8 mt-2">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <Mic className="w-4 h-4 text-blue-600" />
-                      </div>
-                      <div>
-                        <h3 className="text-base font-medium text-slate-900">You capture</h3>
-                        <p className="text-xs text-slate-500">Voice or text, instantly</p>
-                      </div>
-                    </div>
-                    <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-                      <p className="text-sm sm:text-base text-slate-800 leading-relaxed italic">
-                        "AI speeds everything up. Good and bad stuff. 10x multiplier."
-                      </p>
-                    </div>
-                    <p className="text-xs text-slate-500 mt-3 italic">Saved as a living thought — always editable</p>
+                  <div className="bg-slate-50 rounded-xl p-6 border-2 border-slate-200">
+                    <p className="text-base sm:text-lg text-slate-800 leading-relaxed italic">
+                      "AI speeds everything up. Good and bad stuff. 10x multiplier."
+                    </p>
                   </div>
+                  <p className="text-xs text-slate-500 mt-4 text-center italic">Saved as a living thought — always editable</p>
                 </div>
+              </div>
+            </div>
+          </section>
 
-                {/* Elegant Transition */}
-                <div className="flex items-center justify-center py-6">
-                  <div className="relative">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 flex items-center justify-center border-2 border-slate-200">
-                      <svg className="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Thouthy Section */}
-                <div className="bg-white rounded-2xl p-6 sm:p-8 border-2 border-purple-300 relative">
-                  <div className="absolute -top-3 left-6 bg-white px-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center">
-                        <Sparkles className="w-3 h-3 text-white" />
-                      </div>
-                      <h3 className="text-xs font-semibold text-purple-700 uppercase tracking-wide">What Thouthy does</h3>
-                    </div>
-                  </div>
-
-                    {/* Step 2: Spark Detected */}
-                    <div className="relative mb-6">
-                      <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-amber-200 to-amber-300 transform -translate-x-1/2 hidden sm:block"></div>
-                      <div className="bg-white rounded-xl shadow-md border-2 border-amber-200 p-6 sm:p-8 relative">
-                        <div className="flex items-center gap-3 mb-4">
-                          <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
-                            <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                            </svg>
-                          </div>
-                          <div>
-                            <h3 className="text-base font-medium text-slate-900">Spark detected</h3>
-                            <p className="text-xs text-slate-500">Automatically — a sign this thought matters</p>
-                          </div>
-                        </div>
-                        <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
-                          <p className="text-sm text-slate-700 mb-2">
-                            <span className="font-semibold text-amber-700">Why it matters:</span> Strong opinion, clear problem, recurring theme
-                          </p>
-                          <p className="text-xs text-slate-600 italic">You can also mark thoughts as Sparks yourself</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Step 3: Potential Revealed */}
-                    <div className="relative mb-6">
-                      <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-purple-200 to-purple-300 transform -translate-x-1/2 hidden sm:block"></div>
-                      <div className="bg-white rounded-xl shadow-md border-2 border-purple-200 p-6 sm:p-8 relative">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="text-base font-medium text-slate-900">This thought could become...</h3>
-                        <p className="text-xs text-slate-500">Potential revealed</p>
-                      </div>
-                    </div>
-
-                    {/* Share with the world - Platform Specific */}
-                    <div className="mb-6">
-                      <h4 className="text-sm font-semibold text-slate-700 mb-4">Share with the world</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {/* LinkedIn - Professional, value-driven, hook + story + insight */}
-                        <div className="bg-white rounded-lg border-2 border-blue-100 shadow-sm overflow-hidden">
-                          <div className="p-3 bg-blue-50 flex items-center gap-2 border-b border-blue-100">
-                            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-                              <span className="text-white text-xs font-bold">{userInitials}</span>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-xs font-semibold text-gray-900 truncate">{userName}</div>
-                              <div className="text-[10px] text-gray-500">Developer • 1st</div>
-                            </div>
-                            <Linkedin className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                          </div>
-                          <div className="p-3">
-                            <p className="text-xs text-gray-900 leading-relaxed font-medium mb-2">
-                              AI doesn't just accelerate your work. It amplifies everything—including your mistakes.
-                            </p>
-                            <p className="text-xs text-gray-900 leading-relaxed mb-2">
-                              Give it messy code? You'll ship 10x messier code faster. Give it clear problems? You'll get 10x better solutions.
-                            </p>
-                            <p className="text-xs text-gray-900 leading-relaxed mb-2">
-                              The lesson: quality gates and alignment aren't optional anymore. They're survival.
-                            </p>
-                            <p className="text-xs text-gray-900 leading-relaxed">
-                              What are you feeding your AI?
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* X - Short, punchy, conversational */}
-                        <div className="bg-white rounded-lg border-2 border-slate-200 shadow-sm overflow-hidden">
-                          <div className="p-3 bg-white flex items-center gap-2 border-b border-slate-200">
-                            <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center flex-shrink-0">
-                              <span className="text-white text-xs font-bold">{userInitials}</span>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-xs font-semibold text-gray-900 truncate">{userName}</div>
-                              <div className="text-[10px] text-gray-500">@username</div>
-                            </div>
-                            <Twitter className="w-4 h-4 text-sky-500 flex-shrink-0" />
-                          </div>
-                          <div className="p-3">
-                            <p className="text-xs text-gray-900 leading-relaxed">
-                              AI 10x's whatever you give it. Quality gates aren't optional anymore. 🚀
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Instagram - Visual-first, personal, engaging, emojis */}
-                        <div className="bg-white rounded-lg border-2 border-rose-100 shadow-sm overflow-hidden">
-                          <div className="p-2 bg-white flex items-center justify-between border-b border-rose-100">
-                            <div className="flex items-center gap-2">
-                              <div className="w-7 h-7 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
-                                <span className="text-white text-[10px] font-bold">{userInitials}</span>
-                              </div>
-                              <span className="text-xs font-semibold text-gray-900">{userName.toLowerCase().replace(/\s+/g, '')}</span>
-                            </div>
-                            <Instagram className="w-4 h-4 text-rose-600 flex-shrink-0" />
-                          </div>
-                          <div className="aspect-square bg-gradient-to-br from-purple-100 via-pink-100 to-orange-100 flex items-center justify-center">
-                            <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                          </div>
-                          <div className="p-2">
-                            <p className="text-xs text-gray-900 leading-relaxed">
-                              <span className="font-semibold">{userName.toLowerCase().replace(/\s+/g, '')}</span> AI accelerates everything—bugs, technical debt, bad decisions. It 10x's whatever you put in. Quality gates are non-negotiable. 💡
-                            </p>
-                            <p className="text-xs text-gray-500 mt-1.5">#AI #Tech #QualityGates</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Idea to Explore */}
-                    <div className="mb-6">
-                      <h4 className="text-sm font-semibold text-slate-700 mb-4">Idea to explore</h4>
-                      <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-                        <div className="space-y-2">
-                          <p className="text-xs text-slate-600">• Research AI quality frameworks and best practices</p>
-                          <p className="text-xs text-slate-600">• Explore technical debt measurement tools</p>
-                          <p className="text-xs text-slate-600">• Document quality gates for AI-assisted development</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-slate-500 mt-6 italic text-center">You can add your own Potential anytime</p>
-                  </div>
-                </div>
-
-                    {/* Step 4: Action Taken */}
-                    <div className="relative">
-                      <div className="bg-white rounded-xl shadow-md border-2 border-emerald-200 p-6 sm:p-8">
-                        <div className="flex items-center gap-3 mb-6">
-                          <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
-                            <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                          </div>
-                          <div>
-                            <h3 className="text-base font-medium text-slate-900">Actions taken</h3>
-                            <p className="text-xs text-slate-500">You choose when to act — always linked back to the original thought</p>
-                          </div>
-                        </div>
-                        <div className="space-y-3">
-                          {/* Action 1: LinkedIn */}
-                          <div className="bg-emerald-50 rounded-lg p-4 border border-emerald-200 hover:bg-emerald-100/50 transition-colors">
-                            <div className="flex items-start gap-3">
-                              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <Linkedin className="w-4 h-4 text-white" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <p className="text-sm font-semibold text-slate-900">Posted on LinkedIn</p>
-                                  <div className="w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                  </div>
-                                </div>
-                                <p className="text-xs text-slate-600 mb-1">"AI doesn't just accelerate your work. It amplifies everything—including your mistakes. Give it messy code? You'll ship 10x messier code faster. Quality gates aren't optional anymore."</p>
-                                <p className="text-xs text-slate-500 italic">From: "AI speeds everything up. Good and bad stuff. 10x multiplier."</p>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Action 2: Document */}
-                          <div className="bg-emerald-50 rounded-lg p-4 border border-emerald-200 hover:bg-emerald-100/50 transition-colors">
-                            <div className="flex items-start gap-3">
-                              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <p className="text-sm font-semibold text-slate-900">Document created</p>
-                                  <div className="w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                  </div>
-                                </div>
-                                <p className="text-xs text-slate-600 mb-1">Created guide: "Quality Gates for AI-Assisted Development" - Framework for ensuring AI amplifies quality, not technical debt</p>
-                                <p className="text-xs text-slate-500 italic">From: "AI speeds everything up. Good and bad stuff. 10x multiplier."</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                </div>
-
+          {/* Sparks Section */}
+          <section className="py-16 sm:py-20 lg:py-24 bg-white relative overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+              <div className="text-center mb-12 sm:mb-16">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-4">
+                  <span className="bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">Sparks</span>
+                </h2>
+                <p className="text-base sm:text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto">
+                  Automatically detected signs that a thought matters.
+                </p>
               </div>
 
+              <div className="max-w-5xl mx-auto">
+                <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl shadow-xl border-2 border-amber-200 p-6 sm:p-8 lg:p-10">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="bg-white rounded-xl p-5 border border-amber-200">
+                      <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center mb-3">
+                        <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                        </svg>
+                      </div>
+                      <h4 className="text-sm font-semibold text-slate-900 mb-2">Strong Opinion</h4>
+                      <p className="text-xs text-slate-600">Clear stance or conviction</p>
+                    </div>
+                    <div className="bg-white rounded-xl p-5 border border-amber-200">
+                      <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center mb-3">
+                        <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <h4 className="text-sm font-semibold text-slate-900 mb-2">Clear Problem</h4>
+                      <p className="text-xs text-slate-600">Identifies a specific issue</p>
+                    </div>
+                    <div className="bg-white rounded-xl p-5 border border-amber-200">
+                      <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center mb-3">
+                        <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                      </div>
+                      <h4 className="text-sm font-semibold text-slate-900 mb-2">Recurring Theme</h4>
+                      <p className="text-xs text-slate-600">Appears multiple times</p>
+                    </div>
+                  </div>
+                  <div className="mt-8 bg-white rounded-xl p-5 border-2 border-amber-300">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-slate-900 mb-1">Example: Spark Detected</p>
+                        <p className="text-xs text-slate-600 mb-2">"AI speeds everything up. Good and bad stuff. 10x multiplier."</p>
+                        <p className="text-xs text-amber-700 font-medium">Why: Strong opinion + Clear problem</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Potentials Section */}
+          <section className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-white via-slate-50/30 to-white relative overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+              <div className="text-center mb-12 sm:mb-16">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-4">
+                  <span className="bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">Potentials</span>
+                </h2>
+                <p className="text-base sm:text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto">
+                  What your thoughts could become — with drafts ready to use.
+                </p>
+              </div>
+
+              <div className="max-w-5xl mx-auto">
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl shadow-xl border-2 border-purple-200 p-6 sm:p-8 lg:p-10">
+                  
+                  {/* Share with the world */}
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold text-slate-900 mb-6">Share with the world</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {/* LinkedIn */}
+                      <div className="bg-white rounded-lg border-2 border-blue-100 shadow-sm overflow-hidden">
+                        <div className="p-3 bg-blue-50 flex items-center gap-2 border-b border-blue-100">
+                          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                            <span className="text-white text-xs font-bold">{userInitials}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs font-semibold text-gray-900 truncate">{userName}</div>
+                            <div className="text-[10px] text-gray-500">Developer • 1st</div>
+                          </div>
+                          <Linkedin className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                        </div>
+                        <div className="p-3">
+                          <p className="text-xs text-gray-900 leading-relaxed font-medium mb-2">
+                            AI doesn't just accelerate your work. It amplifies everything—including your mistakes.
+                          </p>
+                          <p className="text-xs text-gray-900 leading-relaxed mb-2">
+                            Give it messy code? You'll ship 10x messier code faster. Give it clear problems? You'll get 10x better solutions.
+                          </p>
+                          <p className="text-xs text-gray-900 leading-relaxed">
+                            Quality gates aren't optional anymore. They're survival.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* X */}
+                      <div className="bg-white rounded-lg border-2 border-slate-200 shadow-sm overflow-hidden">
+                        <div className="p-3 bg-white flex items-center gap-2 border-b border-slate-200">
+                          <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center flex-shrink-0">
+                            <span className="text-white text-xs font-bold">{userInitials}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs font-semibold text-gray-900 truncate">{userName}</div>
+                            <div className="text-[10px] text-gray-500">@username</div>
+                          </div>
+                          <Twitter className="w-4 h-4 text-sky-500 flex-shrink-0" />
+                        </div>
+                        <div className="p-3">
+                          <p className="text-xs text-gray-900 leading-relaxed">
+                            AI 10x's whatever you give it. Quality gates aren't optional anymore. 🚀
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Instagram */}
+                      <div className="bg-white rounded-lg border-2 border-rose-100 shadow-sm overflow-hidden">
+                        <div className="p-2 bg-white flex items-center justify-between border-b border-rose-100">
+                          <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+                              <span className="text-white text-[10px] font-bold">{userInitials}</span>
+                            </div>
+                            <span className="text-xs font-semibold text-gray-900">{userName.toLowerCase().replace(/\s+/g, '')}</span>
+                          </div>
+                          <Instagram className="w-4 h-4 text-rose-600 flex-shrink-0" />
+                        </div>
+                        <div className="aspect-square bg-gradient-to-br from-purple-100 via-pink-100 to-orange-100 flex items-center justify-center">
+                          <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                        <div className="p-2">
+                          <p className="text-xs text-gray-900 leading-relaxed">
+                            <span className="font-semibold">{userName.toLowerCase().replace(/\s+/g, '')}</span> AI accelerates everything—bugs, technical debt, bad decisions. It 10x's whatever you put in. Quality gates are non-negotiable. 💡
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1.5">#AI #Tech #QualityGates</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Idea to explore */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-4">Idea to explore</h3>
+                    <div className="bg-white rounded-lg p-4 border border-slate-200">
+                      <div className="space-y-2">
+                        <p className="text-xs text-slate-600">• Research AI quality frameworks and best practices</p>
+                        <p className="text-xs text-slate-600">• Explore technical debt measurement tools</p>
+                        <p className="text-xs text-slate-600">• Document quality gates for AI-assisted development</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Actions Section */}
+          <section className="py-16 sm:py-20 lg:py-24 bg-white relative overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+              <div className="text-center mb-12 sm:mb-16">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-4">
+                  <span className="bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent">Actions</span>
+                </h2>
+                <p className="text-base sm:text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto">
+                  When you choose to act, everything links back to your original thought.
+                </p>
+              </div>
+
+              <div className="max-w-5xl mx-auto">
+                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl shadow-xl border-2 border-emerald-200 p-6 sm:p-8 lg:p-10">
+                  <div className="space-y-4">
+                    {/* Action 1: LinkedIn */}
+                    <div className="bg-white rounded-lg p-5 border-2 border-emerald-200 hover:border-emerald-300 transition-colors">
+                      <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Linkedin className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2">
+                            <p className="text-sm font-semibold text-slate-900">Posted on LinkedIn</p>
+                            <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+                              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                          </div>
+                          <p className="text-xs text-slate-600 mb-2">"AI doesn't just accelerate your work. It amplifies everything—including your mistakes. Give it messy code? You'll ship 10x messier code faster. Quality gates aren't optional anymore."</p>
+                          <p className="text-xs text-slate-500 italic">From: "AI speeds everything up. Good and bad stuff. 10x multiplier."</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action 2: Document */}
+                    <div className="bg-white rounded-lg p-5 border-2 border-emerald-200 hover:border-emerald-300 transition-colors">
+                      <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2">
+                            <p className="text-sm font-semibold text-slate-900">Document created</p>
+                            <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+                              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                          </div>
+                          <p className="text-xs text-slate-600 mb-2">Created guide: "Quality Gates for AI-Assisted Development" - Framework for ensuring AI amplifies quality, not technical debt</p>
+                          <p className="text-xs text-slate-500 italic">From: "AI speeds everything up. Good and bad stuff. 10x multiplier."</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
 
