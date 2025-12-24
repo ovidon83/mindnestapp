@@ -942,7 +942,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
 
                 {/* Thoughts Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {/* Thought Card 1 */}
+                  {/* Thought Card 1 - Spark + Potential */}
                   <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
                     <div className="flex items-start justify-between gap-3 mb-3">
                       <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
@@ -971,7 +971,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     </div>
                   </div>
 
-                  {/* Thought Card 2 */}
+                  {/* Thought Card 2 - Insight only */}
                   <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
                     <div className="flex items-start justify-between gap-3 mb-3">
                       <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
@@ -992,7 +992,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     </div>
                   </div>
 
-                  {/* Thought Card 3 */}
+                  {/* Thought Card 3 - To-Do */}
                   <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
                     <div className="flex items-start justify-between gap-3 mb-3">
                       <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
@@ -1015,7 +1015,26 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     </div>
                   </div>
 
-                  {/* Thought Card 4 */}
+                  {/* Thought Card 4 - Regular thought with tags */}
+                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
+                        Morning coffee ritual is my favorite part of the day
+                      </h3>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap mb-3">
+                      <span className="px-2 py-0.5 text-xs text-slate-600 bg-slate-50 rounded-md">routine</span>
+                      <span className="px-2 py-0.5 text-xs text-slate-600 bg-slate-50 rounded-md">wellbeing</span>
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        3 days ago
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Thought Card 5 - Spark only */}
                   <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
                     <div className="flex items-start justify-between gap-3 mb-3">
                       <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
@@ -1038,7 +1057,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     </div>
                   </div>
 
-                  {/* Thought Card 5 */}
+                  {/* Thought Card 6 - Action taken */}
                   <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
                     <div className="flex items-start justify-between gap-3 mb-3">
                       <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
@@ -1061,7 +1080,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     </div>
                   </div>
 
-                  {/* Thought Card 6 */}
+                  {/* Thought Card 7 - Insight + Potential */}
                   <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
                     <div className="flex items-start justify-between gap-3 mb-3">
                       <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
@@ -1084,6 +1103,46 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         4 days ago
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Thought Card 8 - Regular thought, no badges */}
+                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
+                        Why do we optimize for busy instead of effective?
+                      </h3>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap mb-3">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        6 days ago
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Thought Card 9 - Journal entry */}
+                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
+                        Today I realized that building in public...
+                      </h3>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap mb-3">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-amber-100 text-amber-700">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                        Journal
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        1 week ago
                       </span>
                     </div>
                   </div>
