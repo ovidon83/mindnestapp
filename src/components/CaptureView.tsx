@@ -726,19 +726,19 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   </div>
                 </div>
 
-                {/* Step 2: Thought Appears */}
+                {/* Step 2: All Your Thoughts */}
                 <div className="relative">
                   <div className="flex items-center gap-4 mb-6">
                     <div className="flex-shrink-0 w-12 h-12 bg-slate-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
                       2
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-slate-900">Thought Saved</h3>
-                      <p className="text-sm text-slate-600">Appears in your Thoughts view</p>
+                      <h3 className="text-xl font-bold text-slate-900">All Your Thoughts</h3>
+                      <p className="text-sm text-slate-600">Every thought captured, organized, and ready</p>
                     </div>
                   </div>
                   
-                  {/* App Mockup - Thoughts View */}
+                  {/* App Mockup - Thoughts View with Grid */}
                   <div className="bg-white rounded-2xl shadow-2xl border-2 border-slate-200 overflow-hidden">
                     <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
                       <h3 className="text-xl font-bold text-slate-900">Thoughts</h3>
@@ -749,15 +749,56 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       </div>
                     </div>
                     <div className="p-6">
-                      <div className="bg-white rounded-xl border-2 border-blue-300 p-6 shadow-sm">
-                        <p className="text-slate-900 text-lg leading-relaxed mb-4">
-                          AI speeds everything up. Good and bad stuff. 10x multiplier.
-                        </p>
-                        <p className="text-sm text-slate-500 mb-4">AI-generated summary of the thought</p>
-                        <div className="flex items-center gap-2">
-                          <span className="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded">tech</span>
-                          <span className="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded">work</span>
-                          <span className="text-xs text-slate-400 ml-auto">Just now</span>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {/* Main thought - highlighted */}
+                        <div className="bg-white rounded-xl border-2 border-blue-300 p-4 shadow-sm">
+                          <p className="text-slate-900 text-sm font-semibold mb-3 line-clamp-2">
+                            AI speeds everything up. Good and bad stuff. 10x multiplier.
+                          </p>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded">tech</span>
+                            <span className="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded">work</span>
+                            <span className="text-xs text-slate-400 ml-auto">Just now</span>
+                          </div>
+                        </div>
+                        
+                        {/* Other thoughts */}
+                        <div className="bg-white rounded-xl border-2 border-slate-100 p-4">
+                          <p className="text-slate-900 text-sm font-semibold mb-3 line-clamp-2">
+                            Morning coffee ritual is my favorite part of the day
+                          </p>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="px-2 py-0.5 text-xs text-slate-600 bg-slate-50 rounded-md">routine</span>
+                            <span className="text-xs text-slate-400 ml-auto">3 days ago</span>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-white rounded-xl border-2 border-slate-100 p-4">
+                          <p className="text-slate-900 text-sm font-semibold mb-3 line-clamp-2">
+                            Team meetings feel unproductive. Too many voices, no clear decisions.
+                          </p>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-indigo-100 text-indigo-700">
+                              <Lightbulb className="w-3 h-3" />
+                              Insight
+                            </span>
+                            <span className="text-xs text-slate-400 ml-auto">1 day ago</span>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-white rounded-xl border-2 border-slate-100 p-4">
+                          <p className="text-slate-900 text-sm font-semibold mb-3 line-clamp-2">
+                            Need to spend more time in nature!
+                          </p>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-emerald-100 text-emerald-700">
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                              </svg>
+                              To-Do
+                            </span>
+                            <span className="text-xs text-slate-400 ml-auto">1 week ago</span>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -859,7 +900,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   </div>
                 </div>
 
-                {/* Step 5: Action Created */}
+                {/* Step 5: Action Taken */}
                 <div className="relative">
                   <div className="flex items-center gap-4 mb-6">
                     <div className="flex-shrink-0 w-12 h-12 bg-emerald-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
@@ -867,11 +908,11 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-slate-900">Action Taken</h3>
-                      <p className="text-sm text-slate-600">You choose to act, creating an action linked to the thought</p>
+                      <p className="text-sm text-slate-600">You choose to act, creating actions linked to the thought</p>
                     </div>
                   </div>
                   
-                  {/* App Mockup - Actions View */}
+                  {/* App Mockup - Actions View with All Platforms */}
                   <div className="bg-white rounded-2xl shadow-2xl border-2 border-slate-200 overflow-hidden">
                     <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center gap-4">
                       <button className="text-slate-400">
@@ -882,27 +923,100 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       <h3 className="text-xl font-bold text-slate-900">Actions</h3>
                     </div>
                     <div className="p-6">
-                      <div className="bg-white rounded-xl border-2 border-emerald-200 p-6 shadow-sm">
-                        <div className="flex items-start gap-4">
-                          <div className="w-6 h-6 border-2 border-slate-300 rounded-full flex-shrink-0 mt-1"></div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <h4 className="font-semibold text-slate-900">Posted on LinkedIn</h4>
-                              <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">post</span>
+                      <div className="space-y-4">
+                        {/* LinkedIn Action */}
+                        <div className="bg-white rounded-xl border-2 border-emerald-200 p-5 shadow-sm">
+                          <div className="flex items-start gap-4">
+                            <div className="w-6 h-6 border-2 border-slate-300 rounded-full flex-shrink-0 mt-1"></div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-3">
+                                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                                  <Linkedin className="w-4 h-4 text-white" />
+                                </div>
+                                <h4 className="font-semibold text-slate-900">Posted on LinkedIn</h4>
+                                <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0 ml-auto">
+                                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                </div>
+                              </div>
+                              <div className="bg-blue-50 rounded-lg p-4 mb-3 border border-blue-100">
+                                <p className="text-xs text-slate-700 leading-relaxed">
+                                  AI doesn't just accelerate your work. It amplifies everything—including your mistakes. Give it messy code? You'll ship 10x messier code faster. Quality gates aren't optional anymore.
+                                </p>
+                              </div>
+                              <div className="pt-3 border-t border-slate-200">
+                                <p className="text-xs text-slate-500 mb-1">From thought:</p>
+                                <p className="text-xs text-slate-600 italic">
+                                  "AI speeds everything up. Good and bad stuff. 10x multiplier."
+                                </p>
+                              </div>
                             </div>
-                            <div className="bg-slate-50 rounded-lg p-4 mb-4">
-                              <p className="text-sm text-slate-700">
-                                AI doesn't just accelerate your work. It amplifies everything—including your mistakes. Quality gates aren't optional anymore.
-                              </p>
+                          </div>
+                        </div>
+
+                        {/* X Action */}
+                        <div className="bg-white rounded-xl border-2 border-emerald-200 p-5 shadow-sm">
+                          <div className="flex items-start gap-4">
+                            <div className="w-6 h-6 border-2 border-slate-300 rounded-full flex-shrink-0 mt-1"></div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-3">
+                                <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center flex-shrink-0">
+                                  <Twitter className="w-4 h-4 text-white" />
+                                </div>
+                                <h4 className="font-semibold text-slate-900">Posted on X</h4>
+                                <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0 ml-auto">
+                                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                </div>
+                              </div>
+                              <div className="bg-slate-50 rounded-lg p-4 mb-3 border border-slate-200">
+                                <p className="text-sm text-slate-700 leading-relaxed">
+                                  AI 10x's whatever you give it. Quality gates aren't optional anymore. 🚀
+                                </p>
+                              </div>
+                              <div className="pt-3 border-t border-slate-200">
+                                <p className="text-xs text-slate-500 mb-1">From thought:</p>
+                                <p className="text-xs text-slate-600 italic">
+                                  "AI speeds everything up. Good and bad stuff. 10x multiplier."
+                                </p>
+                              </div>
                             </div>
-                            <div className="pt-4 border-t border-slate-200">
-                              <p className="text-xs text-slate-500 mb-1">From thought:</p>
-                              <p className="text-xs text-slate-600 italic">
-                                "AI speeds everything up. Good and bad stuff. 10x multiplier."
-                              </p>
-                              <button className="mt-2 text-xs text-blue-600 hover:text-blue-700">
-                                View original thought →
-                              </button>
+                          </div>
+                        </div>
+
+                        {/* Instagram Action */}
+                        <div className="bg-white rounded-xl border-2 border-emerald-200 p-5 shadow-sm">
+                          <div className="flex items-start gap-4">
+                            <div className="w-6 h-6 border-2 border-slate-300 rounded-full flex-shrink-0 mt-1"></div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-3">
+                                <div className="w-8 h-8 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                  <Instagram className="w-4 h-4 text-white" />
+                                </div>
+                                <h4 className="font-semibold text-slate-900">Posted on Instagram</h4>
+                                <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0 ml-auto">
+                                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                </div>
+                              </div>
+                              <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 rounded-lg p-4 mb-3 border border-rose-100">
+                                <p className="text-xs text-slate-700 leading-relaxed mb-2">
+                                  AI accelerates everything—bugs, technical debt, bad decisions. It 10x's whatever you put in.
+                                </p>
+                                <p className="text-xs text-slate-700 leading-relaxed">
+                                  The real lesson? Quality gates are non-negotiable. Without them, you're just moving faster in the wrong direction. 💡
+                                </p>
+                                <p className="text-xs text-slate-500 mt-2">#AI #Tech #QualityGates</p>
+                              </div>
+                              <div className="pt-3 border-t border-slate-200">
+                                <p className="text-xs text-slate-500 mb-1">From thought:</p>
+                                <p className="text-xs text-slate-600 italic">
+                                  "AI speeds everything up. Good and bad stuff. 10x multiplier."
+                                </p>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -911,236 +1025,6 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   </div>
                 </div>
 
-              </div>
-            </div>
-          </section>
-
-          {/* Main Thoughts View Section */}
-          <section className="py-16 sm:py-20 lg:py-24 bg-white relative overflow-hidden">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-              <div className="text-center mb-12 sm:mb-16">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-4">
-                  All your <span className="bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 bg-clip-text text-transparent italic">thoughts</span>
-                </h2>
-                <p className="text-base sm:text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto">
-                  Every thought captured, organized, and ready to become something more.
-                </p>
-              </div>
-
-              <div className="max-w-6xl mx-auto">
-                {/* Search Bar Preview */}
-                <div className="mb-8 flex items-center justify-center">
-                  <div className="relative w-full max-w-md">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
-                    <input
-                      type="text"
-                      placeholder="Search your thoughts..."
-                      className="w-full pl-10 pr-4 py-3 bg-white rounded-xl border-2 border-slate-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm"
-                      readOnly
-                    />
-                  </div>
-                </div>
-
-                {/* Thoughts Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {/* Work - Tech - Spark + Potential */}
-                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
-                        AI speeds everything up. Good and bad stuff. 10x multiplier.
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap mb-3">
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-amber-100 text-amber-700">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                        </svg>
-                        Spark
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-700">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                        Potential
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        2 days ago
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Personal - Positive - Regular thought */}
-                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
-                        Morning coffee ritual is my favorite part of the day
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap mb-3">
-                      <span className="px-2 py-0.5 text-xs text-slate-600 bg-slate-50 rounded-md">routine</span>
-                      <span className="px-2 py-0.5 text-xs text-slate-600 bg-slate-50 rounded-md">wellbeing</span>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        3 days ago
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Work - Challenging - Insight */}
-                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
-                        Team meetings feel unproductive. Too many voices, no clear decisions.
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap mb-3">
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-indigo-100 text-indigo-700">
-                        <Lightbulb className="w-3 h-3" />
-                        Insight
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        1 day ago
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Personal - Positive - To-Do */}
-                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
-                        Need to spend more time in nature!
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap mb-3">
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-emerald-100 text-emerald-700">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                        To-Do
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        1 week ago
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Tech - Work - Spark only */}
-                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
-                        AI can give startups a false sense of speed
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap mb-3">
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-amber-100 text-amber-700">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                        </svg>
-                        Spark
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        1 week ago
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Work - Action taken */}
-                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
-                        Quality gates aren't optional anymore
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap mb-3">
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-emerald-100 text-emerald-700">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Action
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        3 days ago
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Personal - Challenging - Regular thought */}
-                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
-                        Feeling overwhelmed with information overload lately
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap mb-3">
-                      <span className="px-2 py-0.5 text-xs text-slate-600 bg-slate-50 rounded-md">personal</span>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        5 days ago
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Work - Positive - Regular thought */}
-                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
-                        Finally found a solution to that bug. Feels great!
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap mb-3">
-                      <span className="px-2 py-0.5 text-xs text-slate-600 bg-slate-50 rounded-md">work</span>
-                      <span className="px-2 py-0.5 text-xs text-slate-600 bg-slate-50 rounded-md">win</span>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        6 hours ago
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Personal - Positive - Journal entry */}
-                  <div className="bg-white rounded-xl p-4 border-2 border-slate-100 hover:border-blue-300 hover:shadow-lg transition-all">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 flex-1">
-                        Grateful for the quiet moments that help me recharge
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap mb-3">
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-amber-100 text-amber-700">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                        </svg>
-                        Journal
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        1 week ago
-                      </span>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </section>
