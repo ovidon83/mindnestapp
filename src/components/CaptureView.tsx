@@ -689,7 +689,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                           <h3 className="text-lg font-bold text-slate-800">Thoughts</h3>
                           <div className="flex items-center gap-2">
                             <button className="px-2.5 py-1 bg-indigo-100/70 text-indigo-700 rounded-lg text-xs font-medium border border-dashed border-indigo-300/50">All</button>
-                            <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50">Sparks</button>
+                            <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50">Parked</button>
                           </div>
                         </div>
                         <div className="p-5">
@@ -704,20 +704,34 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                             />
                           </div>
                           
-                          {/* Filters - Differentiated by type */}
-                          <div className="mb-4 flex flex-wrap gap-2">
-                            <button className="px-2.5 py-1 bg-indigo-100/70 text-indigo-700 rounded-lg text-xs font-medium border border-dashed border-indigo-300/50">All</button>
-                            {/* Spark filter */}
-                            <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border-2 border-dashed border-amber-300/50 flex items-center gap-1 hover:bg-amber-50/50 transition-colors">
-                              <Sparkles className="w-3 h-3 text-amber-600" />
-                              Sparks
-                            </button>
-                            {/* Action filters */}
-                            <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border-2 border-dashed border-purple-300/50 hover:bg-purple-50/50 transition-colors">Share</button>
-                            <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border-2 border-dashed border-emerald-300/50 hover:bg-emerald-50/50 transition-colors">To-Do</button>
-                            <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border-2 border-dashed border-orange-300/50 hover:bg-orange-50/50 transition-colors">Conversation</button>
-                            {/* Topic filter */}
-                            <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50 hover:bg-slate-50/50 transition-colors">tech</button>
+                          {/* Filters - Organized by type */}
+                          <div className="mb-4 space-y-3">
+                            {/* Action Filters */}
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-xs font-semibold text-slate-500 mr-1">Action:</span>
+                              <button className="px-2.5 py-1 bg-indigo-100/70 text-indigo-700 rounded-lg text-xs font-medium border border-dashed border-indigo-300/50">All</button>
+                              <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border-2 border-dashed border-purple-300/50 hover:bg-purple-50/50 transition-colors">Share</button>
+                              <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border-2 border-dashed border-emerald-300/50 hover:bg-emerald-50/50 transition-colors">To-Do</button>
+                              <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border-2 border-dashed border-orange-300/50 hover:bg-orange-50/50 transition-colors">Conversation</button>
+                              <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border-2 border-dashed border-slate-300/50 hover:bg-slate-50/50 transition-colors">Other</button>
+                            </div>
+                            
+                            {/* Date Filter */}
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-xs font-semibold text-slate-500 mr-1">Date:</span>
+                              <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50 hover:bg-slate-50/50 transition-colors">Today</button>
+                              <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50 hover:bg-slate-50/50 transition-colors">This Week</button>
+                              <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50 hover:bg-slate-50/50 transition-colors">This Month</button>
+                            </div>
+                            
+                            {/* Topic Filters */}
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-xs font-semibold text-slate-500 mr-1">Topic:</span>
+                              <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50 hover:bg-slate-50/50 transition-colors">tech</button>
+                              <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50 hover:bg-slate-50/50 transition-colors">work</button>
+                              <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50 hover:bg-slate-50/50 transition-colors">wellbeing</button>
+                              <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50 hover:bg-slate-50/50 transition-colors">personal</button>
+                            </div>
                           </div>
                           
                           {/* Thoughts grid - Same card style as Discover */}
