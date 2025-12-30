@@ -620,28 +620,45 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                           <h3 className="text-lg font-bold text-slate-800">Thoughts</h3>
                         </div>
                         <div className="p-5">
-                          <div className="bg-white rounded-xl border-2 border-dashed border-amber-300/60 p-5 shadow-sm mb-3 relative">
-                            {/* Spark indicator - top right corner */}
-                            <div className="absolute -top-2 -right-2 w-8 h-8 bg-amber-200/80 rounded-full flex items-center justify-center border-2 border-dashed border-amber-400/60 shadow-sm">
+                          {/* Thought Card */}
+                          <div className="bg-white rounded-xl border-2 border-dashed border-amber-300/60 p-5 shadow-sm mb-4 relative">
+                            {/* 3. Spark icon - top right (can be clicked to add manually) */}
+                            <button className="absolute -top-2 -right-2 w-8 h-8 bg-amber-200/80 rounded-full flex items-center justify-center border-2 border-dashed border-amber-400/60 shadow-sm hover:bg-amber-300/80 transition-colors">
                               <Sparkles className="w-4 h-4 text-amber-700" />
-                            </div>
-                            <p className="text-slate-800 text-sm leading-relaxed mb-3 pr-6">
+                            </button>
+                            
+                            {/* 1. Raw thought */}
+                            <p className="text-slate-800 text-sm leading-relaxed mb-3 pr-8">
                               AI speeds everything up. Good and bad stuff. 10x multiplier.
                             </p>
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="px-2 py-0.5 bg-slate-100/70 text-slate-600 text-xs rounded border border-dashed border-slate-300/50">tech</span>
-                              <span className="px-2 py-0.5 bg-slate-100/70 text-slate-600 text-xs rounded border border-dashed border-slate-300/50">work</span>
+                            
+                            {/* 2. AI-based topic pills */}
+                            <div className="flex items-center gap-2 mb-3 flex-wrap">
+                              <span className="px-2.5 py-1 bg-blue-100/70 text-blue-700 rounded-lg text-xs font-medium border border-dashed border-blue-300/50">
+                                tech
+                              </span>
+                              <span className="px-2.5 py-1 bg-indigo-100/70 text-indigo-700 rounded-lg text-xs font-medium border border-dashed border-indigo-300/50">
+                                work
+                              </span>
                             </div>
-                          </div>
-                          {/* Potential tags - floating style */}
-                          <div className="flex flex-wrap gap-2 justify-center">
-                            <div className="px-3 py-1.5 bg-purple-100/70 text-purple-700 rounded-full text-xs font-medium border border-dashed border-purple-300/60 shadow-sm flex items-center gap-1.5">
-                              <span>💬</span>
-                              <span>Post</span>
-                            </div>
-                            <div className="px-3 py-1.5 bg-purple-100/70 text-purple-700 rounded-full text-xs font-medium border border-dashed border-purple-300/60 shadow-sm flex items-center gap-1.5">
-                              <span>🔍</span>
-                              <span>Explore</span>
+                            
+                            {/* 4. AI-based potential buttons/pills with CTA */}
+                            <div className="flex flex-wrap gap-2">
+                              <button className="px-3 py-1.5 bg-purple-100/70 text-purple-700 rounded-lg text-xs font-medium border border-dashed border-purple-300/60 hover:bg-purple-200/70 transition-colors flex items-center gap-1.5">
+                                <span>💬</span>
+                                <span>Share</span>
+                                <span className="text-purple-500">→</span>
+                              </button>
+                              <button className="px-3 py-1.5 bg-emerald-100/70 text-emerald-700 rounded-lg text-xs font-medium border border-dashed border-emerald-300/60 hover:bg-emerald-200/70 transition-colors flex items-center gap-1.5">
+                                <span>✓</span>
+                                <span>To-Do</span>
+                                <span className="text-emerald-500">→</span>
+                              </button>
+                              <button className="px-3 py-1.5 bg-orange-100/70 text-orange-700 rounded-lg text-xs font-medium border border-dashed border-orange-300/60 hover:bg-orange-200/70 transition-colors flex items-center gap-1.5">
+                                <span>💭</span>
+                                <span>Conversation</span>
+                                <span className="text-orange-500">→</span>
+                              </button>
                             </div>
                           </div>
                         </div>
