@@ -335,7 +335,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 w-full">
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 leading-tight">
-                <span className="text-slate-900">Give your </span>
+                <span className="text-slate-900">Collect your </span>
                 <span className="relative inline-block">
                   <span className="text-purple-600 italic font-bold">thoughts</span>
                   {/* Wavy underline */}
@@ -343,23 +343,37 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     <path d="M0,12 Q25,3 50,12 T100,12 T150,12 T200,12" stroke="#9333ea" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.8"/>
                   </svg>
                 </span>
-                <span className="text-slate-900"> real </span>
+                <br className="hidden sm:block" />
+                <span className="text-slate-900">Act on the ones that </span>
                 <span className="relative inline-block">
-                  <span className="text-yellow-500 italic font-bold">meaning</span>
+                  <span className="text-orange-500 italic font-bold">matter</span>
                   {/* Wavy underline */}
                   <svg className="absolute -bottom-1 sm:-bottom-2 left-0 right-0 h-2 sm:h-3 -z-10" viewBox="0 0 200 15" preserveAspectRatio="none">
-                    <path d="M0,12 Q25,3 50,12 T100,12 T150,12 T200,12" stroke="#eab308" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.8"/>
+                    <path d="M0,12 Q25,3 50,12 T100,12 T150,12 T200,12" stroke="#f97316" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.8"/>
                   </svg>
                 </span>
             </h1>
               <div className="max-w-3xl mx-auto px-2 mb-8 sm:mb-10">
                 <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-700 mb-4 sm:mb-6 font-normal leading-relaxed">
-                  Capture every thought. <span className="font-semibold text-slate-900">Thouthy</span> identifies the ones with real potential — and turns them into action.
+                  Every thought deserves a home. <span className="font-semibold text-slate-900">Thouthy</span> collects them all, then shows you which ones have <span className="font-semibold text-amber-600">spark</span> and <span className="font-semibold text-purple-600">potential</span> — so you can do something about them.
                 </p>
               </div>
-              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 mb-6 sm:mb-8 tracking-wide">
-                Capture. Find spark & potential. Act
-              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-lg sm:text-xl md:text-2xl font-semibold text-slate-700 mb-6 sm:mb-8">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                  <span>Collect</span>
+                </div>
+                <div className="hidden sm:block text-slate-400">→</div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                  <span>Discover</span>
+                </div>
+                <div className="hidden sm:block text-slate-400">→</div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                  <span>Act</span>
+                </div>
+              </div>
                 </div>
           </section>
 
