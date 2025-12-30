@@ -704,49 +704,96 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                             />
                           </div>
                           
-                          {/* Filters */}
+                          {/* Filters - Differentiated by type */}
                           <div className="mb-4 flex flex-wrap gap-2">
                             <button className="px-2.5 py-1 bg-indigo-100/70 text-indigo-700 rounded-lg text-xs font-medium border border-dashed border-indigo-300/50">All</button>
-                            <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50 flex items-center gap-1">
-                              <Sparkles className="w-3 h-3" />
+                            {/* Spark filter */}
+                            <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border-2 border-dashed border-amber-300/50 flex items-center gap-1 hover:bg-amber-50/50 transition-colors">
+                              <Sparkles className="w-3 h-3 text-amber-600" />
                               Sparks
                             </button>
-                            <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50">Share</button>
-                            <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50">To-Do</button>
-                            <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50">tech</button>
+                            {/* Action filters */}
+                            <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border-2 border-dashed border-purple-300/50 hover:bg-purple-50/50 transition-colors">Share</button>
+                            <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border-2 border-dashed border-emerald-300/50 hover:bg-emerald-50/50 transition-colors">To-Do</button>
+                            <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border-2 border-dashed border-orange-300/50 hover:bg-orange-50/50 transition-colors">Conversation</button>
+                            {/* Topic filter */}
+                            <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50 hover:bg-slate-50/50 transition-colors">tech</button>
                           </div>
                           
-                          {/* Thoughts grid */}
-                          <div className="space-y-2">
-                            <div className="bg-white rounded-lg border-2 border-dashed border-indigo-200/50 p-3 shadow-sm relative">
-                              <button className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-amber-200/70 rounded-full flex items-center justify-center border border-dashed border-amber-300/50">
-                                <Sparkles className="w-2.5 h-2.5 text-amber-700" />
+                          {/* Thoughts grid - Same card style as Discover */}
+                          <div className="space-y-3">
+                            {/* Thought 1: With Spark, Share potential */}
+                            <div className="bg-white rounded-xl border-2 border-dashed border-amber-300/60 p-4 shadow-sm relative">
+                              <button className="absolute -top-2 -right-2 w-6 h-6 bg-amber-200/70 rounded-full flex items-center justify-center border border-dashed border-amber-300/50 hover:bg-amber-300/70 transition-colors">
+                                <Sparkles className="w-3 h-3 text-amber-700" />
                               </button>
-                              <p className="text-slate-800 text-xs leading-relaxed mb-2 line-clamp-2 pr-6">
+                              <p className="text-slate-800 text-xs leading-relaxed mb-2.5 pr-7">
                                 AI speeds everything up. Good and bad stuff. 10x multiplier.
                               </p>
-                              <div className="flex items-center gap-1.5 flex-wrap">
-                                <span className="px-1.5 py-0.5 bg-blue-100/70 text-blue-700 text-xs rounded border border-dashed border-blue-300/50">tech</span>
-                                <span className="px-1.5 py-0.5 bg-indigo-100/70 text-indigo-700 text-xs rounded border border-dashed border-indigo-300/50">work</span>
-                                <span className="px-1.5 py-0.5 bg-purple-100/70 text-purple-700 text-xs rounded border border-dashed border-purple-300/50">Share</span>
+                              {/* Topic tags */}
+                              <div className="flex items-center gap-1.5 mb-2.5 flex-wrap">
+                                <span className="px-2 py-0.5 bg-blue-100/70 text-blue-700 text-xs rounded-lg border border-dashed border-blue-300/50">tech</span>
+                                <span className="px-2 py-0.5 bg-indigo-100/70 text-indigo-700 text-xs rounded-lg border border-dashed border-indigo-300/50">work</span>
+                              </div>
+                              {/* Potential CTAs */}
+                              <div className="flex flex-wrap gap-1.5">
+                                <button className="px-2.5 py-1 bg-purple-100/70 text-purple-700 rounded-lg text-xs font-medium border border-dashed border-purple-300/60 hover:bg-purple-200/70 transition-colors flex items-center gap-1">
+                                  <span>💬</span>
+                                  <span>Share</span>
+                                  <span className="text-purple-500 text-xs">→</span>
+                                </button>
                               </div>
                             </div>
-                            <div className="bg-white rounded-lg border-2 border-dashed border-slate-200/50 p-3 shadow-sm">
-                              <p className="text-slate-800 text-xs leading-relaxed mb-2 line-clamp-2">
+                            
+                            {/* Thought 2: Reflection/Insight */}
+                            <div className="bg-white rounded-xl border-2 border-dashed border-slate-200/50 p-4 shadow-sm">
+                              <p className="text-slate-800 text-xs leading-relaxed mb-2.5">
                                 Morning coffee ritual is my favorite part of the day
                               </p>
-                              <div className="flex items-center gap-1.5 flex-wrap">
-                                <span className="px-1.5 py-0.5 bg-slate-100/70 text-slate-600 text-xs rounded border border-dashed border-slate-300/50">routine</span>
-                                <span className="px-1.5 py-0.5 bg-emerald-100/70 text-emerald-700 text-xs rounded border border-dashed border-emerald-300/50">To-Do</span>
+                              {/* Topic tags */}
+                              <div className="flex items-center gap-1.5 mb-2.5 flex-wrap">
+                                <span className="px-2 py-0.5 bg-slate-100/70 text-slate-600 text-xs rounded-lg border border-dashed border-slate-300/50">routine</span>
+                                <span className="px-2 py-0.5 bg-indigo-100/70 text-indigo-700 text-xs rounded-lg border border-dashed border-indigo-300/50">wellbeing</span>
+                              </div>
+                              {/* No potential CTAs - just a reflection */}
+                            </div>
+                            
+                            {/* Thought 3: With To-Do potential */}
+                            <div className="bg-white rounded-xl border-2 border-dashed border-slate-200/50 p-4 shadow-sm">
+                              <p className="text-slate-800 text-xs leading-relaxed mb-2.5">
+                                Need to document quality gates for AI-assisted development
+                              </p>
+                              {/* Topic tags */}
+                              <div className="flex items-center gap-1.5 mb-2.5 flex-wrap">
+                                <span className="px-2 py-0.5 bg-blue-100/70 text-blue-700 text-xs rounded-lg border border-dashed border-blue-300/50">tech</span>
+                                <span className="px-2 py-0.5 bg-indigo-100/70 text-indigo-700 text-xs rounded-lg border border-dashed border-indigo-300/50">work</span>
+                              </div>
+                              {/* Potential CTAs */}
+                              <div className="flex flex-wrap gap-1.5">
+                                <button className="px-2.5 py-1 bg-emerald-100/70 text-emerald-700 rounded-lg text-xs font-medium border border-dashed border-emerald-300/60 hover:bg-emerald-200/70 transition-colors flex items-center gap-1">
+                                  <span>✓</span>
+                                  <span>To-Do</span>
+                                  <span className="text-emerald-500 text-xs">→</span>
+                                </button>
                               </div>
                             </div>
-                            <div className="bg-white rounded-lg border-2 border-dashed border-slate-200/50 p-3 shadow-sm">
-                              <p className="text-slate-800 text-xs leading-relaxed mb-2 line-clamp-2">
+                            
+                            {/* Thought 4: With Conversation potential */}
+                            <div className="bg-white rounded-xl border-2 border-dashed border-slate-200/50 p-4 shadow-sm">
+                              <p className="text-slate-800 text-xs leading-relaxed mb-2.5">
                                 Team meetings feel unproductive. Too many voices, no clear decisions.
                               </p>
-                              <div className="flex items-center gap-1.5 flex-wrap">
-                                <span className="px-1.5 py-0.5 bg-slate-100/70 text-slate-600 text-xs rounded border border-dashed border-slate-300/50">work</span>
-                                <span className="px-1.5 py-0.5 bg-orange-100/70 text-orange-700 text-xs rounded border border-dashed border-orange-300/50">Conversation</span>
+                              {/* Topic tags */}
+                              <div className="flex items-center gap-1.5 mb-2.5 flex-wrap">
+                                <span className="px-2 py-0.5 bg-slate-100/70 text-slate-600 text-xs rounded-lg border border-dashed border-slate-300/50">work</span>
+                              </div>
+                              {/* Potential CTAs */}
+                              <div className="flex flex-wrap gap-1.5">
+                                <button className="px-2.5 py-1 bg-orange-100/70 text-orange-700 rounded-lg text-xs font-medium border border-dashed border-orange-300/60 hover:bg-orange-200/70 transition-colors flex items-center gap-1">
+                                  <span>💭</span>
+                                  <span>Conversation</span>
+                                  <span className="text-orange-500 text-xs">→</span>
+                                </button>
                               </div>
                             </div>
                           </div>
