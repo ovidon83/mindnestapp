@@ -686,30 +686,51 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                               readOnly
                             />
                           </div>
+                          
+                          {/* Filters */}
+                          <div className="mb-4 flex flex-wrap gap-2">
+                            <button className="px-2.5 py-1 bg-indigo-100/70 text-indigo-700 rounded-lg text-xs font-medium border border-dashed border-indigo-300/50">All</button>
+                            <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50 flex items-center gap-1">
+                              <Sparkles className="w-3 h-3" />
+                              Sparks
+                            </button>
+                            <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50">Share</button>
+                            <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50">To-Do</button>
+                            <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50">tech</button>
+                          </div>
+                          
                           {/* Thoughts grid */}
                           <div className="space-y-2">
-                            <div className="bg-white rounded-lg border-2 border-dashed border-indigo-200/50 p-3 shadow-sm">
-                              <p className="text-slate-800 text-xs leading-relaxed mb-2 line-clamp-2">
+                            <div className="bg-white rounded-lg border-2 border-dashed border-indigo-200/50 p-3 shadow-sm relative">
+                              <button className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-amber-200/70 rounded-full flex items-center justify-center border border-dashed border-amber-300/50">
+                                <Sparkles className="w-2.5 h-2.5 text-amber-700" />
+                              </button>
+                              <p className="text-slate-800 text-xs leading-relaxed mb-2 line-clamp-2 pr-6">
                                 AI speeds everything up. Good and bad stuff. 10x multiplier.
                               </p>
                               <div className="flex items-center gap-1.5 flex-wrap">
-                                <span className="w-5 h-5 bg-amber-200/70 rounded-full flex items-center justify-center border border-dashed border-amber-300/50">
-                                  <Sparkles className="w-2.5 h-2.5 text-amber-700" />
-                                </span>
-                                <span className="px-1.5 py-0.5 bg-slate-100/70 text-slate-600 text-xs rounded border border-dashed border-slate-300/50">tech</span>
+                                <span className="px-1.5 py-0.5 bg-blue-100/70 text-blue-700 text-xs rounded border border-dashed border-blue-300/50">tech</span>
+                                <span className="px-1.5 py-0.5 bg-indigo-100/70 text-indigo-700 text-xs rounded border border-dashed border-indigo-300/50">work</span>
+                                <span className="px-1.5 py-0.5 bg-purple-100/70 text-purple-700 text-xs rounded border border-dashed border-purple-300/50">Share</span>
                               </div>
                             </div>
                             <div className="bg-white rounded-lg border-2 border-dashed border-slate-200/50 p-3 shadow-sm">
                               <p className="text-slate-800 text-xs leading-relaxed mb-2 line-clamp-2">
                                 Morning coffee ritual is my favorite part of the day
                               </p>
-                              <span className="px-1.5 py-0.5 bg-slate-100/70 text-slate-600 text-xs rounded border border-dashed border-slate-300/50">routine</span>
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="px-1.5 py-0.5 bg-slate-100/70 text-slate-600 text-xs rounded border border-dashed border-slate-300/50">routine</span>
+                                <span className="px-1.5 py-0.5 bg-emerald-100/70 text-emerald-700 text-xs rounded border border-dashed border-emerald-300/50">To-Do</span>
+                              </div>
                             </div>
                             <div className="bg-white rounded-lg border-2 border-dashed border-slate-200/50 p-3 shadow-sm">
                               <p className="text-slate-800 text-xs leading-relaxed mb-2 line-clamp-2">
                                 Team meetings feel unproductive. Too many voices, no clear decisions.
                               </p>
-                              <span className="px-1.5 py-0.5 bg-slate-100/70 text-slate-600 text-xs rounded border border-dashed border-slate-300/50">work</span>
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="px-1.5 py-0.5 bg-slate-100/70 text-slate-600 text-xs rounded border border-dashed border-slate-300/50">work</span>
+                                <span className="px-1.5 py-0.5 bg-orange-100/70 text-orange-700 text-xs rounded border border-dashed border-orange-300/50">Conversation</span>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -722,10 +743,10 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   <div className="w-full lg:w-1/2 flex-1 text-center lg:text-left order-1 lg:order-2">
                     <h3 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Organize</h3>
                     <p className="text-lg sm:text-xl text-slate-600 mb-3 leading-relaxed">
-                      All thoughts are saved — never get lost. Search, filter, and manually act on any of them.
+                      All thoughts are saved — never get lost. Search, filter by sparks, topics, or actions, and manually act on any of them.
                     </p>
                     <p className="text-base sm:text-lg text-slate-500">
-                      <span className="text-slate-700 font-semibold">Thouthy:</span> Keeps everything organized and accessible, ready when you need it.
+                      <span className="text-slate-700 font-semibold">Thouthy:</span> Keeps everything organized and accessible. Optional Daily/Weekly Mind Review available.
                     </p>
                   </div>
                 </div>
