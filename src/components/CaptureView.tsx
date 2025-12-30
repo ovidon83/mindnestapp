@@ -620,27 +620,28 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                           <h3 className="text-lg font-bold text-slate-800">Thoughts</h3>
                         </div>
                         <div className="p-5">
-                          <div className="bg-white rounded-xl border-2 border-dashed border-amber-300/60 p-5 shadow-sm mb-3">
-                            <p className="text-slate-800 text-sm leading-relaxed mb-3">
+                          <div className="bg-white rounded-xl border-2 border-dashed border-amber-300/60 p-5 shadow-sm mb-3 relative">
+                            {/* Spark indicator - top right corner */}
+                            <div className="absolute -top-2 -right-2 w-8 h-8 bg-amber-200/80 rounded-full flex items-center justify-center border-2 border-dashed border-amber-400/60 shadow-sm">
+                              <Sparkles className="w-4 h-4 text-amber-700" />
+                            </div>
+                            <p className="text-slate-800 text-sm leading-relaxed mb-3 pr-6">
                               AI speeds everything up. Good and bad stuff. 10x multiplier.
                             </p>
-                            <div className="flex items-center gap-2 mb-3">
-                              <span className="px-2.5 py-1 bg-amber-100/70 text-amber-700 rounded-lg text-xs font-medium border border-dashed border-amber-300/50">
-                                ✨ Spark
-                              </span>
+                            <div className="flex items-center gap-2 flex-wrap">
                               <span className="px-2 py-0.5 bg-slate-100/70 text-slate-600 text-xs rounded border border-dashed border-slate-300/50">tech</span>
+                              <span className="px-2 py-0.5 bg-slate-100/70 text-slate-600 text-xs rounded border border-dashed border-slate-300/50">work</span>
                             </div>
                           </div>
-                          <div className="border-t-2 border-dashed border-purple-200/50 pt-4">
-                            <div className="space-y-2">
-                              <div className="flex items-center justify-between p-2.5 bg-purple-50/50 rounded-lg border border-dashed border-purple-200/50">
-                                <span className="text-sm font-medium text-slate-800">Post</span>
-                                <span className="text-xs text-purple-600">→</span>
-                              </div>
-                              <div className="flex items-center justify-between p-2.5 bg-purple-50/50 rounded-lg border border-dashed border-purple-200/50">
-                                <span className="text-sm font-medium text-slate-800">Explore</span>
-                                <span className="text-xs text-purple-600">→</span>
-                              </div>
+                          {/* Potential tags - floating style */}
+                          <div className="flex flex-wrap gap-2 justify-center">
+                            <div className="px-3 py-1.5 bg-purple-100/70 text-purple-700 rounded-full text-xs font-medium border border-dashed border-purple-300/60 shadow-sm flex items-center gap-1.5">
+                              <span>💬</span>
+                              <span>Post</span>
+                            </div>
+                            <div className="px-3 py-1.5 bg-purple-100/70 text-purple-700 rounded-full text-xs font-medium border border-dashed border-purple-300/60 shadow-sm flex items-center gap-1.5">
+                              <span>🔍</span>
+                              <span>Explore</span>
                             </div>
                           </div>
                         </div>
@@ -661,12 +662,80 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   </div>
                 </div>
 
-                {/* Step 3: Act */}
+                {/* Step 3: Organize */}
                 <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
                   <div className="w-full lg:w-1/2 flex-shrink-0 order-2 lg:order-1">
-                    {/* Sketch-style App Mockup - Actions */}
+                    {/* Sketch-style App Mockup - All Thoughts View */}
                     <div className="relative">
-                      <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 border-2 border-dashed border-emerald-300/60 shadow-lg" style={{ transform: 'rotate(-0.5deg)' }}>
+                      <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 border-2 border-dashed border-indigo-300/60 shadow-lg" style={{ transform: 'rotate(-0.5deg)' }}>
+                        <div className="bg-gradient-to-r from-indigo-50/50 to-blue-50/50 border-b-2 border-dashed border-indigo-200/40 px-4 py-3 flex items-center justify-between rounded-t-2xl">
+                          <h3 className="text-lg font-bold text-slate-800">Thoughts</h3>
+                          <div className="flex items-center gap-2">
+                            <button className="px-2.5 py-1 bg-indigo-100/70 text-indigo-700 rounded-lg text-xs font-medium border border-dashed border-indigo-300/50">All</button>
+                            <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50">Sparks</button>
+                          </div>
+                        </div>
+                        <div className="p-5">
+                          {/* Search bar */}
+                          <div className="mb-4 relative">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <input 
+                              type="text" 
+                              placeholder="Search thoughts..." 
+                              className="w-full pl-9 pr-3 py-2 bg-white/60 rounded-lg border-2 border-dashed border-slate-300/50 text-xs focus:outline-none focus:border-indigo-300/60"
+                              readOnly
+                            />
+                          </div>
+                          {/* Thoughts grid */}
+                          <div className="space-y-2">
+                            <div className="bg-white rounded-lg border-2 border-dashed border-indigo-200/50 p-3 shadow-sm">
+                              <p className="text-slate-800 text-xs leading-relaxed mb-2 line-clamp-2">
+                                AI speeds everything up. Good and bad stuff. 10x multiplier.
+                              </p>
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="w-5 h-5 bg-amber-200/70 rounded-full flex items-center justify-center border border-dashed border-amber-300/50">
+                                  <Sparkles className="w-2.5 h-2.5 text-amber-700" />
+                                </span>
+                                <span className="px-1.5 py-0.5 bg-slate-100/70 text-slate-600 text-xs rounded border border-dashed border-slate-300/50">tech</span>
+                              </div>
+                            </div>
+                            <div className="bg-white rounded-lg border-2 border-dashed border-slate-200/50 p-3 shadow-sm">
+                              <p className="text-slate-800 text-xs leading-relaxed mb-2 line-clamp-2">
+                                Morning coffee ritual is my favorite part of the day
+                              </p>
+                              <span className="px-1.5 py-0.5 bg-slate-100/70 text-slate-600 text-xs rounded border border-dashed border-slate-300/50">routine</span>
+                            </div>
+                            <div className="bg-white rounded-lg border-2 border-dashed border-slate-200/50 p-3 shadow-sm">
+                              <p className="text-slate-800 text-xs leading-relaxed mb-2 line-clamp-2">
+                                Team meetings feel unproductive. Too many voices, no clear decisions.
+                              </p>
+                              <span className="px-1.5 py-0.5 bg-slate-100/70 text-slate-600 text-xs rounded border border-dashed border-slate-300/50">work</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Decorative sketch lines */}
+                      <div className="absolute -top-2 -right-2 w-12 h-12 border-2 border-dashed border-indigo-300/40 rounded-full opacity-60"></div>
+                      <div className="absolute -bottom-3 -left-3 w-16 h-16 border-2 border-dashed border-blue-300/40 rounded-full opacity-50"></div>
+                    </div>
+                  </div>
+                  <div className="w-full lg:w-1/2 flex-1 text-center lg:text-left order-1 lg:order-2">
+                    <h3 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Organize</h3>
+                    <p className="text-lg sm:text-xl text-slate-600 mb-3 leading-relaxed">
+                      All thoughts are saved — never get lost. Search, filter, and manually act on any of them.
+                    </p>
+                    <p className="text-base sm:text-lg text-slate-500">
+                      <span className="text-slate-700 font-semibold">Thouthy:</span> Keeps everything organized and accessible, ready when you need it.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 4: Act */}
+                <div className="flex flex-col lg:flex-row-reverse items-center gap-10 lg:gap-16">
+                  <div className="w-full lg:w-1/2 flex-shrink-0 order-2 lg:order-1">
+                    {/* Sketch-style App Mockup - Actions with LinkedIn Post */}
+                    <div className="relative">
+                      <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 border-2 border-dashed border-emerald-300/60 shadow-lg" style={{ transform: 'rotate(0.5deg)' }}>
                         <div className="bg-gradient-to-r from-emerald-50/50 to-blue-50/50 border-b-2 border-dashed border-emerald-200/40 px-4 py-3 flex items-center gap-3 rounded-t-2xl">
                           <span className="text-slate-400">←</span>
                           <h3 className="text-lg font-bold text-slate-800">Actions</h3>
@@ -676,7 +745,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                             <div className="flex items-start gap-3">
                               <div className="w-5 h-5 border-2 border-dashed border-slate-300 rounded-full flex-shrink-0 mt-0.5"></div>
                               <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-2">
+                                <div className="flex items-center gap-2 mb-3">
                                   <div className="w-7 h-7 bg-blue-500/80 rounded-lg flex items-center justify-center">
                                     <Linkedin className="w-3.5 h-3.5 text-white" />
                                   </div>
@@ -687,9 +756,15 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                                     </svg>
                                   </div>
                                 </div>
-                                <div className="bg-blue-50/50 rounded-lg p-3 border border-dashed border-blue-200/50">
+                                <div className="bg-blue-50/50 rounded-lg p-4 border border-dashed border-blue-200/50">
+                                  <p className="text-xs text-slate-700 leading-relaxed mb-2">
+                                    AI doesn't just accelerate your work. It amplifies everything—including your mistakes.
+                                  </p>
+                                  <p className="text-xs text-slate-700 leading-relaxed mb-2">
+                                    Give it messy code? You'll ship 10x messier code faster. Feed it bad data? You'll get 10x more bad insights. The multiplier works both ways.
+                                  </p>
                                   <p className="text-xs text-slate-700 leading-relaxed">
-                                    AI 10x's whatever you give it. Quality gates aren't optional anymore. 🚀
+                                    Quality gates aren't optional anymore. They're the difference between scaling your impact and scaling your problems.
                                   </p>
                                 </div>
                               </div>
