@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useGenieNotesStore } from '../store';
-import { Mic, MicOff, Sparkles, CheckCircle, Upload, Search, Mail, Twitter, Linkedin, Instagram, Brain, Lightbulb } from 'lucide-react';
+import { Mic, MicOff, Sparkles, CheckCircle, Upload, Search, Mail, Twitter, Linkedin, Instagram, Brain, Lightbulb, Calendar, X, Bell, Clock } from 'lucide-react';
 import { saveTrainingData } from '../lib/db';
 import UserAvatar from './UserAvatar';
 
@@ -393,14 +393,14 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   </h2>
                   {/* Floating example thoughts under heading */}
                   <div className="mt-4 flex flex-wrap justify-center gap-3 sm:gap-4">
-                    <span className="px-4 py-2 rounded-full bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 font-medium shadow-sm">
-                      "I see lack of authenticity in social media"
+                    <span className="px-4 py-2 rounded-full bg-purple-50 border border-purple-200 text-xs sm:text-sm text-purple-800 font-medium shadow-sm">
+                      "Gratitude practice changed my perspective on daily challenges"
                     </span>
-                    <span className="px-4 py-2 rounded-full bg-indigo-50 border border-indigo-200 text-xs sm:text-sm text-indigo-800 font-medium shadow-sm">
-                      "AI can give startups a false sense of speed"
+                    <span className="px-4 py-2 rounded-full bg-emerald-50 border border-emerald-200 text-xs sm:text-sm text-emerald-800 font-medium shadow-sm">
+                      "Call mom this weekend to catch up"
                     </span>
                     <span className="px-4 py-2 rounded-full bg-amber-50 border border-amber-200 text-xs sm:text-sm text-amber-800 font-medium shadow-sm">
-                      "Need to spend more time in nature!"
+                      "Small acts of kindness create ripple effects"
                     </span>
                   </div>
                 </div>
@@ -693,44 +693,34 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                           </div>
                         </div>
                         <div className="p-5">
-                          {/* Search bar */}
-                          <div className="mb-4 relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
-                            <input 
-                              type="text" 
-                              placeholder="Search thoughts..." 
-                              className="w-full pl-9 pr-3 py-2 bg-white/60 rounded-lg border-2 border-dashed border-slate-300/50 text-xs focus:outline-none focus:border-indigo-300/60"
-                              readOnly
-                            />
-                          </div>
-                          
-                          {/* Filters - Organized by type */}
-                          <div className="mb-4 space-y-3">
-                            {/* Action Filters */}
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span className="text-xs font-semibold text-slate-500 mr-1">Action:</span>
-                              <button className="px-2.5 py-1 bg-indigo-100/70 text-indigo-700 rounded-lg text-xs font-medium border border-dashed border-indigo-300/50">All</button>
-                              <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border-2 border-dashed border-purple-300/50 hover:bg-purple-50/50 transition-colors">Share</button>
-                              <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border-2 border-dashed border-emerald-300/50 hover:bg-emerald-50/50 transition-colors">To-Do</button>
-                              <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border-2 border-dashed border-orange-300/50 hover:bg-orange-50/50 transition-colors">Conversation</button>
-                              <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border-2 border-dashed border-slate-300/50 hover:bg-slate-50/50 transition-colors">Other</button>
+                          {/* Search and filters - minimal design */}
+                          <div className="mb-4">
+                            {/* Search bar with filter button */}
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="relative flex-1">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                <input 
+                                  type="text" 
+                                  placeholder="Search thoughts..." 
+                                  className="w-full pl-9 pr-3 py-2 bg-white/60 rounded-lg border-2 border-dashed border-slate-300/50 text-xs focus:outline-none focus:border-indigo-300/60"
+                                  readOnly
+                                />
+                              </div>
+                              <button className="px-3 py-2 bg-white/60 rounded-lg border-2 border-dashed border-slate-300/50 hover:bg-slate-50/60 transition-colors text-xs font-medium text-slate-600 whitespace-nowrap">
+                                Filter
+                              </button>
                             </div>
                             
-                            {/* Date Filter */}
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span className="text-xs font-semibold text-slate-500 mr-1">Date:</span>
-                              <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50 hover:bg-slate-50/50 transition-colors">Today</button>
-                              <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50 hover:bg-slate-50/50 transition-colors">This Week</button>
-                              <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50 hover:bg-slate-50/50 transition-colors">This Month</button>
-                            </div>
-                            
-                            {/* Topic Filters */}
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span className="text-xs font-semibold text-slate-500 mr-1">Topic:</span>
-                              <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50 hover:bg-slate-50/50 transition-colors">tech</button>
-                              <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50 hover:bg-slate-50/50 transition-colors">work</button>
-                              <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50 hover:bg-slate-50/50 transition-colors">wellbeing</button>
-                              <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50 hover:bg-slate-50/50 transition-colors">personal</button>
+                            {/* Active filters as chips - only show when filters are active */}
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="px-2.5 py-1 bg-purple-100/70 text-purple-700 rounded-lg text-xs font-medium border border-dashed border-purple-300/50 flex items-center gap-1.5">
+                                Share
+                                <X className="w-3 h-3 cursor-pointer hover:text-purple-900" />
+                              </span>
+                              <span className="px-2.5 py-1 bg-slate-100/70 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50 flex items-center gap-1.5">
+                                tech
+                                <X className="w-3 h-3 cursor-pointer hover:text-slate-800" />
+                              </span>
                             </div>
                           </div>
                           
@@ -741,73 +731,78 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                               <button className="absolute -top-2 -right-2 w-6 h-6 bg-amber-200/70 rounded-full flex items-center justify-center border border-dashed border-amber-300/50 hover:bg-amber-300/70 transition-colors">
                                 <Sparkles className="w-3 h-3 text-amber-700" />
                               </button>
-                              <p className="text-slate-800 text-xs leading-relaxed mb-2.5 pr-7">
-                                AI speeds everything up. Good and bad stuff. 10x multiplier.
+                              <p className="text-slate-800 text-xs leading-relaxed mb-3 pr-7">
+                                Small acts of kindness create ripple effects
                               </p>
-                              {/* Topic tags */}
-                              <div className="flex items-center gap-1.5 mb-2.5 flex-wrap">
-                                <span className="px-2 py-0.5 bg-blue-100/70 text-blue-700 text-xs rounded-lg border border-dashed border-blue-300/50">tech</span>
-                                <span className="px-2 py-0.5 bg-indigo-100/70 text-indigo-700 text-xs rounded-lg border border-dashed border-indigo-300/50">work</span>
-                              </div>
-                              {/* Potential CTAs */}
-                              <div className="flex flex-wrap gap-1.5">
-                                <button className="px-2.5 py-1 bg-purple-100/70 text-purple-700 rounded-lg text-xs font-medium border border-dashed border-purple-300/60 hover:bg-purple-200/70 transition-colors flex items-center gap-1">
-                                  <span>💬</span>
-                                  <span>Share</span>
-                                  <span className="text-purple-500 text-xs">→</span>
-                                </button>
+                              {/* Topic tags and CTAs on same row */}
+                              <div className="flex items-center justify-between gap-2 flex-wrap">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="px-2 py-0.5 bg-purple-100/70 text-purple-700 text-xs rounded-lg border border-dashed border-purple-300/50">insight</span>
+                                  <span className="px-2 py-0.5 bg-indigo-100/70 text-indigo-700 text-xs rounded-lg border border-dashed border-indigo-300/50">wellbeing</span>
+                                </div>
+                                {/* Potential CTAs - right side */}
+                                <div className="flex flex-wrap gap-1.5">
+                                  <button className="px-2.5 py-1 bg-purple-100/70 text-purple-700 rounded-lg text-xs font-medium border border-dashed border-purple-300/60 hover:bg-purple-200/70 transition-colors flex items-center gap-1">
+                                    <span>💬</span>
+                                    <span>Share</span>
+                                    <span className="text-purple-500 text-xs">→</span>
+                                  </button>
+                                </div>
                               </div>
                             </div>
                             
                             {/* Thought 2: Reflection/Insight */}
                             <div className="bg-white rounded-xl border-2 border-dashed border-slate-200/50 p-4 shadow-sm">
-                              <p className="text-slate-800 text-xs leading-relaxed mb-2.5">
+                              <p className="text-slate-800 text-xs leading-relaxed mb-3">
                                 Morning coffee ritual is my favorite part of the day
                               </p>
-                              {/* Topic tags */}
-                              <div className="flex items-center gap-1.5 mb-2.5 flex-wrap">
+                              {/* Topic tags - no CTAs for this reflection */}
+                              <div className="flex items-center gap-1.5 flex-wrap">
                                 <span className="px-2 py-0.5 bg-slate-100/70 text-slate-600 text-xs rounded-lg border border-dashed border-slate-300/50">routine</span>
                                 <span className="px-2 py-0.5 bg-indigo-100/70 text-indigo-700 text-xs rounded-lg border border-dashed border-indigo-300/50">wellbeing</span>
                               </div>
-                              {/* No potential CTAs - just a reflection */}
                             </div>
                             
                             {/* Thought 3: With To-Do potential */}
                             <div className="bg-white rounded-xl border-2 border-dashed border-slate-200/50 p-4 shadow-sm">
-                              <p className="text-slate-800 text-xs leading-relaxed mb-2.5">
-                                Need to document quality gates for AI-assisted development
+                              <p className="text-slate-800 text-xs leading-relaxed mb-3">
+                                Call mom this weekend to catch up
                               </p>
-                              {/* Topic tags */}
-                              <div className="flex items-center gap-1.5 mb-2.5 flex-wrap">
-                                <span className="px-2 py-0.5 bg-blue-100/70 text-blue-700 text-xs rounded-lg border border-dashed border-blue-300/50">tech</span>
-                                <span className="px-2 py-0.5 bg-indigo-100/70 text-indigo-700 text-xs rounded-lg border border-dashed border-indigo-300/50">work</span>
-                              </div>
-                              {/* Potential CTAs */}
-                              <div className="flex flex-wrap gap-1.5">
-                                <button className="px-2.5 py-1 bg-emerald-100/70 text-emerald-700 rounded-lg text-xs font-medium border border-dashed border-emerald-300/60 hover:bg-emerald-200/70 transition-colors flex items-center gap-1">
-                                  <span>✓</span>
-                                  <span>To-Do</span>
-                                  <span className="text-emerald-500 text-xs">→</span>
-                                </button>
+                              {/* Topic tags and CTAs on same row */}
+                              <div className="flex items-center justify-between gap-2 flex-wrap">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="px-2 py-0.5 bg-pink-100/70 text-pink-700 text-xs rounded-lg border border-dashed border-pink-300/50">personal</span>
+                                  <span className="px-2 py-0.5 bg-indigo-100/70 text-indigo-700 text-xs rounded-lg border border-dashed border-indigo-300/50">family</span>
+                                </div>
+                                {/* Potential CTAs - right side */}
+                                <div className="flex flex-wrap gap-1.5">
+                                  <button className="px-2.5 py-1 bg-emerald-100/70 text-emerald-700 rounded-lg text-xs font-medium border border-dashed border-emerald-300/60 hover:bg-emerald-200/70 transition-colors flex items-center gap-1">
+                                    <span>✓</span>
+                                    <span>To-Do</span>
+                                    <span className="text-emerald-500 text-xs">→</span>
+                                  </button>
+                                </div>
                               </div>
                             </div>
                             
                             {/* Thought 4: With Conversation potential */}
                             <div className="bg-white rounded-xl border-2 border-dashed border-slate-200/50 p-4 shadow-sm">
-                              <p className="text-slate-800 text-xs leading-relaxed mb-2.5">
+                              <p className="text-slate-800 text-xs leading-relaxed mb-3">
                                 Team meetings feel unproductive. Too many voices, no clear decisions.
                               </p>
-                              {/* Topic tags */}
-                              <div className="flex items-center gap-1.5 mb-2.5 flex-wrap">
-                                <span className="px-2 py-0.5 bg-slate-100/70 text-slate-600 text-xs rounded-lg border border-dashed border-slate-300/50">work</span>
-                              </div>
-                              {/* Potential CTAs */}
-                              <div className="flex flex-wrap gap-1.5">
-                                <button className="px-2.5 py-1 bg-orange-100/70 text-orange-700 rounded-lg text-xs font-medium border border-dashed border-orange-300/60 hover:bg-orange-200/70 transition-colors flex items-center gap-1">
-                                  <span>💭</span>
-                                  <span>Conversation</span>
-                                  <span className="text-orange-500 text-xs">→</span>
-                                </button>
+                              {/* Topic tags and CTAs on same row */}
+                              <div className="flex items-center justify-between gap-2 flex-wrap">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="px-2 py-0.5 bg-slate-100/70 text-slate-600 text-xs rounded-lg border border-dashed border-slate-300/50">work</span>
+                                </div>
+                                {/* Potential CTAs - right side */}
+                                <div className="flex flex-wrap gap-1.5">
+                                  <button className="px-2.5 py-1 bg-orange-100/70 text-orange-700 rounded-lg text-xs font-medium border border-dashed border-orange-300/60 hover:bg-orange-200/70 transition-colors flex items-center gap-1">
+                                    <span>💭</span>
+                                    <span>Conversation</span>
+                                    <span className="text-orange-500 text-xs">→</span>
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -832,39 +827,164 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 {/* Step 4: Act */}
                 <div className="flex flex-col lg:flex-row-reverse items-center gap-10 lg:gap-16">
                   <div className="w-full lg:w-1/2 flex-shrink-0 order-2 lg:order-1">
-                    {/* Sketch-style App Mockup - Actions with LinkedIn Post */}
+                    {/* Sketch-style App Mockup - Actions with LinkedIn Post and To-Do */}
                     <div className="relative">
                       <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 border-2 border-dashed border-emerald-300/60 shadow-lg" style={{ transform: 'rotate(0.5deg)' }}>
                         <div className="bg-gradient-to-r from-emerald-50/50 to-blue-50/50 border-b-2 border-dashed border-emerald-200/40 px-4 py-3 flex items-center gap-3 rounded-t-2xl">
                           <span className="text-slate-400">←</span>
                           <h3 className="text-lg font-bold text-slate-800">Actions</h3>
                         </div>
-                        <div className="p-5">
-                          <div className="bg-white rounded-xl border-2 border-dashed border-emerald-300/60 p-4 shadow-sm">
-                            <div className="flex items-start gap-3">
-                              <div className="w-5 h-5 border-2 border-dashed border-slate-300 rounded-full flex-shrink-0 mt-0.5"></div>
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-3">
-                                  <div className="w-7 h-7 bg-blue-500/80 rounded-lg flex items-center justify-center">
-                                    <Linkedin className="w-3.5 h-3.5 text-white" />
+                        <div className="p-5 space-y-3">
+                          {/* Social Posts - All Three Platforms */}
+                          <div className="grid grid-cols-1 gap-3">
+                            {/* LinkedIn Post - Long Form */}
+                            <div className="bg-white rounded-xl border-2 border-dashed border-blue-300/60 p-3 shadow-sm">
+                              <div className="flex items-start gap-2.5 mb-2.5">
+                                <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                  <span className="text-white text-xs font-semibold">JD</span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-1.5 mb-0.5">
+                                    <span className="text-xs font-semibold text-slate-800">John Doe</span>
+                                    <Linkedin className="w-3 h-3 text-blue-600 flex-shrink-0" />
+                                    <span className="text-[10px] text-slate-500">• 2h</span>
                                   </div>
-                                  <span className="text-sm font-semibold text-slate-800">Posted on LinkedIn</span>
-                                  <div className="w-4 h-4 bg-emerald-400 rounded-full flex items-center justify-center ml-auto">
-                                    <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                    </svg>
+                                  <p className="text-[10px] text-slate-500">Software Engineer</p>
+                                </div>
+                              </div>
+                              <div className="mb-2.5">
+                                <p className="text-[10px] text-slate-800 leading-relaxed mb-1.5">
+                                  AI doesn't just accelerate your work. It amplifies everything—including your mistakes.
+                                </p>
+                                <p className="text-[10px] text-slate-800 leading-relaxed mb-1.5">
+                                  Give it messy code? You'll ship 10x messier code faster. Feed it bad data? You'll get 10x more bad insights. The multiplier works both ways.
+                                </p>
+                                <p className="text-[10px] text-slate-800 leading-relaxed">
+                                  Quality gates aren't optional anymore. They're the difference between scaling your impact and scaling your problems.
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-3 pt-2 border-t border-slate-200/50">
+                                <button className="flex items-center gap-1 text-slate-500 hover:text-blue-600 transition-colors">
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                                  </svg>
+                                  <span className="text-[10px]">24</span>
+                                </button>
+                                <button className="flex items-center gap-1 text-slate-500 hover:text-blue-600 transition-colors">
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                  </svg>
+                                  <span className="text-[10px]">8</span>
+                                </button>
+                                <button className="flex items-center gap-1 text-slate-500 hover:text-blue-600 transition-colors">
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                  </svg>
+                                  <span className="text-[10px]">12</span>
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* X (Twitter) Post - Short Form */}
+                            <div className="bg-white rounded-xl border-2 border-dashed border-slate-300/60 p-3 shadow-sm">
+                              <div className="flex items-start gap-2.5 mb-2">
+                                <div className="w-8 h-8 bg-gradient-to-br from-slate-400 to-slate-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                  <span className="text-white text-xs font-semibold">JD</span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-1.5 mb-0.5">
+                                    <span className="text-xs font-semibold text-slate-800">John Doe</span>
+                                    <Twitter className="w-3 h-3 text-slate-600 flex-shrink-0" />
+                                    <span className="text-[10px] text-slate-500">@johndoe • 1h</span>
                                   </div>
                                 </div>
-                                <div className="bg-blue-50/50 rounded-lg p-4 border border-dashed border-blue-200/50">
-                                  <p className="text-xs text-slate-700 leading-relaxed mb-2">
-                                    AI doesn't just accelerate your work. It amplifies everything—including your mistakes.
-                                  </p>
-                                  <p className="text-xs text-slate-700 leading-relaxed mb-2">
-                                    Give it messy code? You'll ship 10x messier code faster. Feed it bad data? You'll get 10x more bad insights. The multiplier works both ways.
-                                  </p>
-                                  <p className="text-xs text-slate-700 leading-relaxed">
-                                    Quality gates aren't optional anymore. They're the difference between scaling your impact and scaling your problems.
-                                  </p>
+                              </div>
+                              <div className="mb-2">
+                                <p className="text-[10px] text-slate-800 leading-relaxed">
+                                  AI 10x's whatever you give it. Quality gates aren't optional anymore. 🚀
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-4 pt-2 border-t border-slate-200/50">
+                                <button className="flex items-center gap-1 text-slate-500 hover:text-blue-500 transition-colors">
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                  </svg>
+                                  <span className="text-[10px]">5</span>
+                                </button>
+                                <button className="flex items-center gap-1 text-slate-500 hover:text-green-500 transition-colors">
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                  </svg>
+                                  <span className="text-[10px]">12</span>
+                                </button>
+                                <button className="flex items-center gap-1 text-slate-500 hover:text-red-500 transition-colors">
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                  </svg>
+                                  <span className="text-[10px]">8</span>
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Instagram Post - Medium Form with Visual */}
+                            <div className="bg-white rounded-xl border-2 border-dashed border-pink-300/60 p-3 shadow-sm">
+                              <div className="flex items-start gap-2.5 mb-2.5">
+                                <div className="w-8 h-8 bg-gradient-to-br from-pink-400 via-purple-500 to-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                  <span className="text-white text-xs font-semibold">JD</span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-1.5 mb-0.5">
+                                    <span className="text-xs font-semibold text-slate-800">johndoe</span>
+                                    <Instagram className="w-3 h-3 text-pink-600 flex-shrink-0" />
+                                    <span className="text-[10px] text-slate-500">• 3h</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="mb-2.5">
+                                <p className="text-[10px] text-slate-800 leading-relaxed mb-1.5">
+                                  AI doesn't just accelerate your work. It amplifies everything—including your mistakes. Give it messy code? You'll ship 10x messier code faster.
+                                </p>
+                                <p className="text-[10px] text-slate-800 leading-relaxed">
+                                  Quality gates aren't optional anymore. They're the difference between scaling your impact and scaling your problems. 💡
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-4 pt-2 border-t border-slate-200/50">
+                                <button className="flex items-center gap-1 text-slate-500 hover:text-red-500 transition-colors">
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                  </svg>
+                                  <span className="text-[10px]">42</span>
+                                </button>
+                                <button className="flex items-center gap-1 text-slate-500 hover:text-slate-700 transition-colors">
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                  </svg>
+                                  <span className="text-[10px]">6</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* To-Do Item */}
+                          <div className="bg-white rounded-xl border-2 border-dashed border-emerald-300/60 p-3 shadow-sm">
+                            <div className="flex items-start gap-2.5">
+                              <div className="w-4 h-4 border-2 border-emerald-400 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <svg className="w-2.5 h-2.5 text-emerald-600 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                </svg>
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-1.5 mb-1.5">
+                                  <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
+                                  <span className="text-xs font-semibold text-slate-800">To-Do</span>
+                                </div>
+                                <p className="text-[10px] text-slate-700 leading-relaxed mb-1.5">
+                                  Document quality gates for AI-assisted development
+                                </p>
+                                <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
+                                  <span>Due: This week</span>
+                                  <span>•</span>
+                                  <span>Priority: High</span>
                                 </div>
                               </div>
                             </div>
@@ -882,7 +1002,86 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       When you're ready, you act with clarity — post, to-do, conversation.
                     </p>
                     <p className="text-base sm:text-lg text-slate-500">
-                      <span className="text-slate-700 font-semibold">Thouthy:</span> Helps you act on the thoughts that truly matter.
+                      <span className="text-slate-700 font-semibold">Thouthy:</span> Generates ready-to-share posts for all social platforms, creates to-dos, and suggests conversations — helping you act on the thoughts that truly matter.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 5: Thought Review */}
+                <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+                  <div className="w-full lg:w-1/2 flex-shrink-0 order-2 lg:order-1">
+                    {/* Sketch-style App Mockup - Thought Review */}
+                    <div className="relative">
+                      <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 border-2 border-dashed border-purple-300/60 shadow-lg" style={{ transform: 'rotate(-0.5deg)' }}>
+                        <div className="bg-gradient-to-r from-purple-50/50 to-pink-50/50 border-b-2 border-dashed border-purple-200/40 px-4 py-3 flex items-center gap-3 rounded-t-2xl">
+                          <Bell className="w-4 h-4 text-purple-600" />
+                          <h3 className="text-lg font-bold text-slate-800">Mind Review</h3>
+                        </div>
+                        <div className="p-5 space-y-4">
+                          {/* Review Options */}
+                          <div className="flex items-center gap-3 mb-4">
+                            <button className="flex-1 px-4 py-2.5 bg-purple-100/70 text-purple-700 rounded-lg text-sm font-medium border border-dashed border-purple-300/50 hover:bg-purple-200/70 transition-colors flex items-center justify-center gap-2">
+                              <Clock className="w-4 h-4" />
+                              <span>Daily</span>
+                            </button>
+                            <button className="flex-1 px-4 py-2.5 bg-white/60 text-slate-600 rounded-lg text-sm font-medium border border-dashed border-slate-300/50 hover:bg-slate-50/60 transition-colors flex items-center justify-center gap-2">
+                              <Calendar className="w-4 h-4" />
+                              <span>Weekly</span>
+                            </button>
+                          </div>
+
+                          {/* Gentle Nudge Card */}
+                          <div className="bg-gradient-to-br from-purple-50/80 to-pink-50/60 rounded-xl border-2 border-dashed border-purple-300/60 p-4 shadow-sm">
+                            <div className="flex items-start gap-3 mb-3">
+                              <div className="w-10 h-10 bg-purple-200/70 rounded-full flex items-center justify-center flex-shrink-0">
+                                <Brain className="w-5 h-5 text-purple-700" />
+                              </div>
+                              <div className="flex-1">
+                                <h4 className="text-sm font-semibold text-slate-800 mb-1">Time for a quick review?</h4>
+                                <p className="text-xs text-slate-600 mb-3">
+                                  You have 3 new thoughts today. Take 2 minutes to review and organize them.
+                                </p>
+                                <div className="flex items-center gap-2">
+                                  <button className="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-xs font-medium hover:bg-purple-700 transition-colors">
+                                    Review Now
+                                  </button>
+                                  <button className="px-3 py-1.5 bg-white/60 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50 hover:bg-slate-50/60 transition-colors">
+                                    Later
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Review Stats Preview */}
+                          <div className="grid grid-cols-3 gap-2">
+                            <div className="bg-white/60 rounded-lg p-3 border border-dashed border-amber-300/50 text-center">
+                              <div className="text-lg font-bold text-amber-700 mb-1">5</div>
+                              <div className="text-xs text-slate-600">Sparks</div>
+                            </div>
+                            <div className="bg-white/60 rounded-lg p-3 border border-dashed border-purple-300/50 text-center">
+                              <div className="text-lg font-bold text-purple-700 mb-1">8</div>
+                              <div className="text-xs text-slate-600">Actions</div>
+                            </div>
+                            <div className="bg-white/60 rounded-lg p-3 border border-dashed border-blue-300/50 text-center">
+                              <div className="text-lg font-bold text-blue-700 mb-1">12</div>
+                              <div className="text-xs text-slate-600">Total</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Decorative sketch lines */}
+                      <div className="absolute -top-2 -right-2 w-12 h-12 border-2 border-dashed border-purple-300/40 rounded-full opacity-60"></div>
+                      <div className="absolute -bottom-3 -left-3 w-16 h-16 border-2 border-dashed border-pink-300/40 rounded-full opacity-50"></div>
+                    </div>
+                  </div>
+                  <div className="w-full lg:w-1/2 flex-1 text-center lg:text-left order-1 lg:order-2">
+                    <h3 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Review</h3>
+                    <p className="text-lg sm:text-xl text-slate-600 mb-3 leading-relaxed">
+                      Periodically, you pause to review — reflect, organize, and decide what matters.
+                    </p>
+                    <p className="text-base sm:text-lg text-slate-500">
+                      <span className="text-slate-700 font-semibold">Thouthy:</span> Gently nudges you to review your thoughts daily or weekly, helping you stay organized and intentional.
                     </p>
                   </div>
                 </div>
