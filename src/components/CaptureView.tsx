@@ -551,461 +551,109 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
           </div>
 
           {/* The Journey of a Thought */}
-          <section className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-white via-slate-50/30 to-white relative overflow-hidden">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <section className="py-16 sm:py-20 lg:py-24 bg-white relative overflow-hidden">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
               <div className="text-center mb-12 sm:mb-16">
                 <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-4">
                   The journey of a <span className="bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 bg-clip-text text-transparent italic">thought</span>
                 </h2>
-                <p className="text-base sm:text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto">
-                  See how a single thought evolves from capture to action, all within Thouthy.
-                </p>
               </div>
 
-              <div className="max-w-6xl mx-auto space-y-12">
+              <div className="space-y-16 sm:space-y-20">
                 
-                {/* Step 1: Capture */}
-                <div className="relative">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="flex-shrink-0 w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                      1
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-slate-900">Capture</h3>
-                      <p className="text-sm text-slate-600">You capture a thought instantly</p>
+                {/* Step 1: It appears */}
+                <div className="flex flex-col sm:flex-row items-start gap-6 sm:gap-8">
+                  <div className="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 bg-slate-100 rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <Brain className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
                     </div>
                   </div>
-                  
-                  {/* App Mockup - Capture Screen */}
-                  <div className="bg-white rounded-2xl shadow-2xl border-2 border-slate-200 overflow-hidden">
-                    <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 rounded-lg flex items-center justify-center">
-                          <Brain className="w-5 h-5 text-white" />
-                        </div>
-                        <span className="text-lg font-bold text-slate-900">Thouthy</span>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-8 h-8 bg-slate-200 rounded-lg flex items-center justify-center text-slate-600 font-semibold text-sm">
+                        1
                       </div>
-                      <div className="w-8 h-8 bg-slate-200 rounded-full"></div>
+                      <h3 className="text-xl sm:text-2xl font-bold text-slate-900">It appears</h3>
                     </div>
-                    <div className="p-8">
-                      <div className="mb-6">
-                        <h4 className="text-2xl font-bold text-slate-900 mb-2">What's on your <span className="text-purple-600 italic">mind?</span></h4>
-                      </div>
-                      <div className="bg-slate-50 rounded-xl p-6 border-2 border-slate-200 mb-4">
-                        <p className="text-slate-800 leading-relaxed italic">
-                          "AI speeds everything up. Good and bad stuff. 10x multiplier."
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <button className="px-6 py-3 bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 text-white rounded-lg font-semibold flex items-center gap-2">
-                          <Sparkles className="w-4 h-4" />
-                          Capture
-                        </button>
-                        <button className="p-3 bg-blue-100 text-blue-600 rounded-lg">
-                          <Mic className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </div>
+                    <p className="text-base sm:text-lg text-slate-700 mb-4 leading-relaxed">
+                      A thought shows up at the wrong moment — driving, walking, showering. Normally, it's lost.
+                    </p>
+                    <p className="text-sm sm:text-base text-slate-600 font-medium">
+                      <span className="text-slate-900 font-semibold">Thouthy:</span> You capture it instantly.
+                    </p>
                   </div>
                 </div>
 
-                {/* Step 2: All Your Thoughts */}
-                <div className="relative">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="flex-shrink-0 w-12 h-12 bg-slate-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                      2
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-slate-900">All Your Thoughts</h3>
-                      <p className="text-sm text-slate-600">Every thought captured, organized, and ready</p>
+                {/* Step 2: It finds meaning */}
+                <div className="flex flex-col sm:flex-row items-start gap-6 sm:gap-8">
+                  <div className="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 bg-slate-100 rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-amber-100 rounded-lg flex items-center justify-center">
+                      <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-amber-600" />
                     </div>
                   </div>
-                  
-                  {/* App Mockup - Thoughts View with Grid */}
-                  <div className="bg-white rounded-2xl shadow-2xl border-2 border-slate-200 overflow-hidden">
-                    <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-                      <h3 className="text-xl font-bold text-slate-900">Thoughts</h3>
-                      <div className="flex gap-2">
-                        <button className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium">All</button>
-                        <button className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium">Sparks</button>
-                        <button className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium">Potential</button>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-8 h-8 bg-slate-200 rounded-lg flex items-center justify-center text-slate-600 font-semibold text-sm">
+                        2
                       </div>
+                      <h3 className="text-xl sm:text-2xl font-bold text-slate-900">It finds meaning</h3>
                     </div>
-                    <div className="p-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {/* Main thought - highlighted */}
-                        <div className="bg-white rounded-xl border-2 border-blue-300 p-4 shadow-sm">
-                          <p className="text-slate-900 text-sm font-semibold mb-3 line-clamp-2">
-                            AI speeds everything up. Good and bad stuff. 10x multiplier.
-                          </p>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded">tech</span>
-                            <span className="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded">work</span>
-                            <span className="text-xs text-slate-400 ml-auto">Just now</span>
-                          </div>
-                        </div>
-                        
-                        {/* Other thoughts */}
-                        <div className="bg-white rounded-xl border-2 border-slate-100 p-4">
-                          <p className="text-slate-900 text-sm font-semibold mb-3 line-clamp-2">
-                            Morning coffee ritual is my favorite part of the day
-                          </p>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="px-2 py-0.5 text-xs text-slate-600 bg-slate-50 rounded-md">routine</span>
-                            <span className="text-xs text-slate-400 ml-auto">3 days ago</span>
-                          </div>
-                        </div>
-                        
-                        <div className="bg-white rounded-xl border-2 border-slate-100 p-4">
-                          <p className="text-slate-900 text-sm font-semibold mb-3 line-clamp-2">
-                            Team meetings feel unproductive. Too many voices, no clear decisions.
-                          </p>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-indigo-100 text-indigo-700">
-                              <Lightbulb className="w-3 h-3" />
-                              Insight
-                            </span>
-                            <span className="text-xs text-slate-400 ml-auto">1 day ago</span>
-                          </div>
-                        </div>
-                        
-                        <div className="bg-white rounded-xl border-2 border-slate-100 p-4">
-                          <p className="text-slate-900 text-sm font-semibold mb-3 line-clamp-2">
-                            Need to spend more time in nature!
-                          </p>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-emerald-100 text-emerald-700">
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                              </svg>
-                              To-Do
-                            </span>
-                            <span className="text-xs text-slate-400 ml-auto">1 week ago</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <p className="text-base sm:text-lg text-slate-700 mb-3 leading-relaxed">
+                      The moment it's captured, the app evaluates it:
+                    </p>
+                    <ul className="list-disc list-inside text-base sm:text-lg text-slate-700 mb-4 space-y-1 ml-2">
+                      <li>based on your past thoughts (if any)</li>
+                      <li>or on its own, if it's new</li>
+                    </ul>
+                    <p className="text-sm sm:text-base text-slate-600 font-medium">
+                      <span className="text-slate-900 font-semibold">Thouthy:</span> Instantly reveals whether the thought has <span className="font-bold text-amber-600">spark</span> and what it might be about.
+                    </p>
                   </div>
                 </div>
 
-                {/* Step 3: Spark Detected */}
-                <div className="relative">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="flex-shrink-0 w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                      3
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-slate-900">Spark Detected</h3>
-                      <p className="text-sm text-slate-600">Thouthy identifies this thought as significant</p>
+                {/* Step 3: It shows potential */}
+                <div className="flex flex-col sm:flex-row items-start gap-6 sm:gap-8">
+                  <div className="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 bg-slate-100 rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <Lightbulb className="w-6 h-6 sm:w-8 sm:h-8 text-purple-600" />
                     </div>
                   </div>
-                  
-                  {/* App Mockup - Spark Indicator */}
-                  <div className="bg-white rounded-2xl shadow-2xl border-2 border-slate-200 overflow-hidden">
-                    <div className="bg-slate-50 border-b border-slate-200 px-6 py-4">
-                      <h3 className="text-xl font-bold text-slate-900">Thoughts</h3>
-                    </div>
-                    <div className="p-6">
-                      <div className="bg-white rounded-xl border-2 border-amber-300 p-6 shadow-sm">
-                        <p className="text-slate-900 text-lg leading-relaxed mb-4">
-                          AI speeds everything up. Good and bad stuff. 10x multiplier.
-                        </p>
-                        <div className="flex items-center gap-3 mb-4">
-                          <button className="flex items-center gap-2 px-3 py-1.5 bg-amber-100 text-amber-700 rounded-lg text-sm font-medium">
-                            <Sparkles className="w-4 h-4" />
-                            Spark
-                          </button>
-                          <span className="text-xs text-amber-700 font-medium">Detected: Strong opinion + Clear problem</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded">tech</span>
-                          <span className="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded">work</span>
-                        </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-8 h-8 bg-slate-200 rounded-lg flex items-center justify-center text-slate-600 font-semibold text-sm">
+                        3
                       </div>
+                      <h3 className="text-xl sm:text-2xl font-bold text-slate-900">It shows potential</h3>
                     </div>
+                    <p className="text-base sm:text-lg text-slate-700 mb-4 leading-relaxed">
+                      If a thought matters, it often wants to become something — or nothing at all.
+                    </p>
+                    <p className="text-sm sm:text-base text-slate-600 font-medium">
+                      <span className="text-slate-900 font-semibold">Thouthy:</span> Shows what the thought <span className="font-bold text-purple-600">could become</span> (post, idea, conversation), without forcing anything.
+                    </p>
                   </div>
                 </div>
 
-                {/* Step 4: Potentials Revealed */}
-                <div className="relative">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="flex-shrink-0 w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                      4
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-slate-900">Potentials Revealed</h3>
-                      <p className="text-sm text-slate-600">See what this thought could become</p>
+                {/* Step 4: It becomes action — only if you choose */}
+                <div className="flex flex-col sm:flex-row items-start gap-6 sm:gap-8">
+                  <div className="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 bg-slate-100 rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-emerald-100 rounded-lg flex items-center justify-center">
+                      <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-600" />
                     </div>
                   </div>
-                  
-                  {/* App Mockup - Potentials */}
-                  <div className="bg-white rounded-2xl shadow-2xl border-2 border-slate-200 overflow-hidden">
-                    <div className="bg-slate-50 border-b border-slate-200 px-6 py-4">
-                      <h3 className="text-xl font-bold text-slate-900">Thoughts</h3>
-                    </div>
-                    <div className="p-6">
-                      <div className="bg-white rounded-xl border-2 border-purple-300 p-6 shadow-sm">
-                        <p className="text-slate-900 text-lg leading-relaxed mb-4">
-                          AI speeds everything up. Good and bad stuff. 10x multiplier.
-                        </p>
-                        <div className="flex items-center gap-2 mb-4">
-                          <button className="flex items-center gap-2 px-3 py-1.5 bg-amber-100 text-amber-700 rounded-lg text-sm font-medium">
-                            <Sparkles className="w-4 h-4" />
-                            Spark
-                          </button>
-                        </div>
-                        
-                        <div className="mt-6 pt-6 border-t border-slate-200">
-                          <h4 className="text-sm font-semibold text-slate-700 mb-3">Potential</h4>
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-                              <div>
-                                <p className="font-medium text-slate-900">Post</p>
-                                <p className="text-xs text-slate-600">Share this insight with others</p>
-                              </div>
-                              <button className="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-sm font-medium">
-                                Act
-                              </button>
-                            </div>
-                            <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-                              <div>
-                                <p className="font-medium text-slate-900">Explore Further</p>
-                                <p className="text-xs text-slate-600">Dive deeper into this idea</p>
-                              </div>
-                              <button className="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-sm font-medium">
-                                Act
-                              </button>
-                            </div>
-                          </div>
-                        </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-8 h-8 bg-slate-200 rounded-lg flex items-center justify-center text-slate-600 font-semibold text-sm">
+                        4
                       </div>
+                      <h3 className="text-xl sm:text-2xl font-bold text-slate-900">It becomes action — only if you choose</h3>
                     </div>
-                  </div>
-                </div>
-
-                {/* Step 5: Action Taken */}
-                <div className="relative">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="flex-shrink-0 w-12 h-12 bg-emerald-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                      5
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-slate-900">Action Taken</h3>
-                      <p className="text-sm text-slate-600">You choose to act, creating actions linked to the thought</p>
-                    </div>
-                  </div>
-                  
-                  {/* App Mockup - Actions View with All Platforms in 3-Column Layout */}
-                  <div className="bg-white rounded-2xl shadow-2xl border-2 border-slate-200 overflow-hidden">
-                    <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center gap-4">
-                      <button className="text-slate-400">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
-                      </button>
-                      <h3 className="text-xl font-bold text-slate-900">Actions</h3>
-                    </div>
-                    <div className="p-6">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {/* LinkedIn Post - Long Form */}
-                        <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
-                          {/* LinkedIn Header */}
-                          <div className="p-4 border-b border-slate-100">
-                            <div className="flex items-start gap-3">
-                              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-                                <span className="text-white font-semibold text-sm">JD</span>
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-1 mb-0.5">
-                                  <h4 className="font-semibold text-slate-900 text-sm">John Doe</h4>
-                                  <Linkedin className="w-3 h-3 text-blue-600 flex-shrink-0" />
-                                </div>
-                                <p className="text-xs text-slate-600">Software Engineer • Tech Company</p>
-                                <p className="text-xs text-slate-500 mt-0.5">2h • 🌐</p>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* LinkedIn Content */}
-                          <div className="p-4">
-                            <p className="text-sm text-slate-900 leading-relaxed mb-3">
-                              AI doesn't just accelerate your work. It amplifies everything—including your mistakes.
-                            </p>
-                            <p className="text-sm text-slate-900 leading-relaxed mb-3">
-                              Give it messy code? You'll ship 10x messier code faster. Feed it bad data? You'll get 10x more bad insights. The multiplier works both ways.
-                            </p>
-                            <p className="text-sm text-slate-900 leading-relaxed mb-4">
-                              Quality gates aren't optional anymore. They're the difference between scaling your impact and scaling your problems.
-                            </p>
-                            
-                            {/* Engagement */}
-                            <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                              <div className="flex items-center gap-4 text-slate-600">
-                                <button className="flex items-center gap-1.5 text-xs hover:text-blue-600 transition-colors">
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
-                                  </svg>
-                                  <span>42</span>
-                                </button>
-                                <button className="flex items-center gap-1.5 text-xs hover:text-blue-600 transition-colors">
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                  </svg>
-                                  <span>12</span>
-                                </button>
-                                <button className="flex items-center gap-1.5 text-xs hover:text-blue-600 transition-colors">
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                                  </svg>
-                                  <span>8</span>
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* X (Twitter) Post - Short Form */}
-                        <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
-                          {/* X Header */}
-                          <div className="p-3 border-b border-slate-100">
-                            <div className="flex items-start gap-3">
-                              <div className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center flex-shrink-0">
-                                <span className="text-white font-semibold text-xs">JD</span>
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-1.5 mb-0.5">
-                                  <h4 className="font-bold text-slate-900 text-sm">John Doe</h4>
-                                  <span className="text-xs text-slate-500">@johndoe</span>
-                                  <span className="text-xs text-slate-400">·</span>
-                                  <span className="text-xs text-slate-500">2h</span>
-                                </div>
-                              </div>
-                              <Twitter className="w-4 h-4 text-slate-900 flex-shrink-0" />
-                            </div>
-                          </div>
-                          
-                          {/* X Content */}
-                          <div className="p-3">
-                            <p className="text-sm text-slate-900 leading-relaxed mb-3">
-                              AI 10x's whatever you give it. Quality gates aren't optional anymore. 🚀
-                            </p>
-                            
-                            {/* Engagement */}
-                            <div className="flex items-center justify-between pt-2 mt-2 border-t border-slate-100">
-                              <button className="flex items-center gap-1.5 text-slate-500 hover:text-blue-500 transition-colors group">
-                                <svg className="w-4 h-4 group-hover:fill-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
-                                <span className="text-xs">24</span>
-                              </button>
-                              <button className="flex items-center gap-1.5 text-slate-500 hover:text-green-500 transition-colors group">
-                                <svg className="w-4 h-4 group-hover:fill-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                                </svg>
-                                <span className="text-xs">18</span>
-                              </button>
-                              <button className="flex items-center gap-1.5 text-slate-500 hover:text-red-500 transition-colors group">
-                                <svg className="w-4 h-4 group-hover:fill-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                </svg>
-                                <span className="text-xs">156</span>
-                              </button>
-                              <button className="flex items-center gap-1.5 text-slate-500 hover:text-blue-500 transition-colors">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                                </svg>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Instagram Post - Long Form with Visual */}
-                        <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
-                          {/* Instagram Header */}
-                          <div className="p-3 border-b border-slate-100">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2.5">
-                                <div className="w-8 h-8 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-full flex items-center justify-center flex-shrink-0 border-2 border-white shadow-sm">
-                                  <span className="text-white font-semibold text-xs">JD</span>
-                                </div>
-                                <h4 className="font-semibold text-slate-900 text-sm">johndoe</h4>
-                              </div>
-                              <Instagram className="w-4 h-4 text-slate-900 flex-shrink-0" />
-                            </div>
-                          </div>
-                          
-                          {/* Instagram Image Placeholder */}
-                          <div className="aspect-square bg-gradient-to-br from-purple-100 via-pink-100 to-orange-100 flex items-center justify-center">
-                            <div className="text-center">
-                              <div className="w-16 h-16 bg-white/80 rounded-2xl flex items-center justify-center mx-auto mb-2 shadow-lg">
-                                <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                                </svg>
-                              </div>
-                              <p className="text-xs font-semibold text-slate-700">AI & Quality Gates</p>
-                            </div>
-                          </div>
-                          
-                          {/* Instagram Content */}
-                          <div className="p-3">
-                            <div className="flex items-center gap-3 mb-2">
-                              <button className="hover:opacity-70 transition-opacity">
-                                <svg className="w-5 h-5 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                </svg>
-                              </button>
-                              <button className="hover:opacity-70 transition-opacity">
-                                <svg className="w-5 h-5 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
-                              </button>
-                              <button className="hover:opacity-70 transition-opacity">
-                                <svg className="w-5 h-5 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                                </svg>
-                              </button>
-                              <div className="ml-auto">
-                                <svg className="w-5 h-5 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                                </svg>
-                              </div>
-                            </div>
-                            
-                            <div className="mb-2">
-                              <p className="text-sm text-slate-900">
-                                <span className="font-semibold">johndoe</span>{' '}
-                                AI accelerates everything—bugs, technical debt, bad decisions. It 10x's whatever you put in.
-                              </p>
-                              <p className="text-sm text-slate-900 mt-1">
-                                The real lesson? Quality gates are non-negotiable. Without them, you're just moving faster in the wrong direction. 💡
-                              </p>
-                            </div>
-                            
-                            <p className="text-xs text-slate-500 mb-2">View all 42 comments</p>
-                            <p className="text-xs text-slate-500">2 hours ago</p>
-                            
-                            <div className="mt-2 pt-2 border-t border-slate-100">
-                              <div className="flex items-center gap-2">
-                                <input 
-                                  type="text" 
-                                  placeholder="Add a comment..." 
-                                  className="flex-1 text-xs text-slate-500 bg-transparent border-0 focus:outline-none"
-                                  readOnly
-                                />
-                                <button className="text-xs font-semibold text-blue-500 hover:text-blue-600">Post</button>
-                              </div>
-                            </div>
-                            
-                            <div className="mt-2 flex flex-wrap gap-1">
-                              <span className="text-xs text-blue-600">#AI</span>
-                              <span className="text-xs text-blue-600">#Tech</span>
-                              <span className="text-xs text-blue-600">#QualityGates</span>
-                              <span className="text-xs text-blue-600">#SoftwareDevelopment</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <p className="text-base sm:text-lg text-slate-700 mb-4 leading-relaxed">
+                      When you're ready, you act with clarity instead of pressure.
+                    </p>
+                    <p className="text-sm sm:text-base text-slate-600 font-medium">
+                      <span className="text-slate-900 font-semibold">Thouthy:</span> Helps you act on the thoughts that truly matter.
+                    </p>
                   </div>
                 </div>
 
