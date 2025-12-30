@@ -562,7 +562,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
               <div className="space-y-20 sm:space-y-28">
                 {/* Step 1: Capture */}
                 <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
-                  <div className="w-full lg:w-1/2 flex-shrink-0">
+                  <div className="w-full lg:w-1/2 flex-shrink-0 order-2 lg:order-1">
                     {/* Sketch-style App Mockup - Capture Screen */}
                     <div className="relative">
                       <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 border-2 border-dashed border-blue-300/60 shadow-lg" style={{ transform: 'rotate(-1deg)' }}>
@@ -599,7 +599,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       <div className="absolute -bottom-3 -left-3 w-12 h-12 border-2 border-dashed border-orange-300/40 rounded-full opacity-50"></div>
                     </div>
                   </div>
-                  <div className="w-full lg:w-1/2 flex-1 text-center lg:text-left">
+                  <div className="w-full lg:w-1/2 flex-1 text-center lg:text-left order-1 lg:order-2">
                     <h3 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Capture</h3>
                     <p className="text-lg sm:text-xl text-slate-600 mb-3 leading-relaxed">
                       A thought appears at the wrong moment. Normally, it's lost.
@@ -612,7 +612,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
 
                 {/* Step 2: Discover */}
                 <div className="flex flex-col lg:flex-row-reverse items-center gap-10 lg:gap-16">
-                  <div className="w-full lg:w-1/2 flex-shrink-0">
+                  <div className="w-full lg:w-1/2 flex-shrink-0 order-2 lg:order-1">
                     {/* Sketch-style App Mockup - Discover (Spark & Potential) */}
                     <div className="relative">
                       <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 border-2 border-dashed border-amber-300/60 shadow-lg" style={{ transform: 'rotate(1deg)' }}>
@@ -650,20 +650,20 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       <div className="absolute -bottom-2 -right-2 w-10 h-10 border-2 border-dashed border-purple-300/40 rounded-full opacity-50"></div>
                     </div>
                   </div>
-                  <div className="w-full lg:w-1/2 flex-1 text-center lg:text-left">
+                  <div className="w-full lg:w-1/2 flex-1 text-center lg:text-left order-1 lg:order-2">
                     <h3 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Discover</h3>
                     <p className="text-lg sm:text-xl text-slate-600 mb-3 leading-relaxed">
-                      The app evaluates it and reveals <span className="font-semibold text-amber-600">spark</span> and <span className="font-semibold text-purple-600">potential</span>.
+                      The thought finds meaning — revealing its <span className="font-semibold text-amber-600">spark</span> and what it <span className="font-semibold text-purple-600">could become</span>.
                     </p>
                     <p className="text-base sm:text-lg text-slate-500">
-                      <span className="text-slate-700 font-semibold">Thouthy:</span> Shows what it could become, without forcing anything.
+                      <span className="text-slate-700 font-semibold">Thouthy:</span> Evaluates it and shows potential, without forcing anything.
                     </p>
                   </div>
                 </div>
 
                 {/* Step 3: Act */}
                 <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
-                  <div className="w-full lg:w-1/2 flex-shrink-0">
+                  <div className="w-full lg:w-1/2 flex-shrink-0 order-2 lg:order-1">
                     {/* Sketch-style App Mockup - Actions */}
                     <div className="relative">
                       <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 border-2 border-dashed border-emerald-300/60 shadow-lg" style={{ transform: 'rotate(-0.5deg)' }}>
@@ -702,7 +702,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       <div className="absolute -bottom-3 -left-3 w-16 h-16 border-2 border-dashed border-blue-300/40 rounded-full opacity-50"></div>
                     </div>
                   </div>
-                  <div className="w-full lg:w-1/2 flex-1 text-center lg:text-left">
+                  <div className="w-full lg:w-1/2 flex-1 text-center lg:text-left order-1 lg:order-2">
                     <h3 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Act</h3>
                     <p className="text-lg sm:text-xl text-slate-600 mb-3 leading-relaxed">
                       When you're ready, you act with clarity — post, to-do, conversation.
