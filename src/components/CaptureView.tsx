@@ -551,196 +551,145 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
           </div>
 
           {/* The Journey of a Thought */}
-          <section className="py-16 sm:py-20 lg:py-24 bg-white relative overflow-hidden">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-              <div className="text-center mb-12 sm:mb-16">
+          <section className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-white via-slate-50/30 to-white relative overflow-hidden">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+              <div className="text-center mb-16 sm:mb-20">
                 <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-4">
                   The journey of a <span className="bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 bg-clip-text text-transparent italic">thought</span>
                 </h2>
               </div>
 
-              <div className="space-y-20 sm:space-y-24">
-                {/* Step 1: It appears */}
-                <div className="flex flex-col lg:flex-row items-start gap-8 lg:gap-12">
+              <div className="space-y-20 sm:space-y-28">
+                {/* Step 1: Capture */}
+                <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
                   <div className="w-full lg:w-1/2 flex-shrink-0">
-                    {/* App Mockup - Capture Screen */}
-                    <div className="bg-white rounded-2xl shadow-xl border-2 border-slate-200 overflow-hidden">
-                      <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 rounded-lg flex items-center justify-center">
-                            <Brain className="w-5 h-5 text-white" />
+                    {/* Sketch-style App Mockup - Capture Screen */}
+                    <div className="relative">
+                      <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 border-2 border-dashed border-blue-300/60 shadow-lg" style={{ transform: 'rotate(-1deg)' }}>
+                        <div className="bg-gradient-to-r from-blue-50/50 to-purple-50/50 border-b-2 border-dashed border-blue-200/40 px-4 py-3 flex items-center justify-between rounded-t-2xl">
+                          <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 bg-gradient-to-br from-purple-500 via-pink-400 to-orange-400 rounded-lg flex items-center justify-center shadow-sm">
+                              <Brain className="w-4 h-4 text-white" />
+                            </div>
+                            <span className="text-base font-bold text-slate-800">Thouthy</span>
                           </div>
-                          <span className="text-lg font-bold text-slate-900">Thouthy</span>
                         </div>
-                        <div className="w-8 h-8 bg-slate-200 rounded-full"></div>
-                      </div>
-                      <div className="p-8">
-                        <div className="mb-6">
-                          <h4 className="text-2xl font-bold text-slate-900 mb-2">What's on your <span className="text-purple-600 italic">mind?</span></h4>
-                        </div>
-                        <div className="bg-slate-50 rounded-xl p-6 border-2 border-slate-200 mb-4">
-                          <p className="text-slate-800 leading-relaxed italic">
-                            "AI speeds everything up. Good and bad stuff. 10x multiplier."
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <button className="px-6 py-3 bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 text-white rounded-lg font-semibold flex items-center gap-2">
-                            <Sparkles className="w-4 h-4" />
-                            Capture
-                          </button>
-                          <button className="p-3 bg-blue-100 text-blue-600 rounded-lg">
-                            <Mic className="w-5 h-5" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="w-full lg:w-1/2 flex-1">
-                    <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-4">It appears</h3>
-                    <p className="text-lg sm:text-xl text-slate-700 mb-6 leading-relaxed">
-                      A thought shows up at the wrong moment — driving, walking, showering. Normally, it's lost.
-                    </p>
-                    <p className="text-base sm:text-lg text-slate-600 font-medium">
-                      <span className="text-slate-900 font-semibold">Thouthy:</span> You capture it instantly.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Step 2: It finds meaning */}
-                <div className="flex flex-col lg:flex-row-reverse items-start gap-8 lg:gap-12">
-                  <div className="w-full lg:w-1/2 flex-shrink-0">
-                    {/* App Mockup - Thought with Spark */}
-                    <div className="bg-white rounded-2xl shadow-xl border-2 border-slate-200 overflow-hidden">
-                      <div className="bg-slate-50 border-b border-slate-200 px-6 py-4">
-                        <h3 className="text-xl font-bold text-slate-900">Thoughts</h3>
-                      </div>
-                      <div className="p-6">
-                        <div className="bg-white rounded-xl border-2 border-amber-300 p-6 shadow-sm">
-                          <p className="text-slate-900 text-lg leading-relaxed mb-4">
-                            AI speeds everything up. Good and bad stuff. 10x multiplier.
-                          </p>
-                          <div className="flex items-center gap-3 mb-4">
-                            <button className="flex items-center gap-2 px-3 py-1.5 bg-amber-100 text-amber-700 rounded-lg text-sm font-medium">
-                              <Sparkles className="w-4 h-4" />
-                              Spark
-                            </button>
-                            <span className="text-xs text-amber-700 font-medium">Detected: Strong opinion + Clear problem</span>
+                        <div className="p-6">
+                          <div className="mb-4">
+                            <h4 className="text-xl font-bold text-slate-900 mb-2">What's on your <span className="text-purple-500 italic">mind?</span></h4>
+                          </div>
+                          <div className="bg-gradient-to-br from-slate-50 to-blue-50/30 rounded-xl p-5 border-2 border-dashed border-slate-300/50 mb-4">
+                            <p className="text-slate-700 leading-relaxed italic text-sm">
+                              "AI speeds everything up. Good and bad stuff. 10x multiplier."
+                            </p>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded">tech</span>
-                            <span className="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded">work</span>
+                            <button className="px-5 py-2.5 bg-gradient-to-r from-pink-400 via-orange-400 to-purple-400 text-white rounded-xl font-semibold text-sm flex items-center gap-2 shadow-md">
+                              <Sparkles className="w-3.5 h-3.5" />
+                              Capture
+                            </button>
+                            <button className="p-2.5 bg-blue-100/60 text-blue-600 rounded-xl border border-dashed border-blue-300/50">
+                              <Mic className="w-4 h-4" />
+                            </button>
                           </div>
                         </div>
                       </div>
+                      {/* Decorative sketch lines */}
+                      <div className="absolute -top-2 -right-2 w-16 h-16 border-2 border-dashed border-pink-300/40 rounded-full opacity-60"></div>
+                      <div className="absolute -bottom-3 -left-3 w-12 h-12 border-2 border-dashed border-orange-300/40 rounded-full opacity-50"></div>
                     </div>
                   </div>
-                  <div className="w-full lg:w-1/2 flex-1">
-                    <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-4">It finds meaning</h3>
-                    <p className="text-lg sm:text-xl text-slate-700 mb-3 leading-relaxed">
-                      The moment it's captured, the app evaluates it:
+                  <div className="w-full lg:w-1/2 flex-1 text-center lg:text-left">
+                    <h3 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Capture</h3>
+                    <p className="text-lg sm:text-xl text-slate-600 mb-3 leading-relaxed">
+                      A thought appears at the wrong moment. Normally, it's lost.
                     </p>
-                    <ul className="list-disc list-inside text-lg sm:text-xl text-slate-700 mb-6 space-y-2 ml-2">
-                      <li>based on your past thoughts (if any)</li>
-                      <li>or on its own, if it's new</li>
-                    </ul>
-                    <p className="text-base sm:text-lg text-slate-600 font-medium">
-                      <span className="text-slate-900 font-semibold">Thouthy:</span> Instantly reveals whether the thought has <span className="font-bold text-amber-600">spark</span> and what it might be about.
+                    <p className="text-base sm:text-lg text-slate-500">
+                      <span className="text-slate-700 font-semibold">Thouthy:</span> You capture it instantly.
                     </p>
                   </div>
                 </div>
 
-                {/* Step 3: It shows potential */}
-                <div className="flex flex-col lg:flex-row items-start gap-8 lg:gap-12">
+                {/* Step 2: Discover */}
+                <div className="flex flex-col lg:flex-row-reverse items-center gap-10 lg:gap-16">
                   <div className="w-full lg:w-1/2 flex-shrink-0">
-                    {/* App Mockup - Potentials Revealed */}
-                    <div className="bg-white rounded-2xl shadow-xl border-2 border-slate-200 overflow-hidden">
-                      <div className="bg-slate-50 border-b border-slate-200 px-6 py-4">
-                        <h3 className="text-xl font-bold text-slate-900">Thoughts</h3>
-                      </div>
-                      <div className="p-6">
-                        <div className="bg-white rounded-xl border-2 border-purple-300 p-6 shadow-sm">
-                          <p className="text-slate-900 text-lg leading-relaxed mb-4">
-                            AI speeds everything up. Good and bad stuff. 10x multiplier.
-                          </p>
-                          <div className="flex items-center gap-2 mb-4">
-                            <button className="flex items-center gap-2 px-3 py-1.5 bg-amber-100 text-amber-700 rounded-lg text-sm font-medium">
-                              <Sparkles className="w-4 h-4" />
-                              Spark
-                            </button>
+                    {/* Sketch-style App Mockup - Discover (Spark & Potential) */}
+                    <div className="relative">
+                      <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 border-2 border-dashed border-amber-300/60 shadow-lg" style={{ transform: 'rotate(1deg)' }}>
+                        <div className="bg-gradient-to-r from-amber-50/50 to-purple-50/50 border-b-2 border-dashed border-amber-200/40 px-4 py-3 rounded-t-2xl">
+                          <h3 className="text-lg font-bold text-slate-800">Thoughts</h3>
+                        </div>
+                        <div className="p-5">
+                          <div className="bg-white rounded-xl border-2 border-dashed border-amber-300/60 p-5 shadow-sm mb-3">
+                            <p className="text-slate-800 text-sm leading-relaxed mb-3">
+                              AI speeds everything up. Good and bad stuff. 10x multiplier.
+                            </p>
+                            <div className="flex items-center gap-2 mb-3">
+                              <span className="px-2.5 py-1 bg-amber-100/70 text-amber-700 rounded-lg text-xs font-medium border border-dashed border-amber-300/50">
+                                ✨ Spark
+                              </span>
+                              <span className="px-2 py-0.5 bg-slate-100/70 text-slate-600 text-xs rounded border border-dashed border-slate-300/50">tech</span>
+                            </div>
                           </div>
-                          
-                          <div className="mt-6 pt-6 border-t border-slate-200">
-                            <h4 className="text-sm font-semibold text-slate-700 mb-3">Potential</h4>
+                          <div className="border-t-2 border-dashed border-purple-200/50 pt-4">
                             <div className="space-y-2">
-                              <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-                                <div>
-                                  <p className="font-medium text-slate-900">Post</p>
-                                  <p className="text-xs text-slate-600">Share this insight with others</p>
-                                </div>
-                                <button className="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-sm font-medium">
-                                  Act
-                                </button>
+                              <div className="flex items-center justify-between p-2.5 bg-purple-50/50 rounded-lg border border-dashed border-purple-200/50">
+                                <span className="text-sm font-medium text-slate-800">Post</span>
+                                <span className="text-xs text-purple-600">→</span>
                               </div>
-                              <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-                                <div>
-                                  <p className="font-medium text-slate-900">Explore Further</p>
-                                  <p className="text-xs text-slate-600">Dive deeper into this idea</p>
-                                </div>
-                                <button className="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-sm font-medium">
-                                  Act
-                                </button>
+                              <div className="flex items-center justify-between p-2.5 bg-purple-50/50 rounded-lg border border-dashed border-purple-200/50">
+                                <span className="text-sm font-medium text-slate-800">Explore</span>
+                                <span className="text-xs text-purple-600">→</span>
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
+                      {/* Decorative sketch lines */}
+                      <div className="absolute -top-3 -left-3 w-14 h-14 border-2 border-dashed border-amber-300/40 rounded-full opacity-60"></div>
+                      <div className="absolute -bottom-2 -right-2 w-10 h-10 border-2 border-dashed border-purple-300/40 rounded-full opacity-50"></div>
                     </div>
                   </div>
-                  <div className="w-full lg:w-1/2 flex-1">
-                    <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-4">It shows potential</h3>
-                    <p className="text-lg sm:text-xl text-slate-700 mb-6 leading-relaxed">
-                      If a thought matters, it often wants to become something — or nothing at all.
+                  <div className="w-full lg:w-1/2 flex-1 text-center lg:text-left">
+                    <h3 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Discover</h3>
+                    <p className="text-lg sm:text-xl text-slate-600 mb-3 leading-relaxed">
+                      The app evaluates it and reveals <span className="font-semibold text-amber-600">spark</span> and <span className="font-semibold text-purple-600">potential</span>.
                     </p>
-                    <p className="text-base sm:text-lg text-slate-600 font-medium">
-                      <span className="text-slate-900 font-semibold">Thouthy:</span> Shows what the thought <span className="font-bold text-purple-600">could become</span> (post, idea, conversation), without forcing anything.
+                    <p className="text-base sm:text-lg text-slate-500">
+                      <span className="text-slate-700 font-semibold">Thouthy:</span> Shows what it could become, without forcing anything.
                     </p>
                   </div>
                 </div>
 
-                {/* Step 4: It becomes action — only if you choose */}
-                <div className="flex flex-col lg:flex-row-reverse items-start gap-8 lg:gap-12">
+                {/* Step 3: Act */}
+                <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
                   <div className="w-full lg:w-1/2 flex-shrink-0">
-                    {/* App Mockup - Actions View */}
-                    <div className="bg-white rounded-2xl shadow-xl border-2 border-slate-200 overflow-hidden">
-                      <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center gap-4">
-                        <button className="text-slate-400">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                          </svg>
-                        </button>
-                        <h3 className="text-xl font-bold text-slate-900">Actions</h3>
-                      </div>
-                      <div className="p-6">
-                        <div className="space-y-4">
-                          {/* LinkedIn Action */}
-                          <div className="bg-white rounded-xl border-2 border-emerald-200 p-5 shadow-sm">
-                            <div className="flex items-start gap-4">
-                              <div className="w-6 h-6 border-2 border-slate-300 rounded-full flex-shrink-0 mt-1"></div>
+                    {/* Sketch-style App Mockup - Actions */}
+                    <div className="relative">
+                      <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 border-2 border-dashed border-emerald-300/60 shadow-lg" style={{ transform: 'rotate(-0.5deg)' }}>
+                        <div className="bg-gradient-to-r from-emerald-50/50 to-blue-50/50 border-b-2 border-dashed border-emerald-200/40 px-4 py-3 flex items-center gap-3 rounded-t-2xl">
+                          <span className="text-slate-400">←</span>
+                          <h3 className="text-lg font-bold text-slate-800">Actions</h3>
+                        </div>
+                        <div className="p-5">
+                          <div className="bg-white rounded-xl border-2 border-dashed border-emerald-300/60 p-4 shadow-sm">
+                            <div className="flex items-start gap-3">
+                              <div className="w-5 h-5 border-2 border-dashed border-slate-300 rounded-full flex-shrink-0 mt-0.5"></div>
                               <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-3">
-                                  <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                                    <Linkedin className="w-4 h-4 text-white" />
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div className="w-7 h-7 bg-blue-500/80 rounded-lg flex items-center justify-center">
+                                    <Linkedin className="w-3.5 h-3.5 text-white" />
                                   </div>
-                                  <h4 className="font-semibold text-slate-900">Posted on LinkedIn</h4>
-                                  <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0 ml-auto">
-                                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <span className="text-sm font-semibold text-slate-800">Posted on LinkedIn</span>
+                                  <div className="w-4 h-4 bg-emerald-400 rounded-full flex items-center justify-center ml-auto">
+                                    <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                     </svg>
                                   </div>
                                 </div>
-                                <div className="bg-blue-50 rounded-lg p-4 mb-3 border border-blue-100">
+                                <div className="bg-blue-50/50 rounded-lg p-3 border border-dashed border-blue-200/50">
                                   <p className="text-xs text-slate-700 leading-relaxed">
-                                    AI doesn't just accelerate your work. It amplifies everything—including your mistakes. Quality gates aren't optional anymore.
+                                    AI 10x's whatever you give it. Quality gates aren't optional anymore. 🚀
                                   </p>
                                 </div>
                               </div>
@@ -748,15 +697,18 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                           </div>
                         </div>
                       </div>
+                      {/* Decorative sketch lines */}
+                      <div className="absolute -top-2 -right-2 w-12 h-12 border-2 border-dashed border-emerald-300/40 rounded-full opacity-60"></div>
+                      <div className="absolute -bottom-3 -left-3 w-16 h-16 border-2 border-dashed border-blue-300/40 rounded-full opacity-50"></div>
                     </div>
                   </div>
-                  <div className="w-full lg:w-1/2 flex-1">
-                    <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-4">It becomes action — only if you choose</h3>
-                    <p className="text-lg sm:text-xl text-slate-700 mb-6 leading-relaxed">
-                      When you're ready, you act with clarity instead of pressure.
+                  <div className="w-full lg:w-1/2 flex-1 text-center lg:text-left">
+                    <h3 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Act</h3>
+                    <p className="text-lg sm:text-xl text-slate-600 mb-3 leading-relaxed">
+                      When you're ready, you act with clarity — post, to-do, conversation.
                     </p>
-                    <p className="text-base sm:text-lg text-slate-600 font-medium">
-                      <span className="text-slate-900 font-semibold">Thouthy:</span> Helps you act on the thoughts that truly matter.
+                    <p className="text-base sm:text-lg text-slate-500">
+                      <span className="text-slate-700 font-semibold">Thouthy:</span> Helps you act on the thoughts that truly matter.
                     </p>
                   </div>
                 </div>
