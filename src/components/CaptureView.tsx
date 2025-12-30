@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useGenieNotesStore } from '../store';
-import { Mic, MicOff, Sparkles, CheckCircle, Upload, Search, Mail, Twitter, Linkedin, Instagram, Brain, Lightbulb, X } from 'lucide-react';
+import { Mic, MicOff, Sparkles, CheckCircle, Upload, Search, Twitter, Linkedin, Instagram, Brain, Lightbulb } from 'lucide-react';
 import { saveTrainingData } from '../lib/db';
 import UserAvatar from './UserAvatar';
 
@@ -8,152 +8,6 @@ interface CaptureViewProps {
   onOrganizeClick?: (mode?: 'login' | 'signup') => void;
 }
 
-interface EmailSubscriptionProps {
-  onSuccess?: () => void;
-  variant?: 'hero' | 'modal';
-}
-
-const EmailSubscription: React.FC<EmailSubscriptionProps> = ({ onSuccess, variant = 'hero' }) => {
-  const [email, setEmail] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!email || !email.includes('@')) {
-      setMessage({ type: 'error', text: 'Please enter a valid email address' });
-      return;
-    }
-
-    setIsSubmitting(true);
-    setMessage(null);
-
-    try {
-      // Use EmailJS - simple email service
-      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'YOUR_SERVICE_ID';
-      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'YOUR_TEMPLATE_ID';
-      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'YOUR_PUBLIC_KEY';
-      
-      const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          service_id: serviceId,
-          template_id: templateId,
-          user_id: publicKey,
-          template_params: {
-            email: email,
-            to_email: 'ovidon83@gmail.com',
-            subject: 'New Thouthy Early Access Subscription',
-            message: `New email subscription: ${email}`,
-          },
-        }),
-      });
-
-      if (response.ok) {
-        setMessage({ type: 'success', text: 'Successfully subscribed! We\'ll be in touch soon.' });
-        setEmail('');
-        // Close modal after 2 seconds on success
-        if (onSuccess) {
-          setTimeout(() => {
-            onSuccess();
-          }, 2000);
-        }
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        setMessage({ type: 'error', text: errorData.text || 'Failed to subscribe. Please try again.' });
-      }
-    } catch (error) {
-      console.error('Subscription error:', error);
-      setMessage({ type: 'error', text: 'Failed to subscribe. Please try again later.' });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Hero variant - simple horizontal layout
-  if (variant === 'hero') {
-    return (
-      <div className="relative">
-        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-md mx-auto">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
-            className="flex-1 px-4 sm:px-5 py-3 sm:py-4 rounded-xl border-2 border-slate-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base transition-all duration-200"
-            disabled={isSubmitting}
-          />
-          <button
-            type="submit"
-            disabled={isSubmitting || !email}
-            className={`px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-sm sm:text-base transition-all duration-200 min-h-[44px] ${
-              isSubmitting || !email
-                ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
-                : 'bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 text-white hover:from-purple-700 hover:via-pink-600 hover:to-orange-600 shadow-lg hover:shadow-xl font-bold'
-            }`}
-          >
-            {isSubmitting ? 'Subscribing...' : 'Early Access'}
-          </button>
-        </form>
-        {message && (
-          <div className={`absolute top-full mt-4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-lg text-sm whitespace-nowrap ${
-            message.type === 'success' 
-              ? 'bg-purple-50 text-purple-700 border border-purple-200' 
-              : 'bg-red-50 text-red-700 border border-red-200'
-          }`}>
-            {message.text}
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // Modal variant - enhanced vertical layout
-  return (
-    <div className="relative">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="relative">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="your@email.com"
-            className="w-full px-5 py-4 rounded-xl border-2 border-slate-200 focus:border-purple-400 focus:outline-none focus:ring-4 focus:ring-purple-100 text-base transition-all duration-200 bg-white shadow-sm hover:border-purple-300"
-            disabled={isSubmitting}
-          />
-          <Mail className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
-        </div>
-        <button
-          type="submit"
-          disabled={isSubmitting || !email}
-          className={`w-full py-3 rounded-lg font-medium text-sm transition-all duration-200 ${
-            isSubmitting || !email
-              ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-              : 'bg-slate-900 text-white hover:bg-slate-800'
-          }`}
-        >
-          {isSubmitting ? 'Subscribing...' : 'Join Early Access'}
-        </button>
-      </form>
-      {message && (
-        <div className={`mt-4 px-4 py-3 rounded-xl text-sm text-center animate-in fade-in slide-in-from-top-2 duration-300 ${
-          message.type === 'success' 
-            ? 'bg-gradient-to-r from-purple-50 to-pink-50 text-purple-700 border border-purple-200' 
-            : 'bg-red-50 text-red-700 border border-red-200'
-        }`}>
-          <div className="flex items-center justify-center gap-2">
-            {message.type === 'success' ? (
-              <CheckCircle className="w-5 h-5" />
-            ) : null}
-            <span>{message.text}</span>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-  };
 
 const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
   const { processAndSaveThought, setCurrentView, user, signOut, pendingText, setPendingText } = useGenieNotesStore();
@@ -174,7 +28,6 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
   const [error, setError] = useState<string | null>(null);
   const [showUpload, setShowUpload] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const [showEmailModal, setShowEmailModal] = useState(false);
   
   const recognitionRef = useRef<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -332,9 +185,13 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
     const textToProcess = transcript || inputText;
     if (!textToProcess.trim()) return;
     
-    // If not logged in, show email subscription modal
+    // If not logged in, trigger login/signup
     if (!user) {
-      setShowEmailModal(true);
+      if (onOrganizeClick) {
+        // Save text as pending so it can be restored after login
+        setPendingText(textToProcess.trim());
+        onOrganizeClick('signup');
+      }
       return;
     }
     
@@ -446,7 +303,22 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 </button>
                 <UserAvatar user={user} onLogout={signOut} />
               </>
-            ) : null}
+            ) : (
+              <>
+                <button
+                  onClick={() => onOrganizeClick?.('login')}
+                  className="px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 border border-slate-200 hover:border-slate-300 rounded-lg transition-all min-h-[40px] sm:min-h-[44px]"
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => onOrganizeClick?.('signup')}
+                  className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 hover:from-pink-600 hover:via-orange-600 hover:to-purple-600 rounded-lg transition-all shadow-lg hover:shadow-xl min-h-[40px] sm:min-h-[44px]"
+                >
+                  Sign Up
+                </button>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -488,9 +360,6 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
               <p className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 mb-6 sm:mb-8 tracking-wide">
                 Capture. Find spark & potential. Act
               </p>
-              <div className="mt-6 sm:mt-8 px-2">
-                <EmailSubscription onSuccess={() => setShowEmailModal(false)} />
-          </div>
                 </div>
           </section>
 
@@ -1367,30 +1236,6 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
         </div>
       )}
 
-      {/* Email Subscription Modal */}
-      {showEmailModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowEmailModal(false)}>
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 relative" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => setShowEmailModal(false)}
-              className="absolute top-4 right-4 p-1 text-slate-400 hover:text-slate-600 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-            
-            <div className="mb-4">
-              <h2 className="text-xl font-semibold text-slate-900 mb-1">
-                Get Early Access
-              </h2>
-              <p className="text-sm text-slate-600">
-                Join the waitlist.
-              </p>
-            </div>
-            
-            <EmailSubscription variant="modal" onSuccess={() => setShowEmailModal(false)} />
-          </div>
-        </div>
-      )}
     </div>
   );
 };
