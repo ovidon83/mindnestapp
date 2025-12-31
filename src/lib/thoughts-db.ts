@@ -1,22 +1,126 @@
 import { supabase } from './supabase';
-import { Thought, Action, Potential } from '../types';
+import { Thought, Action, PotentialType, SharePosts, TodoData, InsightData } from '../types';
 
 // Convert database thought to app Thought format
 export function dbThoughtToThought(dbThought: any): Thought {
+  // Handle backward compatibility - migrate old action fields to new potential system
+  let potential: PotentialType | null = null;
+  let bestPotential: PotentialType | null = null;
+  
+  if (dbThought.potential) {
+    potential = dbThought.potential;
+  } else if (dbThought.selected_action) {
+    // Migrate old selectedAction to new potential
+    const actionMap: Record<string, PotentialType> = {
+      'Share': 'Share',
+      'To-Do': 'To-Do',
+      'ToDo': 'To-Do',
+      'Conversation': 'Insight', // Conversation becomes Insight
+    };
+    potential = actionMap[dbThought.selected_action] || null;
+  } else if (dbThought.best_action) {
+    const actionMap: Record<string, PotentialType> = {
+      'Share': 'Share',
+      'To-Do': 'To-Do',
+      'ToDo': 'To-Do',
+      'Conversation': 'Insight',
+    };
+    potential = actionMap[dbThought.best_action] || null;
+  }
+  
+  if (dbThought.best_potential) {
+    bestPotential = dbThought.best_potential;
+  } else if (dbThought.best_action) {
+    const actionMap: Record<string, PotentialType> = {
+      'Share': 'Share',
+      'To-Do': 'To-Do',
+      'ToDo': 'To-Do',
+      'Conversation': 'Insight',
+    };
+    bestPotential = actionMap[dbThought.best_action] || null;
+  }
+  
+  // Default to "Just a thought" if no potential is set
+  if (!potential && !bestPotential) {
+    potential = 'Just a thought';
+    bestPotential = 'Just a thought';
+  } else if (!potential && bestPotential) {
+    // If bestPotential exists but potential doesn't, use bestPotential as potential
+    potential = bestPotential;
+  } else if (potential && !bestPotential) {
+    // If potential exists but bestPotential doesn't, use potential as bestPotential
+    bestPotential = potential;
+  }
+  
+  // Parse potential-specific data
+  let sharePosts: SharePosts | undefined;
+  let todoData: TodoData | undefined;
+  let insightData: InsightData | undefined;
+  
+  if (dbThought.share_posts) {
+    try {
+      const posts = typeof dbThought.share_posts === 'string' 
+        ? JSON.parse(dbThought.share_posts) 
+        : dbThought.share_posts;
+      sharePosts = {
+        linkedin: posts.linkedin,
+        twitter: posts.twitter,
+        instagram: posts.instagram,
+        generatedAt: posts.generatedAt ? new Date(posts.generatedAt) : undefined,
+        shared: posts.shared ? {
+          linkedin: posts.shared.linkedin || false,
+          twitter: posts.shared.twitter || false,
+          instagram: posts.shared.instagram || false,
+          sharedAt: posts.shared.sharedAt ? new Date(posts.shared.sharedAt) : undefined,
+        } : undefined,
+      };
+    } catch (e) {
+      console.error('Error parsing share_posts:', e);
+    }
+  }
+  
+  if (dbThought.todo_data) {
+    try {
+      const todo = typeof dbThought.todo_data === 'string'
+        ? JSON.parse(dbThought.todo_data)
+        : dbThought.todo_data;
+      todoData = {
+        completed: todo.completed || false,
+        completedAt: todo.completedAt ? new Date(todo.completedAt) : undefined,
+        notes: todo.notes,
+      };
+    } catch (e) {
+      console.error('Error parsing todo_data:', e);
+    }
+  }
+  
+  if (dbThought.insight_data) {
+    try {
+      const insight = typeof dbThought.insight_data === 'string'
+        ? JSON.parse(dbThought.insight_data)
+        : dbThought.insight_data;
+      insightData = {
+        content: insight.content || '',
+        format: insight.format || 'short',
+        updatedAt: insight.updatedAt ? new Date(insight.updatedAt) : undefined,
+      };
+    } catch (e) {
+      console.error('Error parsing insight_data:', e);
+    }
+  }
+  
   return {
     id: dbThought.id,
     originalText: dbThought.original_text,
     tags: dbThought.tags || [],
     summary: dbThought.summary,
     isSpark: dbThought.is_spark || false,
-    potentials: (dbThought.potentials || []).map((p: any) => ({
-      id: p.id || crypto.randomUUID(),
-      type: p.type,
-      title: p.title,
-      description: p.description,
-      draft: p.draft,
-      createdAt: p.createdAt ? new Date(p.createdAt) : new Date(),
-    })),
+    isParked: dbThought.is_parked || false,
+    potential: potential || 'Just a thought',
+    bestPotential: bestPotential || 'Just a thought',
+    sharePosts,
+    todoData,
+    insightData,
     createdAt: new Date(dbThought.created_at),
     updatedAt: new Date(dbThought.updated_at),
   };
@@ -24,24 +128,55 @@ export function dbThoughtToThought(dbThought: any): Thought {
 
 // Convert app Thought to database format
 export function thoughtToDbThought(thought: Thought): any {
-  return {
+  const dbThought: any = {
     id: thought.id,
     original_text: thought.originalText,
     tags: thought.tags,
     summary: thought.summary,
     is_spark: thought.isSpark,
-    potentials: thought.potentials.map(p => ({
-      id: p.id,
-      type: p.type,
-      title: p.title,
-      description: p.description,
-      draft: p.draft,
-      createdAt: p.createdAt.toISOString(),
-    })),
+    is_parked: thought.isParked || false,
   };
+  
+  // New potential system - default to "Just a thought" if not set
+  dbThought.potential = thought.potential || 'Just a thought';
+  dbThought.best_potential = thought.bestPotential || 'Just a thought';
+  
+  // Potential-specific data
+  if (thought.sharePosts) {
+    dbThought.share_posts = {
+      linkedin: thought.sharePosts.linkedin,
+      twitter: thought.sharePosts.twitter,
+      instagram: thought.sharePosts.instagram,
+      generatedAt: thought.sharePosts.generatedAt?.toISOString(),
+      shared: thought.sharePosts.shared ? {
+        linkedin: thought.sharePosts.shared.linkedin || false,
+        twitter: thought.sharePosts.shared.twitter || false,
+        instagram: thought.sharePosts.shared.instagram || false,
+        sharedAt: thought.sharePosts.shared.sharedAt?.toISOString(),
+      } : undefined,
+    };
+  }
+  
+  if (thought.todoData) {
+    dbThought.todo_data = {
+      completed: thought.todoData.completed,
+      completedAt: thought.todoData.completedAt?.toISOString(),
+      notes: thought.todoData.notes,
+    };
+  }
+  
+  if (thought.insightData) {
+    dbThought.insight_data = {
+      content: thought.insightData.content,
+      format: thought.insightData.format || 'short',
+      updatedAt: thought.insightData.updatedAt?.toISOString(),
+    };
+  }
+  
+  return dbThought;
 }
 
-// Convert database action to app Action format
+// Convert database action to app Action format (kept for backward compatibility)
 export function dbActionToAction(dbAction: any): Action {
   return {
     id: dbAction.id,
@@ -104,34 +239,83 @@ export async function insertThought(thought: Omit<Thought, 'id' | 'createdAt' | 
 }
 
 // Update a thought
-export async function updateThought(id: string, updates: Partial<Thought>): Promise<Thought> {
+export async function updateThought(id: string, updates: Partial<Thought>): Promise<Thought | null> {
   const updateData: any = {};
   
   if (updates.originalText !== undefined) updateData.original_text = updates.originalText;
   if (updates.tags !== undefined) updateData.tags = updates.tags;
   if (updates.summary !== undefined) updateData.summary = updates.summary;
   if (updates.isSpark !== undefined) updateData.is_spark = updates.isSpark;
-  if (updates.potentials !== undefined) {
-    updateData.potentials = updates.potentials.map(p => ({
-      id: p.id,
-      type: p.type,
-      title: p.title,
-      description: p.description,
-      draft: p.draft,
-      createdAt: p.createdAt.toISOString(),
-    }));
+  if (updates.isParked !== undefined) updateData.is_parked = updates.isParked;
+  
+  // New potential system
+  if (updates.potential !== undefined) updateData.potential = updates.potential;
+  if (updates.bestPotential !== undefined) updateData.best_potential = updates.bestPotential;
+  
+  // Potential-specific data
+  if (updates.sharePosts !== undefined) {
+    updateData.share_posts = updates.sharePosts ? {
+      linkedin: updates.sharePosts.linkedin,
+      twitter: updates.sharePosts.twitter,
+      instagram: updates.sharePosts.instagram,
+      generatedAt: updates.sharePosts.generatedAt?.toISOString(),
+    } : null;
   }
+  
+  if (updates.todoData !== undefined) {
+    updateData.todo_data = updates.todoData ? {
+      completed: updates.todoData.completed,
+      completedAt: updates.todoData.completedAt?.toISOString(),
+      notes: updates.todoData.notes,
+    } : null;
+  }
+  
+  if (updates.insightData !== undefined) {
+    updateData.insight_data = updates.insightData ? {
+      content: updates.insightData.content,
+      format: updates.insightData.format || 'short',
+      updatedAt: updates.insightData.updatedAt?.toISOString(),
+    } : null;
+  }
+  
+  // Always update updated_at
+  updateData.updated_at = new Date().toISOString();
+
+  // Build safe update object - only include defined fields
+  const safeUpdateData: any = {
+    updated_at: updateData.updated_at,
+  };
+  
+  if (updateData.original_text !== undefined) safeUpdateData.original_text = updateData.original_text;
+  if (updateData.tags !== undefined) safeUpdateData.tags = updateData.tags;
+  if (updateData.summary !== undefined) safeUpdateData.summary = updateData.summary;
+  if (updateData.is_spark !== undefined) safeUpdateData.is_spark = updateData.is_spark;
+  if (updateData.is_parked !== undefined) safeUpdateData.is_parked = updateData.is_parked;
+  if (updateData.potential !== undefined) safeUpdateData.potential = updateData.potential;
+  if (updateData.best_potential !== undefined) safeUpdateData.best_potential = updateData.best_potential;
+  if (updateData.share_posts !== undefined) safeUpdateData.share_posts = updateData.share_posts;
+  if (updateData.todo_data !== undefined) safeUpdateData.todo_data = updateData.todo_data;
+  if (updateData.insight_data !== undefined) safeUpdateData.insight_data = updateData.insight_data;
 
   const { data, error } = await (supabase as any)
     .from('thoughts')
-    .update(updateData as any)
+    .update(safeUpdateData)
     .eq('id', id)
     .select()
     .single();
 
   if (error) {
+    // Handle 406 (Not Acceptable) gracefully - might mean row doesn't exist
+    if (error.code === 'PGRST116' || error.status === 406 || error.message?.includes('406')) {
+      console.warn('Thought update returned 406, row may not exist:', id);
+      return null;
+    }
     console.error('Error updating thought:', error);
     throw error;
+  }
+
+  if (!data) {
+    return null;
   }
 
   return dbThoughtToThought(data);
@@ -150,7 +334,7 @@ export async function deleteThought(id: string): Promise<void> {
   }
 }
 
-// Fetch all actions for current user
+// Fetch all actions for current user (kept for backward compatibility)
 export async function fetchActions(): Promise<Action[]> {
   const { data, error } = await supabase
     .from('actions')
@@ -165,7 +349,7 @@ export async function fetchActions(): Promise<Action[]> {
   return (data || []).map(dbActionToAction);
 }
 
-// Insert a new action
+// Insert a new action (kept for backward compatibility)
 export async function insertAction(action: Omit<Action, 'id' | 'createdAt' | 'updatedAt'>): Promise<Action> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
@@ -199,7 +383,7 @@ export async function insertAction(action: Omit<Action, 'id' | 'createdAt' | 'up
   return dbActionToAction(data);
 }
 
-// Update an action
+// Update an action (kept for backward compatibility)
 export async function updateAction(id: string, updates: Partial<Action>): Promise<Action> {
   const updateData: any = {};
   
@@ -222,7 +406,7 @@ export async function updateAction(id: string, updates: Partial<Action>): Promis
   return dbActionToAction(data);
 }
 
-// Delete an action
+// Delete an action (kept for backward compatibility)
 export async function deleteAction(id: string): Promise<void> {
   const { error } = await supabase
     .from('actions')
@@ -234,4 +418,3 @@ export async function deleteAction(id: string): Promise<void> {
     throw error;
   }
 }
-

@@ -1,75 +1,93 @@
 import React from 'react';
+import { Brain, Plus, Sparkles, CheckCircle, Calendar, X, Share2, ListTodo } from 'lucide-react';
 import { AppView } from '../types';
-import { Sparkles, Share2, Plus, Inbox, Eye, User, Brain } from 'lucide-react';
-import { useGenieNotesStore } from '../store';
 import UserAvatar from './UserAvatar';
 
 interface NavigationProps {
   currentView: AppView;
   onViewChange: (view: AppView) => void;
+  user: any;
+  onLogout: () => void;
+  onCaptureClick?: () => void;
 }
 
-const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange }) => {
-  const { user, signOut } = useGenieNotesStore();
-  const navItems = [
-    { id: 'mindbox' as AppView, label: 'Mindbox', icon: Inbox, color: 'indigo' },
-    { id: 'shareit' as AppView, label: 'Share it', icon: Share2, color: 'blue' },
-    { id: 'companion' as AppView, label: 'Companion', icon: Eye, color: 'slate' },
-    { id: 'profile' as AppView, label: 'Profile', icon: User, color: 'purple' },
-  ];
-
+const Navigation: React.FC<NavigationProps> = ({
+  currentView,
+  onViewChange,
+  user,
+  onLogout,
+  onCaptureClick,
+}) => {
   return (
-    <nav className="bg-white/60 backdrop-blur-sm sticky top-0 z-50 border-b border-slate-200/50">
-      <div className="w-full px-4 sm:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 py-3 sm:py-4">
-          {/* Left: Logo - Match landing page exactly */}
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="relative w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all">
-              <Brain className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-white relative z-10" strokeWidth={2.5} fill="white" fillOpacity="0.3" />
+    <nav className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b-2 border-slate-200/50 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <div className="flex items-center gap-3">
+            <div className="relative w-10 h-10 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 rounded-lg flex items-center justify-center shadow-lg">
+              <Brain className="w-6 h-6 text-white" strokeWidth={2.5} fill="white" fillOpacity="0.3" />
             </div>
-            <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">Thouthy</span>
-          </div>
-          
-          {/* Middle: Navigation tabs - scrollable on mobile, inline on desktop */}
-          <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0 scrollbar-hide sm:flex-1 sm:flex sm:justify-center sm:gap-1">
-            <div className="flex items-center gap-1 min-w-max sm:min-w-0">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = currentView === item.id;
-              const colorClasses = {
-                indigo: isActive ? 'bg-orange-50 text-orange-700 border border-orange-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
-                blue: isActive ? 'bg-purple-50 text-purple-700 border border-purple-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
-                slate: isActive ? 'bg-slate-100 text-slate-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
-                purple: isActive ? 'bg-pink-50 text-pink-700 border border-pink-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
-              };
-                
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => onViewChange(item.id)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2 whitespace-nowrap min-h-[40px] ${colorClasses[item.color as keyof typeof colorClasses]}`}
-                  >
-                    <Icon className="w-4 h-4 flex-shrink-0" />
-                    <span>{item.label}</span>
-                  </button>
-                );
-              })}
-            </div>
+            <span className="text-2xl font-bold text-slate-900 tracking-tight">Thouthy</span>
           </div>
 
-          {/* Right: New Thought button and Avatar */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          {/* Navigation Links */}
+          <div className="hidden md:flex items-center gap-1">
             <button
-              onClick={() => onViewChange('capture')}
-              className="px-4 py-2 text-sm font-medium bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 text-white rounded-lg hover:from-pink-600 hover:via-orange-600 hover:to-purple-600 transition-all shadow-lg hover:shadow-xl flex items-center gap-2 min-h-[40px]"
+              onClick={() => onViewChange('thoughts')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                currentView === 'thoughts'
+                  ? 'bg-purple-100/70 text-purple-700 border border-dashed border-purple-300/50'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              <Sparkles className="w-4 h-4" />
+              Thoughts
+            </button>
+            <button
+              onClick={() => onViewChange('shareit')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                currentView === 'shareit'
+                  ? 'bg-indigo-100/70 text-indigo-700 border border-dashed border-indigo-300/50'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              <Share2 className="w-4 h-4" />
+              To Share
+            </button>
+            <button
+              onClick={() => onViewChange('todo')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                currentView === 'todo'
+                  ? 'bg-emerald-100/70 text-emerald-700 border border-dashed border-emerald-300/50'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              <ListTodo className="w-4 h-4" />
+              To Do
+            </button>
+            <button
+              onClick={() => onViewChange('review')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                currentView === 'review'
+                  ? 'bg-pink-100/70 text-pink-700 border border-dashed border-pink-300/50'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              <Calendar className="w-4 h-4" />
+              Review
+            </button>
+          </div>
+
+          {/* Right Side Actions */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onCaptureClick || (() => onViewChange('capture'))}
+              className="px-4 py-2 bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 text-white rounded-lg text-sm font-medium hover:shadow-lg transition-all flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">New Thought</span>
-              <span className="sm:hidden">New</span>
+              <span className="hidden sm:inline">Capture</span>
             </button>
-            {user && (
-              <UserAvatar user={user} onLogout={signOut} />
-            )}
+            <UserAvatar user={user} onLogout={onLogout} />
           </div>
         </div>
       </div>
@@ -78,4 +96,3 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, onViewChange }) =>
 };
 
 export default Navigation;
-

@@ -3,9 +3,10 @@ import { useGenieNotesStore } from '../store';
 import { fetchUserProfile, saveUserProfile } from '../lib/db';
 import { UserProfile } from '../types';
 import { Save, Loader2 } from 'lucide-react';
+import Navigation from './Navigation';
 
 const ProfileView: React.FC = () => {
-  const { user } = useGenieNotesStore();
+  const { user, setCurrentView, signOut } = useGenieNotesStore();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -144,9 +145,16 @@ const ProfileView: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8 px-4 sm:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <Navigation
+        currentView="profile"
+        onViewChange={setCurrentView}
+        user={user}
+        onLogout={signOut}
+      />
+      <div className="py-8 px-4 sm:px-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-8">
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-slate-900 mb-2">Your Profile</h1>
@@ -439,6 +447,7 @@ const ProfileView: React.FC = () => {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 };

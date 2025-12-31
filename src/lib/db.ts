@@ -260,8 +260,17 @@ export async function fetchUserProfile(): Promise<UserProfile | null> {
       // No profile found, return null
       return null;
     }
-    console.error('Error fetching user profile:', error);
-    throw error;
+    // Handle 406 (Not Acceptable) - table might not exist or RLS issue
+    if (error.code === 'PGRST116' || error.message?.includes('406') || error.status === 406) {
+      // Silently return null - profile is optional
+      return null;
+    }
+    // Only log non-critical errors
+    if (error.code !== 'PGRST116') {
+      console.error('Error fetching user profile:', error);
+    }
+    // Return null instead of throwing for graceful degradation
+    return null;
   }
 
   return {

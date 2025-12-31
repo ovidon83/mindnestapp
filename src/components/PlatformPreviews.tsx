@@ -1,0 +1,410 @@
+import React from 'react';
+import { Linkedin, Twitter, Instagram, Copy, CheckCircle2 } from 'lucide-react';
+
+interface PlatformPreviewProps {
+  platform: 'linkedin' | 'twitter' | 'instagram';
+  content: string;
+  onCopy: () => void;
+  copied: boolean;
+}
+
+// Helper to format content with better line breaks and spacing
+const formatContent = (content: string): string => {
+  // Split by double newlines for paragraphs
+  const paragraphs = content.split(/\n\n+/);
+  return paragraphs.join('\n\n');
+};
+
+export const LinkedInPreview: React.FC<Omit<PlatformPreviewProps, 'platform'>> = ({ content, onCopy, copied }) => {
+  const formattedContent = formatContent(content);
+  const lines = formattedContent.split('\n');
+  
+  return (
+    <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-visible w-full">
+      {/* LinkedIn Header */}
+      <div className="bg-white p-4">
+        <div className="flex items-start gap-3">
+          <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+            <span className="text-white font-semibold text-sm">U</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <div className="font-semibold text-slate-900 text-[15px]">Your Name</div>
+              <svg viewBox="0 0 16 16" className="w-4 h-4 text-blue-600" fill="currentColor">
+                <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm3.5 7.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
+              </svg>
+              <div className="text-xs text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">Following</div>
+            </div>
+            <div className="text-xs text-slate-600 mb-1">Your Title • Startups, Leadership, Product</div>
+            <div className="flex items-center gap-1 text-xs text-slate-500">
+              <span>18h</span>
+              <svg viewBox="0 0 16 16" className="w-3 h-3" fill="currentColor">
+                <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm.5 4.5a.5.5 0 0 0-1 0v3a.5.5 0 0 0 .252.434l3 1.5a.5.5 0 0 0 .496-.868L8.5 7.03V4.5z"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* LinkedIn Content */}
+      <div className="px-4 pb-3">
+        <div className="text-slate-900 text-[14px] leading-[1.5] font-normal">
+          {lines.map((line, index) => {
+            // Check if line is a bullet point
+            if (line.trim().startsWith('-') || line.trim().startsWith('•')) {
+              return (
+                <div key={index} className="flex items-start gap-2 mb-1.5">
+                  <span className="text-slate-600 mt-0.5">•</span>
+                  <span>{line.trim().substring(1).trim()}</span>
+                </div>
+              );
+            }
+            // Check if line is a hashtag
+            if (line.trim().startsWith('#')) {
+              return (
+                <div key={index} className="mt-2">
+                  <span className="text-blue-600 hover:underline cursor-pointer">{line.trim()}</span>
+                </div>
+              );
+            }
+            // Check if line is empty (paragraph break)
+            if (line.trim() === '') {
+              return <div key={index} className="h-2" />;
+            }
+            // Regular line
+            return (
+              <p key={index} className="mb-2 last:mb-0">
+                {line}
+              </p>
+            );
+          })}
+        </div>
+      </div>
+      
+      {/* LinkedIn Embedded Image Placeholder */}
+      <div className="px-4 pb-3">
+        <div className="w-full bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
+          <div className="aspect-video bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
+            <div className="text-center">
+              <div className="text-3xl mb-2">📷</div>
+              <div className="text-xs text-slate-500">Image/Video placeholder</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* LinkedIn Engagement */}
+      <div className="px-4 pb-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            <div className="flex -space-x-1">
+              <div className="w-5 h-5 bg-blue-600 rounded-full border-2 border-white flex items-center justify-center">
+                <span className="text-white text-[10px]">👍</span>
+              </div>
+              <div className="w-5 h-5 bg-red-500 rounded-full border-2 border-white flex items-center justify-center">
+                <span className="text-white text-[10px]">❤️</span>
+              </div>
+              <div className="w-5 h-5 bg-yellow-500 rounded-full border-2 border-white flex items-center justify-center">
+                <span className="text-white text-[10px]">💡</span>
+              </div>
+            </div>
+            <span className="text-xs text-slate-600 ml-1">121</span>
+          </div>
+          <div className="text-xs text-slate-500">
+            <span>8 comments</span>
+            <span className="mx-1">•</span>
+            <span>2 reposts</span>
+          </div>
+        </div>
+      </div>
+      
+      {/* LinkedIn Footer Actions */}
+      <div className="px-4 py-2 border-t border-slate-200 flex items-center justify-around">
+        <button className="flex items-center gap-2 text-slate-600 hover:text-blue-600 transition-colors py-1.5 px-2 rounded">
+          <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/>
+          </svg>
+          <span className="text-sm font-medium">Like</span>
+        </button>
+        <button className="flex items-center gap-2 text-slate-600 hover:text-blue-600 transition-colors py-1.5 px-2 rounded">
+          <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span className="text-sm font-medium">Comment</span>
+        </button>
+        <button className="flex items-center gap-2 text-slate-600 hover:text-blue-600 transition-colors py-1.5 px-2 rounded">
+          <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/>
+          </svg>
+          <span className="text-sm font-medium">Repost</span>
+        </button>
+        <button className="flex items-center gap-2 text-slate-600 hover:text-blue-600 transition-colors py-1.5 px-2 rounded">
+          <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+          </svg>
+          <span className="text-sm font-medium">Send</span>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export const TwitterPreview: React.FC<Omit<PlatformPreviewProps, 'platform'>> = ({ content, onCopy, copied }) => {
+  const formattedContent = formatContent(content);
+  const lines = formattedContent.split('\n');
+  
+  return (
+    <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-visible w-full">
+      {/* Twitter Header */}
+      <div className="bg-white p-4">
+        <div className="flex items-start justify-between">
+          <div className="flex items-start gap-3 flex-1">
+            <div className="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-slate-600 font-semibold text-sm">U</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <div className="font-bold text-slate-900 text-[15px]">Your Name</div>
+                <svg viewBox="0 0 22 22" className="w-5 h-5 text-blue-500" fill="currentColor">
+                  <g>
+                    <path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.394-1.395 2.035 2.036 4.774-4.773 1.394 1.395-6.168 6.168z"/>
+                  </g>
+                </svg>
+                <div className="text-slate-500 text-[15px]">@yourhandle</div>
+                <div className="text-slate-500 text-[15px]">·</div>
+                <div className="text-slate-500 text-[15px]">15h</div>
+              </div>
+            </div>
+          </div>
+          <button className="text-slate-400 hover:text-slate-600 p-1">
+            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+              <circle cx="5" cy="12" r="2"/>
+              <circle cx="12" cy="12" r="2"/>
+              <circle cx="19" cy="12" r="2"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      {/* Twitter Content */}
+      <div className="px-4 pb-3">
+        <div className="text-slate-900 text-[15px] leading-[1.5] font-normal">
+          {lines.map((line, index) => {
+            if (line.trim() === '') {
+              return <div key={index} className="h-2" />;
+            }
+            return (
+              <p key={index} className="mb-2 last:mb-0">
+                {line}
+              </p>
+            );
+          })}
+        </div>
+      </div>
+      
+      {/* Twitter Footer - Engagement */}
+      <div className="px-4 pb-3 flex items-center justify-between text-slate-500 text-[13px]">
+        <div className="flex items-center gap-4">
+          <button className="flex items-center gap-2 hover:text-blue-500 transition-colors group">
+            <div className="p-1.5 rounded-full group-hover:bg-blue-50 transition-colors">
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+              </svg>
+            </div>
+            <span>37</span>
+          </button>
+          <button className="flex items-center gap-2 hover:text-green-500 transition-colors group">
+            <div className="p-1.5 rounded-full group-hover:bg-green-50 transition-colors">
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+              </svg>
+            </div>
+            <span>21</span>
+          </button>
+          <button className="flex items-center gap-2 hover:text-red-500 transition-colors group">
+            <div className="p-1.5 rounded-full group-hover:bg-red-50 transition-colors">
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+                <path d="M20.884 13.19c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"/>
+              </svg>
+            </div>
+            <span>245</span>
+          </button>
+          <button className="flex items-center gap-2 hover:text-blue-500 transition-colors group">
+            <div className="p-1.5 rounded-full group-hover:bg-blue-50 transition-colors">
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M8 4v12l8-6-8-6z"/>
+              </svg>
+            </div>
+            <span>97K</span>
+          </button>
+        </div>
+        <div className="flex items-center gap-2">
+          <button className="p-1.5 rounded-full hover:bg-slate-100 transition-colors">
+            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+            </svg>
+          </button>
+          <button className="p-1.5 rounded-full hover:bg-slate-100 transition-colors">
+            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const InstagramPreview: React.FC<Omit<PlatformPreviewProps, 'platform'>> = ({ content, onCopy, copied }) => {
+  const formattedContent = formatContent(content);
+  const lines = formattedContent.split('\n');
+  const hashtags: string[] = [];
+  const textLines: string[] = [];
+  
+  // Separate hashtags from text
+  lines.forEach(line => {
+    if (line.trim().startsWith('#')) {
+      hashtags.push(line.trim());
+    } else if (line.trim() !== '') {
+      textLines.push(line);
+    }
+  });
+  
+  return (
+    <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-visible w-full">
+      {/* Instagram Header */}
+      <div className="bg-white border-b border-slate-200 p-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-full flex items-center justify-center flex-shrink-0 border-2 border-white">
+              <span className="text-white font-semibold text-xs">U</span>
+            </div>
+            <div>
+              <div className="font-semibold text-slate-900 text-sm">yourhandle</div>
+              <div className="text-xs text-slate-500">Location</div>
+            </div>
+          </div>
+          <button className="text-slate-400 hover:text-slate-600">
+            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+              <circle cx="12" cy="12" r="1.5"/>
+              <circle cx="12" cy="5" r="1.5"/>
+              <circle cx="12" cy="19" r="1.5"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      {/* Instagram Image Placeholder - Smaller */}
+      <div className="w-full aspect-[4/3] bg-gradient-to-br from-purple-100 via-pink-100 to-orange-100 flex items-center justify-center relative">
+        <div className="text-center">
+          <div className="text-3xl mb-2">📷</div>
+          <div className="text-xs text-slate-500">Image placeholder</div>
+        </div>
+      </div>
+      
+      {/* Instagram Engagement Icons */}
+      <div className="px-4 py-3 flex items-center gap-4">
+        <button className="hover:opacity-70 transition-opacity">
+          <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+          </svg>
+        </button>
+        <button className="hover:opacity-70 transition-opacity">
+          <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+        </button>
+        <button className="hover:opacity-70 transition-opacity">
+          <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/>
+          </svg>
+        </button>
+        <button className="hover:opacity-70 transition-opacity ml-auto">
+          <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+          </svg>
+        </button>
+      </div>
+      
+      {/* Instagram Likes */}
+      <div className="px-4 pb-2">
+        <div className="text-sm font-semibold text-slate-900">Liked by <span className="font-normal">username</span> and <span className="font-normal">410 others</span></div>
+      </div>
+      
+      {/* Instagram Caption */}
+      <div className="px-4 pb-2">
+        <div className="text-sm text-slate-900 leading-[1.5]">
+          <span className="font-semibold">yourhandle</span>{' '}
+          {textLines.length > 0 && (
+            <span>{textLines[0]}</span>
+          )}
+          {textLines.length > 1 && (
+            <div className="mt-1">
+              {textLines.slice(1).map((line, index) => (
+                <p key={index} className="mb-1 last:mb-0">
+                  {line}
+                </p>
+              ))}
+            </div>
+          )}
+          {hashtags.length > 0 && (
+            <div className="mt-2 space-y-1">
+              {hashtags.map((hashtag, index) => (
+                <span key={index} className="text-blue-600 hover:underline cursor-pointer mr-2">
+                  {hashtag}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+      
+      {/* Instagram Comments Preview */}
+      <div className="px-4 pb-2">
+        <div className="text-xs text-slate-500 cursor-pointer hover:underline">View all 3 comments</div>
+        <div className="mt-2 space-y-1">
+          <div className="text-sm">
+            <span className="font-semibold text-slate-900">username1</span>{' '}
+            <span className="text-slate-900">Comment text here</span>
+          </div>
+          <div className="text-sm">
+            <span className="font-semibold text-slate-900">username2</span>{' '}
+            <span className="text-slate-900">Another comment</span>
+          </div>
+        </div>
+      </div>
+      
+      {/* Instagram Date */}
+      <div className="px-4 pb-3">
+        <div className="text-xs text-slate-500 uppercase tracking-wide">October 30</div>
+      </div>
+      
+      {/* Instagram Add Comment */}
+      <div className="px-4 py-3 border-t border-slate-200 flex items-center gap-2">
+        <div className="flex-1 flex items-center gap-2">
+          <div className="w-6 h-6 rounded-full bg-slate-200"></div>
+          <input 
+            type="text" 
+            placeholder="Add a comment..." 
+            className="flex-1 text-sm text-slate-900 placeholder-slate-400 focus:outline-none"
+            readOnly
+          />
+        </div>
+        <button className="text-blue-500 text-sm font-semibold hover:text-blue-600">Post</button>
+      </div>
+    </div>
+  );
+};
+
+export const PlatformPreview: React.FC<PlatformPreviewProps> = ({ platform, content, onCopy, copied }) => {
+  switch (platform) {
+    case 'linkedin':
+      return <LinkedInPreview content={content} onCopy={onCopy} copied={copied} />;
+    case 'twitter':
+      return <TwitterPreview content={content} onCopy={onCopy} copied={copied} />;
+    case 'instagram':
+      return <InstagramPreview content={content} onCopy={onCopy} copied={copied} />;
+    default:
+      return null;
+  }
+};

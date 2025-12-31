@@ -3,7 +3,9 @@ import { useGenieNotesStore } from './store';
 import { supabase, hasSupabaseCredentials } from './lib/supabase';
 import CaptureView from './components/CaptureView';
 import ThoughtsView from './components/ThoughtsView';
-import ActionsView from './components/ActionsView';
+import ShareItView from './components/ShareItView';
+import ToDoView from './components/ToDoView';
+import MindReview from './components/MindReview';
 import ProfileView from './components/ProfileView';
 import Auth from './components/Auth';
 
@@ -33,22 +35,34 @@ const App: React.FC = () => {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      const wasLoggedOut = !useGenieNotesStore.getState().user && session?.user;
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        loadThoughts();
-        loadActions();
-        // If user just logged in and there's pending text, navigate to capture view
-        if (wasLoggedOut && useGenieNotesStore.getState().pendingText) {
-          useGenieNotesStore.getState().setCurrentView('capture');
+      const currentUser = useGenieNotesStore.getState().user;
+      const wasLoggedOut = !currentUser && session?.user;
+      const isLoggedIn = !!session?.user;
+      const wasLoggedIn = !!currentUser;
+      
+      // Only update if auth state actually changed
+      if ((isLoggedIn && !wasLoggedIn) || (!isLoggedIn && wasLoggedIn)) {
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          // Only load if not already loading
+          const state = useGenieNotesStore.getState();
+          if (!state.loading) {
+            loadThoughts();
+            loadActions();
+          }
+          // If user just logged in and there's pending text, navigate to capture view
+          if (wasLoggedOut && useGenieNotesStore.getState().pendingText) {
+            useGenieNotesStore.getState().setCurrentView('capture');
+          }
+        } else {
+          useGenieNotesStore.setState({ thoughts: [], actions: [] });
         }
-      } else {
-        useGenieNotesStore.setState({ thoughts: [], actions: [] });
       }
     });
 
     return () => subscription?.unsubscribe();
-  }, [setUser, loadThoughts, loadActions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount - loadThoughts/loadActions are stable
 
   // Show error if Supabase credentials are missing
   if (!hasSupabaseCredentials) {
@@ -108,8 +122,12 @@ const App: React.FC = () => {
             <CaptureView />
           ) : currentView === 'thoughts' ? (
             <ThoughtsView />
-          ) : currentView === 'actions' ? (
-            <ActionsView />
+          ) : currentView === 'shareit' ? (
+            <ShareItView />
+          ) : currentView === 'todo' ? (
+            <ToDoView />
+          ) : currentView === 'review' ? (
+            <MindReview />
           ) : currentView === 'profile' ? (
             <ProfileView />
           ) : (

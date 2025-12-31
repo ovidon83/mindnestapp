@@ -1,19 +1,39 @@
-export type AppView = 'capture' | 'thoughts' | 'actions' | 'profile';
+export type AppView = 'capture' | 'thoughts' | 'shareit' | 'todo' | 'profile' | 'review';
 
 // Legacy type for backward compatibility
 export type EntryType = 'todo' | 'insight' | 'journal';
 
 export type Tag = 'work' | 'soccer' | 'family' | 'spirituality' | 'business' | 'tech' | 'health' | 'other';
 
-export type PotentialType = 'Post' | 'Conversation' | 'Explore Further' | 'Email' | 'Article' | 'Project';
+// Potential types - what a thought can become
+export type PotentialType = 'Share' | 'To-Do' | 'Insight' | 'Just a thought';
 
-export interface Potential {
-  id: string;
-  type: PotentialType;
-  title: string;
-  description?: string;
-  draft?: string; // Draft content for this potential
-  createdAt: Date;
+// Share potential data
+export interface SharePosts {
+  linkedin?: string;
+  twitter?: string;
+  instagram?: string;
+  generatedAt?: Date;
+  shared?: {
+    linkedin?: boolean;
+    twitter?: boolean;
+    instagram?: boolean;
+    sharedAt?: Date;
+  };
+}
+
+// To-Do potential data
+export interface TodoData {
+  completed: boolean;
+  completedAt?: Date;
+  notes?: string;
+}
+
+// Insight potential data
+export interface InsightData {
+  content: string; // Short-form or long-form journal entry
+  format?: 'short' | 'long';
+  updatedAt?: Date;
 }
 
 // Core Thought entity - single top-level entity
@@ -23,7 +43,17 @@ export interface Thought {
   tags: Tag[];
   summary: string; // AI-generated summary
   isSpark: boolean; // Whether this thought is marked as a Spark (by AI or user)
-  potentials: Potential[]; // Max 2-3 potentials per thought (only if isSpark is true)
+  isParked: boolean; // Whether this thought is parked (not meaningful now, but can be revived later)
+  
+  // Potential system - what this thought can become
+  potential?: PotentialType | null; // User-selected potential (Share, To-Do, or Insight)
+  bestPotential?: PotentialType | null; // AI's best guess for the potential
+  
+  // Potential-specific data
+  sharePosts?: SharePosts; // For Share potential
+  todoData?: TodoData; // For To-Do potential
+  insightData?: InsightData; // For Insight potential
+  
   createdAt: Date;
   updatedAt: Date;
   

@@ -1,7 +1,9 @@
-import { Thought, Potential, PotentialType } from '../types';
+import { Thought, PotentialType } from '../types';
 import { fetchWithRetry } from './api-utils';
 
-// Process a raw thought and detect if it's a Spark, suggest Potentials
+// Process a raw thought and detect if it's a Spark, suggest Potential
+// Spark = interesting/valuable thought (can be Share, To-Do, or Insight)
+// Non-Spark = regular thought (can be To-Do or Insight, but NOT Share)
 export async function processThoughtMVP(
   rawInput: string
 ): Promise<Omit<Thought, 'id' | 'createdAt' | 'updatedAt'>> {
@@ -21,29 +23,33 @@ export async function processThoughtMVP(
           messages: [
             {
               role: 'system',
-              content: `Analyze the thought and determine if it's a Spark (significant: recurring, clear problem, strong opinion, or clarity). 
-              If it's a Spark, suggest 2-3 Potentials (Post, Conversation, Explore Further, Email, Article, Project).
-              Return ONLY a JSON object:
-              {
-                "isSpark": boolean (true if recurring, clear problem, strong opinion, or clarity),
-                "summary": "one short sentence summarizing the thought",
-                "tags": ["work" | "soccer" | "family" | "spirituality" | "business" | "tech" | "health" | "other"],
-                "potentials": [
-                  {
-                    "type": "Post" | "Conversation" | "Explore Further" | "Email" | "Article" | "Project",
-                    "title": "short title for this potential",
-                    "description": "brief description (optional)"
-                  }
-                ] // Max 2-3 potentials, only if isSpark is true
-              }
-              
-              Spark indicators:
-              - Recurring: mentions patterns, habits, "always", "often", "every time"
-              - Clear problem: identifies a specific issue or challenge
-              - Strong opinion: clear stance or conviction
-              - Clarity: well-formed insight or realization
-              
-              Only suggest Potentials if isSpark is true. Limit to 2-3 most relevant.`
+              content: `Analyze the thought and determine:
+1. If it's a Spark (interesting, valuable, insightful, or worth sharing)
+2. The best Potential (Share, To-Do, Insight, or Just a thought)
+
+Return ONLY a JSON object:
+{
+  "isSpark": boolean (true if interesting, valuable, insightful, or worth sharing),
+  "summary": "one short sentence summarizing the thought",
+  "tags": ["work" | "soccer" | "family" | "spirituality" | "business" | "tech" | "health" | "other"],
+  "bestPotential": "Share" | "To-Do" | "Insight" | "Just a thought" | null
+}
+
+Rules:
+- Spark = interesting, valuable, insightful, shareable, or has strong opinions/learnings
+- Non-Spark = simple tasks, reminders, basic notes
+- If Spark: can be Share, To-Do, Insight, or Just a thought
+- If Non-Spark: can be To-Do, Insight, or Just a thought (NOT Share)
+- "Share" = insight, learning, observation worth sharing publicly (only for Sparks)
+- "To-Do" = contains clear action items, tasks, or things to do
+- "Insight" = reflection, question, discussion topic, or needs exploration
+- "Just a thought" = simple note, observation, or thought that doesn't fit other categories (default if unclear)
+
+Determine bestPotential based on the thought:
+- If Spark and shareable/insightful → "Share"
+- If has action items/tasks → "To-Do"
+- If question/reflection/discussion → "Insight"
+- If none of the above or unclear → "Just a thought"`
             },
             {
               role: 'user',
@@ -51,7 +57,7 @@ export async function processThoughtMVP(
             }
           ],
           temperature: 0.3,
-          max_tokens: 300
+          max_tokens: 200
         })
       }, { maxRetries: 2, baseDelay: 1000 });
       
@@ -63,23 +69,56 @@ export async function processThoughtMVP(
           if (jsonMatch) {
             const parsed = JSON.parse(jsonMatch[0]);
             
-            // Process potentials - limit to 2-3
-            const potentials: Potential[] = (parsed.potentials || [])
-              .slice(0, 3)
-              .map((p: any) => ({
-                id: crypto.randomUUID(),
-                type: (p.type as PotentialType) || 'Post',
-                title: p.title || p.type,
-                description: p.description,
-                createdAt: new Date(),
-              }));
+            // Map bestPotential from AI response
+            const bestPotentialMap: Record<string, PotentialType> = {
+              'Share': 'Share',
+              'To-Do': 'To-Do',
+              'ToDo': 'To-Do',
+              'Insight': 'Insight',
+              'Just a thought': 'Just a thought',
+              'Just a Thought': 'Just a thought',
+            };
+            let bestPotential: PotentialType | null = null;
+            
+            if (parsed.bestPotential) {
+              bestPotential = bestPotentialMap[parsed.bestPotential] || null;
+            }
+            
+            // Enforce rule: Non-Spark cannot be Share
+            if (!parsed.isSpark && bestPotential === 'Share') {
+              // Convert Share to "Just a thought" for non-sparks
+              bestPotential = 'Just a thought';
+            }
+            
+            // Fallback: use heuristics if AI didn't provide potential
+            if (!bestPotential && parsed.isSpark) {
+              const lowerText = rawInput.toLowerCase();
+              const hasActionWords = /\b(need to|should|must|do|create|build|make|call|meet|schedule|plan)\b/i.test(rawInput);
+              const hasQuestion = /\?/.test(rawInput) || /\b(how|what|why|when|where|who)\b/i.test(rawInput);
+              const hasInsight = /\b(learned|realized|discovered|insight|understand|think|believe)\b/i.test(rawInput);
+              
+              if (hasActionWords && !hasQuestion) {
+                bestPotential = 'To-Do';
+              } else if (hasQuestion || /\b(discuss|talk|explore|wonder|reflect|journal)\b/i.test(rawInput)) {
+                bestPotential = 'Insight';
+              } else if (hasInsight) {
+                bestPotential = 'Share';
+              }
+            }
+            
+            // Default to "Just a thought" if no potential determined
+            if (!bestPotential) {
+              bestPotential = 'Just a thought';
+            }
             
             return {
               originalText: rawInput,
               tags: Array.isArray(parsed.tags) ? parsed.tags.slice(0, 3) : [],
               summary: parsed.summary || rawInput.substring(0, 100),
               isSpark: parsed.isSpark === true,
-              potentials: parsed.isSpark ? potentials : [],
+              isParked: false,
+              bestPotential: bestPotential,
+              potential: bestPotential, // Also set potential to the same value by default
             };
           }
         }
@@ -95,30 +134,43 @@ export async function processThoughtMVP(
   const hasProblem = /\b(problem|issue|challenge|difficulty|struggle|need to fix)\b/i.test(rawInput);
   const hasOpinion = /\b(think|believe|opinion|should|must|important|critical)\b/i.test(rawInput);
   const hasClarity = /\b(realized|learned|discovered|insight|understand|clear|obvious)\b/i.test(rawInput);
-  const isSpark = isRecurring || hasProblem || (hasOpinion && hasClarity);
+  const hasInsight = /\b(learned|realized|discovered|insight|understand|think|believe|wonder|reflect)\b/i.test(rawInput);
+  const isSpark = isRecurring || hasProblem || (hasOpinion && hasClarity) || hasInsight;
   
-  // Basic potential suggestions for sparks
-  const potentials: Potential[] = isSpark ? [
-    {
-      id: crypto.randomUUID(),
-      type: 'Post',
-      title: 'Share as post',
-      createdAt: new Date(),
-    },
-    {
-      id: crypto.randomUUID(),
-      type: 'Explore Further',
-      title: 'Explore this idea',
-      createdAt: new Date(),
-    },
-  ] : [];
+  // Determine best potential from heuristics
+  const hasActionWords = /\b(need to|should|must|do|create|build|make|call|meet|schedule|plan)\b/i.test(rawInput);
+  const hasQuestion = /\?/.test(rawInput) || /\b(how|what|why|when|where|who)\b/i.test(rawInput);
+  
+  let bestPotential: PotentialType | null = null;
+  if (isSpark) {
+    if (hasActionWords && !hasQuestion) {
+      bestPotential = 'To-Do';
+    } else if (hasQuestion || /\b(discuss|talk|explore|wonder|reflect|journal)\b/i.test(rawInput)) {
+      bestPotential = 'Insight';
+    } else if (hasInsight) {
+      bestPotential = 'Share';
+    }
+  } else {
+    // Non-spark: can only be To-Do, Insight, or Just a thought
+    if (hasActionWords && !hasQuestion) {
+      bestPotential = 'To-Do';
+    } else if (hasQuestion || /\b(discuss|talk|explore|wonder|reflect|journal)\b/i.test(rawInput)) {
+      bestPotential = 'Insight';
+    }
+  }
+  
+  // Default to "Just a thought" if no potential determined
+  if (!bestPotential) {
+    bestPotential = 'Just a thought';
+  }
   
   return {
     originalText: rawInput,
     tags: [],
     summary: rawInput.substring(0, 100),
     isSpark,
-    potentials,
+    isParked: false,
+    bestPotential: bestPotential,
+    potential: bestPotential, // Also set potential to the same value by default
   };
 }
-

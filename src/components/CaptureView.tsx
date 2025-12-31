@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useGenieNotesStore } from '../store';
-import { Mic, MicOff, Sparkles, CheckCircle, Upload, Search, Mail, Twitter, Linkedin, Instagram, Brain, Lightbulb, Calendar, X, Bell, Clock } from 'lucide-react';
+import { Mic, MicOff, Sparkles, CheckCircle, Upload, Search, Mail, Twitter, Linkedin, Instagram, Brain, Lightbulb, Calendar, X, Bell, Clock, FileText, MessageSquare } from 'lucide-react';
 import { saveTrainingData } from '../lib/db';
 import UserAvatar from './UserAvatar';
+import Navigation from './Navigation';
 
 interface CaptureViewProps {
   onOrganizeClick?: (mode?: 'login' | 'signup') => void;
@@ -282,46 +283,40 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
 
     return (
     <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 w-full px-4 sm:px-6 lg:px-8 py-3 sm:py-4 bg-white/95 backdrop-blur-md border-b-2 border-blue-100 shadow-sm">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="relative w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all">
-              <Brain className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-white relative z-10" strokeWidth={2.5} fill="white" fillOpacity="0.3" />
+      {/* Navigation - Use Navigation component when logged in, custom nav for landing page */}
+      {user ? (
+        <Navigation
+          currentView="capture"
+          onViewChange={setCurrentView}
+          user={user}
+          onLogout={signOut}
+        />
+      ) : (
+        <nav className="sticky top-0 z-50 w-full px-4 sm:px-6 lg:px-8 py-3 sm:py-4 bg-white/95 backdrop-blur-md border-b-2 border-blue-100 shadow-sm">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="relative w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all">
+                <Brain className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-white relative z-10" strokeWidth={2.5} fill="white" fillOpacity="0.3" />
+              </div>
+              <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">Thouthy</span>
             </div>
-            <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">Thouthy</span>
+            <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
+              <button
+                onClick={() => onOrganizeClick?.('login')}
+                className="px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 border border-slate-200 hover:border-slate-300 rounded-lg transition-all min-h-[40px] sm:min-h-[44px]"
+              >
+                Sign In
+              </button>
+              <button
+                onClick={() => onOrganizeClick?.('signup')}
+                className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 hover:from-pink-600 hover:via-orange-600 hover:to-purple-600 rounded-lg transition-all shadow-lg hover:shadow-xl min-h-[40px] sm:min-h-[44px]"
+              >
+                Sign Up
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
-            {user ? (
-              <>
-                <button
-                  onClick={() => setCurrentView('thoughts')}
-                  className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-slate-700 hover:text-slate-900 border border-transparent hover:border-slate-200 rounded-lg transition-all min-h-[40px] sm:min-h-[44px]"
-                >
-                  <span className="hidden sm:inline">Thoughts</span>
-                  <span className="sm:hidden">Thoughts</span>
-                </button>
-                <UserAvatar user={user} onLogout={signOut} />
-              </>
-            ) : (
-              <>
-                <button
-                  onClick={() => onOrganizeClick?.('login')}
-                  className="px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 border border-slate-200 hover:border-slate-300 rounded-lg transition-all min-h-[40px] sm:min-h-[44px]"
-                >
-                  Sign In
-                </button>
-                <button
-                  onClick={() => onOrganizeClick?.('signup')}
-                  className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 hover:from-pink-600 hover:via-orange-600 hover:to-purple-600 rounded-lg transition-all shadow-lg hover:shadow-xl min-h-[40px] sm:min-h-[44px]"
-                >
-                  Sign Up
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      </nav>
+        </nav>
+      )}
 
       {!user ? (
         <>
@@ -355,7 +350,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </h1>
               <div className="max-w-3xl mx-auto px-2 mb-8 sm:mb-10">
                 <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-700 mb-4 sm:mb-6 font-normal leading-relaxed">
-                  Every thought deserves a home. <span className="font-semibold text-slate-900">Thouthy</span> collects them all, then shows you which ones have <span className="font-semibold text-amber-600">spark</span> and <span className="font-semibold text-purple-600">potential</span> — so you can do something about them.
+                  Every thought deserves a home. <span className="font-semibold text-slate-900">Thouthy</span> collects them all, then shows you which ones have <span className="font-semibold text-amber-600">spark</span> and <span className="font-semibold text-purple-600">potential</span> — so you can <span className="font-semibold text-emerald-600">act</span> on them.
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-lg sm:text-xl md:text-2xl font-semibold text-slate-700 mb-6 sm:mb-8">
@@ -369,9 +364,54 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   <span>Discover</span>
                 </div>
                 <div className="hidden sm:block text-slate-400">→</div>
-                <div className="flex items-center gap-2">
+                <div className="relative flex items-center gap-2 py-12 sm:py-16">
                   <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                  <span>Act</span>
+                  <span className="relative z-10">Act</span>
+                  
+                  {/* Container for lines and pills - closer to Act */}
+                  <div className="absolute left-full top-0 bottom-0 ml-2 w-24 sm:w-32 md:w-40">
+                    {/* SVG for divergent lines starting from left (Act) pointing to left edge of pills */}
+                    <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ overflow: 'visible' }}>
+                      {/* Line to Share (top) - points to left edge */}
+                      <line x1="0" y1="50%" x2="100%" y2="20%" stroke="#6366f1" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.5" />
+                      {/* Line to To-Do - points to left edge */}
+                      <line x1="0" y1="50%" x2="100%" y2="40%" stroke="#10b981" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.5" />
+                      {/* Line to Conversation - points to left edge */}
+                      <line x1="0" y1="50%" x2="100%" y2="60%" stroke="#f97316" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.5" />
+                      {/* Line to Just a Thought (bottom) - points to left edge */}
+                      <line x1="0" y1="50%" x2="100%" y2="80%" stroke="#6366f1" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.5" />
+                    </svg>
+                    
+                    {/* 4 Action pills at end of lines - evenly spaced vertically */}
+                    <div className="absolute top-[20%] -translate-y-1/2 left-full z-20">
+                      <div className="px-2.5 py-1 bg-indigo-100/90 text-indigo-700 rounded-full text-xs font-medium border border-dashed border-indigo-300/60 shadow-sm flex items-center gap-1.5 whitespace-nowrap backdrop-blur-sm">
+                        <div className="flex items-center gap-0.5">
+                          <Linkedin className="w-3 h-3" />
+                          <Instagram className="w-3 h-3" />
+                          <Twitter className="w-3 h-3" />
+                        </div>
+                        <span>Share</span>
+                      </div>
+                    </div>
+                    <div className="absolute top-[40%] -translate-y-1/2 left-full z-20">
+                      <div className="px-2.5 py-1 bg-emerald-100/90 text-emerald-700 rounded-full text-xs font-medium border border-dashed border-emerald-300/60 shadow-sm flex items-center gap-1.5 whitespace-nowrap backdrop-blur-sm">
+                        <CheckCircle className="w-3 h-3" />
+                        To-Do
+                      </div>
+                    </div>
+                    <div className="absolute top-[60%] -translate-y-1/2 left-full z-20">
+                      <div className="px-2.5 py-1 bg-orange-100/90 text-orange-700 rounded-full text-xs font-medium border border-dashed border-orange-300/60 shadow-sm flex items-center gap-1.5 whitespace-nowrap backdrop-blur-sm">
+                        <MessageSquare className="w-3 h-3" />
+                        Conversation
+                      </div>
+                    </div>
+                    <div className="absolute top-[80%] -translate-y-1/2 left-full z-20">
+                      <div className="px-2.5 py-1 bg-indigo-100/90 text-indigo-700 rounded-full text-xs font-medium border border-dashed border-indigo-300/60 shadow-sm flex items-center gap-1.5 whitespace-nowrap backdrop-blur-sm">
+                        <Brain className="w-3 h-3" />
+                        Just a Thought
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
                 </div>
@@ -1153,8 +1193,9 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
           </footer>
         </>
       ) : (
-        /* Logged in view - match landing page design exactly */
-        <div className="py-12 sm:py-16 bg-white relative overflow-visible">
+        /* Logged in view - clean capture interface */
+        <>
+          <div className="py-12 sm:py-16 bg-gradient-to-br from-slate-50 via-white to-purple-50/20 relative overflow-visible">
           {/* Floating background orbs - subtle */}
           <div className="absolute top-10 right-10 w-80 h-80 bg-pink-100/30 rounded-full blur-3xl"></div>
           <div className="absolute bottom-10 left-10 w-72 h-72 bg-orange-100/30 rounded-full blur-3xl"></div>
@@ -1167,18 +1208,6 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   <span className="text-slate-900">What's on your </span>
                   <span className="bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 bg-clip-text text-transparent italic pr-1">mind?</span>
                 </h2>
-                {/* Floating example thoughts under heading */}
-                <div className="mt-4 flex flex-wrap justify-center gap-3 sm:gap-4">
-                  <span className="px-4 py-2 rounded-full bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 font-medium shadow-sm">
-                    "I see lack of authenticity in social media"
-                  </span>
-                  <span className="px-4 py-2 rounded-full bg-indigo-50 border border-indigo-200 text-xs sm:text-sm text-indigo-800 font-medium shadow-sm">
-                    "AI can give startups a false sense of speed"
-                  </span>
-                  <span className="px-4 py-2 rounded-full bg-amber-50 border border-amber-200 text-xs sm:text-sm text-amber-800 font-medium shadow-sm">
-                    "Need to spend more time in nature!"
-                  </span>
-                </div>
               </div>
               
               <div className="mb-6 sm:mb-8 relative">
@@ -1325,6 +1354,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             )}
           </div>
         </div>
+        </>
       )}
 
     </div>
