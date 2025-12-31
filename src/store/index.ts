@@ -31,7 +31,7 @@ interface GenieNotesStore {
   unparkThought: (thoughtId: string) => Promise<void>;
   
   // Potential-specific methods
-  generateSharePosts: (thoughtId: string, thoughtOverride?: Thought) => Promise<SharePosts>;
+  generateSharePosts: (thoughtId: string, thoughtOverride?: Thought, userFeedback?: string) => Promise<SharePosts>;
   updateTodoData: (thoughtId: string, todoData: Partial<TodoData>) => Promise<void>;
   updateInsightData: (thoughtId: string, insightData: Partial<InsightData>) => Promise<void>;
   markAsShared: (thoughtId: string, platform: 'linkedin' | 'twitter' | 'instagram') => Promise<void>;
@@ -187,7 +187,7 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         await get().updateThought(thoughtId, { isParked: false });
       },
 
-      generateSharePosts: async (thoughtId: string, thoughtOverride?: Thought): Promise<SharePosts> => {
+      generateSharePosts: async (thoughtId: string, thoughtOverride?: Thought, userFeedback?: string): Promise<SharePosts> => {
         const thought = thoughtOverride || get().thoughts.find(t => t.id === thoughtId);
         if (!thought) {
           throw new Error('Thought not found');
@@ -198,7 +198,7 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         
         const userProfile = await fetchUserProfile().catch(() => null);
         const otherThoughts = get().thoughts.filter(t => t.id !== thoughtId).slice(0, 10);
-        const drafts = await generatePostDrafts(thought, userProfile || undefined, otherThoughts);
+        const drafts = await generatePostDrafts(thought, userProfile || undefined, otherThoughts, userFeedback);
         
         const sharePosts: SharePosts = {
           linkedin: drafts.linkedin,

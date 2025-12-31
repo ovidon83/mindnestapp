@@ -13,7 +13,8 @@ interface PostDrafts {
 export async function generatePostDrafts(
   thought: Thought,
   userProfile?: UserProfile | null,
-  previousThoughts?: Thought[]
+  previousThoughts?: Thought[],
+  userFeedback?: string
 ): Promise<PostDrafts> {
   if (!OPENAI_API_KEY) {
     return {
@@ -93,7 +94,7 @@ Return ONLY a JSON object with this exact structure:
           },
           {
             role: 'user',
-            content: `Raw Thought: "${thought.originalText}"\n\nSummary: ${thought.summary}\n\nTags: ${thought.tags.join(', ')}`,
+            content: `Raw Thought: "${thought.originalText}"\n\nSummary: ${thought.summary}\n\nTags: ${thought.tags.join(', ')}${userFeedback ? `\n\nUser Feedback: ${userFeedback}` : ''}`,
           },
         ],
         temperature: 0.8,

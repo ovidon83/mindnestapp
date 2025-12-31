@@ -153,13 +153,9 @@ const ShareItView: React.FC = () => {
       const thought = thoughts.find(t => t.id === thoughtId);
       if (!thought) return;
       
-      // Add suggestion to the thought context if provided
-      const thoughtWithSuggestion = retrySuggestion.trim()
-        ? { ...thought, originalText: `${thought.originalText}\n\nUser feedback: ${retrySuggestion.trim()}` }
-        : thought;
-      
       // Use the same generateSharePosts function that generates all platforms
-      await generateSharePosts(thoughtId, thoughtWithSuggestion);
+      // Pass user feedback separately to preserve original thought structure
+      await generateSharePosts(thoughtId, thought, retrySuggestion.trim() || undefined);
       await loadThoughts();
     } catch (error) {
       console.error('Error retrying draft:', error);
@@ -464,6 +460,12 @@ const ShareItView: React.FC = () => {
                         </div>
                       </div>
                     ) : null}
+
+                    {/* Raw Thought Display */}
+                    <div className="px-4 pt-4 pb-2 border-b border-slate-200">
+                      <p className="text-xs text-slate-500 mb-1">Raw Thought:</p>
+                      <p className="text-sm text-slate-700 leading-relaxed">{selectedThought.originalText}</p>
+                    </div>
 
                     {/* Post Content Area - Show full, no scroll */}
                     <div className="p-4">

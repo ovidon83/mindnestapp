@@ -553,11 +553,24 @@ const ThoughtsView: React.FC = () => {
                   }`}
                 >
                   {/* Spark Icon - Top Right */}
-                  {thought.isSpark && (
-                    <div className="absolute top-2 right-2 z-10">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (thought.isSpark) {
+                        removeSpark(thought.id);
+                      } else {
+                        addSpark(thought.id);
+                      }
+                    }}
+                    className="absolute top-2 right-2 z-10 hover:opacity-70 transition-opacity"
+                    title={thought.isSpark ? "Remove spark" : "Add spark"}
+                  >
+                    {thought.isSpark ? (
                       <Sparkles className="w-4 h-4 text-amber-500" />
-                    </div>
-                  )}
+                    ) : (
+                      <Sparkles className="w-4 h-4 text-slate-300" />
+                    )}
+                  </button>
 
                   {/* Thought Text */}
                   <div className="flex items-start gap-2 mb-3 pr-7 flex-1">
