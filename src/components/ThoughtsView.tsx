@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useGenieNotesStore } from '../store';
 import { Thought, PotentialType } from '../types';
-import { Sparkles, Search, Calendar, X, ParkingCircle, ChevronDown, CheckCircle2, Circle, Edit2, Save } from 'lucide-react';
+import { Sparkles, Search, Calendar, X, ParkingCircle, ChevronDown, CheckCircle2, Circle, Edit2, Save, ArrowRight } from 'lucide-react';
 import Navigation from './Navigation';
 
 type DateFilter = 'All' | 'Today' | 'This Week' | 'This Month';
@@ -727,6 +727,35 @@ const ThoughtsView: React.FC = () => {
                                     </button>
                                   );
                                 })}
+                                {/* Navigation buttons for Share and To-Do */}
+                                {currentPotential === 'Share' && (
+                                  <button
+                                    onClick={() => {
+                                      setExpandedActionDropdown(null);
+                                      setCurrentView('shareit');
+                                      // Store thought ID in sessionStorage to select it in ShareItView
+                                      sessionStorage.setItem('navigateToThought', thought.id);
+                                    }}
+                                    className="w-full px-3 py-2 text-left text-xs hover:bg-purple-50 transition-colors rounded-lg flex items-center gap-2 text-purple-700 cursor-pointer border-t border-slate-200 mt-1 pt-2"
+                                  >
+                                    <ArrowRight className="w-3 h-3" />
+                                    <span>Go to Share</span>
+                                  </button>
+                                )}
+                                {currentPotential === 'To-Do' && (
+                                  <button
+                                    onClick={() => {
+                                      setExpandedActionDropdown(null);
+                                      setCurrentView('todo');
+                                      // Store thought ID in sessionStorage to select it in ToDoView
+                                      sessionStorage.setItem('navigateToThought', thought.id);
+                                    }}
+                                    className="w-full px-3 py-2 text-left text-xs hover:bg-emerald-50 transition-colors rounded-lg flex items-center gap-2 text-emerald-700 cursor-pointer border-t border-slate-200 mt-1 pt-2"
+                                  >
+                                    <ArrowRight className="w-3 h-3" />
+                                    <span>Go to To-Do</span>
+                                  </button>
+                                )}
                               </div>
                             </div>
                           )}

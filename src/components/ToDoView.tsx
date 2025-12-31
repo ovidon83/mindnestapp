@@ -64,9 +64,13 @@ const ToDoView: React.FC = () => {
     await updateTodoData(thoughtId, { notes: notes[thoughtId] || '' });
   };
 
-  // Auto-select first thought if none selected
+  // Auto-select first thought if none selected, or navigate to specific thought
   React.useEffect(() => {
-    if (!selectedThoughtId && filteredTodos.length > 0) {
+    const navigateToThought = sessionStorage.getItem('navigateToThought');
+    if (navigateToThought && filteredTodos.some(t => t.id === navigateToThought)) {
+      setSelectedThoughtId(navigateToThought);
+      sessionStorage.removeItem('navigateToThought');
+    } else if (!selectedThoughtId && filteredTodos.length > 0) {
       setSelectedThoughtId(filteredTodos[0].id);
     }
   }, [filteredTodos, selectedThoughtId]);

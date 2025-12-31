@@ -166,12 +166,27 @@ const ShareItView: React.FC = () => {
     }
   };
 
-  // Auto-select first thought if none selected
+  // Auto-select first thought if none selected, or navigate to specific thought
   React.useEffect(() => {
-    if (!selectedThoughtId && shareThoughts.length > 0) {
+    const navigateToThought = sessionStorage.getItem('navigateToThought');
+    if (navigateToThought && shareThoughts.some(t => t.id === navigateToThought)) {
+      setSelectedThoughtId(navigateToThought);
+      sessionStorage.removeItem('navigateToThought');
+    } else if (!selectedThoughtId && shareThoughts.length > 0) {
       setSelectedThoughtId(shareThoughts[0].id);
     }
   }, [shareThoughts, selectedThoughtId]);
+
+  // Handle navigation from Thoughts view - check if thoughtId is in URL or store
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const thoughtId = urlParams.get('thoughtId');
+    if (thoughtId && shareThoughts.some(t => t.id === thoughtId)) {
+      setSelectedThoughtId(thoughtId);
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, [shareThoughts]);
 
   if (loading) {
     return (
@@ -291,14 +306,14 @@ const ShareItView: React.FC = () => {
 
             {/* Right Column: Selected Thought + Social Tabs + Analytics */}
             <div className="lg:col-span-4 grid grid-cols-1 xl:grid-cols-3 gap-6">
-              {/* Main Content Area */}
-              <div className="xl:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm overflow-visible flex flex-col">
+              {/* Main Content Area - Simplified */}
+              <div className="xl:col-span-2 bg-white rounded-xl shadow-sm overflow-visible flex flex-col">
                 {selectedThought ? (
                   <>
-                    {/* Compact Header: Platform Tabs + Actions */}
+                    {/* Simplified Header: Platform Tabs + Actions */}
                     {selectedThought.sharePosts ? (
-                      <div className="p-2 border-b border-slate-200/50 flex items-center justify-between flex-shrink-0 bg-slate-50/30">
-                        {/* Platform Tabs - Compact */}
+                      <div className="p-3 flex items-center justify-between flex-shrink-0">
+                        {/* Platform Tabs */}
                         <div className="flex items-center gap-1">
                           <button
                             onClick={() => setActivePlatform('linkedin')}
@@ -341,7 +356,7 @@ const ShareItView: React.FC = () => {
                           </button>
                         </div>
 
-                        {/* Actions - Icon-only buttons */}
+                        {/* Actions - Simplified */}
                         <div className="flex items-center gap-1.5">
                           {activePlatform === 'linkedin' && selectedThought.sharePosts.linkedin && (
                             <>
@@ -461,14 +476,14 @@ const ShareItView: React.FC = () => {
                       </div>
                     ) : null}
 
-                    {/* Raw Thought Display */}
-                    <div className="px-4 pt-4 pb-2 border-b border-slate-200">
-                      <p className="text-xs text-slate-500 mb-1">Raw Thought:</p>
-                      <p className="text-sm text-slate-700 leading-relaxed">{selectedThought.originalText}</p>
-                    </div>
-
-                    {/* Post Content Area - Show full, no scroll */}
+                    {/* Post Content Area - Simplified */}
                     <div className="p-4">
+                      {/* Raw Thought - Inline, less prominent */}
+                      <div className="mb-4 pb-3 border-b border-slate-100">
+                        <p className="text-xs text-slate-400 mb-1">Raw Thought</p>
+                        <p className="text-sm text-slate-600 leading-relaxed">{selectedThought.originalText}</p>
+                      </div>
+                      
                       {!selectedThought.sharePosts ? (
                         <div className="flex flex-col items-center justify-center py-16 text-center">
                           <Share2 className="w-12 h-12 text-slate-400 mb-4" />
