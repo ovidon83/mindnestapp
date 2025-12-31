@@ -11,7 +11,7 @@ Deployments are not automatically triggered when you commit and push to GitHub.
 3. Go to **Settings** tab
 4. Scroll to **GitHub** section
 5. Verify that:
-   - Repository is connected (should show your repo: `ovidon83/mindnestapp`)
+   - Repository is connected (should show your repo: `ovidon83/thoutyapp`)
    - Branch is set to `main` (or your default branch)
 
 ### 2. Enable Auto-Deploy
@@ -32,12 +32,12 @@ If the repository isn't connected properly:
 1. Go to **Settings** → **GitHub**
 2. Click **Disconnect** (if connected)
 3. Click **Connect GitHub**
-4. Select your repository: `ovidon83/mindnestapp`
+4. Select your repository: `ovidon83/thoutyapp`
 5. Select branch: `main`
 6. Click **Connect**
 
 ### 5. Verify Webhook is Active
-1. Go to your GitHub repository: `https://github.com/ovidon83/mindnestapp`
+1. Go to your GitHub repository: `https://github.com/ovidon83/thoutyapp`
 2. Click **Settings** → **Webhooks**
 3. Look for a webhook from `render.com`
 4. If it exists, verify it's **Active** (green checkmark)
