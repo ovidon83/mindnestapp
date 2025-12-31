@@ -9,6 +9,8 @@ import MindReview from './components/MindReview';
 import ProfileView from './components/ProfileView';
 import Auth from './components/Auth';
 
+// Thouty - Your Thought Companion
+
 const App: React.FC = () => {
   const { currentView, user, setUser, loadThoughts, loadActions } = useGenieNotesStore();
   const [initializing, setInitializing] = useState(true);
