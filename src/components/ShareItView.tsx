@@ -372,9 +372,9 @@ const ShareItView: React.FC = () => {
                                 )}
                               </button>
                               <button
-                                onClick={() => setRetryModal({ thoughtId: selectedThought.id, platform: 'linkedin' })}
+                                onClick={() => setRetryModal({ thoughtId: selectedThought.id })}
                                 className="p-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
-                                title="Regenerate"
+                                title="Regenerate all platforms"
                               >
                                 <RefreshCw className="w-4 h-4" />
                               </button>
