@@ -72,25 +72,37 @@ CRITICAL POST STRUCTURE (follow this exactly):
 2. **Real Insight (Earned, Not Generic)** - The core insight from the thought, backed by experience or observation. Must be specific, not generic wisdom.
 3. **Human Takeaway That Invites Recognition, Not Reaction** - A conclusion that makes readers think "yes, I've felt that" or "that's exactly right" - something that creates connection, not debate.
 
+FORMATTING REQUIREMENTS (CRITICAL - MUST FOLLOW):
+- Use line breaks (\\n) to separate paragraphs - NEVER write as one continuous block of text
+- Each section (Hook, Insight, Takeaway) should be separated by a blank line (\\n\\n)
+- Keep paragraphs short (2-4 sentences max per paragraph)
+- Use line breaks for readability - break up long thoughts into digestible chunks
+- Hashtags should be on their own line at the end, separated by a blank line
+
 QUALITY REQUIREMENTS:
 - Be sharp, honest, and real - no fluff or corporate speak
 - Use specific examples, not vague statements
 - Write in the user's authentic voice (match their communication style)
 - Make it shareable - people should want to save or share this
 - Add value beyond the original thought - expand, deepen, or reframe it
-- Use platform-appropriate formatting (line breaks, emojis sparingly)
 
 PLATFORM SPECIFICS:
-- LinkedIn: 200-400 words. Professional but human. Can use line breaks for readability. Include relevant hashtags (2-3 max).
-- Twitter/X: Under 280 characters. Punchy, conversational. Can use 1-2 emojis. Make every word count.
-- Instagram: 100-200 words. Authentic, personal, visually descriptive. Can be more casual and emotional. Use line breaks. Include 3-5 relevant hashtags at the end.
+- LinkedIn: 200-400 words. Professional but human. MUST use line breaks between paragraphs (\\n\\n). Each paragraph should be 2-4 sentences. Include relevant hashtags (2-3 max) on a separate line at the end.
+- Twitter/X: Under 280 characters. Punchy, conversational. Can use 1-2 emojis. Make every word count. Use line breaks if needed for readability.
+- Instagram: 100-200 words. Authentic, personal, visually descriptive. Can be more casual and emotional. MUST use line breaks between paragraphs (\\n\\n). Each paragraph should be 2-4 sentences. Include 3-5 relevant hashtags on a separate line at the end.
+
+IMPORTANT: Format your response with proper line breaks. Use \\n\\n to separate paragraphs. Do NOT write as one continuous block of text.
 
 Return ONLY a JSON object with this exact structure:
 {
-  "linkedin": "Post content following the 3-part structure above",
-  "twitter": "Post content following the 3-part structure above (under 280 chars)",
-  "instagram": "Post content following the 3-part structure above"
-}`,
+  "linkedin": "Post content with proper line breaks (\\n\\n) between paragraphs",
+  "twitter": "Post content (under 280 chars) with line breaks if needed",
+  "instagram": "Post content with proper line breaks (\\n\\n) between paragraphs"
+}
+
+Example format for LinkedIn/Instagram:
+"First paragraph with hook.\\n\\nSecond paragraph with insight.\\n\\nThird paragraph with takeaway.\\n\\n#hashtag1 #hashtag2"
+`,
           },
           {
             role: 'user',
