@@ -556,19 +556,21 @@ const ThoughtsView: React.FC = () => {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
+                      e.preventDefault();
                       if (thought.isSpark) {
                         removeSpark(thought.id);
                       } else {
                         addSpark(thought.id);
                       }
                     }}
-                    className="absolute top-2 right-2 z-10 hover:opacity-70 transition-opacity"
+                    className="absolute top-2 right-2 z-20 p-1 hover:bg-amber-50 rounded transition-colors cursor-pointer"
                     title={thought.isSpark ? "Remove spark" : "Add spark"}
+                    type="button"
                   >
                     {thought.isSpark ? (
-                      <Sparkles className="w-4 h-4 text-amber-500" />
+                      <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500" />
                     ) : (
-                      <Sparkles className="w-4 h-4 text-slate-300" />
+                      <Sparkles className="w-4 h-4 text-slate-400 hover:text-amber-400" />
                     )}
                   </button>
 
