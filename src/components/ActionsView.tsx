@@ -190,7 +190,7 @@ const ActionsView: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/20">
       <Navigation
-        currentView="actions"
+        currentView="thoughts"
         onViewChange={setCurrentView}
         user={user}
         onLogout={signOut}

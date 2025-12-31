@@ -1,5 +1,5 @@
-import { Thought } from '../types';
-import { fetchUserProfile, UserProfile } from './db';
+import { Thought, UserProfile } from '../types';
+import { fetchUserProfile } from './db';
 import { fetchThoughts } from './thoughts-db';
 
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;

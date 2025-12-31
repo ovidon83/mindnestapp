@@ -124,7 +124,15 @@ const ThoughtsView: React.FC = () => {
     } else {
       setActiveFilters(prev => {
         const newFilters = { ...prev };
-        delete newFilters[type];
+        if (type === 'potential') {
+          delete newFilters.potential;
+        } else if (type === 'date') {
+          delete newFilters.date;
+        } else if (type === 'parked') {
+          delete newFilters.parked;
+        } else if (type === 'spark') {
+          delete newFilters.spark;
+        }
         return newFilters;
       });
     }

@@ -177,7 +177,7 @@ const MindReview: React.FC = () => {
               </p>
             </button>
             <button
-              onClick={() => setCurrentView('actions')}
+              onClick={() => setCurrentView('thoughts')}
               className="p-4 bg-emerald-50/50 rounded-lg border border-dashed border-emerald-300/50 hover:bg-emerald-100/50 transition-colors text-left"
             >
               <div className="flex items-center gap-2 mb-1">
