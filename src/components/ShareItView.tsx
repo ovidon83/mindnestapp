@@ -17,13 +17,15 @@ const ShareItView: React.FC = () => {
     generateSharePosts,
     markAsShared,
     loadThoughts,
+    addSpark,
+    removeSpark,
   } = useGenieNotesStore();
 
   const [selectedThoughtId, setSelectedThoughtId] = useState<string | null>(null);
   const [activePlatform, setActivePlatform] = useState<Platform>('linkedin');
   const [generating, setGenerating] = useState<Record<string, boolean>>({});
   const [copiedPost, setCopiedPost] = useState<string | null>(null);
-  const [retryModal, setRetryModal] = useState<{ thoughtId: string; platform: Platform } | null>(null);
+  const [retryModal, setRetryModal] = useState<{ thoughtId: string } | null>(null);
   const [retrySuggestion, setRetrySuggestion] = useState<string>('');
   const [sortOrder, setSortOrder] = useState<'newest' | 'virality'>('newest');
   const [showShareToast, setShowShareToast] = useState<{ platform: Platform; visible: boolean } | null>(null);
@@ -142,37 +144,22 @@ const ShareItView: React.FC = () => {
 
   const handleRetryDraft = async () => {
     if (!retryModal) return;
-    const { thoughtId, platform } = retryModal;
+    const { thoughtId } = retryModal;
     if (generating[thoughtId]) return;
     
     setGenerating(prev => ({ ...prev, [thoughtId]: true }));
     
     try {
-      const { generatePostDrafts } = await import('../lib/generate-posts');
-      const { fetchUserProfile } = await import('../lib/db');
-      
       const thought = thoughts.find(t => t.id === thoughtId);
       if (!thought) return;
-      
-      const userProfile = await fetchUserProfile().catch(() => null);
-      const otherThoughts = thoughts.filter(t => t.id !== thoughtId).slice(0, 10);
       
       // Add suggestion to the thought context if provided
       const thoughtWithSuggestion = retrySuggestion.trim()
         ? { ...thought, originalText: `${thought.originalText}\n\nUser feedback: ${retrySuggestion.trim()}` }
         : thought;
       
-      const drafts = await generatePostDrafts(thoughtWithSuggestion, userProfile || undefined, otherThoughts);
-      
-      // Update only the specific platform's draft
-      const currentSharePosts = thought.sharePosts || {};
-      const updatedSharePosts = {
-        ...currentSharePosts,
-        [platform]: drafts[platform],
-        generatedAt: new Date(),
-      };
-      
-      await useGenieNotesStore.getState().updateThought(thoughtId, { sharePosts: updatedSharePosts });
+      // Use the same generateSharePosts function that generates all platforms
+      await generateSharePosts(thoughtId, thoughtWithSuggestion);
       await loadThoughts();
     } catch (error) {
       console.error('Error retrying draft:', error);
@@ -226,20 +213,20 @@ const ShareItView: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
             {/* Left Column: List of Thoughts (Narrower) */}
-            <div className="lg:col-span-1 bg-white rounded-xl border-2 border-dashed border-slate-300/60 shadow-sm overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100vh - 12rem)' }}>
-              <div className="p-4 border-b-2 border-dashed border-slate-300/60 bg-slate-50/30">
-                <div className="flex items-center justify-between mb-2">
-                  <h2 className="text-lg font-semibold text-slate-900" style={{ fontFamily: 'system-ui, -apple-system' }}>Thoughts</h2>
+            <div className="lg:col-span-1 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100vh - 12rem)' }}>
+              <div className="p-4 border-b border-slate-200 bg-slate-50">
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-base font-semibold text-slate-900">Thoughts</h2>
                   <select
                     value={sortOrder}
                     onChange={(e) => setSortOrder(e.target.value as 'newest' | 'virality')}
-                    className="text-xs px-2 py-1 bg-white border-2 border-dashed border-slate-300/60 rounded-lg text-slate-700 focus:outline-none focus:border-indigo-400 cursor-pointer"
+                    className="text-xs px-2.5 py-1.5 bg-white border border-slate-300 rounded-md text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
                   >
                     <option value="newest">Newest</option>
                     <option value="virality">Spark First</option>
                   </select>
                 </div>
-                <p className="text-xs text-slate-600">{shareThoughts.length} total</p>
+                <p className="text-xs text-slate-500">{shareThoughts.length} total</p>
               </div>
               <div className="flex-1 overflow-y-auto p-2">
                 <div className="space-y-2">
@@ -252,31 +239,46 @@ const ShareItView: React.FC = () => {
                                     thought.sharePosts?.shared?.instagram;
 
                     return (
-                      <button
+                      <div
                         key={thought.id}
-                        onClick={() => setSelectedThoughtId(thought.id)}
-                        className={`w-full p-3 text-left transition-colors h-24 flex flex-col justify-between border-2 border-dashed ${
+                        className={`w-full p-3 transition-colors h-24 flex flex-col justify-between border rounded-lg ${
                           isSelected
-                            ? 'bg-indigo-50/50 border-indigo-400/60 border-l-4 border-l-indigo-500'
-                            : 'border-transparent hover:bg-slate-50/50 hover:border-slate-300/40'
+                            ? 'bg-indigo-50 border-indigo-300 border-l-4 border-l-indigo-500'
+                            : 'bg-white border-slate-200 hover:bg-slate-50 hover:border-slate-300'
                         }`}
                       >
                         <div className="flex items-start gap-1.5 flex-1">
-                          {thought.isSpark && (
-                            <span className="text-amber-500 text-xs mt-0.5 flex-shrink-0">✨</span>
-                          )}
-                          <p className={`text-xs leading-snug line-clamp-3 flex-1 ${isSelected ? 'text-indigo-900 font-medium' : 'text-slate-800'}`}>
-                            {thought.originalText}
-                          </p>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (thought.isSpark) {
+                                removeSpark(thought.id);
+                              } else {
+                                addSpark(thought.id);
+                              }
+                            }}
+                            className="text-amber-500 text-xs mt-0.5 flex-shrink-0 hover:text-amber-600 transition-colors"
+                            title={thought.isSpark ? "Remove spark" : "Add spark"}
+                          >
+                            {thought.isSpark ? '✨' : '☆'}
+                          </button>
+                          <button
+                            onClick={() => setSelectedThoughtId(thought.id)}
+                            className="flex-1 text-left"
+                          >
+                            <p className={`text-xs leading-snug line-clamp-3 ${isSelected ? 'text-indigo-900 font-medium' : 'text-slate-800'}`}>
+                              {thought.originalText}
+                            </p>
+                          </button>
                         </div>
                         <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                           {hasPosts && (
-                            <span className="px-1.5 py-0.5 bg-green-100/70 text-green-700 text-[10px] rounded-lg font-medium border border-dashed border-green-300/50">
+                            <span className="px-1.5 py-0.5 bg-green-100 text-green-700 text-[10px] rounded font-medium">
                               Draft
                             </span>
                           )}
                           {isShared && (
-                            <span className="px-1.5 py-0.5 bg-blue-100/70 text-blue-700 text-[10px] rounded-lg font-medium border border-dashed border-blue-300/50">
+                            <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] rounded font-medium">
                               Shared
                             </span>
                           )}
@@ -284,7 +286,7 @@ const ShareItView: React.FC = () => {
                             <Loader2 className="w-3 h-3 animate-spin text-indigo-600" />
                           )}
                         </div>
-                      </button>
+                      </div>
                     );
                   })}
                 </div>
@@ -412,13 +414,6 @@ const ShareItView: React.FC = () => {
                                   <Copy className="w-4 h-4" />
                                 )}
                               </button>
-                              <button
-                                onClick={() => setRetryModal({ thoughtId: selectedThought.id, platform: 'twitter' })}
-                                className="p-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
-                                title="Regenerate"
-                              >
-                                <RefreshCw className="w-4 h-4" />
-                              </button>
                               {!selectedThought.sharePosts.shared?.twitter && (
                                 <button
                                   onClick={() => handleMarkAsShared(selectedThought.id, 'twitter')}
@@ -454,13 +449,6 @@ const ShareItView: React.FC = () => {
                                 ) : (
                                   <Copy className="w-4 h-4" />
                                 )}
-                              </button>
-                              <button
-                                onClick={() => setRetryModal({ thoughtId: selectedThought.id, platform: 'instagram' })}
-                                className="p-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
-                                title="Regenerate"
-                              >
-                                <RefreshCw className="w-4 h-4" />
                               </button>
                               {!selectedThought.sharePosts.shared?.instagram && (
                                 <button
@@ -642,9 +630,9 @@ const ShareItView: React.FC = () => {
       {/* Retry Modal */}
       {retryModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full border-2 border-dashed border-slate-300/60 shadow-lg">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full border border-slate-200 shadow-lg">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-900">Regenerate Draft</h3>
+              <h3 className="text-lg font-semibold text-slate-900">Regenerate All Drafts</h3>
               <button
                 onClick={() => {
                   setRetryModal(null);
@@ -656,13 +644,13 @@ const ShareItView: React.FC = () => {
               </button>
             </div>
             <p className="text-sm text-slate-600 mb-4">
-              Provide feedback to improve the draft (optional):
+              Provide feedback to improve all drafts (LinkedIn, Twitter, Instagram) - optional:
             </p>
             <textarea
               value={retrySuggestion}
               onChange={(e) => setRetrySuggestion(e.target.value)}
               placeholder="e.g., Make it more casual, Add more examples, Focus on the technical aspect..."
-              className="w-full p-3 border-2 border-dashed border-slate-300 rounded-lg resize-none focus:outline-none focus:border-indigo-400 text-sm"
+              className="w-full p-3 border border-slate-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
               rows={4}
             />
             <div className="flex items-center gap-3 mt-4">
@@ -674,12 +662,12 @@ const ShareItView: React.FC = () => {
                 {generating[retryModal.thoughtId] ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Regenerating...
+                    Regenerating all platforms...
                   </>
                 ) : (
                   <>
                     <RefreshCw className="w-4 h-4" />
-                    Regenerate
+                    Regenerate All
                   </>
                 )}
               </button>

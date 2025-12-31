@@ -187,8 +187,8 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         await get().updateThought(thoughtId, { isParked: false });
       },
 
-      generateSharePosts: async (thoughtId: string): Promise<SharePosts> => {
-        const thought = get().thoughts.find(t => t.id === thoughtId);
+      generateSharePosts: async (thoughtId: string, thoughtOverride?: Thought): Promise<SharePosts> => {
+        const thought = thoughtOverride || get().thoughts.find(t => t.id === thoughtId);
         if (!thought) {
           throw new Error('Thought not found');
         }
