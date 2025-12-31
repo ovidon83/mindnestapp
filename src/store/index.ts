@@ -31,7 +31,7 @@ interface GenieNotesStore {
   unparkThought: (thoughtId: string) => Promise<void>;
   
   // Potential-specific methods
-  generateSharePosts: (thoughtId: string) => Promise<SharePosts>;
+  generateSharePosts: (thoughtId: string, thoughtOverride?: Thought) => Promise<SharePosts>;
   updateTodoData: (thoughtId: string, todoData: Partial<TodoData>) => Promise<void>;
   updateInsightData: (thoughtId: string, insightData: Partial<InsightData>) => Promise<void>;
   markAsShared: (thoughtId: string, platform: 'linkedin' | 'twitter' | 'instagram') => Promise<void>;
