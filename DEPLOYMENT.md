@@ -12,8 +12,8 @@
   - `VITE_OPENAI_API_KEY` - (Optional) OpenAI API key
   - `VITE_API_URL` - URL of the subscription API service (see below)
 
-### 2. Subscription API Service (thouthy-subscription-api)
-- **Name**: `thouthy-subscription-api`
+### 2. Subscription API Service (thouty-subscription-api)
+- **Name**: `thouty-subscription-api`
 - **Build Command**: `npm install`
 - **Start Command**: `node server.js`
 - **Environment Variables**:
@@ -34,12 +34,12 @@
 
 1. **Get the Subscription API URL**:
    - Go to Render dashboard
-   - Find the `thouthy-subscription-api` service
-   - Copy the service URL (e.g., `https://thouthy-subscription-api.onrender.com`)
+   - Find the `thouty-subscription-api` service
+   - Copy the service URL (e.g., `https://thouty-subscription-api.onrender.com`)
 
 2. **Update Frontend Service**:
    - Go to `allymind` service settings
-   - Add environment variable: `VITE_API_URL` = `https://thouthy-subscription-api.onrender.com`
+   - Add environment variable: `VITE_API_URL` = `https://thouty-subscription-api.onrender.com`
    - Redeploy the frontend service
 
 ## Testing

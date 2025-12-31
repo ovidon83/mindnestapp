@@ -298,7 +298,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
               <div className="relative w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all">
                 <Brain className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-white relative z-10" strokeWidth={2.5} fill="white" fillOpacity="0.3" />
               </div>
-              <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">Thouthy</span>
+              <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">Thouty</span>
             </div>
             <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
               <button
@@ -350,7 +350,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </h1>
               <div className="max-w-3xl mx-auto px-2 mb-8 sm:mb-10">
                 <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-700 mb-4 sm:mb-6 font-normal leading-relaxed">
-                  Every thought deserves a home. <span className="font-semibold text-slate-900">Thouthy</span> collects them all, then shows you which ones have <span className="font-semibold text-amber-600">spark</span> and <span className="font-semibold text-purple-600">potential</span> — so you can <span className="font-semibold text-emerald-600">act</span> on them.
+                  Every thought deserves a home. <span className="font-semibold text-slate-900">Thouty</span> collects them all, then shows you which ones have <span className="font-semibold text-amber-600">spark</span> and <span className="font-semibold text-purple-600">potential</span> — so you can <span className="font-semibold text-emerald-600">act</span> on them.
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-lg sm:text-xl md:text-2xl font-semibold text-slate-700 mb-6 sm:mb-8">
@@ -611,7 +611,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                             <div className="w-7 h-7 bg-gradient-to-br from-purple-500 via-pink-400 to-orange-400 rounded-lg flex items-center justify-center shadow-sm">
                               <Brain className="w-4 h-4 text-white" />
                             </div>
-                            <span className="text-base font-bold text-slate-800">Thouthy</span>
+                            <span className="text-base font-bold text-slate-800">Thouty</span>
                           </div>
                         </div>
                         <div className="p-6">
@@ -645,7 +645,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       A thought appears at the wrong moment. Normally, it's lost.
                     </p>
                     <p className="text-base sm:text-lg text-slate-500">
-                      <span className="text-slate-700 font-semibold">Thouthy:</span> You capture it instantly.
+                      <span className="text-slate-700 font-semibold">Thouty:</span> You capture it instantly.
                     </p>
                   </div>
                 </div>
@@ -714,7 +714,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       The thought finds meaning — revealing its <span className="font-semibold text-amber-600">spark</span> and what it <span className="font-semibold text-purple-600">could become</span>.
                     </p>
                     <p className="text-base sm:text-lg text-slate-500">
-                      <span className="text-slate-700 font-semibold">Thouthy:</span> Evaluates it and shows potential, without forcing anything.
+                      <span className="text-slate-700 font-semibold">Thouty:</span> Evaluates it and shows potential, without forcing anything.
                     </p>
                   </div>
                 </div>
@@ -859,7 +859,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       All thoughts are saved — never get lost. Search, filter by sparks, topics, or actions, and manually act on any of them.
                     </p>
                     <p className="text-base sm:text-lg text-slate-500">
-                      <span className="text-slate-700 font-semibold">Thouthy:</span> Keeps everything organized and accessible. Optional Daily/Weekly Mind Review available.
+                      <span className="text-slate-700 font-semibold">Thouty:</span> Keeps everything organized and accessible. Optional Daily/Weekly Mind Review available.
                     </p>
                   </div>
                 </div>
@@ -1042,7 +1042,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       When you're ready, you act with clarity — post, to-do, conversation.
                     </p>
                     <p className="text-base sm:text-lg text-slate-500">
-                      <span className="text-slate-700 font-semibold">Thouthy:</span> Generates ready-to-share posts for all social platforms, creates to-dos, and suggests conversations — helping you act on the thoughts that truly matter.
+                      <span className="text-slate-700 font-semibold">Thouty:</span> Generates ready-to-share posts for all social platforms, creates to-dos, and suggests conversations — helping you act on the thoughts that truly matter.
                     </p>
                   </div>
                 </div>
@@ -1121,7 +1121,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       Periodically, you pause to review — reflect, organize, and decide what matters.
                     </p>
                     <p className="text-base sm:text-lg text-slate-500">
-                      <span className="text-slate-700 font-semibold">Thouthy:</span> Gently nudges you to review your thoughts daily or weekly, helping you stay organized and intentional.
+                      <span className="text-slate-700 font-semibold">Thouty:</span> Gently nudges you to review your thoughts daily or weekly, helping you stay organized and intentional.
                     </p>
                   </div>
                 </div>
@@ -1137,7 +1137,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 {/* Brand */}
                 <div className="text-center md:text-left">
                   <h3 className="text-xl font-bold text-slate-800 mb-2">
-                    Thouthy
+                    Thouty
                   </h3>
                   <p className="text-sm text-slate-600">
                     Your thinking companion
@@ -1147,14 +1147,14 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 {/* Social Links */}
                 <div className="flex items-center gap-4">
                   <a
-                    href="mailto:hello@thouthy.com"
+                    href="mailto:hello@thouty.com"
                     className="p-2 rounded-lg bg-white/80 backdrop-blur-sm border-2 border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-300 hover:scale-110 transition-all shadow-sm"
                     aria-label="Email"
                   >
                     <Mail className="w-5 h-5" />
                   </a>
                   <a
-                    href="https://twitter.com/thouthy"
+                    href="https://twitter.com/thouty"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-sky-500 hover:border-sky-200 transition-all"
@@ -1163,7 +1163,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     <Twitter className="w-5 h-5" />
                   </a>
                   <a
-                    href="https://linkedin.com/company/thouthy"
+                    href="https://linkedin.com/company/thouty"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-all"
@@ -1172,7 +1172,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                     <Linkedin className="w-5 h-5" />
                   </a>
                   <a
-                    href="https://instagram.com/thouthy"
+                    href="https://instagram.com/thouty"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-2 rounded-lg bg-white/80 backdrop-blur-sm border border-slate-200/60 text-slate-600 hover:text-rose-600 hover:border-rose-200 transition-all"
@@ -1186,7 +1186,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
               {/* Copyright */}
               <div className="mt-8 pt-8 border-t border-slate-200 text-center">
                 <p className="text-sm text-slate-500">
-                  © {new Date().getFullYear()} Thouthy. All rights reserved.
+                  © {new Date().getFullYear()} Thouty. All rights reserved.
                 </p>
         </div>
       </div>

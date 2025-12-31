@@ -27,7 +27,7 @@ const Navigation: React.FC<NavigationProps> = ({
             <div className="relative w-10 h-10 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 rounded-lg flex items-center justify-center shadow-lg">
               <Brain className="w-6 h-6 text-white" strokeWidth={2.5} fill="white" fillOpacity="0.3" />
             </div>
-            <span className="text-2xl font-bold text-slate-900 tracking-tight">Thouthy</span>
+            <span className="text-2xl font-bold text-slate-900 tracking-tight">Thouty</span>
           </div>
 
           {/* Navigation Links */}

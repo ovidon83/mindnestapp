@@ -59,10 +59,10 @@ app.post('/api/subscribe', async (req, res) => {
       await transporter.sendMail({
         from: process.env.EMAIL_USER,
         to: 'ovidon83@gmail.com',
-        subject: 'New Thouthy Subscription',
+        subject: 'New Thouty Subscription',
         text: `New email subscription: ${email}\nTimestamp: ${timestamp}`,
         html: `
-          <h2>New Thouthy Subscription</h2>
+          <h2>New Thouty Subscription</h2>
           <p><strong>Email:</strong> ${email}</p>
           <p><strong>Timestamp:</strong> ${timestamp}</p>
         `,
@@ -94,10 +94,10 @@ app.post('/api/subscribe/notify', async (req, res) => {
       await transporter.sendMail({
         from: process.env.EMAIL_USER,
         to: 'ovidon83@gmail.com',
-        subject: 'New Thouthy Subscription',
+        subject: 'New Thouty Subscription',
         text: `New email subscription: ${email}\nTimestamp: ${timestamp}`,
         html: `
-          <h2>New Thouthy Subscription</h2>
+          <h2>New Thouty Subscription</h2>
           <p><strong>Email:</strong> ${email}</p>
           <p><strong>Timestamp:</strong> ${timestamp}</p>
         `,

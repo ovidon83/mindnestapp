@@ -20,8 +20,8 @@ EmailJS is a simple email service that sends emails directly from your frontend 
 3. **Create Email Template**
    - Go to "Email Templates" in dashboard
    - Click "Create New Template"
-   - **Template Name**: "Thouthy Subscription"
-   - **Subject**: `New Thouthy Early Access Subscription`
+   - **Template Name**: "Thouty Subscription"
+   - **Subject**: `New Thouty Early Access Subscription`
    - **Content**:
      ```
      New email subscription received!
@@ -30,7 +30,7 @@ EmailJS is a simple email service that sends emails directly from your frontend 
      Timestamp: {{timestamp}}
      ```
    - **To Email**: `ovidon83@gmail.com`
-   - **From Name**: `Thouthy`
+   - **From Name**: `Thouty`
    - **From Email**: `ovidon83@gmail.com` (or your Gmail)
    - Click "Save"
    - **Copy the Template ID** (e.g., `template_xyz789`)

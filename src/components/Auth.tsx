@@ -96,7 +96,7 @@ const Auth: React.FC<AuthProps> = ({ onAuthSuccess, initialMode = 'login', onMod
               <Sparkles className="w-7 h-7 text-white relative z-10 drop-shadow-sm" strokeWidth={2.5} />
               <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/10 to-transparent"></div>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">Thouthy</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Thouty</h2>
           </div>
           <p className="text-sm text-gray-600">{isLogin ? 'Welcome back!' : 'Create your account'}</p>
         </div>

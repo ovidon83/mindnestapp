@@ -1,7 +1,7 @@
-# Thouthy Refactor Summary
+# Thouty Refactor Summary
 
 ## Overview
-Thouthy has been refactored to align with the new product vision: a calm, observer-style thought management app.
+Thouty has been refactored to align with the new product vision: a calm, observer-style thought management app.
 
 ## Key Changes
 

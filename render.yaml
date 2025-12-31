@@ -9,7 +9,7 @@ services:
         value: 18.17.0
   
   - type: web
-    name: thouthy-subscription-api
+    name: thouty-subscription-api
     env: node
     buildCommand: npm install
     startCommand: node server.js
