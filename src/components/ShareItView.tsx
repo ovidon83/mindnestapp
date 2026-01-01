@@ -19,6 +19,8 @@ const ShareItView: React.FC = () => {
     loadThoughts,
     addSpark,
     removeSpark,
+    navigateToThoughtId,
+    clearNavigateToThought,
   } = useGenieNotesStore();
 
   const [selectedThoughtId, setSelectedThoughtId] = useState<string | null>(null);
@@ -168,14 +170,13 @@ const ShareItView: React.FC = () => {
 
   // Auto-select first thought if none selected, or navigate to specific thought
   React.useEffect(() => {
-    const navigateToThought = sessionStorage.getItem('navigateToThought');
-    if (navigateToThought && shareThoughts.some(t => t.id === navigateToThought)) {
-      setSelectedThoughtId(navigateToThought);
-      sessionStorage.removeItem('navigateToThought');
+    if (navigateToThoughtId && shareThoughts.some(t => t.id === navigateToThoughtId)) {
+      setSelectedThoughtId(navigateToThoughtId);
+      clearNavigateToThought();
     } else if (!selectedThoughtId && shareThoughts.length > 0) {
       setSelectedThoughtId(shareThoughts[0].id);
     }
-  }, [shareThoughts, selectedThoughtId]);
+  }, [shareThoughts, selectedThoughtId, navigateToThoughtId, clearNavigateToThought]);
 
   // Handle navigation from Thoughts view - check if thoughtId is in URL or store
   React.useEffect(() => {

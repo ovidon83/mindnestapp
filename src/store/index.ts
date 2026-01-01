@@ -13,6 +13,7 @@ interface GenieNotesStore {
   user: any | null;
   loading: boolean;
   pendingText: string | null; // Text waiting to be saved after login
+  navigateToThoughtId: string | null; // Thought ID to select when navigating to a view
   
   // Auth
   setUser: (user: any) => void;
@@ -42,8 +43,9 @@ interface GenieNotesStore {
   deleteAction: (id: string) => Promise<void>;
   
   // App state
-  setCurrentView: (view: AppView) => void;
+  setCurrentView: (view: AppView, thoughtId?: string) => void;
   setPendingText: (text: string | null) => void;
+  clearNavigateToThought: () => void;
 }
 
 // Track if we're currently loading to prevent concurrent loads
@@ -60,6 +62,7 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
       user: null,
       loading: false,
       pendingText: null,
+      navigateToThoughtId: null,
 
       setUser: (user) => {
         set({ user });
@@ -291,8 +294,15 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         }
       },
 
-      setCurrentView: (view: AppView) => {
-        set({ currentView: view });
+      setCurrentView: (view: AppView, thoughtId?: string) => {
+        set({ 
+          currentView: view,
+          navigateToThoughtId: thoughtId || null,
+        });
+      },
+      
+      clearNavigateToThought: () => {
+        set({ navigateToThoughtId: null });
       },
 
       setPendingText: (text: string | null) => {

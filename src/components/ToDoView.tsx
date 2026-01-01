@@ -14,6 +14,8 @@ const ToDoView: React.FC = () => {
     signOut,
     setCurrentView,
     updateTodoData,
+    navigateToThoughtId,
+    clearNavigateToThought,
   } = useGenieNotesStore();
 
   const [selectedThoughtId, setSelectedThoughtId] = useState<string | null>(null);
@@ -66,14 +68,13 @@ const ToDoView: React.FC = () => {
 
   // Auto-select first thought if none selected, or navigate to specific thought
   React.useEffect(() => {
-    const navigateToThought = sessionStorage.getItem('navigateToThought');
-    if (navigateToThought && filteredTodos.some(t => t.id === navigateToThought)) {
-      setSelectedThoughtId(navigateToThought);
-      sessionStorage.removeItem('navigateToThought');
+    if (navigateToThoughtId && filteredTodos.some(t => t.id === navigateToThoughtId)) {
+      setSelectedThoughtId(navigateToThoughtId);
+      clearNavigateToThought();
     } else if (!selectedThoughtId && filteredTodos.length > 0) {
       setSelectedThoughtId(filteredTodos[0].id);
     }
-  }, [filteredTodos, selectedThoughtId]);
+  }, [filteredTodos, selectedThoughtId, navigateToThoughtId, clearNavigateToThought]);
 
   // Load notes for selected thought
   React.useEffect(() => {

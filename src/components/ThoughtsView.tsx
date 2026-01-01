@@ -732,9 +732,7 @@ const ThoughtsView: React.FC = () => {
                                   <button
                                     onClick={() => {
                                       setExpandedActionDropdown(null);
-                                      setCurrentView('shareit');
-                                      // Store thought ID in sessionStorage to select it in ShareItView
-                                      sessionStorage.setItem('navigateToThought', thought.id);
+                                      setCurrentView('shareit', thought.id);
                                     }}
                                     className="w-full px-3 py-2 text-left text-xs hover:bg-purple-50 transition-colors rounded-lg flex items-center gap-2 text-purple-700 cursor-pointer border-t border-slate-200 mt-1 pt-2"
                                   >
@@ -746,9 +744,7 @@ const ThoughtsView: React.FC = () => {
                                   <button
                                     onClick={() => {
                                       setExpandedActionDropdown(null);
-                                      setCurrentView('todo');
-                                      // Store thought ID in sessionStorage to select it in ToDoView
-                                      sessionStorage.setItem('navigateToThought', thought.id);
+                                      setCurrentView('todo', thought.id);
                                     }}
                                     className="w-full px-3 py-2 text-left text-xs hover:bg-emerald-50 transition-colors rounded-lg flex items-center gap-2 text-emerald-700 cursor-pointer border-t border-slate-200 mt-1 pt-2"
                                   >
