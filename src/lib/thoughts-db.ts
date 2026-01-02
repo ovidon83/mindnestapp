@@ -252,7 +252,8 @@ export async function updateThought(id: string, updates: Partial<Thought>): Prom
       .select('potential')
       .eq('id', id)
       .single();
-    currentPotential = currentThought?.potential || null;
+    // Type assertion needed because select('potential') returns a partial type
+    currentPotential = (currentThought as { potential?: string | null } | null)?.potential || null;
   } catch (error) {
     // If fetch fails, we'll use default - that's okay
     console.warn('Could not fetch current potential, using default:', error);
