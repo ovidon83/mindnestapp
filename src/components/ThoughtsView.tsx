@@ -755,6 +755,7 @@ const ThoughtsView: React.FC = () => {
                                                     config.color === 'emerald' ? 'text-emerald-700' : 
                                                     config.color === 'orange' ? 'text-orange-700' :
                                                     'text-slate-700';
+                                    const isSelected = currentPotential === potential;
                                     return (
                                       <button
                                         key={potential}
@@ -764,11 +765,17 @@ const ThoughtsView: React.FC = () => {
                                           handleSetPotential(thought.id, potential);
                                           setExpandedActionDropdown(null);
                                         }}
-                                        className={`w-full px-3 py-2 text-left text-xs ${hoverClass} transition-colors rounded-lg flex items-center gap-2 ${textClass} cursor-pointer`}
+                                        className={`w-full px-3 py-2 text-left text-xs rounded-lg flex items-center gap-2 transition-colors ${
+                                          isSelected 
+                                            ? 'bg-slate-100 text-slate-700 cursor-default' 
+                                            : `${hoverClass} ${textClass} cursor-pointer`
+                                        }`}
                                         type="button"
+                                        disabled={isSelected}
                                       >
                                         <span>{config.icon}</span>
                                         <span>{config.label}</span>
+                                        {isSelected && <span className="ml-auto text-xs opacity-60">(current)</span>}
                                       </button>
                                     );
                                   })}
@@ -842,14 +849,27 @@ const ThoughtsView: React.FC = () => {
                                                 config.color === 'emerald' ? 'text-emerald-700' : 
                                                 config.color === 'orange' ? 'text-orange-700' :
                                                 'text-slate-700';
+                                const isSelected = currentPotential === potential;
                                 return (
                                   <button
                                     key={potential}
-                                    onClick={() => handleSetPotential(thought.id, potential)}
-                                    className={`w-full px-3 py-2 text-left text-xs ${hoverClass} transition-colors rounded-lg flex items-center gap-2 ${textClass} cursor-pointer`}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      e.preventDefault();
+                                      handleSetPotential(thought.id, potential);
+                                      setExpandedActionDropdown(null);
+                                    }}
+                                    className={`w-full px-3 py-2 text-left text-xs rounded-lg flex items-center gap-2 transition-colors ${
+                                      isSelected 
+                                        ? 'bg-slate-100 text-slate-700 cursor-default' 
+                                        : `${hoverClass} ${textClass} cursor-pointer`
+                                    }`}
+                                    type="button"
+                                    disabled={isSelected}
                                   >
                                     <span>{config.icon}</span>
                                     <span>{config.label}</span>
+                                    {isSelected && <span className="ml-auto text-xs opacity-60">(current)</span>}
                                   </button>
                                 );
                               })}
