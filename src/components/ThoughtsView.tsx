@@ -775,7 +775,8 @@ const ThoughtsView: React.FC = () => {
                                 e.stopPropagation();
                                 e.preventDefault();
                                 const targetView = currentPotential === 'Share' ? 'shareit' : 'todo';
-                                // Use browser history for proper back button support
+                                // Push current state first, then navigate
+                                window.history.pushState({ view: 'thoughts' }, '', '#thoughts');
                                 window.history.pushState({ view: targetView, thoughtId: thought.id }, '', `#${targetView}`);
                                 setCurrentView(targetView, thought.id);
                               }}

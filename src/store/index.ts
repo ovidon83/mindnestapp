@@ -179,8 +179,8 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
       },
 
       setPotential: async (thoughtId: string, potential: PotentialType | null) => {
-        // If setting to "Just a thought", we still need to save it (not null)
-        const potentialToSave = potential === null ? 'Just a thought' : potential;
+        // Always save as a string value - "Just a thought" is a valid potential
+        const potentialToSave = potential || 'Just a thought';
         await get().updateThought(thoughtId, { potential: potentialToSave });
       },
 

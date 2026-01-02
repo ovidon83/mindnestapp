@@ -23,10 +23,13 @@ const App: React.FC = () => {
       if (event.state && event.state.view) {
         setCurrentView(event.state.view, event.state.thoughtId);
       } else {
-        // Fallback: check hash
+        // Fallback: check hash or default to thoughts
         const hash = window.location.hash.slice(1);
         if (hash && ['capture', 'thoughts', 'shareit', 'todo', 'review', 'profile'].includes(hash)) {
           setCurrentView(hash as any);
+        } else {
+          // Default to thoughts view if no hash or invalid hash
+          setCurrentView('thoughts');
         }
       }
     };
