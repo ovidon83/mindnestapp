@@ -36,6 +36,7 @@ const ThoughtsView: React.FC = () => {
   const [completionPrompt, setCompletionPrompt] = useState<string | null>(null);
   const [editingThoughtId, setEditingThoughtId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState<string>('');
+  const [parkedThoughtId, setParkedThoughtId] = useState<string | null>(null);
 
   // Extract unique topics from thoughts
   const availableTopics = useMemo(() => {
@@ -245,6 +246,15 @@ const ThoughtsView: React.FC = () => {
     });
     await parkThought(thoughtId);
     setCompletionPrompt(null);
+  };
+
+  const handleParkThought = async (thoughtId: string) => {
+    await parkThought(thoughtId);
+    setParkedThoughtId(thoughtId);
+    // Show feedback that thought was parked
+    setTimeout(() => {
+      setParkedThoughtId(null);
+    }, 2000);
   };
 
   // Close dropdowns when clicking outside
@@ -552,7 +562,7 @@ const ThoughtsView: React.FC = () => {
                     thought.isParked ? 'opacity-60' : ''
                   }`}
                 >
-                  {/* Spark Icon - Top Right */}
+                  {/* Spark Icon - Top Right on Border */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -563,7 +573,7 @@ const ThoughtsView: React.FC = () => {
                         addSpark(thought.id);
                       }
                     }}
-                    className="absolute top-2 right-2 z-20 p-1 hover:bg-amber-50 rounded transition-colors cursor-pointer"
+                    className="absolute -top-2 -right-2 z-30 p-1 bg-white rounded-full border-2 border-dashed border-slate-200 hover:border-amber-300 transition-colors cursor-pointer shadow-sm"
                     title={thought.isSpark ? "Remove spark" : "Add spark"}
                     type="button"
                   >
@@ -664,19 +674,28 @@ const ThoughtsView: React.FC = () => {
                           <>
                             {thought.isParked ? (
                               <button
-                                onClick={() => unparkThought(thought.id)}
+                                onClick={() => {
+                                  unparkThought(thought.id);
+                                  setParkedThoughtId(null);
+                                }}
                                 className="px-2 py-1 bg-slate-100/70 text-slate-700 rounded-lg text-xs font-medium border border-dashed border-slate-300/60 hover:bg-slate-200/70 transition-colors flex items-center gap-1.5"
+                                title="Unpark thought - make it visible again"
                               >
                                 <ParkingCircle className="w-3.5 h-3.5" />
                                 <span>Unpark</span>
                               </button>
                             ) : (
                               <button
-                                onClick={() => parkThought(thought.id)}
-                                className="px-2 py-1 bg-slate-50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50 hover:bg-slate-100 transition-colors flex items-center gap-1.5"
+                                onClick={() => handleParkThought(thought.id)}
+                                className={`px-2 py-1 rounded-lg text-xs font-medium border border-dashed transition-colors flex items-center gap-1.5 ${
+                                  parkedThoughtId === thought.id
+                                    ? 'bg-emerald-100 text-emerald-700 border-emerald-300'
+                                    : 'bg-slate-50 text-slate-600 border-slate-300/50 hover:bg-slate-100'
+                                }`}
+                                title="Park thought - hide it from main view (still searchable)"
                               >
                                 <ParkingCircle className="w-3.5 h-3.5" />
-                                <span>Park</span>
+                                <span>{parkedThoughtId === thought.id ? 'Parked!' : 'Park'}</span>
                               </button>
                             )}
                           </>
@@ -687,24 +706,50 @@ const ThoughtsView: React.FC = () => {
                       {currentPotential && (
                         <div className="relative action-dropdown-container ml-auto">
                           <button
-                            onClick={() => setExpandedActionDropdown(expandedActionDropdown === thought.id ? null : thought.id)}
+                            onClick={(e) => {
+                              // If Share or To-Do, navigate directly; otherwise open dropdown
+                              if (currentPotential === 'Share') {
+                                e.stopPropagation();
+                                setCurrentView('shareit', thought.id);
+                              } else if (currentPotential === 'To-Do') {
+                                e.stopPropagation();
+                                setCurrentView('todo', thought.id);
+                              } else {
+                                setExpandedActionDropdown(expandedActionDropdown === thought.id ? null : thought.id);
+                              }
+                            }}
                             className={`px-2 py-1 rounded-lg text-xs font-medium border border-dashed transition-colors flex items-center gap-1 ${
                               potentialConfig[currentPotential]?.color === 'purple' ? 'bg-purple-100/70 text-purple-700 border-purple-300/60 hover:bg-purple-200/70' :
                               potentialConfig[currentPotential]?.color === 'emerald' ? 'bg-emerald-100/70 text-emerald-700 border-emerald-300/60 hover:bg-emerald-200/70' :
                               potentialConfig[currentPotential]?.color === 'orange' ? 'bg-orange-100/70 text-orange-700 border-orange-300/60 hover:bg-orange-200/70' :
                               'bg-slate-100/70 text-slate-700 border-slate-300/60 hover:bg-slate-200/70'
-                            }`}
+                            } ${currentPotential === 'Share' || currentPotential === 'To-Do' ? 'cursor-pointer' : ''}`}
                           >
                             <span>{potentialConfig[currentPotential]?.icon}</span>
                             <span>{potentialConfig[currentPotential]?.label}</span>
                             {thought.bestPotential === currentPotential && !thought.potential && (
                               <span className="text-xs opacity-60">(AI)</span>
                             )}
-                            <ChevronDown className={`w-3 h-3 transition-transform ${expandedActionDropdown === thought.id ? 'rotate-180' : ''}`} />
+                            {(currentPotential !== 'Share' && currentPotential !== 'To-Do') && (
+                              <ChevronDown className={`w-3 h-3 transition-transform ${expandedActionDropdown === thought.id ? 'rotate-180' : ''}`} />
+                            )}
+                            {(currentPotential === 'Share' || currentPotential === 'To-Do') && (
+                              <ArrowRight className="w-3 h-3" />
+                            )}
                           </button>
                           
                           {expandedActionDropdown === thought.id && (
-                            <div className="absolute right-0 top-full mt-2 bg-white rounded-xl border-2 border-dashed border-slate-300/60 shadow-xl z-20 min-w-[140px] overflow-hidden">
+                            <div 
+                              className="absolute right-0 top-full mt-2 bg-white rounded-xl border-2 border-dashed border-slate-300/60 shadow-xl z-50 min-w-[140px] overflow-hidden"
+                              ref={(el) => {
+                                if (el && expandedActionDropdown === thought.id) {
+                                  // Scroll into view when dropdown opens
+                                  setTimeout(() => {
+                                    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                                  }, 0);
+                                }
+                              }}
+                            >
                               <div className="p-1.5 space-y-0.5">
                                 {availablePotentials.filter(p => p !== currentPotential).map((potential) => {
                                   const config = potentialConfig[potential];
@@ -727,31 +772,6 @@ const ThoughtsView: React.FC = () => {
                                     </button>
                                   );
                                 })}
-                                {/* Navigation buttons for Share and To-Do */}
-                                {currentPotential === 'Share' && (
-                                  <button
-                                    onClick={() => {
-                                      setExpandedActionDropdown(null);
-                                      setCurrentView('shareit', thought.id);
-                                    }}
-                                    className="w-full px-3 py-2 text-left text-xs hover:bg-purple-50 transition-colors rounded-lg flex items-center gap-2 text-purple-700 cursor-pointer border-t border-slate-200 mt-1 pt-2"
-                                  >
-                                    <ArrowRight className="w-3 h-3" />
-                                    <span>Go to Share</span>
-                                  </button>
-                                )}
-                                {currentPotential === 'To-Do' && (
-                                  <button
-                                    onClick={() => {
-                                      setExpandedActionDropdown(null);
-                                      setCurrentView('todo', thought.id);
-                                    }}
-                                    className="w-full px-3 py-2 text-left text-xs hover:bg-emerald-50 transition-colors rounded-lg flex items-center gap-2 text-emerald-700 cursor-pointer border-t border-slate-200 mt-1 pt-2"
-                                  >
-                                    <ArrowRight className="w-3 h-3" />
-                                    <span>Go to To-Do</span>
-                                  </button>
-                                )}
                               </div>
                             </div>
                           )}
