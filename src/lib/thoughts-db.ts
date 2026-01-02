@@ -337,6 +337,9 @@ export async function updateThought(id: string, updates: Partial<Thought>): Prom
   if (updateData.summary !== undefined) safeUpdateData.summary = updateData.summary;
   if (updateData.is_spark !== undefined) safeUpdateData.is_spark = updateData.is_spark;
   if (updateData.is_parked !== undefined) safeUpdateData.is_parked = updateData.is_parked;
+  // CRITICAL: Always include potential to prevent constraint violations
+  if (updateData.potential !== undefined) safeUpdateData.potential = updateData.potential;
+  if (updateData.is_parked !== undefined) safeUpdateData.is_parked = updateData.is_parked;
   if (updateData.potential !== undefined) safeUpdateData.potential = updateData.potential;
   if (updateData.best_potential !== undefined) safeUpdateData.best_potential = updateData.best_potential;
   if (updateData.share_posts !== undefined) safeUpdateData.share_posts = updateData.share_posts;
