@@ -313,6 +313,17 @@ export async function updateThought(id: string, updates: Partial<Thought>): Prom
     } : null;
   }
   
+  // CRITICAL: Always ensure potential is set to a valid value to prevent constraint violations
+  // Even if we're not updating potential, we need to ensure it's valid
+  if (!updateData.potential) {
+    const currentPotential = currentThought?.potential;
+    if (currentPotential && ['Share', 'To-Do', 'Insight', 'Just a thought'].includes(currentPotential)) {
+      updateData.potential = currentPotential;
+    } else {
+      updateData.potential = 'Just a thought';
+    }
+  }
+  
   // Always update updated_at
   updateData.updated_at = new Date().toISOString();
 
