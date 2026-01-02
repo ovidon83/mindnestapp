@@ -268,26 +268,42 @@ export async function updateThought(id: string, updates: Partial<Thought>): Prom
   
   // CRITICAL: Always set potential to a valid value to prevent constraint violations
   // Determine the potential value to use
+  const VALID_POTENTIALS = ['Share', 'To-Do', 'Insight', 'Just a thought'] as const;
   let potentialValue: string = 'Just a thought'; // Default fallback
   
   if (updates.potential !== undefined) {
     // User is explicitly setting potential
-    const userPotential = updates.potential === null || updates.potential === undefined 
-      ? 'Just a thought' 
-      : updates.potential;
-    // Validate it's one of the allowed values
-    if (['Share', 'To-Do', 'Insight', 'Just a thought'].includes(userPotential)) {
-      potentialValue = userPotential;
+    let userPotential = updates.potential;
+    if (userPotential === null || userPotential === undefined) {
+      userPotential = 'Just a thought';
+    } else {
+      // Trim whitespace and ensure exact match
+      userPotential = userPotential.trim() as PotentialType;
     }
-  } else if (currentPotential && ['Share', 'To-Do', 'Insight', 'Just a thought'].includes(currentPotential)) {
+    // Validate it's one of the allowed values (exact match, case-sensitive)
+    if (VALID_POTENTIALS.includes(userPotential as any)) {
+      potentialValue = userPotential;
+    } else {
+      console.warn('[updateThought] Invalid potential value:', userPotential, 'defaulting to "Just a thought"');
+      potentialValue = 'Just a thought';
+    }
+  } else if (currentPotential) {
     // Not explicitly updating potential - use current value if valid
-    potentialValue = currentPotential;
+    const trimmedCurrent = currentPotential.trim();
+    if (VALID_POTENTIALS.includes(trimmedCurrent as any)) {
+      potentialValue = trimmedCurrent;
+    }
   }
   // Otherwise use default 'Just a thought'
   
   // Always set potential in updateData - this is CRITICAL to prevent constraint violations
+  // Ensure it's exactly one of the valid values
+  if (!VALID_POTENTIALS.includes(potentialValue as any)) {
+    console.error('[updateThought] potentialValue is not valid:', potentialValue, 'forcing to "Just a thought"');
+    potentialValue = 'Just a thought';
+  }
   updateData.potential = potentialValue;
-  console.log('[updateThought] Setting potential to:', potentialValue, 'for thought:', id);
+  console.log('[updateThought] Setting potential to:', potentialValue, '(type:', typeof potentialValue, ') for thought:', id);
   
   if (updates.bestPotential !== undefined) {
     updateData.best_potential = updates.bestPotential === null || updates.bestPotential === undefined
