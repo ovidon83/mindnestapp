@@ -179,7 +179,9 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
       },
 
       setPotential: async (thoughtId: string, potential: PotentialType | null) => {
-        await get().updateThought(thoughtId, { potential });
+        // If setting to "Just a thought", we still need to save it (not null)
+        const potentialToSave = potential === null ? 'Just a thought' : potential;
+        await get().updateThought(thoughtId, { potential: potentialToSave });
       },
 
       parkThought: async (thoughtId: string) => {

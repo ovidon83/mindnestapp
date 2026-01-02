@@ -85,7 +85,7 @@ const Navigation: React.FC<NavigationProps> = ({
               className="px-4 py-2 bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 text-white rounded-lg text-sm font-medium hover:shadow-lg transition-all flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Capture</span>
+              <span className="hidden sm:inline">New Thought</span>
             </button>
             <UserAvatar user={user} onLogout={onLogout} />
           </div>
