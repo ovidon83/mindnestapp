@@ -671,7 +671,7 @@ const ThoughtsView: React.FC = () => {
                             unparkThought(thought.id);
                             setParkedThoughtId(null);
                           }}
-                          className="w-7 h-7 rounded-full bg-slate-100/70 text-slate-700 border border-dashed border-slate-300/60 hover:bg-slate-200/70 transition-colors flex items-center justify-center"
+                          className="w-7 h-7 rounded-lg bg-slate-100/70 text-slate-700 border border-dashed border-slate-300/60 hover:bg-slate-200/70 transition-colors flex items-center justify-center"
                           title="Unpark thought - make it visible again"
                           type="button"
                         >
@@ -684,7 +684,7 @@ const ThoughtsView: React.FC = () => {
                             e.preventDefault();
                             handleParkThought(thought.id);
                           }}
-                          className={`w-7 h-7 rounded-full border border-dashed transition-colors flex items-center justify-center ${
+                          className={`w-7 h-7 rounded-lg border border-dashed transition-colors flex items-center justify-center ${
                             parkedThoughtId === thought.id
                               ? 'bg-emerald-100 text-emerald-700 border-emerald-300'
                               : 'bg-slate-50 text-slate-600 border-slate-300/50 hover:bg-slate-100'
@@ -708,17 +708,26 @@ const ThoughtsView: React.FC = () => {
                                 setExpandedActionDropdown(expandedActionDropdown === thought.id ? null : thought.id);
                               }}
                               className={`px-2 py-1 rounded-lg text-xs font-medium border border-dashed transition-colors flex items-center gap-1 ${
-                                potentialConfig[currentPotential]?.color === 'purple' ? 'bg-purple-100/70 text-purple-700 border-purple-300/60 hover:bg-purple-200/70' :
-                                potentialConfig[currentPotential]?.color === 'emerald' ? 'bg-emerald-100/70 text-emerald-700 border-emerald-300/60 hover:bg-emerald-200/70' :
-                                potentialConfig[currentPotential]?.color === 'orange' ? 'bg-orange-100/70 text-orange-700 border-orange-300/60 hover:bg-orange-200/70' :
+                                currentPotential && potentialConfig[currentPotential]?.color === 'purple' ? 'bg-purple-100/70 text-purple-700 border-purple-300/60 hover:bg-purple-200/70' :
+                                currentPotential && potentialConfig[currentPotential]?.color === 'emerald' ? 'bg-emerald-100/70 text-emerald-700 border-emerald-300/60 hover:bg-emerald-200/70' :
+                                currentPotential && potentialConfig[currentPotential]?.color === 'orange' ? 'bg-orange-100/70 text-orange-700 border-orange-300/60 hover:bg-orange-200/70' :
                                 'bg-slate-100/70 text-slate-700 border-slate-300/60 hover:bg-slate-200/70'
                               }`}
                               type="button"
                             >
-                              <span>{potentialConfig[currentPotential]?.icon}</span>
-                              <span>{potentialConfig[currentPotential]?.label}</span>
-                              {thought.bestPotential === currentPotential && !thought.potential && (
-                                <span className="text-xs opacity-60">(AI)</span>
+                              {currentPotential && (
+                                <>
+                                  <span>{potentialConfig[currentPotential]?.icon}</span>
+                                  <span>{potentialConfig[currentPotential]?.label}</span>
+                                  {thought.bestPotential === currentPotential && !thought.potential && (
+                                    <span className="text-xs opacity-60">(AI)</span>
+                                  )}
+                                </>
+                              )}
+                              {!currentPotential && thought.isSpark && (
+                                <>
+                                  <span>Select Potential</span>
+                                </>
                               )}
                               <ChevronDown className={`w-3 h-3 transition-transform ${expandedActionDropdown === thought.id ? 'rotate-180' : ''}`} />
                             </button>
