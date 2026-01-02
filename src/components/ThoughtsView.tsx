@@ -189,6 +189,7 @@ const ThoughtsView: React.FC = () => {
   const handleSetPotential = async (thoughtId: string, potential: PotentialType) => {
     await setPotential(thoughtId, potential);
     setExpandedActionDropdown(null);
+    // Don't reload - just update the thought in place
   };
 
   const handleStartEdit = (thoughtId: string) => {
@@ -573,7 +574,11 @@ const ThoughtsView: React.FC = () => {
                         addSpark(thought.id);
                       }
                     }}
-                    className="absolute -top-2 -right-2 z-30 p-1 bg-white rounded-full border-2 border-dashed border-slate-200 hover:border-amber-300 transition-colors cursor-pointer shadow-sm"
+                    className={`absolute -top-2 -right-2 z-30 p-1 bg-white rounded-full border-2 border-dashed transition-colors cursor-pointer shadow-sm ${
+                      thought.isSpark 
+                        ? 'border-amber-400 hover:border-amber-500' 
+                        : 'border-slate-200 hover:border-amber-300'
+                    }`}
                     title={thought.isSpark ? "Remove spark" : "Add spark"}
                     type="button"
                   >
@@ -653,127 +658,153 @@ const ThoughtsView: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Simple CTA Row - Show for all thoughts with potential or spark */}
-                  {(currentPotential || thought.isSpark) && (
-                    <div className="mt-auto pt-3 border-t border-slate-200/50 flex items-center justify-between gap-2 flex-wrap">
-                      {/* Left: Spark and Park */}
-                      <div className="flex items-center gap-2">
-                        {/* Add Spark button - show if not already a spark */}
-                        {!thought.isSpark && (
-                          <button
-                            onClick={() => addSpark(thought.id)}
-                            className="px-2 py-1 bg-amber-50 text-amber-700 rounded-lg text-xs font-medium border border-dashed border-amber-300/60 hover:bg-amber-100 transition-colors flex items-center gap-1.5"
-                            title="Add spark"
-                          >
-                            <Sparkles className="w-3.5 h-3.5" />
-                            <span>Spark</span>
-                          </button>
-                        )}
-                        {/* Park/Unpark button - show if spark exists */}
-                        {thought.isSpark && (
-                          <>
-                            {thought.isParked ? (
-                              <button
-                                onClick={() => {
-                                  unparkThought(thought.id);
-                                  setParkedThoughtId(null);
-                                }}
-                                className="px-2 py-1 bg-slate-100/70 text-slate-700 rounded-lg text-xs font-medium border border-dashed border-slate-300/60 hover:bg-slate-200/70 transition-colors flex items-center gap-1.5"
-                                title="Unpark thought - make it visible again"
-                              >
-                                <ParkingCircle className="w-3.5 h-3.5" />
-                                <span>Unpark</span>
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => handleParkThought(thought.id)}
-                                className={`px-2 py-1 rounded-lg text-xs font-medium border border-dashed transition-colors flex items-center gap-1.5 ${
-                                  parkedThoughtId === thought.id
-                                    ? 'bg-emerald-100 text-emerald-700 border-emerald-300'
-                                    : 'bg-slate-50 text-slate-600 border-slate-300/50 hover:bg-slate-100'
-                                }`}
-                                title="Park thought - hide it from main view (still searchable)"
-                              >
-                                <ParkingCircle className="w-3.5 h-3.5" />
-                                <span>{parkedThoughtId === thought.id ? 'Parked!' : 'Park'}</span>
-                              </button>
-                            )}
-                          </>
-                        )}
-                      </div>
+                  {/* Simple CTA Row - Always show */}
+                  <div className="mt-auto pt-3 border-t border-slate-200/50 flex items-center justify-between gap-2 flex-wrap">
+                    {/* Left: Spark and Park */}
+                    <div className="flex items-center gap-2">
+                      {/* Add Spark button - show if not already a spark */}
+                      {!thought.isSpark && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            addSpark(thought.id);
+                          }}
+                          className="px-2 py-1 bg-amber-50 text-amber-700 rounded-lg text-xs font-medium border border-dashed border-amber-300/60 hover:bg-amber-100 transition-colors flex items-center gap-1.5"
+                          title="Add spark"
+                          type="button"
+                        >
+                          <Sparkles className="w-3.5 h-3.5" />
+                          <span>Spark</span>
+                        </button>
+                      )}
+                      {/* Park/Unpark button - always visible, icon-only */}
+                      {thought.isParked ? (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            unparkThought(thought.id);
+                            setParkedThoughtId(null);
+                          }}
+                          className="p-1.5 bg-slate-100/70 text-slate-700 rounded-lg border border-dashed border-slate-300/60 hover:bg-slate-200/70 transition-colors"
+                          title="Unpark thought - make it visible again"
+                          type="button"
+                        >
+                          <span className="text-xs font-semibold">P</span>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            handleParkThought(thought.id);
+                          }}
+                          className={`p-1.5 rounded-lg border border-dashed transition-colors ${
+                            parkedThoughtId === thought.id
+                              ? 'bg-emerald-100 text-emerald-700 border-emerald-300'
+                              : 'bg-slate-50 text-slate-600 border-slate-300/50 hover:bg-slate-100'
+                          }`}
+                          title="Park thought - hide it from main view (still searchable)"
+                          type="button"
+                        >
+                          <span className="text-xs font-semibold">{parkedThoughtId === thought.id ? '✓' : 'P'}</span>
+                        </button>
+                      )}
+                    </div>
 
-                      {/* Right: Potential Dropdown - Only show if potential exists */}
+                      {/* Right: Potential Dropdown + Navigation */}
                       {currentPotential && (
-                        <div className="relative action-dropdown-container ml-auto">
-                          <button
-                            onClick={(e) => {
-                              // If Share or To-Do, navigate directly; otherwise open dropdown
-                              if (currentPotential === 'Share') {
+                        <div className="flex items-center gap-2 ml-auto">
+                          <div className="relative action-dropdown-container">
+                            <button
+                              onClick={(e) => {
                                 e.stopPropagation();
-                                setCurrentView('shareit', thought.id);
-                              } else if (currentPotential === 'To-Do') {
-                                e.stopPropagation();
-                                setCurrentView('todo', thought.id);
-                              } else {
+                                e.preventDefault();
                                 setExpandedActionDropdown(expandedActionDropdown === thought.id ? null : thought.id);
-                              }
-                            }}
-                            className={`px-2 py-1 rounded-lg text-xs font-medium border border-dashed transition-colors flex items-center gap-1 ${
-                              potentialConfig[currentPotential]?.color === 'purple' ? 'bg-purple-100/70 text-purple-700 border-purple-300/60 hover:bg-purple-200/70' :
-                              potentialConfig[currentPotential]?.color === 'emerald' ? 'bg-emerald-100/70 text-emerald-700 border-emerald-300/60 hover:bg-emerald-200/70' :
-                              potentialConfig[currentPotential]?.color === 'orange' ? 'bg-orange-100/70 text-orange-700 border-orange-300/60 hover:bg-orange-200/70' :
-                              'bg-slate-100/70 text-slate-700 border-slate-300/60 hover:bg-slate-200/70'
-                            } ${currentPotential === 'Share' || currentPotential === 'To-Do' ? 'cursor-pointer' : ''}`}
-                          >
-                            <span>{potentialConfig[currentPotential]?.icon}</span>
-                            <span>{potentialConfig[currentPotential]?.label}</span>
-                            {thought.bestPotential === currentPotential && !thought.potential && (
-                              <span className="text-xs opacity-60">(AI)</span>
-                            )}
-                            {(currentPotential !== 'Share' && currentPotential !== 'To-Do') && (
-                              <ChevronDown className={`w-3 h-3 transition-transform ${expandedActionDropdown === thought.id ? 'rotate-180' : ''}`} />
-                            )}
-                            {(currentPotential === 'Share' || currentPotential === 'To-Do') && (
-                              <ArrowRight className="w-3 h-3" />
-                            )}
-                          </button>
-                          
-                          {expandedActionDropdown === thought.id && (
-                            <div 
-                              className="absolute right-0 top-full mt-2 bg-white rounded-xl border-2 border-dashed border-slate-300/60 shadow-xl z-50 min-w-[140px] overflow-hidden"
-                              ref={(el) => {
-                                if (el && expandedActionDropdown === thought.id) {
-                                  // Scroll into view when dropdown opens
-                                  setTimeout(() => {
-                                    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                                  }, 0);
-                                }
                               }}
+                              className={`px-2 py-1 rounded-lg text-xs font-medium border border-dashed transition-colors flex items-center gap-1 ${
+                                potentialConfig[currentPotential]?.color === 'purple' ? 'bg-purple-100/70 text-purple-700 border-purple-300/60 hover:bg-purple-200/70' :
+                                potentialConfig[currentPotential]?.color === 'emerald' ? 'bg-emerald-100/70 text-emerald-700 border-emerald-300/60 hover:bg-emerald-200/70' :
+                                potentialConfig[currentPotential]?.color === 'orange' ? 'bg-orange-100/70 text-orange-700 border-orange-300/60 hover:bg-orange-200/70' :
+                                'bg-slate-100/70 text-slate-700 border-slate-300/60 hover:bg-slate-200/70'
+                              }`}
+                              type="button"
                             >
-                              <div className="p-1.5 space-y-0.5">
-                                {availablePotentials.filter(p => p !== currentPotential).map((potential) => {
-                                  const config = potentialConfig[potential];
-                                  const hoverClass = config.color === 'purple' ? 'hover:bg-purple-50' : 
-                                                    config.color === 'emerald' ? 'hover:bg-emerald-50' : 
-                                                    config.color === 'orange' ? 'hover:bg-orange-50' :
-                                                    'hover:bg-slate-50';
-                                  const textClass = config.color === 'purple' ? 'text-purple-700' : 
-                                                  config.color === 'emerald' ? 'text-emerald-700' : 
-                                                  config.color === 'orange' ? 'text-orange-700' :
-                                                  'text-slate-700';
-                                  return (
-                                    <button
-                                      key={potential}
-                                      onClick={() => handleSetPotential(thought.id, potential)}
-                                      className={`w-full px-3 py-2 text-left text-xs ${hoverClass} transition-colors rounded-lg flex items-center gap-2 ${textClass} cursor-pointer`}
-                                    >
-                                      <span>{config.icon}</span>
-                                      <span>{config.label}</span>
-                                    </button>
-                                  );
-                                })}
+                              <span>{potentialConfig[currentPotential]?.icon}</span>
+                              <span>{potentialConfig[currentPotential]?.label}</span>
+                              {thought.bestPotential === currentPotential && !thought.potential && (
+                                <span className="text-xs opacity-60">(AI)</span>
+                              )}
+                              <ChevronDown className={`w-3 h-3 transition-transform ${expandedActionDropdown === thought.id ? 'rotate-180' : ''}`} />
+                            </button>
+                            
+                            {expandedActionDropdown === thought.id && (
+                              <div 
+                                className="absolute right-0 top-full mt-2 bg-white rounded-xl border-2 border-dashed border-slate-300/60 shadow-xl z-50 min-w-[140px] overflow-hidden"
+                                ref={(el) => {
+                                  if (el && expandedActionDropdown === thought.id) {
+                                    // Scroll into view when dropdown opens
+                                    setTimeout(() => {
+                                      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                                    }, 0);
+                                  }
+                                }}
+                              >
+                                <div className="p-1.5 space-y-0.5">
+                                  {availablePotentials.filter(p => p !== currentPotential).map((potential) => {
+                                    const config = potentialConfig[potential];
+                                    const hoverClass = config.color === 'purple' ? 'hover:bg-purple-50' : 
+                                                      config.color === 'emerald' ? 'hover:bg-emerald-50' : 
+                                                      config.color === 'orange' ? 'hover:bg-orange-50' :
+                                                      'hover:bg-slate-50';
+                                    const textClass = config.color === 'purple' ? 'text-purple-700' : 
+                                                    config.color === 'emerald' ? 'text-emerald-700' : 
+                                                    config.color === 'orange' ? 'text-orange-700' :
+                                                    'text-slate-700';
+                                    return (
+                                      <button
+                                        key={potential}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                          handleSetPotential(thought.id, potential);
+                                          setExpandedActionDropdown(null);
+                                        }}
+                                        className={`w-full px-3 py-2 text-left text-xs ${hoverClass} transition-colors rounded-lg flex items-center gap-2 ${textClass} cursor-pointer`}
+                                        type="button"
+                                      >
+                                        <span>{config.icon}</span>
+                                        <span>{config.label}</span>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
                               </div>
-                            </div>
+                            )}
+                          </div>
+                          
+                          {/* Navigation button for Share/To-Do */}
+                          {(currentPotential === 'Share' || currentPotential === 'To-Do') && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                const targetView = currentPotential === 'Share' ? 'shareit' : 'todo';
+                                // Use browser history for proper back button support
+                                window.history.pushState({ view: targetView, thoughtId: thought.id }, '', `#${targetView}`);
+                                setCurrentView(targetView, thought.id);
+                              }}
+                              className={`p-1.5 rounded-lg border border-dashed transition-colors ${
+                                currentPotential === 'Share'
+                                  ? 'bg-purple-100/70 text-purple-700 border-purple-300/60 hover:bg-purple-200/70'
+                                  : 'bg-emerald-100/70 text-emerald-700 border-emerald-300/60 hover:bg-emerald-200/70'
+                              }`}
+                              title={`Open in ${currentPotential === 'Share' ? 'Share' : 'To-Do'} view`}
+                              type="button"
+                            >
+                              <ArrowRight className="w-3.5 h-3.5" />
+                            </button>
                           )}
                         </div>
                       )}

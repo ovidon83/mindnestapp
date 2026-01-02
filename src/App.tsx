@@ -12,10 +12,28 @@ import Auth from './components/Auth';
 // Thouty - Your Thought Companion
 
 const App: React.FC = () => {
-  const { currentView, user, setUser, loadThoughts, loadActions } = useGenieNotesStore();
+  const { currentView, user, setUser, loadThoughts, loadActions, setCurrentView } = useGenieNotesStore();
   const [initializing, setInitializing] = useState(true);
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+
+  // Handle browser back/forward buttons
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (event.state && event.state.view) {
+        setCurrentView(event.state.view, event.state.thoughtId);
+      } else {
+        // Fallback: check hash
+        const hash = window.location.hash.slice(1);
+        if (hash && ['capture', 'thoughts', 'shareit', 'todo', 'review', 'profile'].includes(hash)) {
+          setCurrentView(hash as any);
+        }
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [setCurrentView]);
 
   useEffect(() => {
     if (!hasSupabaseCredentials) {
