@@ -244,12 +244,19 @@ export async function insertThought(thought: Omit<Thought, 'id' | 'createdAt' | 
 
 // Update a thought
 export async function updateThought(id: string, updates: Partial<Thought>): Promise<Thought | null> {
-  // First, fetch current thought to get existing potential
-  const { data: currentThought } = await supabase
-    .from('thoughts')
-    .select('potential')
-    .eq('id', id)
-    .single();
+  // Try to fetch current thought to get existing potential (but don't fail if it doesn't exist)
+  let currentPotential: string | null = null;
+  try {
+    const { data: currentThought } = await supabase
+      .from('thoughts')
+      .select('potential')
+      .eq('id', id)
+      .single();
+    currentPotential = currentThought?.potential || null;
+  } catch (error) {
+    // If fetch fails, we'll use default - that's okay
+    console.warn('Could not fetch current potential, using default:', error);
+  }
   
   const updateData: any = {};
   
@@ -272,15 +279,13 @@ export async function updateThought(id: string, updates: Partial<Thought>): Prom
     if (['Share', 'To-Do', 'Insight', 'Just a thought'].includes(userPotential)) {
       potentialValue = userPotential;
     }
-  } else {
-    // Not explicitly updating potential - use current value or default
-    const currentPotential = currentThought?.potential;
-    if (currentPotential && ['Share', 'To-Do', 'Insight', 'Just a thought'].includes(currentPotential)) {
-      potentialValue = currentPotential;
-    }
+  } else if (currentPotential && ['Share', 'To-Do', 'Insight', 'Just a thought'].includes(currentPotential)) {
+    // Not explicitly updating potential - use current value if valid
+    potentialValue = currentPotential;
   }
+  // Otherwise use default 'Just a thought'
   
-  // Always set potential in updateData
+  // Always set potential in updateData - this is CRITICAL to prevent constraint violations
   updateData.potential = potentialValue;
   
   if (updates.bestPotential !== undefined) {
