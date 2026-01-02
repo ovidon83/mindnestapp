@@ -244,6 +244,13 @@ export async function insertThought(thought: Omit<Thought, 'id' | 'createdAt' | 
 
 // Update a thought
 export async function updateThought(id: string, updates: Partial<Thought>): Promise<Thought | null> {
+  // First, fetch current thought to ensure we have valid potential
+  const { data: currentThought } = await supabase
+    .from('thoughts')
+    .select('potential')
+    .eq('id', id)
+    .single();
+  
   const updateData: any = {};
   
   if (updates.originalText !== undefined) updateData.original_text = updates.originalText;
@@ -264,9 +271,15 @@ export async function updateThought(id: string, updates: Partial<Thought>): Prom
     } else {
       updateData.potential = 'Just a thought'; // Fallback to valid value
     }
-  } else {
-    // If potential is not being updated, ensure existing value is valid
-    // Don't set it if not in updates to avoid overwriting
+  } else if (updates.isSpark !== undefined || updates.isParked !== undefined) {
+    // When updating spark or parked status, ensure potential is valid
+    // Use current potential or default to 'Just a thought'
+    const currentPotential = currentThought?.potential;
+    if (currentPotential && ['Share', 'To-Do', 'Insight', 'Just a thought'].includes(currentPotential)) {
+      updateData.potential = currentPotential;
+    } else {
+      updateData.potential = 'Just a thought';
+    }
   }
   if (updates.bestPotential !== undefined) {
     updateData.best_potential = updates.bestPotential === null || updates.bestPotential === undefined
