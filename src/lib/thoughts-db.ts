@@ -252,9 +252,17 @@ export async function updateThought(id: string, updates: Partial<Thought>): Prom
   if (updates.isSpark !== undefined) updateData.is_spark = updates.isSpark;
   if (updates.isParked !== undefined) updateData.is_parked = updates.isParked;
   
-  // New potential system
-  if (updates.potential !== undefined) updateData.potential = updates.potential;
-  if (updates.bestPotential !== undefined) updateData.best_potential = updates.bestPotential;
+  // New potential system - ensure "Just a thought" is saved as string, not null
+  if (updates.potential !== undefined) {
+    updateData.potential = updates.potential === null || updates.potential === undefined 
+      ? 'Just a thought' 
+      : updates.potential;
+  }
+  if (updates.bestPotential !== undefined) {
+    updateData.best_potential = updates.bestPotential === null || updates.bestPotential === undefined
+      ? null  // bestPotential can be null
+      : updates.bestPotential;
+  }
   
   // Potential-specific data
   if (updates.sharePosts !== undefined) {
