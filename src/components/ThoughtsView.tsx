@@ -755,7 +755,7 @@ const ThoughtsView: React.FC = () => {
                                                     config.color === 'emerald' ? 'text-emerald-700' : 
                                                     config.color === 'orange' ? 'text-orange-700' :
                                                     'text-slate-700';
-                                    const isSelected = currentPotential === potential;
+                                    const isSelected = currentPotential !== null && currentPotential !== undefined && currentPotential === potential;
                                     return (
                                       <button
                                         key={potential}
@@ -849,7 +849,7 @@ const ThoughtsView: React.FC = () => {
                                                 config.color === 'emerald' ? 'text-emerald-700' : 
                                                 config.color === 'orange' ? 'text-orange-700' :
                                                 'text-slate-700';
-                                const isSelected = currentPotential === potential;
+                                const isSelected = currentPotential !== null && currentPotential !== undefined && currentPotential === potential;
                                 return (
                                   <button
                                     key={potential}
