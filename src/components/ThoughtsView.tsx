@@ -698,7 +698,7 @@ const ThoughtsView: React.FC = () => {
                     </div>
 
                       {/* Right: Potential Dropdown + Navigation */}
-                      {currentPotential && (
+                      {(currentPotential || thought.isSpark) && (
                         <div className="flex items-center gap-2 ml-auto">
                           <div className="relative action-dropdown-container">
                             <button

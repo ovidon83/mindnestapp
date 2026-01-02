@@ -169,7 +169,7 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         if (thought) {
           await get().updateThought(thoughtId, { 
             isSpark: false, 
-            potential: null,
+            potential: 'Just a thought', // Set to "Just a thought" instead of null
             bestPotential: null,
             sharePosts: undefined,
             todoData: undefined,
