@@ -137,9 +137,13 @@ export function thoughtToDbThought(thought: Thought): any {
     is_parked: thought.isParked || false,
   };
   
-  // New potential system - default to "Just a thought" if not set
-  dbThought.potential = thought.potential || 'Just a thought';
-  dbThought.best_potential = thought.bestPotential || 'Just a thought';
+  // New potential system - ensure "Just a thought" is saved as string, not null
+  dbThought.potential = thought.potential === null || thought.potential === undefined 
+    ? 'Just a thought' 
+    : thought.potential;
+  dbThought.best_potential = thought.bestPotential === null || thought.bestPotential === undefined
+    ? null  // bestPotential can be null
+    : thought.bestPotential;
   
   // Potential-specific data
   if (thought.sharePosts) {

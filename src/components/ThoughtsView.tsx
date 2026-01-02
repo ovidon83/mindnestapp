@@ -745,7 +745,7 @@ const ThoughtsView: React.FC = () => {
                                 }}
                               >
                                 <div className="p-1.5 space-y-0.5">
-                                  {availablePotentials.filter(p => p !== currentPotential).map((potential) => {
+                                  {availablePotentials.map((potential) => {
                                     const config = potentialConfig[potential];
                                     const hoverClass = config.color === 'purple' ? 'hover:bg-purple-50' : 
                                                       config.color === 'emerald' ? 'hover:bg-emerald-50' : 
