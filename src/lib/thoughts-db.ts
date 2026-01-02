@@ -287,6 +287,7 @@ export async function updateThought(id: string, updates: Partial<Thought>): Prom
   
   // Always set potential in updateData - this is CRITICAL to prevent constraint violations
   updateData.potential = potentialValue;
+  console.log('[updateThought] Setting potential to:', potentialValue, 'for thought:', id);
   
   if (updates.bestPotential !== undefined) {
     updateData.best_potential = updates.bestPotential === null || updates.bestPotential === undefined
