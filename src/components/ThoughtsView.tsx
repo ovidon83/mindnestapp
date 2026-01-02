@@ -775,7 +775,6 @@ const ThoughtsView: React.FC = () => {
                                       >
                                         <span>{config.icon}</span>
                                         <span>{config.label}</span>
-                                        {isSelected && <span className="ml-auto text-xs opacity-60">(current)</span>}
                                       </button>
                                     );
                                   })}

@@ -154,13 +154,24 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
 
       addSpark: async (thoughtId: string) => {
         const thought = get().thoughts.find(t => t.id === thoughtId);
-        if (thought && !thought.bestPotential) {
-          // Generate best potential when spark is added
-          const { generateBestPotential } = await import('../lib/generate-best-potential');
-          const bestPotential = await generateBestPotential(thought);
-          await get().updateThought(thoughtId, { isSpark: true, bestPotential });
-        } else if (thought) {
-          await get().updateThought(thoughtId, { isSpark: true });
+        if (thought) {
+          // Ensure potential is set to a valid value before adding spark
+          const currentPotential = thought.potential || thought.bestPotential || 'Just a thought';
+          if (!thought.bestPotential) {
+            // Generate best potential when spark is added
+            const { generateBestPotential } = await import('../lib/generate-best-potential');
+            const bestPotential = await generateBestPotential(thought);
+            await get().updateThought(thoughtId, { 
+              isSpark: true, 
+              bestPotential,
+              potential: currentPotential, // Ensure potential is always valid
+            });
+          } else {
+            await get().updateThought(thoughtId, { 
+              isSpark: true,
+              potential: currentPotential, // Ensure potential is always valid
+            });
+          }
         }
       },
 

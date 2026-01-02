@@ -253,10 +253,20 @@ export async function updateThought(id: string, updates: Partial<Thought>): Prom
   if (updates.isParked !== undefined) updateData.is_parked = updates.isParked;
   
   // New potential system - ensure "Just a thought" is saved as string, not null
+  // Always ensure potential is set to a valid value
   if (updates.potential !== undefined) {
-    updateData.potential = updates.potential === null || updates.potential === undefined 
+    const potentialValue = updates.potential === null || updates.potential === undefined 
       ? 'Just a thought' 
       : updates.potential;
+    // Ensure it's exactly one of the valid values
+    if (['Share', 'To-Do', 'Insight', 'Just a thought'].includes(potentialValue)) {
+      updateData.potential = potentialValue;
+    } else {
+      updateData.potential = 'Just a thought'; // Fallback to valid value
+    }
+  } else {
+    // If potential is not being updated, ensure existing value is valid
+    // Don't set it if not in updates to avoid overwriting
   }
   if (updates.bestPotential !== undefined) {
     updateData.best_potential = updates.bestPotential === null || updates.bestPotential === undefined
