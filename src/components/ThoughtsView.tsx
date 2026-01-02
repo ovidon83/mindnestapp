@@ -809,10 +809,9 @@ const ThoughtsView: React.FC = () => {
                         </div>
                       )}
                     </div>
-                  )}
                   
                   {/* CTAs for new thoughts - Show potential picker and spark button */}
-                  {!currentPotential && (
+                  {!currentPotential && !thought.isSpark && (
                     <div className="mt-auto pt-3 border-t border-slate-200/50 flex items-center justify-between gap-2 flex-wrap">
                       {/* Left: Spark button if not spark */}
                       {!thought.isSpark && (
