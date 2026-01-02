@@ -244,7 +244,7 @@ export async function insertThought(thought: Omit<Thought, 'id' | 'createdAt' | 
 
 // Update a thought
 export async function updateThought(id: string, updates: Partial<Thought>): Promise<Thought | null> {
-  // First, fetch current thought to ensure we have valid potential
+  // First, fetch current thought to get existing potential
   const { data: currentThought } = await supabase
     .from('thoughts')
     .select('potential')
@@ -259,28 +259,30 @@ export async function updateThought(id: string, updates: Partial<Thought>): Prom
   if (updates.isSpark !== undefined) updateData.is_spark = updates.isSpark;
   if (updates.isParked !== undefined) updateData.is_parked = updates.isParked;
   
-  // New potential system - ensure "Just a thought" is saved as string, not null
-  // Always ensure potential is set to a valid value
+  // CRITICAL: Always set potential to a valid value to prevent constraint violations
+  // Determine the potential value to use
+  let potentialValue: string = 'Just a thought'; // Default fallback
+  
   if (updates.potential !== undefined) {
-    const potentialValue = updates.potential === null || updates.potential === undefined 
+    // User is explicitly setting potential
+    const userPotential = updates.potential === null || updates.potential === undefined 
       ? 'Just a thought' 
       : updates.potential;
-    // Ensure it's exactly one of the valid values
-    if (['Share', 'To-Do', 'Insight', 'Just a thought'].includes(potentialValue)) {
-      updateData.potential = potentialValue;
-    } else {
-      updateData.potential = 'Just a thought'; // Fallback to valid value
+    // Validate it's one of the allowed values
+    if (['Share', 'To-Do', 'Insight', 'Just a thought'].includes(userPotential)) {
+      potentialValue = userPotential;
     }
-  } else if (updates.isSpark !== undefined || updates.isParked !== undefined) {
-    // When updating spark or parked status, ensure potential is valid
-    // Use current potential or default to 'Just a thought'
+  } else {
+    // Not explicitly updating potential - use current value or default
     const currentPotential = currentThought?.potential;
     if (currentPotential && ['Share', 'To-Do', 'Insight', 'Just a thought'].includes(currentPotential)) {
-      updateData.potential = currentPotential;
-    } else {
-      updateData.potential = 'Just a thought';
+      potentialValue = currentPotential;
     }
   }
+  
+  // Always set potential in updateData
+  updateData.potential = potentialValue;
+  
   if (updates.bestPotential !== undefined) {
     updateData.best_potential = updates.bestPotential === null || updates.bestPotential === undefined
       ? null  // bestPotential can be null
@@ -313,23 +315,13 @@ export async function updateThought(id: string, updates: Partial<Thought>): Prom
     } : null;
   }
   
-  // CRITICAL: Always ensure potential is set to a valid value to prevent constraint violations
-  // Even if we're not updating potential, we need to ensure it's valid
-  if (!updateData.potential) {
-    const currentPotential = currentThought?.potential;
-    if (currentPotential && ['Share', 'To-Do', 'Insight', 'Just a thought'].includes(currentPotential)) {
-      updateData.potential = currentPotential;
-    } else {
-      updateData.potential = 'Just a thought';
-    }
-  }
-  
   // Always update updated_at
   updateData.updated_at = new Date().toISOString();
 
-  // Build safe update object - only include defined fields
+  // Build safe update object - ALWAYS include potential
   const safeUpdateData: any = {
     updated_at: updateData.updated_at,
+    potential: updateData.potential, // ALWAYS include potential
   };
   
   if (updateData.original_text !== undefined) safeUpdateData.original_text = updateData.original_text;
@@ -337,10 +329,6 @@ export async function updateThought(id: string, updates: Partial<Thought>): Prom
   if (updateData.summary !== undefined) safeUpdateData.summary = updateData.summary;
   if (updateData.is_spark !== undefined) safeUpdateData.is_spark = updateData.is_spark;
   if (updateData.is_parked !== undefined) safeUpdateData.is_parked = updateData.is_parked;
-  // CRITICAL: Always include potential to prevent constraint violations
-  if (updateData.potential !== undefined) safeUpdateData.potential = updateData.potential;
-  if (updateData.is_parked !== undefined) safeUpdateData.is_parked = updateData.is_parked;
-  if (updateData.potential !== undefined) safeUpdateData.potential = updateData.potential;
   if (updateData.best_potential !== undefined) safeUpdateData.best_potential = updateData.best_potential;
   if (updateData.share_posts !== undefined) safeUpdateData.share_posts = updateData.share_posts;
   if (updateData.todo_data !== undefined) safeUpdateData.todo_data = updateData.todo_data;
