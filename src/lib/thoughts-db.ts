@@ -356,6 +356,8 @@ export async function updateThought(id: string, updates: Partial<Thought>): Prom
   if (updateData.todo_data !== undefined) safeUpdateData.todo_data = updateData.todo_data;
   if (updateData.insight_data !== undefined) safeUpdateData.insight_data = updateData.insight_data;
 
+  console.log('[updateThought] Final safeUpdateData:', JSON.stringify(safeUpdateData, null, 2));
+  
   const { data, error } = await (supabase as any)
     .from('thoughts')
     .update(safeUpdateData)
@@ -364,11 +366,26 @@ export async function updateThought(id: string, updates: Partial<Thought>): Prom
     .single();
 
   if (error) {
+    console.error('[updateThought] Database error:', error);
+    console.error('[updateThought] Error code:', error.code);
+    console.error('[updateThought] Error message:', error.message);
+    console.error('[updateThought] Error details:', error.details);
+    console.error('[updateThought] Error hint:', error.hint);
+    console.error('[updateThought] Attempted update data:', safeUpdateData);
+    
     // Handle 406 (Not Acceptable) gracefully - might mean row doesn't exist
     if (error.code === 'PGRST116' || error.status === 406 || error.message?.includes('406')) {
       console.warn('Thought update returned 406, row may not exist:', id);
       return null;
     }
+    
+    // Handle constraint violation specifically
+    if (error.code === '23514' || error.message?.includes('constraint')) {
+      console.error('[updateThought] CONSTRAINT VIOLATION! Potential value:', safeUpdateData.potential);
+      console.error('[updateThought] This suggests the database constraint does not include this value.');
+      console.error('[updateThought] Please run migration-fix-potential-constraint.sql');
+    }
+    
     console.error('Error updating thought:', error);
     throw error;
   }
