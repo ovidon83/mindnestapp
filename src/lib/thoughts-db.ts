@@ -7,35 +7,45 @@ export function dbThoughtToThought(dbThought: any): Thought {
   let potential: PotentialType | null = null;
   let bestPotential: PotentialType | null = null;
   
+  // Map database values to app values: 'To-Do' -> 'Do', remove 'Insight'
+  const dbToAppPotential = (dbValue: string | null): PotentialType | null => {
+    if (!dbValue) return null;
+    if (dbValue === 'To-Do' || dbValue === 'ToDo') return 'Do';
+    if (dbValue === 'Share') return 'Share';
+    if (dbValue === 'Just a thought') return 'Just a thought';
+    if (dbValue === 'Insight') return 'Just a thought'; // Map old Insight to Just a thought
+    return null;
+  };
+
   if (dbThought.potential) {
-    potential = dbThought.potential;
+    potential = dbToAppPotential(dbThought.potential);
   } else if (dbThought.selected_action) {
     // Migrate old selectedAction to new potential
     const actionMap: Record<string, PotentialType> = {
       'Share': 'Share',
-      'To-Do': 'To-Do',
-      'ToDo': 'To-Do',
-      'Conversation': 'Insight', // Conversation becomes Insight
+      'To-Do': 'Do',
+      'ToDo': 'Do',
+      'Conversation': 'Just a thought', // Conversation becomes Just a thought
     };
     potential = actionMap[dbThought.selected_action] || null;
   } else if (dbThought.best_action) {
     const actionMap: Record<string, PotentialType> = {
       'Share': 'Share',
-      'To-Do': 'To-Do',
-      'ToDo': 'To-Do',
-      'Conversation': 'Insight',
+      'To-Do': 'Do',
+      'ToDo': 'Do',
+      'Conversation': 'Just a thought',
     };
     potential = actionMap[dbThought.best_action] || null;
   }
   
   if (dbThought.best_potential) {
-    bestPotential = dbThought.best_potential;
+    bestPotential = dbToAppPotential(dbThought.best_potential);
   } else if (dbThought.best_action) {
     const actionMap: Record<string, PotentialType> = {
       'Share': 'Share',
-      'To-Do': 'To-Do',
-      'ToDo': 'To-Do',
-      'Conversation': 'Insight',
+      'To-Do': 'Do',
+      'ToDo': 'Do',
+      'Conversation': 'Just a thought',
     };
     bestPotential = actionMap[dbThought.best_action] || null;
   }
@@ -67,10 +77,16 @@ export function dbThoughtToThought(dbThought: any): Thought {
         twitter: posts.twitter,
         instagram: posts.instagram,
         generatedAt: posts.generatedAt ? new Date(posts.generatedAt) : undefined,
+        firstGeneratedAt: posts.firstGeneratedAt ? new Date(posts.firstGeneratedAt) : undefined,
+        draftCount: posts.draftCount || 0,
+        draftsGeneratedAt: posts.draftsGeneratedAt ? posts.draftsGeneratedAt.map((d: string) => new Date(d)) : undefined,
         shared: posts.shared ? {
           linkedin: posts.shared.linkedin || false,
           twitter: posts.shared.twitter || false,
           instagram: posts.shared.instagram || false,
+          linkedinSharedAt: posts.shared.linkedinSharedAt ? new Date(posts.shared.linkedinSharedAt) : undefined,
+          twitterSharedAt: posts.shared.twitterSharedAt ? new Date(posts.shared.twitterSharedAt) : undefined,
+          instagramSharedAt: posts.shared.instagramSharedAt ? new Date(posts.shared.instagramSharedAt) : undefined,
           sharedAt: posts.shared.sharedAt ? new Date(posts.shared.sharedAt) : undefined,
         } : undefined,
       };
@@ -121,6 +137,23 @@ export function dbThoughtToThought(dbThought: any): Thought {
     sharePosts,
     todoData,
     insightData,
+    exploreRecommendations: dbThought.explore_recommendations ? (
+      (() => {
+        try {
+          const parsed = typeof dbThought.explore_recommendations === 'string' 
+            ? JSON.parse(dbThought.explore_recommendations)
+            : dbThought.explore_recommendations;
+          // Validate it's an array
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
+          }
+          return undefined;
+        } catch (e) {
+          console.error('Error parsing explore_recommendations:', e, dbThought.explore_recommendations);
+          return undefined;
+        }
+      })()
+    ) : undefined,
     createdAt: new Date(dbThought.created_at),
     updatedAt: new Date(dbThought.updated_at),
   };
@@ -152,11 +185,17 @@ export function thoughtToDbThought(thought: Thought): any {
       twitter: thought.sharePosts.twitter,
       instagram: thought.sharePosts.instagram,
       generatedAt: thought.sharePosts.generatedAt?.toISOString(),
+      firstGeneratedAt: thought.sharePosts.firstGeneratedAt?.toISOString(),
+      draftCount: thought.sharePosts.draftCount || 0,
+      draftsGeneratedAt: thought.sharePosts.draftsGeneratedAt?.map(d => d.toISOString()),
       shared: thought.sharePosts.shared ? {
         linkedin: thought.sharePosts.shared.linkedin || false,
         twitter: thought.sharePosts.shared.twitter || false,
         instagram: thought.sharePosts.shared.instagram || false,
-        sharedAt: thought.sharePosts.shared.sharedAt?.toISOString(),
+        linkedinSharedAt: thought.sharePosts.shared.linkedinSharedAt?.toISOString(),
+        twitterSharedAt: thought.sharePosts.shared.twitterSharedAt?.toISOString(),
+        instagramSharedAt: thought.sharePosts.shared.instagramSharedAt?.toISOString(),
+        sharedAt: thought.sharePosts.shared.sharedAt?.toISOString(), // Legacy field
       } : undefined,
     };
   }
@@ -175,6 +214,10 @@ export function thoughtToDbThought(thought: Thought): any {
       format: thought.insightData.format || 'short',
       updatedAt: thought.insightData.updatedAt?.toISOString(),
     };
+  }
+  
+  if (thought.exploreRecommendations) {
+    dbThought.explore_recommendations = thought.exploreRecommendations;
   }
   
   return dbThought;
@@ -228,6 +271,8 @@ export async function insertThought(thought: Omit<Thought, 'id' | 'createdAt' | 
     user_id: user.id,
   };
 
+  console.log('Inserting thought with recommendations:', dbThoughtWithUserId.explore_recommendations ? 'Yes' : 'No');
+  
   const { data, error } = await supabase
     .from('thoughts')
     .insert(dbThoughtWithUserId as any)
@@ -239,7 +284,9 @@ export async function insertThought(thought: Omit<Thought, 'id' | 'createdAt' | 
     throw error;
   }
 
-  return dbThoughtToThought(data);
+  const savedThought = dbThoughtToThought(data);
+  console.log('Saved thought with recommendations:', savedThought.exploreRecommendations ? 'Yes' : 'No');
+  return savedThought;
 }
 
 // Update a thought
@@ -269,7 +316,9 @@ export async function updateThought(id: string, updates: Partial<Thought>): Prom
   
   // CRITICAL: Always set potential to a valid value to prevent constraint violations
   // Determine the potential value to use
-  const VALID_POTENTIALS = ['Share', 'To-Do', 'Insight', 'Just a thought'] as const;
+  // Map 'Do' to 'To-Do' for database compatibility (database constraint uses 'To-Do')
+  const VALID_POTENTIALS = ['Share', 'To-Do', 'Do', 'Insight', 'Just a thought'] as const;
+  const DB_POTENTIALS = ['Share', 'To-Do', 'Insight', 'Just a thought'] as const;
   let potentialValue: string = 'Just a thought'; // Default fallback
   
   if (updates.potential !== undefined) {
@@ -283,7 +332,8 @@ export async function updateThought(id: string, updates: Partial<Thought>): Prom
     }
     // Validate it's one of the allowed values (exact match, case-sensitive)
     if (VALID_POTENTIALS.includes(userPotential as any)) {
-      potentialValue = userPotential;
+      // Map 'Do' to 'To-Do' for database
+      potentialValue = userPotential === 'Do' ? 'To-Do' : userPotential;
     } else {
       console.warn('[updateThought] Invalid potential value:', userPotential, 'defaulting to "Just a thought"');
       potentialValue = 'Just a thought';
@@ -292,14 +342,15 @@ export async function updateThought(id: string, updates: Partial<Thought>): Prom
     // Not explicitly updating potential - use current value if valid
     const trimmedCurrent = currentPotential.trim();
     if (VALID_POTENTIALS.includes(trimmedCurrent as any)) {
-      potentialValue = trimmedCurrent;
+      // Map 'Do' to 'To-Do' for database
+      potentialValue = trimmedCurrent === 'Do' ? 'To-Do' : trimmedCurrent;
     }
   }
   // Otherwise use default 'Just a thought'
   
   // Always set potential in updateData - this is CRITICAL to prevent constraint violations
-  // Ensure it's exactly one of the valid values
-  if (!VALID_POTENTIALS.includes(potentialValue as any)) {
+  // Ensure it's exactly one of the valid database values
+  if (!DB_POTENTIALS.includes(potentialValue as any)) {
     console.error('[updateThought] potentialValue is not valid:', potentialValue, 'forcing to "Just a thought"');
     potentialValue = 'Just a thought';
   }
@@ -319,6 +370,13 @@ export async function updateThought(id: string, updates: Partial<Thought>): Prom
       twitter: updates.sharePosts.twitter,
       instagram: updates.sharePosts.instagram,
       generatedAt: updates.sharePosts.generatedAt?.toISOString(),
+      generatedAt: updates.sharePosts.generatedAt?.toISOString(),
+      shared: updates.sharePosts.shared ? {
+        linkedin: updates.sharePosts.shared.linkedin || false,
+        twitter: updates.sharePosts.shared.twitter || false,
+        instagram: updates.sharePosts.shared.instagram || false,
+        sharedAt: updates.sharePosts.shared.sharedAt?.toISOString(),
+      } : undefined,
     } : null;
   }
   
@@ -336,6 +394,12 @@ export async function updateThought(id: string, updates: Partial<Thought>): Prom
       format: updates.insightData.format || 'short',
       updatedAt: updates.insightData.updatedAt?.toISOString(),
     } : null;
+  }
+  
+  // Explore recommendations
+  if (updates.exploreRecommendations !== undefined) {
+    updateData.explore_recommendations = updates.exploreRecommendations;
+    console.log('[updateThought] Setting explore_recommendations for thought:', id, 'count:', updates.exploreRecommendations?.length || 0);
   }
   
   // Always update updated_at
@@ -356,6 +420,7 @@ export async function updateThought(id: string, updates: Partial<Thought>): Prom
   if (updateData.share_posts !== undefined) safeUpdateData.share_posts = updateData.share_posts;
   if (updateData.todo_data !== undefined) safeUpdateData.todo_data = updateData.todo_data;
   if (updateData.insight_data !== undefined) safeUpdateData.insight_data = updateData.insight_data;
+  if (updateData.explore_recommendations !== undefined) safeUpdateData.explore_recommendations = updateData.explore_recommendations;
 
   console.log('[updateThought] Final safeUpdateData:', JSON.stringify(safeUpdateData, null, 2));
   

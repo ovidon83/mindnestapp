@@ -5,6 +5,9 @@ import CaptureView from './components/CaptureView';
 import ThoughtsView from './components/ThoughtsView';
 import ShareItView from './components/ShareItView';
 import ToDoView from './components/ToDoView';
+import ParkView from './components/ParkView';
+import ExploreView from './components/ExploreView';
+import InsightsView from './components/InsightsView';
 import MindReview from './components/MindReview';
 import ProfileView from './components/ProfileView';
 import Auth from './components/Auth';
@@ -17,16 +20,26 @@ const App: React.FC = () => {
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
 
-  // Handle browser back/forward buttons
+  // Handle initial hash and browser back/forward buttons
   useEffect(() => {
+    // Check initial hash on mount
+    const initialHash = window.location.hash.slice(1);
+    if (initialHash && ['capture', 'thoughts', 'home', 'shareit', 'todo', 'park', 'explore', 'insights', 'profile'].includes(initialHash)) {
+      // Map 'explore' to 'insights' for backward compatibility
+      const view = initialHash === 'explore' ? 'insights' : initialHash;
+      setCurrentView(view as any);
+    }
+
     const handlePopState = (event: PopStateEvent) => {
       if (event.state && event.state.view) {
         setCurrentView(event.state.view, event.state.thoughtId);
       } else {
-        // Fallback: check hash or default to thoughts
+        // Fallback: check hash or default to home
         const hash = window.location.hash.slice(1);
-        if (hash && ['capture', 'thoughts', 'shareit', 'todo', 'review', 'profile'].includes(hash)) {
-          setCurrentView(hash as any);
+        if (hash && ['capture', 'thoughts', 'home', 'shareit', 'todo', 'park', 'explore', 'insights', 'profile'].includes(hash)) {
+          // Map 'explore' to 'insights' for backward compatibility
+          const view = hash === 'explore' ? 'insights' : hash;
+          setCurrentView(view as any);
         } else {
           // Default to thoughts view if no hash or invalid hash
           setCurrentView('thoughts');
@@ -50,6 +63,16 @@ const App: React.FC = () => {
       if (session?.user) {
         loadThoughts();
         loadActions();
+        // Check hash first, then default to thoughts
+        const hash = window.location.hash.slice(1);
+        if (hash && ['capture', 'thoughts', 'home', 'shareit', 'todo', 'park', 'explore', 'insights', 'profile'].includes(hash)) {
+          // Map 'explore' to 'insights' for backward compatibility
+          const view = hash === 'explore' ? 'insights' : hash;
+          setCurrentView(view as any);
+        } else {
+          // Set default view to Thoughts when logged in
+          setCurrentView('thoughts');
+        }
       }
       setInitializing(false);
     }).catch(() => {
@@ -143,12 +166,16 @@ const App: React.FC = () => {
         <>
           {currentView === 'capture' ? (
             <CaptureView />
-          ) : currentView === 'thoughts' ? (
+          ) : currentView === 'home' || currentView === 'thoughts' ? (
             <ThoughtsView />
           ) : currentView === 'shareit' ? (
             <ShareItView />
           ) : currentView === 'todo' ? (
             <ToDoView />
+          ) : currentView === 'park' ? (
+            <ParkView />
+          ) : currentView === 'explore' || currentView === 'insights' ? (
+            <InsightsView />
           ) : currentView === 'review' ? (
             <MindReview />
           ) : currentView === 'profile' ? (

@@ -1,11 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useGenieNotesStore } from '../store';
 import { Thought, PotentialType } from '../types';
-import { Sparkles, Search, Calendar, X, ParkingCircle, ChevronDown, CheckCircle2, Circle, Edit2, Save, ArrowRight } from 'lucide-react';
+import { Sparkles, Search, Calendar, X, ParkingCircle, ChevronDown, CheckCircle2, Circle, Edit2, Save, ArrowRight, RotateCcw, RefreshCw, Target, Briefcase, Lightbulb } from 'lucide-react';
 import Navigation from './Navigation';
+import { ExploreRecommendation } from '../lib/generate-explore-recommendations';
+import { calculatePowerfulScore } from '../lib/calculate-powerful-score';
 
-type DateFilter = 'All' | 'Today' | 'This Week' | 'This Month';
-type PotentialFilter = 'All' | PotentialType;
+type DateFilter = 'All' | 'Today' | 'This Week' | 'This Month' | Date; // Date for custom date selection
 
 const ThoughtsView: React.FC = () => {
   const {
@@ -13,6 +14,7 @@ const ThoughtsView: React.FC = () => {
     loading,
     user,
     signOut,
+    currentView,
     setCurrentView,
     updateThought,
     addSpark,
@@ -21,35 +23,141 @@ const ThoughtsView: React.FC = () => {
     parkThought,
     unparkThought,
     updateTodoData,
+    loadThoughts,
   } = useGenieNotesStore();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState<{
-    potential?: PotentialFilter;
     date?: DateFilter;
-    topics?: string[];
-    parked?: boolean;
-    spark?: boolean;
   }>({});
-  const [expandedActionDropdown, setExpandedActionDropdown] = useState<string | null>(null);
+  const [expandedActionDropdown, setExpandedActionDropdown] = useState<string | null>(null); // Format: 'review-{id}' or 'regular-{id}'
   const [expandedFilterDropdown, setExpandedFilterDropdown] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'all' | 'review'>('all');
+  const [sortBy, setSortBy] = useState<'latest' | 'potential'>('latest');
+  const [customDate, setCustomDate] = useState<string>('');
   const [completionPrompt, setCompletionPrompt] = useState<string | null>(null);
   const [editingThoughtId, setEditingThoughtId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState<string>('');
   const [parkedThoughtId, setParkedThoughtId] = useState<string | null>(null);
+  // Persist review dismissed state in localStorage
+  const [reviewDismissed, setReviewDismissed] = useState(() => {
+    const stored = localStorage.getItem('thouty-review-dismissed');
+    return stored === 'true';
+  });
+  const dropdownRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
-  // Extract unique topics from thoughts
-  const availableTopics = useMemo(() => {
-    const topics = new Set<string>();
-    thoughts.forEach(thought => {
-      thought.tags.forEach(tag => topics.add(tag));
-    });
-    return Array.from(topics).sort();
+  // Get recommendations from stored data (no API calls needed!)
+  // Convert old types to new types: Learning, Insight, Reflection, Project -> Worth Sharing (if good) or nothing
+  const getRecommendations = (thought: Thought): ExploreRecommendation[] => {
+    // Use stored recommendations if available
+    if (thought.exploreRecommendations && Array.isArray(thought.exploreRecommendations) && thought.exploreRecommendations.length > 0) {
+      const recommendations = thought.exploreRecommendations as ExploreRecommendation[];
+      // Convert old types to new types
+      const converted = recommendations.map(rec => {
+        const oldTypes = ['Reflection', 'Learning', 'Insight', 'Project'];
+        if (oldTypes.includes(rec.type)) {
+          // Only convert to "Worth Sharing" if confidence is high enough (>= 60)
+          if (rec.confidence >= 60) {
+            return {
+              ...rec,
+              type: 'Worth Sharing',
+            };
+          } else {
+            // Return null to filter out
+            return null;
+          }
+        }
+        // Remove "Other" type
+        if (rec.type === 'Other') {
+          return null;
+        }
+        // Keep valid types: Worth Sharing, Action Item, Business Idea
+        if (['Worth Sharing', 'Action Item', 'Business Idea'].includes(rec.type)) {
+          return rec;
+        }
+        // Filter out any other unknown types
+        return null;
+      }).filter((rec): rec is ExploreRecommendation => rec !== null);
+      
+      // Return only the first recommendation (max 1)
+      return converted.slice(0, 1);
+    }
+    return [];
+  };
+
+  // Save review dismissed state to localStorage
+  const handleDismissReview = () => {
+    setReviewDismissed(true);
+    localStorage.setItem('thouty-review-dismissed', 'true');
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (expandedActionDropdown) {
+        const target = event.target as Element;
+        
+        // Check if click is inside any dropdown menu (Review or regular)
+        const isInsideDropdown = target.closest('.review-dropdown-menu') ||
+                                 target.closest('.action-dropdown-container') ||
+                                 target.closest('.review-dropdown-wrapper');
+        
+        if (!isInsideDropdown) {
+          setExpandedActionDropdown(null);
+        }
+      }
+    };
+
+    if (expandedActionDropdown) {
+      // Use a delay to allow button clicks to fire first
+      const timeoutId = setTimeout(() => {
+        document.addEventListener('click', handleClickOutside);
+      }, 150);
+      return () => {
+        clearTimeout(timeoutId);
+        document.removeEventListener('click', handleClickOutside);
+      };
+    }
+  }, [expandedActionDropdown]);
+
+
+  // Get recent thoughts for Review section
+  const recentThoughtsForReview = useMemo(() => {
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return thoughts
+      .filter(t => !t.isParked && new Date(t.createdAt) >= todayStart)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 3);
   }, [thoughts]);
 
   // Filter thoughts
   const filteredThoughts = useMemo(() => {
     let filtered = thoughts;
+
+    // View mode filter: All vs Review
+    if (viewMode === 'review') {
+      filtered = filtered.filter(thought => {
+        // Must have a recommendation pill (Worth Sharing or Action Item)
+        const recommendations = getRecommendations(thought);
+        const hasRecommendation = recommendations.length > 0 && 
+          (recommendations[0].type === 'Worth Sharing' || recommendations[0].type === 'Action Item');
+        
+        if (!hasRecommendation) return false;
+        
+        // Must NOT be in Share
+        const potential = thought.potential || thought.bestPotential;
+        if (potential === 'Share') return false;
+        
+        // Must NOT be in Do
+        if (potential === 'Do') return false;
+        
+        // Must NOT be Parked
+        if (thought.isParked) return false;
+        
+        return true;
+      });
+    }
 
     // Search filter - search in original text, summary, and tags (including parked)
     if (searchQuery.trim()) {
@@ -61,20 +169,27 @@ const ThoughtsView: React.FC = () => {
       );
     }
 
-    // Potential filter
-    if (activeFilters.potential && activeFilters.potential !== 'All') {
-      filtered = filtered.filter(thought => {
-        const potential = thought.potential || thought.bestPotential;
-        return potential === activeFilters.potential;
-      });
-    }
-
     // Date filter
     if (activeFilters.date && activeFilters.date !== 'All') {
       const now = new Date();
       filtered = filtered.filter(thought => {
         const thoughtDate = new Date(thought.createdAt);
-        switch (activeFilters.date) {
+        const filterDate = activeFilters.date;
+        
+        if (filterDate === undefined || filterDate === 'All') {
+          return true;
+        }
+        
+        if (filterDate instanceof Date) {
+          // Custom date selection
+          const filterDateStart = new Date(filterDate);
+          filterDateStart.setHours(0, 0, 0, 0);
+          const filterDateEnd = new Date(filterDate);
+          filterDateEnd.setHours(23, 59, 59, 999);
+          return thoughtDate >= filterDateStart && thoughtDate <= filterDateEnd;
+        }
+        
+        switch (filterDate) {
           case 'Today':
             return thoughtDate.toDateString() === now.toDateString();
           case 'This Week':
@@ -88,108 +203,111 @@ const ThoughtsView: React.FC = () => {
       });
     }
 
-    // Topic filter
-    if (activeFilters.topics && activeFilters.topics.length > 0) {
-      filtered = filtered.filter(thought =>
-        activeFilters.topics!.some(topic => thought.tags.includes(topic as any))
-      );
+    // Hide parked thoughts from main view (unless searching or in review mode)
+    if (!searchQuery.trim() && viewMode === 'all') {
+      filtered = filtered.filter(thought => !thought.isParked);
     }
 
-    // Parked filter - Hide parked thoughts from main view unless:
-    // - Explicitly filtering for parked
-    // - Searching (parked thoughts should appear in search)
-    if (activeFilters.parked === undefined) {
-      // If not explicitly filtering for parked, hide parked thoughts (unless searching)
-      if (!searchQuery.trim()) {
-        filtered = filtered.filter(thought => !thought.isParked);
-      }
-    } else {
-      // Explicit filter for parked
-      filtered = filtered.filter(thought => thought.isParked === activeFilters.parked);
-    }
-
-    // Spark filter
-    if (activeFilters.spark !== undefined) {
-      filtered = filtered.filter(thought => thought.isSpark === activeFilters.spark);
-    }
-
-    return filtered;
-  }, [thoughts, searchQuery, activeFilters]);
-
-  const handleRemoveFilter = (type: 'potential' | 'date' | 'topic' | 'parked' | 'spark', value?: string) => {
-    if (type === 'topic' && value) {
-      setActiveFilters(prev => ({
-        ...prev,
-        topics: prev.topics?.filter(t => t !== value),
-      }));
-    } else {
-      setActiveFilters(prev => {
-        const newFilters = { ...prev };
-        if (type === 'potential') {
-          delete newFilters.potential;
-        } else if (type === 'date') {
-          delete newFilters.date;
-        } else if (type === 'parked') {
-          delete newFilters.parked;
-        } else if (type === 'spark') {
-          delete newFilters.spark;
+    // Sort thoughts (default to latest for both modes)
+    const sorted = [...filtered];
+    if (sortBy === 'potential') {
+      // Sort by powerful score (highest first), then by recency
+      return sorted.sort((a, b) => {
+        const scoreA = calculatePowerfulScore(a, thoughts) || 0;
+        const scoreB = calculatePowerfulScore(b, thoughts) || 0;
+        if (Math.abs(scoreA - scoreB) > 10) {
+          return scoreB - scoreA; // Sort by score if difference is significant
         }
-        return newFilters;
+        // Otherwise sort by recency
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+    } else {
+      // Sort by latest (most recent first)
+      return sorted.sort((a, b) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
     }
-  };
-
-  const handlePotentialFilter = (potential: PotentialFilter) => {
-    setActiveFilters(prev => ({
-      ...prev,
-      potential: prev.potential === potential ? undefined : potential,
-    }));
-  };
+  }, [thoughts, searchQuery, activeFilters, sortBy, viewMode]);
 
   const handleDateFilter = (date: DateFilter) => {
     setActiveFilters(prev => ({
       ...prev,
       date: prev.date === date ? undefined : date,
     }));
+    // Clear custom date if selecting a preset
+    if (date !== 'All' && !(date instanceof Date)) {
+      setCustomDate('');
+    }
   };
 
-  const handleTopicFilter = (topic: string) => {
-    setActiveFilters(prev => ({
-      ...prev,
-      topics: prev.topics?.includes(topic)
-        ? prev.topics.filter(t => t !== topic)
-        : [...(prev.topics || []), topic],
-    }));
-  };
-
-  const handleParkedFilter = () => {
-    setActiveFilters(prev => {
-      const newParked = prev.parked === undefined ? true : prev.parked ? undefined : true;
-      // If enabling parked, disable spark (mutually exclusive)
-      return {
+  const handleCustomDateSelect = (dateString: string) => {
+    if (dateString) {
+      const selectedDate = new Date(dateString);
+      setActiveFilters(prev => ({
         ...prev,
-        parked: newParked,
-        spark: newParked === true ? undefined : prev.spark,
-      };
-    });
+        date: selectedDate,
+      }));
+      setCustomDate(dateString);
+    } else {
+      setActiveFilters(prev => ({
+        ...prev,
+        date: 'All',
+      }));
+      setCustomDate('');
+    }
+    setExpandedFilterDropdown(null);
   };
 
-  const handleSparkFilter = () => {
-    setActiveFilters(prev => {
-      const newSpark = prev.spark === undefined ? true : prev.spark ? undefined : true;
-      // If enabling spark, disable parked (mutually exclusive)
-      return {
-        ...prev,
-        spark: newSpark,
-        parked: newSpark === true ? undefined : prev.parked,
-      };
-    });
-  };
 
   const handleSetPotential = async (thoughtId: string, potential: PotentialType) => {
-    await setPotential(thoughtId, potential);
-    setExpandedActionDropdown(null);
-    // Don't reload - just update the thought in place
+    try {
+      await setPotential(thoughtId, potential);
+      setExpandedActionDropdown(null);
+      // The store update will trigger a re-render automatically
+      // Don't reload - just update the thought in place
+    } catch (error) {
+      console.error('[handleSetPotential] Error setting potential:', error);
+      // On error, reload to get the correct state
+      await loadThoughts();
+    }
+  };
+
+  const getPotentialConfig = (potential: PotentialType | null | undefined) => {
+    switch (potential) {
+      case 'Share': return { label: 'Share', color: 'purple', icon: '💬' };
+      case 'Do': return { label: 'Do', color: 'emerald', icon: '✓' };
+      case 'Just a thought': return { label: 'Just a thought', color: 'slate', icon: '💭' };
+      default: return { label: 'Select action...', color: 'slate', icon: '' };
+    }
+  };
+
+  const getRecommendationConfig = (rec: string) => {
+    const configs: Record<string, { icon: React.ReactNode; color: string; bgColor: string; borderColor: string }> = {
+      'Worth Sharing': {
+        icon: <Sparkles className="w-3 h-3" />,
+        color: 'text-purple-700',
+        bgColor: 'bg-purple-50',
+        borderColor: 'border-purple-200',
+      },
+      'Action Item': {
+        icon: <Target className="w-3 h-3" />,
+        color: 'text-emerald-700',
+        bgColor: 'bg-emerald-50',
+        borderColor: 'border-emerald-200',
+      },
+      'Business Idea': {
+        icon: <Briefcase className="w-3 h-3" />,
+        color: 'text-blue-700',
+        bgColor: 'bg-blue-50',
+        borderColor: 'border-blue-200',
+      },
+    };
+    return configs[rec] || {
+      icon: <Lightbulb className="w-3 h-3" />,
+      color: 'text-slate-700',
+      bgColor: 'bg-slate-50',
+      borderColor: 'border-slate-200',
+    };
   };
 
   const handleStartEdit = (thoughtId: string) => {
@@ -285,16 +403,16 @@ const ThoughtsView: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50/20">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50/30 via-orange-50/20 to-white">
       <Navigation
-        currentView="thoughts"
+        currentView={currentView === 'thoughts' || currentView === 'home' ? 'thoughts' : currentView}
         onViewChange={setCurrentView}
         user={user}
         onLogout={signOut}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search Bar */}
+        {/* Search Bar - Always at top */}
         <div className="mb-6">
           <div className="relative mb-4">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -307,8 +425,32 @@ const ThoughtsView: React.FC = () => {
             />
           </div>
 
-          {/* Filter Dropdowns - Compact */}
-          <div className="flex items-center gap-2 flex-wrap">
+          {/* Filters and View Mode Toggle */}
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* View Mode Toggle: All | Review */}
+            <div className="flex items-center gap-2 bg-white rounded-lg border border-slate-200 p-1">
+              <button
+                onClick={() => setViewMode('all')}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                  viewMode === 'all'
+                    ? 'bg-purple-100 text-purple-700'
+                    : 'text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                All
+              </button>
+              <button
+                onClick={() => setViewMode('review')}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                  viewMode === 'review'
+                    ? 'bg-purple-100 text-purple-700'
+                    : 'text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                Review
+              </button>
+            </div>
+
             {/* Date Filter Dropdown */}
             <div className="relative filter-dropdown-container">
               <button
@@ -323,23 +465,25 @@ const ThoughtsView: React.FC = () => {
                 <span>Date</span>
                 {activeFilters.date && activeFilters.date !== 'All' && (
                   <span className="px-1.5 py-0.5 bg-blue-600 text-white text-xs rounded-full">
-                    {activeFilters.date}
+                    {activeFilters.date instanceof Date 
+                      ? activeFilters.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                      : activeFilters.date}
                   </span>
                 )}
                 <ChevronDown className={`w-3 h-3 transition-transform ${expandedFilterDropdown === 'date' ? 'rotate-180' : ''}`} />
               </button>
               {expandedFilterDropdown === 'date' && (
-                <div className="absolute top-full left-0 mt-2 bg-white rounded-lg border border-slate-200 shadow-lg z-20 min-w-[140px] overflow-hidden">
+                <div className="absolute top-full left-0 mt-2 bg-white rounded-lg border border-slate-200 shadow-lg z-20 min-w-[200px] overflow-hidden">
                   <div className="p-1.5 space-y-0.5">
-                    {(['All', 'Today', 'This Week', 'This Month'] as DateFilter[]).map(date => (
+                    {(['All', 'Today', 'This Week', 'This Month'] as (DateFilter | string)[]).map(date => (
                       <button
                         key={date}
                         onClick={() => {
-                          handleDateFilter(date);
+                          handleDateFilter(date as DateFilter);
                           setExpandedFilterDropdown(null);
                         }}
                         className={`w-full px-3 py-2 text-left text-xs transition-colors rounded-lg flex items-center gap-2 ${
-                          activeFilters.date === date
+                          (activeFilters.date === date || (date === 'All' && !activeFilters.date)) && !(activeFilters.date instanceof Date)
                             ? 'bg-blue-50 text-blue-700'
                             : 'hover:bg-slate-50 text-slate-700'
                         }`}
@@ -348,181 +492,290 @@ const ThoughtsView: React.FC = () => {
                         {date}
                       </button>
                     ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Potential Filter Dropdown */}
-            <div className="relative filter-dropdown-container">
-              <button
-                onClick={() => setExpandedFilterDropdown(expandedFilterDropdown === 'potential' ? null : 'potential')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors flex items-center gap-1.5 ${
-                  activeFilters.potential && activeFilters.potential !== 'All'
-                    ? 'bg-purple-100 text-purple-700 border-purple-300'
-                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                <span>Potential</span>
-                {activeFilters.potential && activeFilters.potential !== 'All' && (
-                  <span className="px-1.5 py-0.5 bg-purple-600 text-white text-xs rounded-full">
-                    {activeFilters.potential}
-                  </span>
-                )}
-                <ChevronDown className={`w-3 h-3 transition-transform ${expandedFilterDropdown === 'potential' ? 'rotate-180' : ''}`} />
-              </button>
-              {expandedFilterDropdown === 'potential' && (
-                <div className="absolute top-full left-0 mt-2 bg-white rounded-lg border border-slate-200 shadow-lg z-20 min-w-[160px] overflow-hidden">
-                  <div className="p-1.5 space-y-0.5">
-                    {(['All', 'Share', 'To-Do', 'Insight', 'Just a thought'] as PotentialFilter[]).map(potential => (
-                      <button
-                        key={potential}
-                        onClick={() => {
-                          handlePotentialFilter(potential);
-                          setExpandedFilterDropdown(null);
+                    <div className="border-t border-slate-200 my-1"></div>
+                    <div className="px-3 py-2">
+                      <label className="block text-xs text-slate-600 mb-1">Custom Date</label>
+                      <input
+                        type="date"
+                        value={customDate || (activeFilters.date instanceof Date ? activeFilters.date.toISOString().split('T')[0] : '')}
+                        onChange={(e) => {
+                          const dateValue = e.target.value;
+                          if (dateValue) {
+                            const selectedDate = new Date(dateValue);
+                            setActiveFilters(prev => ({
+                              ...prev,
+                              date: selectedDate,
+                            }));
+                            setCustomDate(dateValue);
+                          } else {
+                            setActiveFilters(prev => ({
+                              ...prev,
+                              date: 'All',
+                            }));
+                            setCustomDate('');
+                          }
                         }}
-                        className={`w-full px-3 py-2 text-left text-xs transition-colors rounded-lg ${
-                          activeFilters.potential === potential
-                            ? 'bg-purple-50 text-purple-700'
-                            : 'hover:bg-slate-50 text-slate-700'
-                        }`}
-                      >
-                        {potential}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Topics Filter Dropdown */}
-            {availableTopics.length > 0 && (
-              <div className="relative filter-dropdown-container">
-                <button
-                  onClick={() => setExpandedFilterDropdown(expandedFilterDropdown === 'topics' ? null : 'topics')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors flex items-center gap-1.5 ${
-                    activeFilters.topics && activeFilters.topics.length > 0
-                      ? 'bg-slate-100 text-slate-700 border-slate-300'
-                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                  }`}
-                >
-                  <span>Topics</span>
-                  {activeFilters.topics && activeFilters.topics.length > 0 && (
-                    <span className="px-1.5 py-0.5 bg-slate-600 text-white text-xs rounded-full">
-                      {activeFilters.topics.length}
-                    </span>
-                  )}
-                  <ChevronDown className={`w-3 h-3 transition-transform ${expandedFilterDropdown === 'topics' ? 'rotate-180' : ''}`} />
-                </button>
-                {expandedFilterDropdown === 'topics' && (
-                  <div className="absolute top-full left-0 mt-2 bg-white rounded-lg border border-slate-200 shadow-lg z-20 min-w-[140px] max-w-[200px] max-h-[200px] overflow-y-auto">
-                    <div className="p-1.5 space-y-0.5">
-                      {availableTopics.map(topic => (
-                        <button
-                          key={topic}
-                          onClick={() => {
-                            handleTopicFilter(topic);
-                            // Don't close dropdown to allow multiple selections
-                          }}
-                          className={`w-full px-3 py-2 text-left text-xs transition-colors rounded-lg flex items-center gap-2 ${
-                            activeFilters.topics?.includes(topic)
-                              ? 'bg-slate-50 text-slate-700'
-                              : 'hover:bg-slate-50 text-slate-700'
-                          }`}
-                        >
-                          <span className={`w-2 h-2 rounded-full ${activeFilters.topics?.includes(topic) ? 'bg-slate-600' : 'border border-slate-300'}`} />
-                          {topic}
-                        </button>
-                      ))}
+                        className="w-full px-2 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-blue-400"
+                      />
                     </div>
                   </div>
-                )}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
 
-            {/* Spark Toggle */}
-            <button
-              onClick={handleSparkFilter}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors flex items-center gap-1.5 ${
-                activeFilters.spark === true
-                  ? 'bg-amber-100 text-amber-700 border-amber-300'
-                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-              }`}
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Spark</span>
-            </button>
-
-            {/* Parked Toggle */}
-            <button
-              onClick={handleParkedFilter}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors flex items-center gap-1.5 ${
-                activeFilters.parked === true
-                  ? 'bg-slate-100 text-slate-700 border-slate-300'
-                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-              }`}
-            >
-              <ParkingCircle className="w-3.5 h-3.5" />
-              <span>Parked</span>
-            </button>
           </div>
 
           {/* Active Filters as Pills */}
-          {(activeFilters.potential || activeFilters.date || activeFilters.topics?.length || activeFilters.parked || activeFilters.spark) && (
+          {activeFilters.date && activeFilters.date !== 'All' && (
             <div className="flex items-center gap-2 flex-wrap mt-3">
-              {activeFilters.potential && activeFilters.potential !== 'All' && (
-                <span className="px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg text-sm font-medium border border-purple-200 flex items-center gap-2">
-                  {activeFilters.potential}
-                  <X
-                    className="w-4 h-4 cursor-pointer hover:text-purple-900"
-                    onClick={() => handleRemoveFilter('potential')}
-                  />
-                </span>
-              )}
-              {activeFilters.date && activeFilters.date !== 'All' && (
-                <span className="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium border border-blue-200 flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  {activeFilters.date}
-                  <X
-                    className="w-4 h-4 cursor-pointer hover:text-blue-900"
-                    onClick={() => handleRemoveFilter('date')}
-                  />
-                </span>
-              )}
-              {activeFilters.topics?.map(topic => (
-                <span
-                  key={topic}
-                  className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium border border-slate-200 flex items-center gap-2"
-                >
-                  {topic}
-                  <X
-                    className="w-4 h-4 cursor-pointer hover:text-slate-900"
-                    onClick={() => handleRemoveFilter('topic', topic)}
-                  />
-                </span>
-              ))}
-              {activeFilters.spark && (
-                <span className="px-3 py-1.5 bg-amber-100 text-amber-700 rounded-lg text-sm font-medium border border-amber-200 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4" />
-                  Spark
-                  <X
-                    className="w-4 h-4 cursor-pointer hover:text-amber-900"
-                    onClick={() => handleRemoveFilter('spark')}
-                  />
-                </span>
-              )}
-              {activeFilters.parked && (
-                <span className="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium border border-slate-200 flex items-center gap-2">
-                  Parked
-                  <X
-                    className="w-4 h-4 cursor-pointer hover:text-slate-900"
-                    onClick={() => handleRemoveFilter('parked')}
-                  />
-                </span>
-              )}
+              <button
+                onClick={() => {
+                  handleDateFilter('All');
+                  setCustomDate('');
+                }}
+                className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium hover:bg-blue-200 transition-colors flex items-center gap-1.5"
+              >
+                <Calendar className="w-3 h-3" />
+                <span>Date: {activeFilters.date instanceof Date 
+                  ? activeFilters.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                  : activeFilters.date}</span>
+                <X className="w-3 h-3" />
+              </button>
             </div>
           )}
         </div>
+
+        {/* Review Section */}
+        {!reviewDismissed && recentThoughtsForReview.length > 0 && (
+          <div className="mb-8 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-orange-200/60 p-4 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <RotateCcw className="w-5 h-5 text-orange-600" />
+                <h2 className="text-xl font-bold text-slate-900">To Review</h2>
+              </div>
+              <button
+                onClick={handleDismissReview}
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-white/50 transition-colors"
+                title="Dismiss review"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {recentThoughtsForReview.map((thought) => {
+                const currentPotential = thought.potential || thought.bestPotential;
+                const isTodo = currentPotential === 'Do';
+                const isCompleted = thought.todoData?.completed || false;
+                
+                const potentialConfig = {
+                  'Share': { label: 'Share', color: 'purple', icon: '💬' },
+                  'Do': { label: 'Do', color: 'emerald', icon: '✓' },
+                  'Just a thought': { label: 'Just a thought', color: 'slate', icon: '💭' },
+                };
+
+                const availablePotentials: PotentialType[] = ['Share', 'Do', 'Just a thought'];
+
+                const recommendations = getRecommendations(thought);
+
+                return (
+                  <div
+                    key={thought.id}
+                    className="bg-white rounded-xl border-2 border-dashed border-amber-200/50 p-4 shadow-sm relative flex flex-col hover:shadow-md transition-shadow"
+                  >
+                    {/* Recommendation Pill - On the border line (starting from right) - Max 1 */}
+                    {/* Show only for thoughts in To Review section */}
+                    {recommendations.length > 0 && (
+                      <div className="absolute -top-3 right-4 z-10">
+                        {(() => {
+                          const rec = recommendations[0]; // Only show the first (and only) recommendation
+                          const config = getRecommendationConfig(rec.type);
+                          return (
+                            <div
+                              className={`px-2.5 py-1 rounded-lg border-2 border-dashed ${config.borderColor} ${config.bgColor} ${config.color} text-xs font-medium flex items-center gap-1.5 bg-white shadow-sm`}
+                            >
+                              {config.icon}
+                              <span>{rec.type}</span>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    )}
+
+                    {/* Thought Text */}
+                    <div className={`flex items-start gap-2 mb-3 flex-1 group relative w-full ${recommendations.length > 0 ? 'mt-2' : ''}`}>
+                      {isTodo && (
+                        <button
+                          onClick={() => handleToggleTodoComplete(thought.id)}
+                          className={`mt-0.5 flex-shrink-0 transition-colors ${
+                            isCompleted
+                              ? 'text-emerald-600 hover:text-emerald-700'
+                              : 'text-slate-400 hover:text-emerald-600'
+                          }`}
+                          title={isCompleted ? 'Mark as incomplete' : 'Mark as complete'}
+                        >
+                          {isCompleted ? (
+                            <CheckCircle2 className="w-4 h-4" />
+                          ) : (
+                            <Circle className="w-4 h-4" />
+                          )}
+                        </button>
+                      )}
+                      <div className="flex-1 relative min-w-0 w-full">
+                        <p className={`text-slate-800 text-sm leading-relaxed pr-8 ${isCompleted ? 'line-through text-slate-500' : ''}`}>
+                          {thought.originalText}
+                        </p>
+                        <button
+                          onClick={() => handleStartEdit(thought.id)}
+                          className="absolute top-0 right-0 p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                          title="Edit thought"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* CTA Row */}
+                    <div className="mt-auto pt-3 border-t border-amber-200/50 flex items-center justify-between gap-2 flex-wrap">
+                      {/* Left: Date */}
+                      <div className="flex items-center">
+                        <span className="text-xs text-slate-500 font-medium">
+                          {new Date(thought.createdAt).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric',
+                            year: new Date(thought.createdAt).getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+                          })}
+                        </span>
+                      </div>
+                      {/* Right: Dropdown + Park Button */}
+                      <div className="flex items-center justify-end gap-2">
+                        <div 
+                          className="relative review-dropdown-wrapper" 
+                          ref={(el) => {
+                            if (el) {
+                              dropdownRefs.current.set(`review-${thought.id}`, el);
+                            } else {
+                              dropdownRefs.current.delete(`review-${thought.id}`);
+                            }
+                          }}
+                        >
+                          <button
+                            onClick={(e) => {
+                              if (thought.isParked) return; // Disable when parked
+                              e.stopPropagation();
+                              e.preventDefault();
+                              const dropdownKey = `review-${thought.id}`;
+                              if (expandedActionDropdown !== dropdownKey) {
+                                setExpandedActionDropdown(dropdownKey);
+                              } else {
+                                setExpandedActionDropdown(null);
+                              }
+                            }}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            disabled={thought.isParked}
+                            className={`px-2 py-1 rounded-lg text-xs font-medium border border-dashed transition-colors flex items-center gap-1 ${
+                              thought.isParked 
+                                ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60' :
+                                currentPotential && potentialConfig[currentPotential]?.color === 'purple' ? 'bg-purple-100/70 text-purple-700 border-purple-300/60 hover:bg-purple-200/70' :
+                                currentPotential && potentialConfig[currentPotential]?.color === 'emerald' ? 'bg-emerald-100/70 text-emerald-700 border-emerald-300/60 hover:bg-emerald-200/70' :
+                                'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100'
+                            }`}
+                            type="button"
+                            title={thought.isParked ? 'Dropdown disabled for parked thoughts' : 'Select potential'}
+                          >
+                            {currentPotential && (
+                              <>
+                                <span>{potentialConfig[currentPotential]?.label}</span>
+                                {thought.bestPotential === currentPotential && !thought.potential && (
+                                  <span className="text-xs opacity-60">(AI)</span>
+                                )}
+                              </>
+                            )}
+                            {!currentPotential && (
+                              <span>Select action...</span>
+                            )}
+                            {!thought.isParked && (
+                              <ChevronDown className={`w-3 h-3 transition-transform ${expandedActionDropdown === `review-${thought.id}` ? 'rotate-180' : ''}`} />
+                            )}
+                          </button>
+                          {expandedActionDropdown === `review-${thought.id}` && !thought.isParked && (
+                            <div 
+                              className="absolute right-0 top-full mt-2 bg-white rounded-lg border border-purple-200 shadow-lg z-50 min-w-[140px] overflow-hidden review-dropdown-menu"
+                              onMouseDown={(e) => e.stopPropagation()}
+                            >
+                              <div className="p-1.5 space-y-0.5">
+                                {availablePotentials.map((potential) => {
+                                  const config = potentialConfig[potential];
+                                  const hoverClass = config.color === 'purple' ? 'hover:bg-purple-50' : 
+                                                    config.color === 'emerald' ? 'hover:bg-emerald-50' :
+                                                    'hover:bg-slate-50';
+                                  const textClass = config.color === 'purple' ? 'text-purple-700' : 
+                                                  config.color === 'emerald' ? 'text-emerald-700' :
+                                                  'text-slate-700';
+                                  const isSelected = currentPotential !== null && currentPotential !== undefined && currentPotential === potential;
+                                  const isAISuggestion = thought.bestPotential === potential && !thought.potential;
+                                  return (
+                                    <button
+                                      key={potential}
+                                      onClick={async (e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                        await handleSetPotential(thought.id, potential);
+                                      }}
+                                      className={`w-full px-3 py-2 text-left text-xs rounded-lg flex items-center gap-2 transition-colors ${
+                                        isSelected 
+                                          ? 'bg-slate-100 text-slate-700 cursor-default' 
+                                          : `${hoverClass} ${textClass} cursor-pointer`
+                                      }`}
+                                      type="button"
+                                      disabled={isSelected}
+                                    >
+                                      <span>{config.label}</span>
+                                      {isAISuggestion && (
+                                        <span className="text-xs opacity-60 ml-auto">(AI)</span>
+                                      )}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        {/* Park/Parked Toggle Button */}
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            if (thought.isParked) {
+                              // Unpark: set potential to "Just a thought" and unpark
+                              await setPotential(thought.id, 'Just a thought');
+                              await unparkThought(thought.id);
+                            } else {
+                              // Park: just park it
+                              await parkThought(thought.id);
+                            }
+                          }}
+                          className={`p-1.5 rounded-lg border border-dashed transition-colors flex items-center justify-center ${
+                            thought.isParked
+                              ? 'bg-amber-50 text-amber-700 border-amber-300/60 hover:bg-amber-100'
+                              : 'bg-slate-50 text-slate-500 border-slate-300/60 hover:bg-slate-100 hover:text-slate-600'
+                          }`}
+                          title={thought.isParked ? 'Click to revive (unpark) this thought' : 'Click to park this thought'}
+                          type="button"
+                        >
+                          {thought.isParked ? (
+                            <RefreshCw className="w-3.5 h-3.5" />
+                          ) : (
+                            <ParkingCircle className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Thoughts Grid */}
         {filteredThoughts.length === 0 ? (
@@ -540,57 +793,48 @@ const ThoughtsView: React.FC = () => {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-max">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-max">
             {filteredThoughts.map((thought) => {
               const currentPotential = thought.potential || thought.bestPotential;
-              const isTodo = currentPotential === 'To-Do';
+              const isTodo = currentPotential === 'Do';
               const isCompleted = thought.todoData?.completed || false;
               
               const potentialConfig = {
                 'Share': { label: 'Share', color: 'purple', icon: '💬' },
-                'To-Do': { label: 'To-Do', color: 'emerald', icon: '✓' },
-                'Insight': { label: 'Insight', color: 'orange', icon: '💭' },
+                'Do': { label: 'Do', color: 'emerald', icon: '✓' },
                 'Just a thought': { label: 'Just a thought', color: 'slate', icon: '💭' },
               };
 
               // Available potentials - all thoughts can select any potential
-              const availablePotentials: PotentialType[] = ['Share', 'To-Do', 'Insight', 'Just a thought'];
+              const availablePotentials: PotentialType[] = ['Share', 'Do', 'Just a thought'];
+              const recommendations = getRecommendations(thought);
 
               return (
                 <div
                   key={thought.id}
-                  className={`bg-white rounded-xl border-2 border-dashed border-slate-200/50 p-4 shadow-sm relative flex flex-col ${
-                    thought.isParked ? 'opacity-60' : ''
-                  }`}
+                  className="bg-white rounded-xl border-2 border-dashed border-slate-200/50 p-4 shadow-sm relative flex flex-col hover:shadow-md transition-shadow"
                 >
-                  {/* Spark Icon - Top Right on Border */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      if (thought.isSpark) {
-                        removeSpark(thought.id);
-                      } else {
-                        addSpark(thought.id);
-                      }
-                    }}
-                    className={`absolute -top-2 -right-2 z-30 p-1 bg-white rounded-full border-2 border-dashed transition-colors cursor-pointer shadow-sm ${
-                      thought.isSpark 
-                        ? 'border-amber-400 hover:border-amber-500' 
-                        : 'border-slate-200 hover:border-amber-300'
-                    }`}
-                    title={thought.isSpark ? "Remove spark" : "Add spark"}
-                    type="button"
-                  >
-                    {thought.isSpark ? (
-                      <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500" />
-                    ) : (
-                      <Sparkles className="w-4 h-4 text-slate-400 hover:text-amber-400" />
-                    )}
-                  </button>
+                  {/* Recommendation Pill - On the border line (starting from right) - Max 1 */}
+                  {/* Show only for "Just a thought" thoughts */}
+                  {recommendations.length > 0 && currentPotential === 'Just a thought' && (
+                    <div className="absolute -top-3 right-4 z-10">
+                      {(() => {
+                        const rec = recommendations[0]; // Only show the first (and only) recommendation
+                        const config = getRecommendationConfig(rec.type);
+                        return (
+                          <div
+                            className={`px-2.5 py-1 rounded-lg border-2 border-dashed ${config.borderColor} ${config.bgColor} ${config.color} text-xs font-medium flex items-center gap-1.5 bg-white shadow-sm`}
+                          >
+                            {config.icon}
+                            <span>{rec.type}</span>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
 
                   {/* Thought Text */}
-                  <div className="flex items-start gap-2 mb-3 pr-7 flex-1">
+                  <div className={`flex items-start gap-2 mb-3 flex-1 group relative w-full ${recommendations.length > 0 && currentPotential === 'Just a thought' ? 'mt-2' : ''}`}>
                     {/* To-Do Completion Icon (if To-Do) - Next to text */}
                     {isTodo && (
                       <button
@@ -643,16 +887,16 @@ const ThoughtsView: React.FC = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="flex-1 group relative">
-                        <p className={`text-slate-800 text-sm leading-relaxed flex-1 ${isCompleted ? 'line-through text-slate-500' : ''}`}>
+                      <div className="flex-1 relative group min-w-0">
+                        <p className={`text-slate-800 text-sm leading-relaxed pr-8 ${isCompleted ? 'line-through text-slate-500' : ''}`}>
                           {thought.originalText}
                         </p>
                         <button
                           onClick={() => handleStartEdit(thought.id)}
-                          className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 bg-white rounded-lg border border-slate-200 shadow-sm hover:bg-slate-50"
+                          className="absolute top-0 right-0 p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
                           title="Edit thought"
                         >
-                          <Edit2 className="w-3.5 h-3.5 text-slate-600" />
+                          <Edit2 className="w-4 h-4" />
                         </button>
                       </div>
                     )}
@@ -660,64 +904,85 @@ const ThoughtsView: React.FC = () => {
 
                   {/* Simple CTA Row - Always show */}
                   <div className="mt-auto pt-3 border-t border-slate-200/50 flex items-center justify-between gap-2 flex-wrap">
-                    {/* Left: Park button */}
-                    <div className="flex items-center gap-2">
-                      {/* Park/Unpark button - always visible, icon-only with circle */}
-                      {thought.isParked ? (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            unparkThought(thought.id);
-                            setParkedThoughtId(null);
-                          }}
-                          className="w-7 h-7 rounded-lg bg-slate-100/70 text-slate-700 border border-dashed border-slate-300/60 hover:bg-slate-200/70 transition-colors flex items-center justify-center"
-                          title="Unpark thought - make it visible again"
-                          type="button"
-                        >
-                          <span className="text-xs font-semibold">P</span>
-                        </button>
-                      ) : (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            handleParkThought(thought.id);
-                          }}
-                          className={`w-7 h-7 rounded-lg border border-dashed transition-colors flex items-center justify-center ${
-                            parkedThoughtId === thought.id
-                              ? 'bg-emerald-100 text-emerald-700 border-emerald-300'
-                              : 'bg-slate-50 text-slate-600 border-slate-300/50 hover:bg-slate-100'
-                          }`}
-                          title="Park thought - hide it from main view (still searchable)"
-                          type="button"
-                        >
-                          <span className="text-xs font-semibold">{parkedThoughtId === thought.id ? '✓' : 'P'}</span>
-                        </button>
-                      )}
-                    </div>
+                      {/* Left: Date */}
+                      <div className="flex items-center">
+                        <span className="text-xs text-slate-500 font-medium">
+                          {new Date(thought.createdAt).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric',
+                            year: new Date(thought.createdAt).getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+                          })}
+                        </span>
+                      </div>
 
-                      {/* Right: Potential Dropdown + Navigation */}
-                      {(currentPotential || thought.isSpark) && (
+                      {/* Right: Park + Potential Dropdown + Navigation */}
+                      {currentPotential && (
                         <div className="flex items-center gap-2 ml-auto">
-                          <div className="relative action-dropdown-container">
+                          {/* Park/Parked Toggle Button - Moved to left */}
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              if (thought.isParked) {
+                                // Revive: unpark and set to Just a thought
+                                await setPotential(thought.id, 'Just a thought');
+                                await unparkThought(thought.id);
+                              } else {
+                                // Park: just park it
+                                await parkThought(thought.id);
+                              }
+                            }}
+                            className={`p-1.5 rounded-lg border border-dashed transition-colors flex items-center justify-center ${
+                              thought.isParked
+                                ? 'bg-amber-50 text-amber-700 border-amber-300/60 hover:bg-amber-100'
+                                : 'bg-slate-50 text-slate-500 border-slate-300/60 hover:bg-slate-100 hover:text-slate-600'
+                            }`}
+                            title={thought.isParked ? 'Click to revive (unpark) this thought' : 'Click to park this thought'}
+                            type="button"
+                          >
+                            {thought.isParked ? (
+                              <RefreshCw className="w-3.5 h-3.5" />
+                            ) : (
+                              <ParkingCircle className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                          
+                          <div 
+                            className="relative action-dropdown-container"
+                            ref={(el) => {
+                              if (el) {
+                                dropdownRefs.current.set(`regular-${thought.id}`, el);
+                              } else {
+                                dropdownRefs.current.delete(`regular-${thought.id}`);
+                              }
+                            }}
+                          >
                             <button
                               onClick={(e) => {
+                                if (thought.isParked) return; // Disable when parked
                                 e.stopPropagation();
                                 e.preventDefault();
-                                setExpandedActionDropdown(expandedActionDropdown === thought.id ? null : thought.id);
+                                const dropdownKey = `regular-${thought.id}`;
+                                // Close any other open dropdowns first
+                                if (expandedActionDropdown !== dropdownKey) {
+                                  setExpandedActionDropdown(dropdownKey);
+                                } else {
+                                  setExpandedActionDropdown(null);
+                                }
                               }}
+                              disabled={thought.isParked}
                               className={`px-2 py-1 rounded-lg text-xs font-medium border border-dashed transition-colors flex items-center gap-1 ${
-                                currentPotential && potentialConfig[currentPotential]?.color === 'purple' ? 'bg-purple-100/70 text-purple-700 border-purple-300/60 hover:bg-purple-200/70' :
-                                currentPotential && potentialConfig[currentPotential]?.color === 'emerald' ? 'bg-emerald-100/70 text-emerald-700 border-emerald-300/60 hover:bg-emerald-200/70' :
-                                currentPotential && potentialConfig[currentPotential]?.color === 'orange' ? 'bg-orange-100/70 text-orange-700 border-orange-300/60 hover:bg-orange-200/70' :
-                                'bg-slate-100/70 text-slate-700 border-slate-300/60 hover:bg-slate-200/70'
+                                thought.isParked
+                                  ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60' :
+                                  currentPotential && potentialConfig[currentPotential]?.color === 'purple' ? 'bg-purple-100/70 text-purple-700 border-purple-300/60 hover:bg-purple-200/70' :
+                                  currentPotential && potentialConfig[currentPotential]?.color === 'emerald' ? 'bg-emerald-100/70 text-emerald-700 border-emerald-300/60 hover:bg-emerald-200/70' :
+                                  'bg-slate-100/70 text-slate-700 border-slate-300/60 hover:bg-slate-200/70'
                               }`}
                               type="button"
+                              title={thought.isParked ? 'Dropdown disabled for parked thoughts' : 'Select potential'}
                             >
                               {currentPotential && (
                                 <>
-                                  <span>{potentialConfig[currentPotential]?.icon}</span>
                                   <span>{potentialConfig[currentPotential]?.label}</span>
                                   {thought.bestPotential === currentPotential && !thought.potential && (
                                     <span className="text-xs opacity-60">(AI)</span>
@@ -729,14 +994,16 @@ const ThoughtsView: React.FC = () => {
                                   <span>Select Potential</span>
                                 </>
                               )}
-                              <ChevronDown className={`w-3 h-3 transition-transform ${expandedActionDropdown === thought.id ? 'rotate-180' : ''}`} />
+                              {!thought.isParked && (
+                                <ChevronDown className={`w-3 h-3 transition-transform ${expandedActionDropdown === `regular-${thought.id}` ? 'rotate-180' : ''}`} />
+                              )}
                             </button>
                             
-                            {expandedActionDropdown === thought.id && (
+                            {expandedActionDropdown === `regular-${thought.id}` && !thought.isParked && (
                               <div 
                                 className="absolute right-0 top-full mt-2 bg-white rounded-xl border-2 border-dashed border-slate-300/60 shadow-xl z-50 min-w-[140px] overflow-hidden"
                                 ref={(el) => {
-                                  if (el && expandedActionDropdown === thought.id) {
+                                  if (el && expandedActionDropdown === `regular-${thought.id}`) {
                                     // Scroll into view when dropdown opens
                                     setTimeout(() => {
                                       el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -773,7 +1040,6 @@ const ThoughtsView: React.FC = () => {
                                         type="button"
                                         disabled={isSelected}
                                       >
-                                        <span>{config.icon}</span>
                                         <span>{config.label}</span>
                                       </button>
                                     );
@@ -783,8 +1049,8 @@ const ThoughtsView: React.FC = () => {
                             )}
                           </div>
                           
-                          {/* Navigation button for Share/To-Do */}
-                          {(currentPotential === 'Share' || currentPotential === 'To-Do') && (
+                          {/* Navigation button for Share/Do */}
+                          {(currentPotential === 'Share' || currentPotential === 'Do') && !thought.isParked && (
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -800,7 +1066,7 @@ const ThoughtsView: React.FC = () => {
                                   ? 'bg-purple-100/70 text-purple-700 border-purple-300/60 hover:bg-purple-200/70'
                                   : 'bg-emerald-100/70 text-emerald-700 border-emerald-300/60 hover:bg-emerald-200/70'
                               }`}
-                              title={`Open in ${currentPotential === 'Share' ? 'Share' : 'To-Do'} view`}
+                              title={`Open in ${currentPotential === 'Share' ? 'Share' : 'Do'} view`}
                               type="button"
                             >
                               <ArrowRight className="w-3.5 h-3.5" />
@@ -810,43 +1076,50 @@ const ThoughtsView: React.FC = () => {
                       )}
                     </div>
                   
-                  {/* CTAs for new thoughts - Show potential picker and spark button */}
-                  {!currentPotential && !thought.isSpark && (
-                    <div className="mt-auto pt-3 border-t border-slate-200/50 flex items-center justify-between gap-2 flex-wrap">
-                      {/* Left: Spark button if not spark */}
-                      {!thought.isSpark && (
+                  {/* CTAs for new thoughts - Show potential picker */}
+                  {!currentPotential && (
+                    <div className="mt-auto pt-3 border-t border-slate-200/50 flex items-center justify-end gap-2 flex-wrap">
+                      {/* Potential picker - "+ Add" button */}
+                      <div 
+                        className="relative action-dropdown-container"
+                        ref={(el) => {
+                          if (el) {
+                            dropdownRefs.current.set(`regular-${thought.id}`, el);
+                          } else {
+                            dropdownRefs.current.delete(`regular-${thought.id}`);
+                          }
+                        }}
+                      >
                         <button
-                          onClick={() => addSpark(thought.id)}
-                          className="px-2 py-1 bg-amber-50 text-amber-700 rounded-lg text-xs font-medium border border-dashed border-amber-300/60 hover:bg-amber-100 transition-colors flex items-center gap-1.5"
-                          title="Add spark to make this thought shareable"
-                        >
-                          <Sparkles className="w-3.5 h-3.5" />
-                          <span>Spark</span>
-                        </button>
-                      )}
-
-                      {/* Right: Potential picker - "+ Add" button */}
-                      <div className="relative action-dropdown-container ml-auto">
-                        <button
-                          onClick={() => setExpandedActionDropdown(expandedActionDropdown === thought.id ? null : thought.id)}
-                          className="px-2 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs font-medium border border-dashed border-purple-300/60 hover:bg-purple-100 transition-colors flex items-center gap-1"
+                          onClick={() => {
+                            if (thought.isParked) return; // Disable when parked
+                            const dropdownKey = `regular-${thought.id}`;
+                            setExpandedActionDropdown(expandedActionDropdown === dropdownKey ? null : dropdownKey);
+                          }}
+                          disabled={thought.isParked}
+                          className={`px-2 py-1 rounded-lg text-xs font-medium border border-dashed transition-colors flex items-center gap-1 ${
+                            thought.isParked
+                              ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60'
+                              : 'bg-purple-50 text-purple-700 border-purple-300/60 hover:bg-purple-100'
+                          }`}
+                          title={thought.isParked ? 'Dropdown disabled for parked thoughts' : 'Add potential'}
                         >
                           <span>+ Add</span>
-                          <ChevronDown className={`w-3 h-3 transition-transform ${expandedActionDropdown === thought.id ? 'rotate-180' : ''}`} />
+                          {!thought.isParked && (
+                            <ChevronDown className={`w-3 h-3 transition-transform ${expandedActionDropdown === `regular-${thought.id}` ? 'rotate-180' : ''}`} />
+                          )}
                         </button>
                         
-                        {expandedActionDropdown === thought.id && (
+                        {expandedActionDropdown === `regular-${thought.id}` && !thought.isParked && (
                           <div className="absolute right-0 top-full mt-2 bg-white rounded-xl border-2 border-dashed border-purple-300/60 shadow-xl z-20 min-w-[140px] overflow-hidden">
                             <div className="p-1.5 space-y-0.5">
                               {availablePotentials.map((potential) => {
                                 const config = potentialConfig[potential];
                                 const hoverClass = config.color === 'purple' ? 'hover:bg-purple-50' : 
-                                                  config.color === 'emerald' ? 'hover:bg-emerald-50' : 
-                                                  config.color === 'orange' ? 'hover:bg-orange-50' :
+                                                  config.color === 'emerald' ? 'hover:bg-emerald-50' :
                                                   'hover:bg-slate-50';
                                 const textClass = config.color === 'purple' ? 'text-purple-700' : 
-                                                config.color === 'emerald' ? 'text-emerald-700' : 
-                                                config.color === 'orange' ? 'text-orange-700' :
+                                                config.color === 'emerald' ? 'text-emerald-700' :
                                                 'text-slate-700';
                                 const isSelected = currentPotential !== null && currentPotential !== undefined && currentPotential === potential;
                                 return (
@@ -866,7 +1139,6 @@ const ThoughtsView: React.FC = () => {
                                     type="button"
                                     disabled={isSelected}
                                   >
-                                    <span>{config.icon}</span>
                                     <span>{config.label}</span>
                                   </button>
                                 );
@@ -875,6 +1147,35 @@ const ThoughtsView: React.FC = () => {
                           </div>
                         )}
                       </div>
+
+                      {/* Park/Parked Toggle Button */}
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          if (thought.isParked) {
+                            // Unpark: set potential to "Just a thought" and unpark
+                            await setPotential(thought.id, 'Just a thought');
+                            await unparkThought(thought.id);
+                          } else {
+                            // Park: just park it
+                            await parkThought(thought.id);
+                          }
+                        }}
+                        className={`p-1.5 rounded-lg border border-dashed transition-colors flex items-center justify-center ${
+                          thought.isParked
+                            ? 'bg-amber-50 text-amber-700 border-amber-300/60 hover:bg-amber-100'
+                            : 'bg-slate-50 text-slate-500 border-slate-300/60 hover:bg-slate-100 hover:text-slate-600'
+                        }`}
+                        title={thought.isParked ? 'Click to revive (unpark) this thought' : 'Click to park this thought'}
+                        type="button"
+                      >
+                        {thought.isParked ? (
+                          <RefreshCw className="w-3.5 h-3.5" />
+                        ) : (
+                          <ParkingCircle className="w-3.5 h-3.5" />
+                        )}
+                      </button>
                     </div>
                   )}
                 </div>

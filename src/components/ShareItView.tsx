@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { useGenieNotesStore } from '../store';
 import { Thought } from '../types';
-import { Share2, Linkedin, Twitter, Instagram, Loader2, ExternalLink, CheckCircle2, BarChart3, RefreshCw, X, Copy } from 'lucide-react';
+import { Share2, Linkedin, Instagram, Loader2, ExternalLink, CheckCircle2, BarChart3, RefreshCw, Copy } from 'lucide-react';
 import Navigation from './Navigation';
 import { PlatformPreview } from './PlatformPreviews';
+import { calculatePowerfulScore } from '../lib/calculate-powerful-score';
 
 type Platform = 'linkedin' | 'twitter' | 'instagram';
 
@@ -21,6 +22,7 @@ const ShareItView: React.FC = () => {
     removeSpark,
     navigateToThoughtId,
     clearNavigateToThought,
+    updateThought,
   } = useGenieNotesStore();
 
   const [selectedThoughtId, setSelectedThoughtId] = useState<string | null>(null);
@@ -29,48 +31,79 @@ const ShareItView: React.FC = () => {
   const [copiedPost, setCopiedPost] = useState<string | null>(null);
   const [retryModal, setRetryModal] = useState<{ thoughtId: string } | null>(null);
   const [retrySuggestion, setRetrySuggestion] = useState<string>('');
-  const [sortOrder, setSortOrder] = useState<'newest' | 'virality'>('newest');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'potential'>('potential');
   const [showShareToast, setShowShareToast] = useState<{ platform: Platform; visible: boolean } | null>(null);
+  const [filterShared, setFilterShared] = useState<'all' | 'draft' | 'shared'>('all');
 
-  // Filter and sort thoughts that have Share potential
-  const shareThoughts = useMemo(() => {
-    let filtered = thoughts.filter(thought => {
+  // Get user info for preview
+  const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'Your Name';
+  const userInitials = userName
+    .split(' ')
+    .map((n: string) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+
+  // All thoughts with Share potential (unfiltered - for analytics)
+  const allShareThoughts = useMemo(() => {
+    return thoughts.filter(thought => {
       const potential = thought.potential || thought.bestPotential;
       return potential === 'Share';
     });
+  }, [thoughts]);
+
+  // Filter and sort thoughts that have Share potential
+  const shareThoughts = useMemo(() => {
+    let filtered = allShareThoughts;
+    
+    // Apply filter
+    if (filterShared === 'shared') {
+      filtered = filtered.filter(thought => {
+        return thought.sharePosts?.shared?.linkedin || 
+               thought.sharePosts?.shared?.twitter || 
+               thought.sharePosts?.shared?.instagram;
+      });
+    } else if (filterShared === 'draft') {
+      filtered = filtered.filter(thought => {
+        return !!thought.sharePosts && 
+               (!thought.sharePosts.shared?.linkedin && 
+                !thought.sharePosts.shared?.twitter && 
+                !thought.sharePosts.shared?.instagram);
+      });
+    }
 
     // Sort based on selected order
-    if (sortOrder === 'virality') {
-      // Sort by: isSpark first, then by creation date (newer = more recent = potentially more viral)
+    if (sortOrder === 'potential') {
       filtered = [...filtered].sort((a, b) => {
-        // Sparks first
-        if (a.isSpark && !b.isSpark) return -1;
-        if (!a.isSpark && b.isSpark) return 1;
-        // Then by date (newer first)
+        const scoreA = calculatePowerfulScore(a, thoughts) || 0;
+        const scoreB = calculatePowerfulScore(b, thoughts) || 0;
+        
+        if (Math.abs(scoreA - scoreB) > 10) {
+          return scoreB - scoreA;
+        }
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
     } else {
-      // Sort by newest first
       filtered = [...filtered].sort((a, b) => {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
     }
 
     return filtered;
-  }, [thoughts, sortOrder]);
+  }, [allShareThoughts, sortOrder, filterShared, thoughts]);
 
   const selectedThought = useMemo(() => {
     return shareThoughts.find(t => t.id === selectedThoughtId) || shareThoughts[0] || null;
   }, [shareThoughts, selectedThoughtId]);
 
-  // Analytics
+  // Analytics - always use allShareThoughts (unfiltered)
   const analytics = useMemo(() => {
-    const totalThoughts = shareThoughts.length;
-    const withDrafts = shareThoughts.filter(t => t.sharePosts).length;
+    const totalThoughts = allShareThoughts.length;
+    const withDrafts = allShareThoughts.filter(t => t.sharePosts).length;
     const sharedCounts = {
-      linkedin: shareThoughts.filter(t => t.sharePosts?.shared?.linkedin).length,
-      twitter: shareThoughts.filter(t => t.sharePosts?.shared?.twitter).length,
-      instagram: shareThoughts.filter(t => t.sharePosts?.shared?.instagram).length,
+      linkedin: allShareThoughts.filter(t => t.sharePosts?.shared?.linkedin).length,
+      twitter: allShareThoughts.filter(t => t.sharePosts?.shared?.twitter).length,
+      instagram: allShareThoughts.filter(t => t.sharePosts?.shared?.instagram).length,
     };
     const totalShared = Object.values(sharedCounts).reduce((sum, count) => sum + count, 0);
     
@@ -80,7 +113,12 @@ const ShareItView: React.FC = () => {
       sharedCounts,
       totalShared,
     };
-  }, [shareThoughts]);
+  }, [allShareThoughts]);
+
+  // Helper to count words
+  const countWords = (text: string) => {
+    return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  };
 
   const handleGeneratePosts = async (thoughtId: string) => {
     if (generating[thoughtId]) return;
@@ -111,13 +149,9 @@ const ShareItView: React.FC = () => {
   const handleSharePost = async (platform: Platform, content: string, thoughtId: string) => {
     switch (platform) {
       case 'linkedin':
-        // Copy content first
         await handleCopyPost(content, thoughtId, platform);
-        // Show toast notification
         setShowShareToast({ platform: 'linkedin', visible: true });
         setTimeout(() => setShowShareToast(null), 5000);
-        // Open LinkedIn feed - user needs to click "Start a post" to open composer
-        // LinkedIn doesn't support direct URL to open composer
         window.open('https://www.linkedin.com/feed/', '_blank', 'noopener,noreferrer');
         break;
       case 'twitter':
@@ -127,12 +161,9 @@ const ShareItView: React.FC = () => {
         markAsShared(thoughtId, platform);
         break;
       case 'instagram':
-        // Copy content first
         await handleCopyPost(content, thoughtId, platform);
-        // Show toast notification
         setShowShareToast({ platform: 'instagram', visible: true });
         setTimeout(() => setShowShareToast(null), 5000);
-        // Open Instagram in new tab
         window.open('https://www.instagram.com/', '_blank', 'noopener,noreferrer');
         break;
       default:
@@ -141,7 +172,31 @@ const ShareItView: React.FC = () => {
   };
 
   const handleMarkAsShared = async (thoughtId: string, platform: Platform) => {
-    await markAsShared(thoughtId, platform);
+    try {
+      const thought = thoughts.find(t => t.id === thoughtId);
+      if (!thought || !thought.sharePosts) return;
+      
+      // Toggle: if already shared, unshare it; otherwise, mark as shared
+      const isCurrentlyShared = thought.sharePosts.shared?.[platform];
+      
+      if (isCurrentlyShared) {
+        // Unshare: remove the shared flag for this platform
+        const updatedSharePosts = {
+          ...thought.sharePosts,
+          shared: {
+            ...(thought.sharePosts.shared || {}),
+            [platform]: false,
+          },
+        };
+        await updateThought(thoughtId, { sharePosts: updatedSharePosts });
+      } else {
+        // Mark as shared
+        await markAsShared(thoughtId, platform);
+      }
+    } catch (error) {
+      console.error('Error toggling shared status:', error);
+      await loadThoughts();
+    }
   };
 
   const handleRetryDraft = async () => {
@@ -155,8 +210,6 @@ const ShareItView: React.FC = () => {
       const thought = thoughts.find(t => t.id === thoughtId);
       if (!thought) return;
       
-      // Use the same generateSharePosts function that generates all platforms
-      // Pass user feedback separately to preserve original thought structure
       await generateSharePosts(thoughtId, thought, retrySuggestion.trim() || undefined);
       await loadThoughts();
     } catch (error) {
@@ -168,7 +221,7 @@ const ShareItView: React.FC = () => {
     }
   };
 
-  // Auto-select first thought if none selected, or navigate to specific thought
+  // Auto-select first thought if none selected
   React.useEffect(() => {
     if (navigateToThoughtId && shareThoughts.some(t => t.id === navigateToThoughtId)) {
       setSelectedThoughtId(navigateToThoughtId);
@@ -178,13 +231,12 @@ const ShareItView: React.FC = () => {
     }
   }, [shareThoughts, selectedThoughtId, navigateToThoughtId, clearNavigateToThought]);
 
-  // Handle navigation from Thoughts view - check if thoughtId is in URL or store
+  // Handle navigation from Thoughts view
   React.useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const thoughtId = urlParams.get('thoughtId');
     if (thoughtId && shareThoughts.some(t => t.id === thoughtId)) {
       setSelectedThoughtId(thoughtId);
-      // Clean up URL
       window.history.replaceState({}, '', window.location.pathname);
     }
   }, [shareThoughts]);
@@ -200,8 +252,12 @@ const ShareItView: React.FC = () => {
     );
   }
 
+  const currentPostContent = selectedThought?.sharePosts?.[activePlatform];
+  const wordCount = currentPostContent ? countWords(currentPostContent) : 0;
+  const isShared = selectedThought?.sharePosts?.shared?.[activePlatform];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50/20">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50/30 via-rose-50/20 to-white">
       <Navigation
         currentView="shareit"
         onViewChange={setCurrentView}
@@ -223,380 +279,329 @@ const ShareItView: React.FC = () => {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            {/* Left Column: List of Thoughts (Narrower) */}
-            <div className="lg:col-span-1 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100vh - 12rem)' }}>
-              <div className="p-4 border-b border-slate-200 bg-slate-50">
-                <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-base font-semibold text-slate-900">Thoughts</h2>
-                  <select
-                    value={sortOrder}
-                    onChange={(e) => setSortOrder(e.target.value as 'newest' | 'virality')}
-                    className="text-xs px-2.5 py-1.5 bg-white border border-slate-300 rounded-md text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
-                  >
-                    <option value="newest">Newest</option>
-                    <option value="virality">Spark First</option>
-                  </select>
-                </div>
-                <p className="text-xs text-slate-500">{shareThoughts.length} total</p>
+          <div className="space-y-6">
+            {/* Analytics - Individual Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {/* Total */}
+              <div className="bg-white rounded-xl shadow-sm p-4 sm:p-5 border border-slate-200/50">
+                <div className="text-2xl sm:text-3xl font-bold text-slate-900 mb-1">{analytics.totalThoughts}</div>
+                <div className="text-xs sm:text-sm text-slate-600 font-medium">Total</div>
               </div>
-              <div className="flex-1 overflow-y-auto p-2">
-                <div className="space-y-2">
-                  {shareThoughts.map((thought) => {
-                    const isSelected = thought.id === selectedThoughtId;
-                    const hasPosts = !!thought.sharePosts;
-                    const isGen = generating[thought.id];
-                    const isShared = thought.sharePosts?.shared?.linkedin || 
-                                    thought.sharePosts?.shared?.twitter || 
-                                    thought.sharePosts?.shared?.instagram;
-
-                    return (
-                      <div
-                        key={thought.id}
-                        className={`w-full p-3 transition-colors h-24 flex flex-col justify-between border rounded-lg ${
-                          isSelected
-                            ? 'bg-indigo-50 border-indigo-300 border-l-4 border-l-indigo-500'
-                            : 'bg-white border-slate-200 hover:bg-slate-50 hover:border-slate-300'
-                        }`}
-                      >
-                        <div className="flex items-start gap-1.5 flex-1">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (thought.isSpark) {
-                                removeSpark(thought.id);
-                              } else {
-                                addSpark(thought.id);
-                              }
-                            }}
-                            className="text-amber-500 text-xs mt-0.5 flex-shrink-0 hover:text-amber-600 transition-colors"
-                            title={thought.isSpark ? "Remove spark" : "Add spark"}
-                          >
-                            {thought.isSpark ? '✨' : '☆'}
-                          </button>
-                          <button
-                            onClick={() => setSelectedThoughtId(thought.id)}
-                            className="flex-1 text-left"
-                          >
-                            <p className={`text-xs leading-snug line-clamp-3 ${isSelected ? 'text-indigo-900 font-medium' : 'text-slate-800'}`}>
-                              {thought.originalText}
-                            </p>
-                          </button>
-                        </div>
-                        <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                          {hasPosts && (
-                            <span className="px-1.5 py-0.5 bg-green-100 text-green-700 text-[10px] rounded font-medium">
-                              Draft
-                            </span>
-                          )}
-                          {isShared && (
-                            <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] rounded font-medium">
-                              Shared
-                            </span>
-                          )}
-                          {isGen && (
-                            <Loader2 className="w-3 h-3 animate-spin text-indigo-600" />
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+              
+              {/* Drafts */}
+              <div className="bg-white rounded-xl shadow-sm p-4 sm:p-5 border border-slate-200/50">
+                <div className="text-2xl sm:text-3xl font-bold text-indigo-600 mb-1">{analytics.withDrafts}</div>
+                <div className="text-xs sm:text-sm text-slate-600 font-medium">Drafts</div>
+              </div>
+              
+              {/* Shared */}
+              <div className="bg-white rounded-xl shadow-sm p-4 sm:p-5 border border-slate-200/50">
+                <div className="text-2xl sm:text-3xl font-bold text-green-600 mb-1">{analytics.totalShared}</div>
+                <div className="text-xs sm:text-sm text-slate-600 font-medium">Shared</div>
+              </div>
+              
+              {/* LinkedIn */}
+              <div className="bg-white rounded-xl shadow-sm p-4 sm:p-5 border border-slate-200/50 flex flex-col items-center justify-center gap-2">
+                <Linkedin className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600" />
+                <div className="text-2xl sm:text-3xl font-bold text-slate-900">{analytics.sharedCounts.linkedin}</div>
+              </div>
+              
+              {/* X (Twitter) */}
+              <div className="bg-white rounded-xl shadow-sm p-4 sm:p-5 border border-slate-200/50 flex flex-col items-center justify-center gap-2">
+                <svg className="w-6 h-6 sm:w-7 sm:h-7 text-slate-700" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+                <div className="text-2xl sm:text-3xl font-bold text-slate-900">{analytics.sharedCounts.twitter}</div>
+              </div>
+              
+              {/* Instagram */}
+              <div className="bg-white rounded-xl shadow-sm p-4 sm:p-5 border border-slate-200/50 flex flex-col items-center justify-center gap-2">
+                <svg className="w-6 h-6 sm:w-7 sm:h-7 text-pink-600" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                </svg>
+                <div className="text-2xl sm:text-3xl font-bold text-slate-900">{analytics.sharedCounts.instagram}</div>
               </div>
             </div>
 
-            {/* Right Column: Selected Thought + Social Tabs + Analytics */}
-            <div className="lg:col-span-4 grid grid-cols-1 xl:grid-cols-3 gap-6">
-              {/* Main Content Area - Simplified */}
-              <div className="xl:col-span-2 bg-white rounded-xl shadow-sm overflow-visible flex flex-col">
-                {selectedThought ? (
-                  <>
-                    {/* Simplified Header: Platform Tabs + Actions */}
-                    {selectedThought.sharePosts ? (
-                      <div className="p-3 flex items-center justify-between flex-shrink-0">
-                        {/* Platform Tabs */}
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => setActivePlatform('linkedin')}
-                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${
-                              activePlatform === 'linkedin'
-                                ? 'bg-blue-600 text-white'
-                                : 'text-slate-600 hover:bg-slate-100'
-                            }`}
-                          >
-                            <Linkedin className="w-4 h-4" />
-                            {selectedThought.sharePosts?.shared?.linkedin && (
-                              <CheckCircle2 className="w-3.5 h-3.5" />
-                            )}
-                          </button>
-                          <button
-                            onClick={() => setActivePlatform('twitter')}
-                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${
-                              activePlatform === 'twitter'
-                                ? 'bg-slate-700 text-white'
-                                : 'text-slate-600 hover:bg-slate-100'
-                            }`}
-                          >
-                            <Twitter className="w-4 h-4" />
-                            {selectedThought.sharePosts?.shared?.twitter && (
-                              <CheckCircle2 className="w-3.5 h-3.5" />
-                            )}
-                          </button>
-                          <button
-                            onClick={() => setActivePlatform('instagram')}
-                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${
-                              activePlatform === 'instagram'
-                                ? 'bg-pink-600 text-white'
-                                : 'text-slate-600 hover:bg-slate-100'
-                            }`}
-                          >
-                            <Instagram className="w-4 h-4" />
-                            {selectedThought.sharePosts?.shared?.instagram && (
-                              <CheckCircle2 className="w-3.5 h-3.5" />
-                            )}
-                          </button>
-                        </div>
-
-                        {/* Actions - Simplified */}
-                        <div className="flex items-center gap-1.5">
-                          {activePlatform === 'linkedin' && selectedThought.sharePosts.linkedin && (
-                            <>
-                              <button
-                                onClick={() => handleSharePost('linkedin', selectedThought.sharePosts!.linkedin!, selectedThought.id)}
-                                className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                                title="Share on LinkedIn"
-                              >
-                                <ExternalLink className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleCopyPost(selectedThought.sharePosts!.linkedin!, selectedThought.id, 'linkedin')}
-                                className={`p-2 rounded-lg transition-colors ${
-                                  copiedPost === `${selectedThought.id}-linkedin`
-                                    ? 'bg-green-100 text-green-700'
-                                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                                }`}
-                                title="Copy"
-                              >
-                                {copiedPost === `${selectedThought.id}-linkedin` ? (
-                                  <CheckCircle2 className="w-4 h-4" />
-                                ) : (
-                                  <Copy className="w-4 h-4" />
-                                )}
-                              </button>
-                              <button
-                                onClick={() => setRetryModal({ thoughtId: selectedThought.id })}
-                                className="p-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
-                                title="Regenerate all platforms"
-                              >
-                                <RefreshCw className="w-4 h-4" />
-                              </button>
-                              {!selectedThought.sharePosts.shared?.linkedin && (
-                                <button
-                                  onClick={() => handleMarkAsShared(selectedThought.id, 'linkedin')}
-                                  className="p-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
-                                  title="Mark as Shared"
-                                >
-                                  <CheckCircle2 className="w-4 h-4" />
-                                </button>
-                              )}
-                            </>
-                          )}
-
-                          {activePlatform === 'twitter' && selectedThought.sharePosts.twitter && (
-                            <>
-                              <button
-                                onClick={() => handleSharePost('twitter', selectedThought.sharePosts!.twitter!, selectedThought.id)}
-                                className="p-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors"
-                                title="Share on X"
-                              >
-                                <ExternalLink className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleCopyPost(selectedThought.sharePosts!.twitter!, selectedThought.id, 'twitter')}
-                                className={`p-2 rounded-lg transition-colors ${
-                                  copiedPost === `${selectedThought.id}-twitter`
-                                    ? 'bg-green-100 text-green-700'
-                                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                                }`}
-                                title="Copy"
-                              >
-                                {copiedPost === `${selectedThought.id}-twitter` ? (
-                                  <CheckCircle2 className="w-4 h-4" />
-                                ) : (
-                                  <Copy className="w-4 h-4" />
-                                )}
-                              </button>
-                              {!selectedThought.sharePosts.shared?.twitter && (
-                                <button
-                                  onClick={() => handleMarkAsShared(selectedThought.id, 'twitter')}
-                                  className="p-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
-                                  title="Mark as Shared"
-                                >
-                                  <CheckCircle2 className="w-4 h-4" />
-                                </button>
-                              )}
-                            </>
-                          )}
-
-                          {activePlatform === 'instagram' && selectedThought.sharePosts.instagram && (
-                            <>
-                              <button
-                                onClick={() => handleSharePost('instagram', selectedThought.sharePosts!.instagram!, selectedThought.id)}
-                                className="p-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors"
-                                title="Copy for Instagram"
-                              >
-                                <ExternalLink className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleCopyPost(selectedThought.sharePosts!.instagram!, selectedThought.id, 'instagram')}
-                                className={`p-2 rounded-lg transition-colors ${
-                                  copiedPost === `${selectedThought.id}-instagram`
-                                    ? 'bg-green-100 text-green-700'
-                                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                                }`}
-                                title="Copy"
-                              >
-                                {copiedPost === `${selectedThought.id}-instagram` ? (
-                                  <CheckCircle2 className="w-4 h-4" />
-                                ) : (
-                                  <Copy className="w-4 h-4" />
-                                )}
-                              </button>
-                              {!selectedThought.sharePosts.shared?.instagram && (
-                                <button
-                                  onClick={() => handleMarkAsShared(selectedThought.id, 'instagram')}
-                                  className="p-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
-                                  title="Mark as Shared"
-                                >
-                                  <CheckCircle2 className="w-4 h-4" />
-                                </button>
-                              )}
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    ) : null}
-
-                    {/* Post Content Area - Simplified */}
-                    <div className="p-4">
-                      {/* Raw Thought - Inline, less prominent */}
-                      <div className="mb-4 pb-3 border-b border-slate-100">
-                        <p className="text-xs text-slate-400 mb-1">Raw Thought</p>
-                        <p className="text-sm text-slate-600 leading-relaxed">{selectedThought.originalText}</p>
-                      </div>
-                      
-                      {!selectedThought.sharePosts ? (
-                        <div className="flex flex-col items-center justify-center py-16 text-center">
-                          <Share2 className="w-12 h-12 text-slate-400 mb-4" />
-                          <p className="text-slate-600 mb-4">Generate post drafts for all platforms</p>
-                          <button
-                            onClick={() => handleGeneratePosts(selectedThought.id)}
-                            disabled={generating[selectedThought.id]}
-                            className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                          >
-                            {generating[selectedThought.id] ? (
-                              <>
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                Generating...
-                              </>
-                            ) : (
-                              <>
-                                <Share2 className="w-4 h-4" />
-                                Generate Posts
-                              </>
-                            )}
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="w-full">
-                          {activePlatform === 'linkedin' && selectedThought.sharePosts.linkedin && (
-                            <PlatformPreview
-                              platform="linkedin"
-                              content={selectedThought.sharePosts.linkedin}
-                              onCopy={() => handleCopyPost(selectedThought.sharePosts!.linkedin!, selectedThought.id, 'linkedin')}
-                              copied={copiedPost === `${selectedThought.id}-linkedin`}
-                            />
-                          )}
-
-                          {activePlatform === 'twitter' && selectedThought.sharePosts.twitter && (
-                            <PlatformPreview
-                              platform="twitter"
-                              content={selectedThought.sharePosts.twitter}
-                              onCopy={() => handleCopyPost(selectedThought.sharePosts!.twitter!, selectedThought.id, 'twitter')}
-                              copied={copiedPost === `${selectedThought.id}-twitter`}
-                            />
-                          )}
-
-                          {activePlatform === 'instagram' && selectedThought.sharePosts.instagram && (
-                            <PlatformPreview
-                              platform="instagram"
-                              content={selectedThought.sharePosts.instagram}
-                              onCopy={() => handleCopyPost(selectedThought.sharePosts!.instagram!, selectedThought.id, 'instagram')}
-                              copied={copiedPost === `${selectedThought.id}-instagram`}
-                            />
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex items-center justify-center h-full text-slate-500">
-                    Select a thought to view details
+            {/* Main Content: Left Sidebar + Right Preview */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              {/* Left Column: Share Queue */}
+              <div className="lg:col-span-1 bg-white rounded-xl shadow-sm overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100vh - 10rem)', minHeight: '500px' }}>
+                <div className="p-3 sm:p-4 flex-shrink-0">
+                  <h2 className="text-sm sm:text-base font-semibold text-slate-900 mb-3 sm:mb-4">Share Queue</h2>
+                  
+                  {/* Filter: All | Draft | Shared */}
+                  <div className="flex items-center gap-1 mb-3">
+                    <button
+                      onClick={() => setFilterShared('all')}
+                      className={`flex-1 px-2 sm:px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                        filterShared === 'all'
+                          ? 'bg-indigo-100 text-indigo-700'
+                          : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                      }`}
+                    >
+                      All
+                    </button>
+                    <button
+                      onClick={() => setFilterShared('draft')}
+                      className={`flex-1 px-2 sm:px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                        filterShared === 'draft'
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                      }`}
+                    >
+                      Draft
+                    </button>
+                    <button
+                      onClick={() => setFilterShared('shared')}
+                      className={`flex-1 px-2 sm:px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                        filterShared === 'shared'
+                          ? 'bg-blue-100 text-blue-700'
+                          : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                      }`}
+                    >
+                      Shared
+                    </button>
                   </div>
-                )}
+
+                  {/* Sort */}
+                  <select
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value as 'newest' | 'potential')}
+                    className="w-full text-xs sm:text-sm px-3 py-2 bg-white border-2 border-slate-300 rounded-lg text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer hover:border-slate-400 transition-colors"
+                  >
+                    <option value="potential">Potential</option>
+                    <option value="newest">Newest</option>
+                  </select>
+                </div>
+                
+                <div className="flex-1 overflow-y-auto p-2">
+                  <div className="space-y-2">
+                    {shareThoughts.map((thought) => {
+                      const isSelected = thought.id === selectedThoughtId;
+                      const hasPosts = !!thought.sharePosts;
+                      const isGen = generating[thought.id];
+                      const isSharedThought = thought.sharePosts?.shared?.linkedin || 
+                                              thought.sharePosts?.shared?.twitter || 
+                                              thought.sharePosts?.shared?.instagram;
+
+                      return (
+                        <div
+                          key={thought.id}
+                          onClick={() => setSelectedThoughtId(thought.id)}
+                          className={`w-full p-2.5 sm:p-3 transition-colors cursor-pointer rounded-lg ${
+                            isSelected
+                              ? 'bg-indigo-50 border-l-4 border-l-indigo-500'
+                              : 'bg-slate-50 hover:bg-slate-100'
+                          }`}
+                        >
+                          <div className="flex items-start gap-1.5 mb-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (thought.isSpark) {
+                                  removeSpark(thought.id);
+                                } else {
+                                  addSpark(thought.id);
+                                }
+                              }}
+                              className="text-amber-500 text-xs mt-0.5 flex-shrink-0 hover:text-amber-600 transition-colors"
+                              title={thought.isSpark ? "Remove spark" : "Add spark"}
+                            >
+                              {thought.isSpark ? '✨' : '☆'}
+                            </button>
+                            <p className={`text-xs leading-snug line-clamp-3 flex-1 ${isSelected ? 'text-indigo-900 font-medium' : 'text-slate-800'}`}>
+                              {thought.originalText}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            {hasPosts && !isSharedThought && (
+                              <span className="px-1.5 py-0.5 bg-green-100 text-green-700 text-[10px] rounded font-medium">
+                                Draft
+                              </span>
+                            )}
+                            {isSharedThought && (
+                              <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] rounded font-medium">
+                                Shared
+                              </span>
+                            )}
+                            {isGen && (
+                              <Loader2 className="w-3 h-3 animate-spin text-indigo-600" />
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
 
-              {/* Analytics Sidebar */}
-              <div className="xl:col-span-1 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100vh - 12rem)' }}>
-                <div className="p-6 border-b border-slate-200 bg-slate-50/50">
-                  <div className="flex items-center gap-2">
-                    <BarChart3 className="w-5 h-5 text-indigo-600" />
-                    <h3 className="text-lg font-semibold text-slate-900">Analytics</h3>
-                  </div>
-                </div>
-                <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                  <div>
-                    <div className="text-2xl font-bold text-slate-900 mb-1">{analytics.totalThoughts}</div>
-                    <div className="text-sm text-slate-600">Total Thoughts</div>
-                  </div>
-                  
-                  <div>
-                    <div className="text-2xl font-bold text-indigo-600 mb-1">{analytics.withDrafts}</div>
-                    <div className="text-sm text-slate-600">With Drafts</div>
-                  </div>
-                  
-                  <div>
-                    <div className="text-2xl font-bold text-green-600 mb-1">{analytics.totalShared}</div>
-                    <div className="text-sm text-slate-600">Total Shared</div>
-                  </div>
-                  
-                  <div className="pt-4 border-t border-slate-200">
-                    <div className="text-sm font-semibold text-slate-700 mb-3">By Platform</div>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Linkedin className="w-4 h-4 text-blue-600" />
-                          <span className="text-sm text-slate-600">LinkedIn</span>
+              {/* Right Column: Preview */}
+              <div className="lg:col-span-3 bg-white rounded-xl shadow-sm overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100vh - 10rem)', minHeight: '500px' }}>
+                {selectedThought ? (
+                  <>
+                    {!selectedThought.sharePosts ? (
+                      /* Generate Posts CTA */
+                      <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
+                        <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mb-4">
+                          <Share2 className="w-8 h-8 text-indigo-600" />
                         </div>
-                        <span className="text-sm font-semibold text-slate-900">{analytics.sharedCounts.linkedin}</span>
+                        <h3 className="text-xl font-semibold text-slate-900 mb-2">Generate post drafts</h3>
+                        <p className="text-slate-600 mb-6 max-w-md">Create optimized posts for LinkedIn, X, and Instagram from your thought.</p>
+                        <button
+                          onClick={() => handleGeneratePosts(selectedThought.id)}
+                          disabled={generating[selectedThought.id]}
+                          className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        >
+                          {generating[selectedThought.id] ? (
+                            <>
+                              <Loader2 className="w-5 h-5 animate-spin" />
+                              Generating...
+                            </>
+                          ) : (
+                            <>
+                              <Share2 className="w-5 h-5" />
+                              Generate Posts
+                            </>
+                          )}
+                        </button>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Twitter className="w-4 h-4 text-slate-700" />
-                          <span className="text-sm text-slate-600">X (Twitter)</span>
+                    ) : (
+                      <>
+                        {/* Original Thought - Above Tabs */}
+                        {selectedThought.originalText && (
+                          <div className="px-5 sm:px-6 py-4 sm:py-5 bg-gradient-to-br from-amber-50/50 via-orange-50/30 to-purple-50/20 border-b border-orange-100/50 flex-shrink-0">
+                            <div className="max-w-4xl mx-auto">
+                              <div className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wide mb-2">Original Thought</div>
+                              <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+                                {selectedThought.originalText}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Platform Tabs - Icons Only */}
+                        <div className="flex-shrink-0 bg-white border-b border-slate-200">
+                          <div className="flex items-center gap-1.5 p-2">
+                            <button
+                              onClick={() => setActivePlatform('linkedin')}
+                              className={`flex-1 px-3 py-2 rounded-lg transition-colors duration-150 flex items-center justify-center ${
+                                activePlatform === 'linkedin'
+                                  ? 'bg-blue-50 text-blue-600 border border-blue-200'
+                                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700 border border-transparent'
+                              }`}
+                            >
+                              <Linkedin className="w-4 h-4" />
+                              {selectedThought.sharePosts?.shared?.linkedin && (
+                                <CheckCircle2 className="w-3 h-3 ml-1.5 text-blue-600" />
+                              )}
+                            </button>
+                            <button
+                              onClick={() => setActivePlatform('twitter')}
+                              className={`flex-1 px-3 py-2 rounded-lg transition-colors duration-150 flex items-center justify-center ${
+                                activePlatform === 'twitter'
+                                  ? 'bg-slate-100 text-slate-700 border border-slate-300'
+                                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700 border border-transparent'
+                              }`}
+                            >
+                              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                              </svg>
+                              {selectedThought.sharePosts?.shared?.twitter && (
+                                <CheckCircle2 className="w-3 h-3 ml-1.5 text-slate-600" />
+                              )}
+                            </button>
+                            <button
+                              onClick={() => setActivePlatform('instagram')}
+                              className={`flex-1 px-3 py-2 rounded-lg transition-colors duration-150 flex items-center justify-center ${
+                                activePlatform === 'instagram'
+                                  ? 'bg-pink-50 text-pink-600 border border-pink-200'
+                                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700 border border-transparent'
+                              }`}
+                            >
+                              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                              </svg>
+                              {selectedThought.sharePosts?.shared?.instagram && (
+                                <CheckCircle2 className="w-3 h-3 ml-1.5 text-pink-600" />
+                              )}
+                            </button>
+                          </div>
                         </div>
-                        <span className="text-sm font-semibold text-slate-900">{analytics.sharedCounts.twitter}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Instagram className="w-4 h-4 text-pink-600" />
-                          <span className="text-sm text-slate-600">Instagram</span>
+
+                        {/* Preview Content - Narrower */}
+                        <div className="flex-1 overflow-y-auto bg-slate-50/30">
+                          {currentPostContent ? (
+                            <div className="p-4 sm:p-6 max-w-2xl mx-auto">
+                              <PlatformPreview
+                                platform={activePlatform}
+                                content={currentPostContent}
+                                onCopy={() => handleCopyPost(currentPostContent, selectedThought.id, activePlatform)}
+                                copied={copiedPost === `${selectedThought.id}-${activePlatform}`}
+                              />
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-center py-20 text-slate-500">
+                              No draft available for this platform
+                            </div>
+                          )}
                         </div>
-                        <span className="text-sm font-semibold text-slate-900">{analytics.sharedCounts.instagram}</span>
-                      </div>
-                    </div>
+
+                        {/* Bottom Action Bar - Sticky */}
+                        {currentPostContent && (
+                          <div className="bg-white p-3 sm:p-4 flex-shrink-0">
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                              <span className="text-sm text-slate-500">{wordCount} words</span>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => setRetryModal({ thoughtId: selectedThought.id })}
+                                  className="flex items-center gap-2 px-3 sm:px-4 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-colors text-sm font-medium"
+                                >
+                                  <RefreshCw className="w-4 h-4" />
+                                  <span className="hidden sm:inline">Retry Draft</span>
+                                </button>
+                                <button
+                                  onClick={() => handleCopyPost(currentPostContent, selectedThought.id, activePlatform)}
+                                  className={`px-3 sm:px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center gap-2 ${
+                                    copiedPost === `${selectedThought.id}-${activePlatform}`
+                                      ? 'bg-green-50 text-green-700'
+                                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                                  }`}
+                                >
+                                  <Copy className="w-4 h-4" />
+                                  <span className="hidden sm:inline">{copiedPost === `${selectedThought.id}-${activePlatform}` ? 'Copied!' : 'Copy'}</span>
+                                </button>
+                                <button
+                                  onClick={() => handleSharePost(activePlatform, currentPostContent, selectedThought.id)}
+                                  className="px-3 sm:px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium flex items-center gap-2"
+                                >
+                                  <ExternalLink className="w-4 h-4" />
+                                  <span className="hidden sm:inline">Share</span>
+                                </button>
+                                <button
+                                  onClick={() => handleMarkAsShared(selectedThought.id, activePlatform)}
+                                  className={`px-3 sm:px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center gap-2 ${
+                                    isShared
+                                      ? 'bg-white text-slate-600 border border-slate-300 hover:bg-slate-50'
+                                      : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
+                                  }`}
+                                  title={isShared ? "Mark as Draft (Unshare)" : "Mark as Shared"}
+                                >
+                                  <CheckCircle2 className={`w-4 h-4 ${isShared ? 'text-slate-500' : ''}`} />
+                                  <span className="hidden sm:inline">{isShared ? 'Mark as Draft' : 'Mark as Shared'}</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <div className="flex items-center justify-center h-full text-slate-500 py-20">
+                    Select a thought to view preview
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
@@ -610,6 +615,10 @@ const ShareItView: React.FC = () => {
             <div className="flex-shrink-0 mt-0.5">
               {showShareToast.platform === 'linkedin' ? (
                 <Linkedin className="w-5 h-5 text-blue-600" />
+              ) : showShareToast.platform === 'twitter' ? (
+                <svg className="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
               ) : (
                 <Instagram className="w-5 h-5 text-pink-600" />
               )}
@@ -662,7 +671,7 @@ const ShareItView: React.FC = () => {
               </button>
             </div>
             <p className="text-sm text-slate-600 mb-4">
-              Provide feedback to improve all drafts (LinkedIn, Twitter, Instagram) - optional:
+              Provide feedback to improve all drafts (LinkedIn, X, Instagram) - optional:
             </p>
             <textarea
               value={retrySuggestion}
@@ -680,7 +689,7 @@ const ShareItView: React.FC = () => {
                 {generating[retryModal.thoughtId] ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Regenerating all platforms...
+                    Regenerating...
                   </>
                 ) : (
                   <>

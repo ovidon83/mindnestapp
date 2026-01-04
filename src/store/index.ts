@@ -5,6 +5,7 @@ import { fetchThoughts, insertThought, updateThought as updateThoughtDb, deleteT
 import { fetchActions, insertAction, updateAction as updateActionDb, deleteAction as deleteActionDb } from '../lib/thoughts-db';
 import { processThoughtMVP } from '../lib/process-thought-mvp';
 import { supabase } from '../lib/supabase';
+import { backfillRecommendations } from '../lib/backfill-recommendations';
 
 interface GenieNotesStore {
   thoughts: Thought[];
@@ -30,6 +31,8 @@ interface GenieNotesStore {
   setPotential: (thoughtId: string, potential: PotentialType | null) => Promise<void>;
   parkThought: (thoughtId: string) => Promise<void>;
   unparkThought: (thoughtId: string) => Promise<void>;
+  togglePowerful: (thoughtId: string) => Promise<void>;
+  backfillRecommendations: (onProgress?: (current: number, total: number, thoughtId: string) => void) => Promise<{ success: number; failed: number; errors: Array<{ thoughtId: string; error: string }> }>;
   
   // Potential-specific methods
   generateSharePosts: (thoughtId: string, thoughtOverride?: Thought, userFeedback?: string) => Promise<SharePosts>;
@@ -85,7 +88,18 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         set({ loading: true });
         try {
           const thoughts = await fetchThoughts();
-          set({ thoughts, loading: false });
+          // Calculate powerful scores for thoughts that don't have them
+          const { calculatePowerfulScore } = await import('../lib/calculate-powerful-score');
+          const thoughtsWithScores = thoughts.map(thought => {
+            if (thought.powerfulScore === undefined) {
+              return {
+                ...thought,
+                powerfulScore: calculatePowerfulScore(thought, thoughts)
+              };
+            }
+            return thought;
+          });
+          set({ thoughts: thoughtsWithScores, loading: false });
           console.log('[loadThoughts] Loaded', thoughts.length, 'thoughts');
         } catch (error) {
           console.error('Error loading thoughts:', error);
@@ -130,14 +144,55 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
 
       updateThought: async (id: string, updates: Partial<Thought>) => {
         try {
+          // Optimistically update local state first
+          const currentThoughts = get().thoughts;
+          const thoughtIndex = currentThoughts.findIndex(t => t.id === id);
+          if (thoughtIndex !== -1) {
+            const updatedThoughts = [...currentThoughts];
+            // Create a new thought object with updates, properly merging sharePosts
+            const currentThought = updatedThoughts[thoughtIndex];
+            let updatedThought = { ...currentThought, ...updates };
+            
+            // Special handling for sharePosts to ensure proper merging
+            if (updates.sharePosts && currentThought.sharePosts) {
+              updatedThought = {
+                ...updatedThought,
+                sharePosts: {
+                  ...currentThought.sharePosts,
+                  ...updates.sharePosts,
+                  // Deep merge shared object
+                  shared: {
+                    ...(currentThought.sharePosts.shared || {}),
+                    ...(updates.sharePosts.shared || {}),
+                  },
+                },
+              };
+            }
+            
+            updatedThoughts[thoughtIndex] = updatedThought;
+            set({ thoughts: updatedThoughts });
+          }
+          
+          // Then update in database (this will map 'Do' to 'To-Do' for database)
           await updateThoughtDb(id, updates);
-          // Debounce: only reload if not already loading and enough time has passed
-          const now = Date.now();
-          if (!isLoadingThoughts && (now - lastLoadTime >= MIN_LOAD_INTERVAL)) {
-            await get().loadThoughts();
+          
+          // Only reload if it's a significant change (not just potential or sharePosts updates)
+          // For potential/sharePosts updates, the optimistic update is sufficient
+          const isSignificantChange = updates.originalText !== undefined || 
+                                      updates.tags !== undefined || 
+                                      updates.summary !== undefined ||
+                                      updates.isParked !== undefined;
+          
+          if (isSignificantChange) {
+            const now = Date.now();
+            if (!isLoadingThoughts && (now - lastLoadTime >= MIN_LOAD_INTERVAL)) {
+              await get().loadThoughts();
+            }
           }
         } catch (error) {
           console.error('Error updating thought:', error);
+          // Revert optimistic update on error
+          await get().loadThoughts();
           throw error;
         }
       },
@@ -195,7 +250,6 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         const potentialToSave: PotentialType = potential === null || potential === undefined 
           ? 'Just a thought' 
           : potential;
-        console.log('[setPotential] Setting potential:', potentialToSave, 'for thought:', thoughtId);
         await get().updateThought(thoughtId, { potential: potentialToSave });
       },
 
@@ -205,6 +259,31 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
 
       unparkThought: async (thoughtId: string) => {
         await get().updateThought(thoughtId, { isParked: false });
+      },
+
+      togglePowerful: async (thoughtId: string) => {
+        const thought = get().thoughts.find(t => t.id === thoughtId);
+        if (thought) {
+          await get().updateThought(thoughtId, { isPowerful: !thought.isPowerful });
+        }
+      },
+
+      backfillRecommendations: async (onProgress) => {
+        // Ensure thoughts are loaded first
+        if (get().thoughts.length === 0) {
+          console.log('No thoughts loaded. Loading thoughts first...');
+          await get().loadThoughts();
+        }
+        
+        const thoughts = get().thoughts;
+        console.log(`Starting backfill for ${thoughts.length} thoughts...`);
+        const result = await backfillRecommendations(thoughts, onProgress);
+        console.log('Backfill result:', result);
+        // Reload thoughts to get updated recommendations
+        console.log('Reloading thoughts...');
+        await get().loadThoughts();
+        console.log('Thoughts reloaded. Check Explore view to see recommendations.');
+        return result;
       },
 
       generateSharePosts: async (thoughtId: string, thoughtOverride?: Thought, userFeedback?: string): Promise<SharePosts> => {
@@ -220,11 +299,21 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         const otherThoughts = get().thoughts.filter(t => t.id !== thoughtId).slice(0, 10);
         const drafts = await generatePostDrafts(thought, userProfile || undefined, otherThoughts, userFeedback);
         
+        const now = new Date();
+        const existingSharePosts = thought.sharePosts;
+        const draftCount = (existingSharePosts?.draftCount || 0) + 1;
+        const draftsGeneratedAt = existingSharePosts?.draftsGeneratedAt || [];
+        draftsGeneratedAt.push(now);
+        
         const sharePosts: SharePosts = {
+          ...existingSharePosts, // Preserve existing shared status and dates
           linkedin: drafts.linkedin,
           twitter: drafts.twitter,
           instagram: drafts.instagram,
-          generatedAt: new Date(),
+          generatedAt: now,
+          firstGeneratedAt: existingSharePosts?.firstGeneratedAt || now,
+          draftCount,
+          draftsGeneratedAt: draftsGeneratedAt.slice(-100), // Keep last 100 draft dates
         };
         
         await get().updateThought(thoughtId, { sharePosts });
@@ -261,18 +350,40 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
 
       markAsShared: async (thoughtId: string, platform: 'linkedin' | 'twitter' | 'instagram') => {
         const thought = get().thoughts.find(t => t.id === thoughtId);
-        if (!thought || !thought.sharePosts) return;
+        if (!thought || !thought.sharePosts) {
+          console.warn('[markAsShared] Thought not found or no sharePosts:', thoughtId);
+          return;
+        }
+        
+        const now = new Date();
+        const platformSharedAtKey = `${platform}SharedAt` as 'linkedinSharedAt' | 'twitterSharedAt' | 'instagramSharedAt';
         
         const updatedSharePosts: SharePosts = {
           ...thought.sharePosts,
           shared: {
-            ...thought.sharePosts.shared,
+            ...(thought.sharePosts.shared || {}),
             [platform]: true,
-            sharedAt: new Date(),
+            [platformSharedAtKey]: now, // Track per-platform shared date for analytics
+            sharedAt: now, // Keep legacy field for backward compatibility
           },
         };
         
-        await get().updateThought(thoughtId, { sharePosts: updatedSharePosts });
+        try {
+          // Use updateThought which handles optimistic updates properly
+          // Don't call loadThoughts() here - the optimistic update should be sufficient
+          // and calling loadThoughts() might cause a race condition
+          await get().updateThought(thoughtId, { sharePosts: updatedSharePosts });
+          
+          // Small delay then reload to ensure database has updated
+          setTimeout(async () => {
+            await get().loadThoughts();
+          }, 500);
+        } catch (error) {
+          console.error('[markAsShared] Error marking as shared:', error);
+          // On error, reload to get correct state
+          await get().loadThoughts();
+          throw error;
+        }
       },
 
       createAction: async (thoughtId: string, type: Action['type'], title: string, content: string) => {
@@ -316,6 +427,9 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
           currentView: view,
           navigateToThoughtId: thoughtId || null,
         });
+        // Update URL hash to match the view
+        const hash = view === 'home' ? 'thoughts' : view;
+        window.history.pushState({ view, thoughtId }, '', `#${hash}`);
       },
       
       clearNavigateToThought: () => {

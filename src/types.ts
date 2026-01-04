@@ -1,4 +1,4 @@
-export type AppView = 'capture' | 'thoughts' | 'shareit' | 'todo' | 'profile' | 'review';
+export type AppView = 'capture' | 'thoughts' | 'home' | 'shareit' | 'todo' | 'park' | 'explore' | 'insights' | 'profile' | 'review';
 
 // Legacy type for backward compatibility
 export type EntryType = 'todo' | 'insight' | 'journal';
@@ -6,19 +6,25 @@ export type EntryType = 'todo' | 'insight' | 'journal';
 export type Tag = 'work' | 'soccer' | 'family' | 'spirituality' | 'business' | 'tech' | 'health' | 'other';
 
 // Potential types - what a thought can become
-export type PotentialType = 'Share' | 'To-Do' | 'Insight' | 'Just a thought';
+export type PotentialType = 'Share' | 'Do' | 'Just a thought';
 
 // Share potential data
 export interface SharePosts {
   linkedin?: string;
   twitter?: string;
   instagram?: string;
-  generatedAt?: Date;
+  generatedAt?: Date; // Latest draft generation date
+  firstGeneratedAt?: Date; // First time drafts were generated
+  draftCount?: number; // Number of times drafts were generated/regenerated
+  draftsGeneratedAt?: Date[]; // Array of dates when drafts were generated (for analytics)
   shared?: {
     linkedin?: boolean;
     twitter?: boolean;
     instagram?: boolean;
-    sharedAt?: Date;
+    linkedinSharedAt?: Date; // Per-platform shared dates for analytics
+    twitterSharedAt?: Date;
+    instagramSharedAt?: Date;
+    sharedAt?: Date; // Legacy: overall shared date (deprecated, use per-platform dates)
   };
 }
 
@@ -44,6 +50,8 @@ export interface Thought {
   summary: string; // AI-generated summary
   isSpark: boolean; // Whether this thought is marked as a Spark (by AI or user)
   isParked: boolean; // Whether this thought is parked (not meaningful now, but can be revived later)
+  isPowerful: boolean; // Whether this thought is marked as "What Matters" (by AI or user)
+  powerfulScore?: number; // AI-calculated score for how powerful/important this thought is (0-100)
   
   // Potential system - what this thought can become
   potential?: PotentialType | null; // User-selected potential (Share, To-Do, or Insight)
@@ -53,6 +61,14 @@ export interface Thought {
   sharePosts?: SharePosts; // For Share potential
   todoData?: TodoData; // For To-Do potential
   insightData?: InsightData; // For Insight potential
+  
+  // Explore recommendations - AI-generated recommendations for Explore view (cached)
+  exploreRecommendations?: Array<{
+    type: string;
+    explanation: string;
+    value: string;
+    confidence: number;
+  }>;
   
   createdAt: Date;
   updatedAt: Date;

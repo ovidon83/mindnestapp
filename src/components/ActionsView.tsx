@@ -190,7 +190,7 @@ const ActionsView: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/20">
       <Navigation
-        currentView="thoughts"
+        currentView="home"
         onViewChange={setCurrentView}
         user={user}
         onLogout={signOut}
@@ -228,7 +228,7 @@ const ActionsView: React.FC = () => {
                 : `No ${filter} actions yet.`}
             </p>
             <button
-              onClick={() => setCurrentView('thoughts')}
+              onClick={() => setCurrentView('home')}
               className="px-6 py-3 bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 text-white rounded-lg hover:shadow-lg transition-all"
             >
               View Thoughts
@@ -322,7 +322,7 @@ const ActionsView: React.FC = () => {
                             {thought.originalText.length > 100 ? '...' : ''}"
                           </p>
                           <button
-                            onClick={() => setCurrentView('thoughts')}
+                            onClick={() => setCurrentView('home')}
                             className="mt-2 text-xs text-purple-600 hover:text-purple-700 transition-colors"
                           >
                             View original thought →

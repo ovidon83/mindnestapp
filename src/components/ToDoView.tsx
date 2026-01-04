@@ -22,11 +22,12 @@ const ToDoView: React.FC = () => {
   const [filter, setFilter] = useState<TodoFilter>('all');
   const [notes, setNotes] = useState<Record<string, string>>({});
 
-  // Filter thoughts that have To-Do potential (even without spark)
+  // Filter thoughts that have Do potential (even without spark)
   const todoThoughts = useMemo(() => {
     return thoughts.filter(thought => {
       const potential = thought.potential || thought.bestPotential;
-      return potential === 'To-Do';
+      // Check for both 'Do' (new) and 'To-Do' (legacy) for backward compatibility
+      return potential === 'Do' || potential === 'To-Do';
     });
   }, [thoughts]);
 
@@ -88,9 +89,9 @@ const ToDoView: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50/20 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-teal-50/30 via-cyan-50/20 to-white flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-8 h-8 border-4 border-slate-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-slate-600">Loading thoughts...</p>
         </div>
       </div>
@@ -101,7 +102,7 @@ const ToDoView: React.FC = () => {
   const completedCount = todoThoughts.filter(t => completedTodos[t.id]).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50/20">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50/30 via-cyan-50/20 to-white">
       <Navigation
         currentView="todo"
         onViewChange={setCurrentView}
@@ -116,54 +117,58 @@ const ToDoView: React.FC = () => {
             <h3 className="text-xl font-semibold text-slate-700 mb-2">No to-dos yet</h3>
             <p className="text-slate-500 mb-4">Mark thoughts as "To-Do" in the Thoughts view to see them here.</p>
             <button
-              onClick={() => setCurrentView('thoughts')}
-              className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+              onClick={() => setCurrentView('home')}
+              className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors"
             >
               Go to Thoughts
             </button>
           </div>
         ) : (
           <>
-            {/* Filter Tabs */}
-            <div className="mb-6 flex items-center gap-2 bg-white rounded-lg p-1 border border-slate-200 shadow-sm max-w-md">
-              <button
-                onClick={() => setFilter('all')}
-                className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  filter === 'all'
-                    ? 'bg-emerald-100 text-emerald-700'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                }`}
-              >
-                All ({todoThoughts.length})
-              </button>
-              <button
-                onClick={() => setFilter('active')}
-                className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  filter === 'active'
-                    ? 'bg-emerald-100 text-emerald-700'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                }`}
-              >
-                Active ({activeCount})
-              </button>
-              <button
-                onClick={() => setFilter('completed')}
-                className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  filter === 'completed'
-                    ? 'bg-emerald-100 text-emerald-700'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                }`}
-              >
-                Completed ({completedCount})
-              </button>
-            </div>
-
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-16rem)]">
               {/* Left Column: List of To-Dos */}
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
-                <div className="p-4 border-b border-slate-200 bg-slate-50/50">
-                  <h2 className="text-lg font-semibold text-slate-900">To-Do Items</h2>
-                  <p className="text-sm text-slate-600 mt-1">{filteredTodos.length} item{filteredTodos.length !== 1 ? 's' : ''}</p>
+                <div className="p-4 border-b border-slate-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-lg font-semibold text-slate-900">To-Do Items</h2>
+                    <div className="flex items-center gap-3 text-xs">
+                      <button
+                        onClick={() => setFilter('all')}
+                        className={`px-2.5 py-1 rounded-lg transition-colors ${
+                          filter === 'all'
+                            ? 'bg-teal-100 text-teal-700 font-medium'
+                            : 'text-slate-500 hover:text-slate-700'
+                        }`}
+                      >
+                        All
+                      </button>
+                      <button
+                        onClick={() => setFilter('active')}
+                        className={`px-2.5 py-1 rounded-lg transition-colors ${
+                          filter === 'active'
+                            ? 'bg-teal-100 text-teal-700 font-medium'
+                            : 'text-slate-500 hover:text-slate-700'
+                        }`}
+                      >
+                        Active
+                      </button>
+                      <button
+                        onClick={() => setFilter('completed')}
+                        className={`px-2.5 py-1 rounded-lg transition-colors ${
+                          filter === 'completed'
+                            ? 'bg-teal-100 text-teal-700 font-medium'
+                            : 'text-slate-500 hover:text-slate-700'
+                        }`}
+                      >
+                        Completed
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 text-xs text-slate-600">
+                    <span>{todoThoughts.length} total</span>
+                    <span>{activeCount} active</span>
+                    <span>{completedCount} completed</span>
+                  </div>
                 </div>
                 <div className="flex-1 overflow-y-auto">
                   <div className="divide-y divide-slate-100">
@@ -175,55 +180,42 @@ const ToDoView: React.FC = () => {
                         <button
                           key={thought.id}
                           onClick={() => setSelectedThoughtId(thought.id)}
-                          className={`w-full p-4 text-left transition-colors ${
+                          className={`w-full p-3 text-left transition-colors ${
                             isSelected
-                              ? 'bg-emerald-50 border-l-4 border-emerald-500'
+                              ? 'bg-teal-50 border-l-2 border-teal-500'
                               : 'hover:bg-slate-50'
                           }`}
                         >
-                          <div className="flex items-start gap-3">
+                          <div className="flex items-start gap-2.5">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleToggleComplete(thought.id);
                               }}
                               className={`mt-0.5 flex-shrink-0 ${
-                                isCompleted ? 'text-emerald-600' : 'text-slate-400 hover:text-emerald-600'
+                                isCompleted ? 'text-teal-600' : 'text-slate-300 hover:text-teal-600'
                               } transition-colors`}
                             >
                               {isCompleted ? (
-                                <CheckCircle2 className="w-5 h-5" />
+                                <CheckCircle2 className="w-4 h-4" />
                               ) : (
-                                <Circle className="w-5 h-5" />
+                                <Circle className="w-4 h-4" />
                               )}
                             </button>
                             <div className="flex-1 min-w-0">
                               <p
-                                className={`text-sm leading-relaxed mb-2 ${
+                                className={`text-sm leading-relaxed ${
                                   isSelected
-                                    ? 'text-emerald-900 font-medium'
+                                    ? isCompleted
+                                      ? 'text-slate-900 font-medium line-through'
+                                      : 'text-slate-900 font-medium'
                                     : isCompleted
-                                    ? 'text-slate-500 line-through'
-                                    : 'text-slate-800'
+                                    ? 'text-slate-400 line-through'
+                                    : 'text-slate-700'
                                 }`}
                               >
                                 {thought.originalText}
                               </p>
-                              <div className="flex items-center gap-2 flex-wrap">
-                                {thought.tags.slice(0, 2).map((tag) => (
-                                  <span
-                                    key={tag}
-                                    className="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded-lg"
-                                  >
-                                    {tag}
-                                  </span>
-                                ))}
-                                {isCompleted && (
-                                  <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-lg font-medium">
-                                    Completed
-                                  </span>
-                                )}
-                              </div>
                             </div>
                           </div>
                         </button>
@@ -242,8 +234,8 @@ const ToDoView: React.FC = () => {
                         onClick={() => handleToggleComplete(selectedThought.id)}
                         className={`mt-1 flex-shrink-0 ${
                           completedTodos[selectedThought.id]
-                            ? 'text-emerald-600'
-                            : 'text-slate-400 hover:text-emerald-600'
+                            ? 'text-slate-600'
+                            : 'text-slate-400 hover:text-slate-600'
                         } transition-colors`}
                       >
                         {completedTodos[selectedThought.id] ? (
@@ -260,13 +252,13 @@ const ToDoView: React.FC = () => {
                           {selectedThought.tags.map((tag) => (
                             <span
                               key={tag}
-                              className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs rounded-lg"
+                              className="px-2 py-0.5 bg-slate-100 text-slate-700 text-xs rounded-lg"
                             >
                               {tag}
                             </span>
                           ))}
                           {completedTodos[selectedThought.id] && (
-                            <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-lg font-medium">
+                            <span className="px-2 py-0.5 bg-slate-100 text-slate-700 text-xs rounded-lg font-medium">
                               Completed
                             </span>
                           )}
@@ -287,7 +279,7 @@ const ToDoView: React.FC = () => {
                           onChange={(e) => setNotes(prev => ({ ...prev, [selectedThought.id]: e.target.value }))}
                           onBlur={() => handleSaveNotes(selectedThought.id)}
                           placeholder="Add notes, context, or details about this to-do..."
-                          className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none"
+                          className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 resize-none"
                           rows={8}
                         />
                         <p className="mt-2 text-xs text-slate-500">

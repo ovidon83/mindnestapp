@@ -115,7 +115,7 @@ const MindReview: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => {
-                      setCurrentView('thoughts');
+                      setCurrentView('home');
                       setDismissedNudge(true);
                     }}
                     className="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-xs font-medium hover:bg-purple-700 transition-colors"
@@ -165,7 +165,7 @@ const MindReview: React.FC = () => {
           <h3 className="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <button
-              onClick={() => setCurrentView('thoughts')}
+              onClick={() => setCurrentView('home')}
               className="p-4 bg-purple-50/50 rounded-lg border border-dashed border-purple-300/50 hover:bg-purple-100/50 transition-colors text-left"
             >
               <div className="flex items-center gap-2 mb-1">
@@ -177,7 +177,7 @@ const MindReview: React.FC = () => {
               </p>
             </button>
             <button
-              onClick={() => setCurrentView('thoughts')}
+              onClick={() => setCurrentView('home')}
               className="p-4 bg-emerald-50/50 rounded-lg border border-dashed border-emerald-300/50 hover:bg-emerald-100/50 transition-colors text-left"
             >
               <div className="flex items-center gap-2 mb-1">

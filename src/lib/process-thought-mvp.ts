@@ -1,5 +1,6 @@
 import { Thought, PotentialType } from '../types';
 import { fetchWithRetry } from './api-utils';
+import { generateExploreRecommendations } from './generate-explore-recommendations';
 
 // Process a raw thought and detect if it's a Spark, suggest Potential
 // Spark = interesting/valuable thought (can be Share, To-Do, or Insight)
@@ -111,7 +112,7 @@ Determine bestPotential based on the thought:
               bestPotential = 'Just a thought';
             }
             
-            return {
+            const processedThought: Omit<Thought, 'id' | 'createdAt' | 'updatedAt'> = {
               originalText: rawInput,
               tags: Array.isArray(parsed.tags) ? parsed.tags.slice(0, 3) : [],
               summary: parsed.summary || rawInput.substring(0, 100),
@@ -120,6 +121,25 @@ Determine bestPotential based on the thought:
               bestPotential: bestPotential,
               potential: bestPotential, // Also set potential to the same value by default
             };
+
+            // Generate explore recommendations asynchronously (don't block saving)
+            // This will be saved with the thought
+            try {
+              console.log('Generating explore recommendations for thought...');
+              const recommendations = await generateExploreRecommendations(processedThought as Thought);
+              console.log('Generated recommendations:', recommendations);
+              if (recommendations.length > 0) {
+                processedThought.exploreRecommendations = recommendations;
+                console.log('Added recommendations to thought:', processedThought.exploreRecommendations);
+              } else {
+                console.log('No recommendations generated');
+              }
+            } catch (error) {
+              console.error('Error generating explore recommendations:', error);
+              // Don't fail the whole operation if recommendations fail
+            }
+
+            return processedThought;
           }
         }
       }
@@ -164,7 +184,7 @@ Determine bestPotential based on the thought:
     bestPotential = 'Just a thought';
   }
   
-  return {
+  const fallbackThought: Omit<Thought, 'id' | 'createdAt' | 'updatedAt'> = {
     originalText: rawInput,
     tags: [],
     summary: rawInput.substring(0, 100),
@@ -173,4 +193,23 @@ Determine bestPotential based on the thought:
     bestPotential: bestPotential,
     potential: bestPotential, // Also set potential to the same value by default
   };
+
+  // Generate explore recommendations asynchronously (don't block saving)
+  // This will be saved with the thought
+  try {
+    console.log('Generating explore recommendations for fallback thought...');
+    const recommendations = await generateExploreRecommendations(fallbackThought as Thought);
+    console.log('Generated recommendations (fallback):', recommendations);
+    if (recommendations.length > 0) {
+      fallbackThought.exploreRecommendations = recommendations;
+      console.log('Added recommendations to fallback thought:', fallbackThought.exploreRecommendations);
+    } else {
+      console.log('No recommendations generated (fallback)');
+    }
+  } catch (error) {
+    console.error('Error generating explore recommendations (fallback):', error);
+    // Don't fail the whole operation if recommendations fail
+  }
+
+  return fallbackThought;
 }
