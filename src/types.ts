@@ -13,10 +13,8 @@ export interface SharePosts {
   linkedin?: string;
   twitter?: string;
   instagram?: string;
-  linkedinImageUrl?: string; // Generated image URL for LinkedIn post
-  linkedinImagePrompt?: string; // Prompt used to generate LinkedIn image
-  instagramImageUrl?: string; // Generated image URL for Instagram post
-  instagramImagePrompt?: string; // Prompt used to generate Instagram image
+  imageUrl?: string; // Shared image URL for both LinkedIn and Instagram posts
+  imagePrompt?: string; // Prompt used to generate the shared image
   generatedAt?: Date; // Latest draft generation date
   firstGeneratedAt?: Date; // First time drafts were generated
   draftCount?: number; // Number of times drafts were generated/regenerated

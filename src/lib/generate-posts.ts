@@ -162,9 +162,11 @@ Example format for LinkedIn/Instagram:
   }
 }
 
-// Generate image prompt for LinkedIn post
-export async function generateLinkedInImagePrompt(
-  postContent: string,
+// Generate a shared image prompt that works well for both LinkedIn and Instagram
+// The image should be a great fit for the draft copy content
+export async function generateSharedImagePrompt(
+  linkedinContent: string,
+  instagramContent: string,
   thoughtText: string
 ): Promise<string> {
   if (!OPENAI_API_KEY) {
@@ -183,26 +185,31 @@ export async function generateLinkedInImagePrompt(
         messages: [
           {
             role: 'system',
-            content: `Generate a DALL-E 3 image prompt for a LinkedIn post. The image should be professional, visually engaging, and complement the post content.
-
-Requirements:
-- Professional and appropriate for LinkedIn (business/professional context)
+            content: `Generate a DALL-E 3 image prompt that perfectly complements the post content. The image will be used for both LinkedIn and Instagram, so it should be:
 - Visually striking and shareable
-- Relevant to the post's main message
+- Professional enough for LinkedIn, authentic enough for Instagram
+- Directly relevant to the post's core message and main themes
+- A perfect visual representation of the key ideas in the content
 - Avoid text overlays (DALL-E doesn't render text well)
-- Focus on concepts, metaphors, or visual representations
-- Keep it descriptive and vivid
+- Focus on concepts, metaphors, or visual representations that capture the essence of the post
+- Descriptive, vivid, and engaging
 - Maximum 4000 characters
+
+Analyze the post content carefully to understand:
+- The main message or insight
+- The emotional tone
+- Key concepts or themes
+- Visual metaphors that would enhance understanding
 
 Return ONLY the image prompt text, no JSON, no explanations.`
           },
           {
             role: 'user',
-            content: `Post Content:\n${postContent}\n\nOriginal Thought: ${thoughtText}\n\nGenerate a professional, visually engaging image prompt for this LinkedIn post:`
+            content: `LinkedIn Post Content:\n${linkedinContent}\n\nInstagram Post Content:\n${instagramContent}\n\nOriginal Thought: ${thoughtText}\n\nGenerate a perfect image prompt that captures the essence of these posts and will work great for both LinkedIn and Instagram:`
           }
         ],
         temperature: 0.7,
-        max_tokens: 200,
+        max_tokens: 250,
       }),
     });
 
@@ -225,94 +232,23 @@ Return ONLY the image prompt text, no JSON, no explanations.`
 
     return prompt;
   } catch (error) {
-    console.error('Error generating LinkedIn image prompt:', error);
+    console.error('Error generating shared image prompt:', error);
     throw error;
   }
 }
 
-// Generate image prompt for Instagram post
-export async function generateInstagramImagePrompt(
-  postContent: string,
-  thoughtText: string
-): Promise<string> {
-  if (!OPENAI_API_KEY) {
-    throw new Error('AI image generation requires API key configuration.');
-  }
-
-  try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          {
-            role: 'system',
-            content: `Generate a DALL-E 3 image prompt for an Instagram post. The image should be visually striking, authentic, and engaging.
-
-Requirements:
-- Visually striking and shareable
-- Authentic and personal feel
-- Relevant to the post's main message
-- Avoid text overlays (DALL-E doesn't render text well)
-- Focus on concepts, metaphors, or visual representations
-- Can be more creative and artistic than LinkedIn
-- Keep it descriptive and vivid
-- Maximum 4000 characters
-
-Return ONLY the image prompt text, no JSON, no explanations.`
-          },
-          {
-            role: 'user',
-            content: `Post Content:\n${postContent}\n\nOriginal Thought: ${thoughtText}\n\nGenerate a visually engaging image prompt for this Instagram post:`
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 200,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    const prompt = data.choices[0]?.message?.content?.trim();
-    
-    if (!prompt) {
-      throw new Error('Failed to generate image prompt');
-    }
-
-    // Validate the prompt
-    const validation = validateDallePrompt(prompt);
-    if (!validation.valid) {
-      throw new Error(`Invalid prompt: ${validation.error}`);
-    }
-
-    return prompt;
-  } catch (error) {
-    console.error('Error generating Instagram image prompt:', error);
-    throw error;
-  }
-}
-
-// Generate image for a platform (LinkedIn or Instagram)
+// Generate a shared image for both LinkedIn and Instagram posts
 export async function generatePostImage(
-  platform: 'linkedin' | 'instagram',
-  postContent: string,
+  linkedinContent: string,
+  instagramContent: string,
   thoughtText: string
 ): Promise<{ imageUrl: string; imagePrompt: string }> {
   if (!OPENAI_API_KEY) {
     throw new Error('AI image generation requires API key configuration.');
   }
 
-  // Generate the image prompt
-  const imagePrompt = platform === 'linkedin'
-    ? await generateLinkedInImagePrompt(postContent, thoughtText)
-    : await generateInstagramImagePrompt(postContent, thoughtText);
+  // Generate the image prompt that works for both platforms
+  const imagePrompt = await generateSharedImagePrompt(linkedinContent, instagramContent, thoughtText);
 
   // Generate the image using DALL-E 3
   const imageUrl = await generateInstagramImage(imagePrompt);

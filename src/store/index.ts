@@ -36,7 +36,7 @@ interface GenieNotesStore {
   
   // Potential-specific methods
   generateSharePosts: (thoughtId: string, thoughtOverride?: Thought, userFeedback?: string) => Promise<SharePosts>;
-  generatePostImage: (thoughtId: string, platform: 'linkedin' | 'instagram') => Promise<{ imageUrl: string; imagePrompt: string }>;
+  generatePostImage: (thoughtId: string) => Promise<{ imageUrl: string; imagePrompt: string }>;
   updateTodoData: (thoughtId: string, todoData: Partial<TodoData>) => Promise<void>;
   updateInsightData: (thoughtId: string, insightData: Partial<InsightData>) => Promise<void>;
   markAsShared: (thoughtId: string, platform: 'linkedin' | 'twitter' | 'instagram') => Promise<void>;
@@ -321,28 +321,27 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         return sharePosts;
       },
 
-      generatePostImage: async (thoughtId: string, platform: 'linkedin' | 'instagram'): Promise<{ imageUrl: string; imagePrompt: string }> => {
+      generatePostImage: async (thoughtId: string): Promise<{ imageUrl: string; imagePrompt: string }> => {
         const thought = get().thoughts.find(t => t.id === thoughtId);
         if (!thought || !thought.sharePosts) {
           throw new Error('Thought not found or no post drafts available');
         }
 
-        const postContent = platform === 'linkedin' 
-          ? thought.sharePosts.linkedin 
-          : thought.sharePosts.instagram;
+        const linkedinContent = thought.sharePosts.linkedin;
+        const instagramContent = thought.sharePosts.instagram;
 
-        if (!postContent) {
-          throw new Error(`No ${platform} post content available. Please generate posts first.`);
+        if (!linkedinContent || !instagramContent) {
+          throw new Error('Both LinkedIn and Instagram post drafts are required. Please generate posts first.');
         }
 
         const { generatePostImage } = await import('../lib/generate-posts');
-        const { imageUrl, imagePrompt } = await generatePostImage(platform, postContent, thought.originalText);
+        const { imageUrl, imagePrompt } = await generatePostImage(linkedinContent, instagramContent, thought.originalText);
 
-        // Update the thought with the new image
+        // Update the thought with the shared image
         const updatedSharePosts = {
           ...thought.sharePosts,
-          [`${platform}ImageUrl`]: imageUrl,
-          [`${platform}ImagePrompt`]: imagePrompt,
+          imageUrl,
+          imagePrompt,
         };
 
         await get().updateThought(thoughtId, { sharePosts: updatedSharePosts });

@@ -223,15 +223,15 @@ const ShareItView: React.FC = () => {
     }
   };
 
-  const handleGenerateImage = async (platform: 'linkedin' | 'instagram') => {
+  const handleGenerateImage = async () => {
     if (!selectedThought) return;
-    const key = `${selectedThought.id}-${platform}`;
+    const key = selectedThought.id;
     if (generatingImage[key]) return;
 
     setGeneratingImage(prev => ({ ...prev, [key]: true }));
     
     try {
-      await generatePostImage(selectedThought.id, platform);
+      await generatePostImage(selectedThought.id);
       await loadThoughts();
     } catch (error) {
       console.error('Error generating image:', error);
@@ -557,10 +557,8 @@ const ShareItView: React.FC = () => {
                                 platform={activePlatform}
                                 content={currentPostContent}
                                 imageUrl={
-                                  activePlatform === 'linkedin'
-                                    ? selectedThought.sharePosts?.linkedinImageUrl
-                                    : activePlatform === 'instagram'
-                                    ? selectedThought.sharePosts?.instagramImageUrl
+                                  (activePlatform === 'linkedin' || activePlatform === 'instagram')
+                                    ? selectedThought.sharePosts?.imageUrl
                                     : undefined
                                 }
                                 onCopy={() => handleCopyPost(currentPostContent, selectedThought.id, activePlatform)}
@@ -580,25 +578,23 @@ const ShareItView: React.FC = () => {
                             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                               <div className="flex items-center gap-3">
                                 <span className="text-sm text-slate-500">{wordCount} words</span>
-                                {/* Image Generation Toggle - Only for LinkedIn and Instagram */}
+                                {/* Image Generation Button - Only for LinkedIn and Instagram */}
                                 {(activePlatform === 'linkedin' || activePlatform === 'instagram') && (
                                   <button
-                                    onClick={() => handleGenerateImage(activePlatform)}
-                                    disabled={generatingImage[`${selectedThought.id}-${activePlatform}`]}
+                                    onClick={handleGenerateImage}
+                                    disabled={generatingImage[selectedThought.id]}
                                     className={`flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-                                      (activePlatform === 'linkedin' && selectedThought.sharePosts?.linkedinImageUrl) ||
-                                      (activePlatform === 'instagram' && selectedThought.sharePosts?.instagramImageUrl)
+                                      selectedThought.sharePosts?.imageUrl
                                         ? 'bg-green-50 text-green-700 hover:bg-green-100'
                                         : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                                     } disabled:opacity-50 disabled:cursor-not-allowed`}
                                     title={
-                                      (activePlatform === 'linkedin' && selectedThought.sharePosts?.linkedinImageUrl) ||
-                                      (activePlatform === 'instagram' && selectedThought.sharePosts?.instagramImageUrl)
+                                      selectedThought.sharePosts?.imageUrl
                                         ? 'Image generated - click to regenerate'
-                                        : 'Generate AI image for this post'
+                                        : 'Generate AI image for LinkedIn and Instagram posts'
                                     }
                                   >
-                                    {generatingImage[`${selectedThought.id}-${activePlatform}`] ? (
+                                    {generatingImage[selectedThought.id] ? (
                                       <>
                                         <Loader2 className="w-3 h-3 animate-spin" />
                                         <span>Generating...</span>
@@ -609,10 +605,7 @@ const ShareItView: React.FC = () => {
                                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                         </svg>
                                         <span>
-                                          {(activePlatform === 'linkedin' && selectedThought.sharePosts?.linkedinImageUrl) ||
-                                          (activePlatform === 'instagram' && selectedThought.sharePosts?.instagramImageUrl)
-                                            ? 'Image'
-                                            : 'Add Image'}
+                                          {selectedThought.sharePosts?.imageUrl ? 'Image' : 'Add Image'}
                                         </span>
                                       </>
                                     )}
