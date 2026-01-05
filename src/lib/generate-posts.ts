@@ -1,7 +1,8 @@
 import { Thought, UserProfile } from '../types';
 import { fetchUserProfile } from './db';
 import { fetchThoughts } from './thoughts-db';
-import { generateInstagramImage, validateDallePrompt } from './ai';
+import { generateInstagramImage } from './ai';
+import { validateDallePrompt } from './api-utils';
 
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
