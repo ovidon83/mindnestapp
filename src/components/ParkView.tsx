@@ -173,7 +173,7 @@ const ParkView: React.FC = () => {
                   <div className="p-1.5 space-y-0.5">
                     {(['All', 'Today', 'This Week', 'This Month'] as (DateFilter | string)[]).map(date => (
                       <button
-                        key={date}
+                        key={String(date)}
                         onClick={() => {
                           handleDateFilter(date as DateFilter);
                           setExpandedFilterDropdown(null);
@@ -185,7 +185,7 @@ const ParkView: React.FC = () => {
                         }`}
                       >
                         {date !== 'All' && <Calendar className="w-3 h-3" />}
-                        {date}
+                        {String(date)}
                       </button>
                     ))}
                     <div className="border-t border-slate-200 my-1"></div>

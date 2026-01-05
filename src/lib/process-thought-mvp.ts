@@ -73,9 +73,9 @@ Determine bestPotential based on the thought:
             // Map bestPotential from AI response
             const bestPotentialMap: Record<string, PotentialType> = {
               'Share': 'Share',
-              'To-Do': 'To-Do',
-              'ToDo': 'To-Do',
-              'Insight': 'Insight',
+              'To-Do': 'Do',
+              'ToDo': 'Do',
+              'Insight': 'Just a thought',
               'Just a thought': 'Just a thought',
               'Just a Thought': 'Just a thought',
             };
@@ -99,9 +99,9 @@ Determine bestPotential based on the thought:
               const hasInsight = /\b(learned|realized|discovered|insight|understand|think|believe)\b/i.test(rawInput);
               
               if (hasActionWords && !hasQuestion) {
-                bestPotential = 'To-Do';
+                bestPotential = 'Do';
               } else if (hasQuestion || /\b(discuss|talk|explore|wonder|reflect|journal)\b/i.test(rawInput)) {
-                bestPotential = 'Insight';
+                bestPotential = 'Just a thought';
               } else if (hasInsight) {
                 bestPotential = 'Share';
               }
@@ -118,6 +118,7 @@ Determine bestPotential based on the thought:
               summary: parsed.summary || rawInput.substring(0, 100),
               isSpark: parsed.isSpark === true,
               isParked: false,
+              isPowerful: false,
               bestPotential: bestPotential,
               potential: bestPotential, // Also set potential to the same value by default
             };
@@ -164,18 +165,18 @@ Determine bestPotential based on the thought:
   let bestPotential: PotentialType | null = null;
   if (isSpark) {
     if (hasActionWords && !hasQuestion) {
-      bestPotential = 'To-Do';
+      bestPotential = 'Do';
     } else if (hasQuestion || /\b(discuss|talk|explore|wonder|reflect|journal)\b/i.test(rawInput)) {
-      bestPotential = 'Insight';
+      bestPotential = 'Just a thought';
     } else if (hasInsight) {
       bestPotential = 'Share';
     }
   } else {
-    // Non-spark: can only be To-Do, Insight, or Just a thought
+    // Non-spark: can only be Do, Just a thought
     if (hasActionWords && !hasQuestion) {
-      bestPotential = 'To-Do';
+      bestPotential = 'Do';
     } else if (hasQuestion || /\b(discuss|talk|explore|wonder|reflect|journal)\b/i.test(rawInput)) {
-      bestPotential = 'Insight';
+      bestPotential = 'Just a thought';
     }
   }
   
@@ -190,6 +191,7 @@ Determine bestPotential based on the thought:
     summary: rawInput.substring(0, 100),
     isSpark,
     isParked: false,
+    isPowerful: false,
     bestPotential: bestPotential,
     potential: bestPotential, // Also set potential to the same value by default
   };

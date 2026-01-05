@@ -47,10 +47,10 @@ export async function generateBestPotential(thought: Thought): Promise<Potential
             const parsed = JSON.parse(jsonMatch[0]);
             const bestPotentialMap: Record<string, PotentialType> = {
               'Share': 'Share',
-              'To-Do': 'To-Do',
-              'ToDo': 'To-Do',
-              'Insight': 'Insight',
-              'Conversation': 'Insight', // Map old Conversation to Insight
+              'To-Do': 'Do',
+              'ToDo': 'Do',
+              'Insight': 'Just a thought',
+              'Conversation': 'Just a thought',
             };
             return bestPotentialMap[parsed.bestPotential] || 'Share';
           }
@@ -68,9 +68,9 @@ export async function generateBestPotential(thought: Thought): Promise<Potential
   const hasInsight = /\b(learned|realized|discovered|insight|understand|think|believe|wonder|reflect)\b/i.test(thought.originalText);
   
   if (hasActionWords && !hasQuestion) {
-    return 'To-Do';
+    return 'Do';
   } else if (hasQuestion || /\b(discuss|talk|explore|wonder|reflect|journal)\b/i.test(thought.originalText)) {
-    return 'Insight';
+    return 'Just a thought';
   } else {
     return 'Share'; // Default for insights worth sharing
   }

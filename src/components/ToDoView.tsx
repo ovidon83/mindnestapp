@@ -26,8 +26,8 @@ const ToDoView: React.FC = () => {
   const todoThoughts = useMemo(() => {
     return thoughts.filter(thought => {
       const potential = thought.potential || thought.bestPotential;
-      // Check for both 'Do' (new) and 'To-Do' (legacy) for backward compatibility
-      return potential === 'Do' || potential === 'To-Do';
+      // Check for 'Do' potential
+      return potential === 'Do';
     });
   }, [thoughts]);
 

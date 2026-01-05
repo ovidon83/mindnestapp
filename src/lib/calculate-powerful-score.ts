@@ -83,7 +83,7 @@ export function calculatePowerfulScore(thought: Thought, allThoughts: Thought[])
     score += 5; // Marked for sharing
   }
   
-  if (thought.potential === 'To-Do' || thought.bestPotential === 'To-Do') {
+  if (thought.potential === 'Do' || thought.bestPotential === 'Do') {
     if (thought.todoData?.completed) {
       score += 10; // Completed todo
     } else {

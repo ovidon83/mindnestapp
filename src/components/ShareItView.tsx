@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useGenieNotesStore } from '../store';
 import { Thought } from '../types';
-import { Share2, Linkedin, Instagram, Loader2, ExternalLink, CheckCircle2, BarChart3, RefreshCw, Copy } from 'lucide-react';
+import { Share2, Linkedin, Instagram, Loader2, ExternalLink, CheckCircle2, BarChart3, RefreshCw, Copy, X } from 'lucide-react';
 import Navigation from './Navigation';
 import { PlatformPreview } from './PlatformPreviews';
 import { calculatePowerfulScore } from '../lib/calculate-powerful-score';

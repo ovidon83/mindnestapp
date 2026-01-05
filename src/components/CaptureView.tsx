@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useGenieNotesStore } from '../store';
-import { Mic, MicOff, Sparkles, CheckCircle, Upload, Search, Mail, Twitter, Linkedin, Instagram, Brain, Lightbulb, Calendar, X, Bell, Clock, FileText, MessageSquare } from 'lucide-react';
+import { Mic, MicOff, Sparkles, CheckCircle, Upload, Search, Mail, Twitter, Linkedin, Instagram, Brain, Lightbulb, Calendar, X, Bell, Clock, FileText, MessageSquare, ParkingCircle, ChevronDown } from 'lucide-react';
 import { saveTrainingData } from '../lib/db';
 import UserAvatar from './UserAvatar';
 import Navigation from './Navigation';
@@ -350,7 +350,7 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
             </h1>
               <div className="max-w-3xl mx-auto px-2 mb-8 sm:mb-10">
                 <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-700 mb-4 sm:mb-6 font-normal leading-relaxed">
-                  Every thought deserves a home. <span className="font-semibold text-slate-900">Thouty</span> collects them all, then shows you which ones have <span className="font-semibold text-amber-600">spark</span> and <span className="font-semibold text-purple-600">potential</span> — so you can <span className="font-semibold text-emerald-600">act</span> on them.
+                  Every thought deserves a home. <span className="font-semibold text-slate-900">Thouty</span> captures them, highlights the ones that have a <span className="font-semibold text-amber-600">spark</span> — so you can <span className="font-semibold text-emerald-600">act</span> on them or let them go.
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-lg sm:text-xl md:text-2xl font-semibold text-slate-700 mb-6 sm:mb-8">
@@ -434,13 +434,13 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                   {/* Floating example thoughts under heading */}
                   <div className="mt-4 flex flex-wrap justify-center gap-3 sm:gap-4">
                     <span className="px-4 py-2 rounded-full bg-purple-50 border border-purple-200 text-xs sm:text-sm text-purple-800 font-medium shadow-sm">
-                      "Gratitude practice changed my perspective on daily challenges"
+                      "Meditating daily has helped me heal my mind"
                     </span>
                     <span className="px-4 py-2 rounded-full bg-emerald-50 border border-emerald-200 text-xs sm:text-sm text-emerald-800 font-medium shadow-sm">
                       "Call mom this weekend to catch up"
                     </span>
                     <span className="px-4 py-2 rounded-full bg-amber-50 border border-amber-200 text-xs sm:text-sm text-amber-800 font-medium shadow-sm">
-                      "Small acts of kindness create ripple effects"
+                      "Found 400 bugs on a new project mostly caused to AI coding and rushing to ship"
                     </span>
                   </div>
                 </div>
@@ -682,23 +682,24 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                               </span>
                             </div>
                             
-                            {/* 4. AI-based potential buttons/pills with CTA */}
-                            <div className="flex flex-wrap gap-2">
-                              <button className="px-3 py-1.5 bg-purple-100/70 text-purple-700 rounded-lg text-xs font-medium border border-dashed border-purple-300/60 hover:bg-purple-200/70 transition-colors flex items-center gap-1.5">
-                                <span>💬</span>
-                                <span>Share</span>
-                                <span className="text-purple-500">→</span>
-                              </button>
-                              <button className="px-3 py-1.5 bg-emerald-100/70 text-emerald-700 rounded-lg text-xs font-medium border border-dashed border-emerald-300/60 hover:bg-emerald-200/70 transition-colors flex items-center gap-1.5">
-                                <span>✓</span>
-                                <span>To-Do</span>
-                                <span className="text-emerald-500">→</span>
-                              </button>
-                              <button className="px-3 py-1.5 bg-orange-100/70 text-orange-700 rounded-lg text-xs font-medium border border-dashed border-orange-300/60 hover:bg-orange-200/70 transition-colors flex items-center gap-1.5">
-                                <span>💭</span>
-                                <span>Conversation</span>
-                                <span className="text-orange-500">→</span>
-                              </button>
+                            {/* 4. AI-based potential dropdown - text only */}
+                            <div className="flex items-center gap-2">
+                              <div className="relative">
+                                <button className="px-2 py-1 bg-purple-100/70 text-purple-700 rounded-lg text-xs font-medium border border-dashed border-purple-300/60 hover:bg-purple-200/70 transition-colors flex items-center gap-1">
+                                  <span>Share</span>
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </button>
+                                {/* Dropdown menu - open state */}
+                                <div className="absolute right-0 top-full mt-1 bg-white rounded-lg border border-purple-200 shadow-lg z-10 min-w-[120px]">
+                                  <div className="p-1.5 space-y-0.5">
+                                    <button className="w-full px-3 py-2 text-left text-xs rounded-lg bg-slate-100 text-slate-700 cursor-default">Share</button>
+                                    <button className="w-full px-3 py-2 text-left text-xs rounded-lg hover:bg-emerald-50 text-emerald-700 cursor-pointer">Do</button>
+                                    <button className="w-full px-3 py-2 text-left text-xs rounded-lg hover:bg-slate-50 text-slate-700 cursor-pointer">Just a thought</button>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -727,9 +728,9 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 border-2 border-dashed border-indigo-300/60 shadow-lg" style={{ transform: 'rotate(-0.5deg)' }}>
                         <div className="bg-gradient-to-r from-indigo-50/50 to-blue-50/50 border-b-2 border-dashed border-indigo-200/40 px-4 py-3 flex items-center justify-between rounded-t-2xl">
                           <h3 className="text-lg font-bold text-slate-800">Thoughts</h3>
-                          <div className="flex items-center gap-2">
-                            <button className="px-2.5 py-1 bg-indigo-100/70 text-indigo-700 rounded-lg text-xs font-medium border border-dashed border-indigo-300/50">All</button>
-                            <button className="px-2.5 py-1 bg-white/50 text-slate-600 rounded-lg text-xs font-medium border border-dashed border-slate-300/50">Parked</button>
+                          <div className="flex items-center gap-1 bg-white rounded-lg border border-slate-200 p-0.5">
+                            <button className="px-2.5 py-1 bg-purple-100 text-purple-700 rounded-md text-xs font-medium">All</button>
+                            <button className="px-2.5 py-1 text-slate-600 rounded-md text-xs font-medium">Review</button>
                           </div>
                         </div>
                         <div className="p-5">
@@ -780,14 +781,22 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                                   <span className="px-2 py-0.5 bg-purple-100/70 text-purple-700 text-xs rounded-lg border border-dashed border-purple-300/50">insight</span>
                                   <span className="px-2 py-0.5 bg-indigo-100/70 text-indigo-700 text-xs rounded-lg border border-dashed border-indigo-300/50">wellbeing</span>
                                 </div>
-                                {/* Potential CTAs - right side */}
-                                <div className="flex flex-wrap gap-1.5">
-                                  <button className="px-2.5 py-1 bg-purple-100/70 text-purple-700 rounded-lg text-xs font-medium border border-dashed border-purple-300/60 hover:bg-purple-200/70 transition-colors flex items-center gap-1">
-                                    <span>💬</span>
-                                    <span>Share</span>
-                                    <span className="text-purple-500 text-xs">→</span>
+                                {/* Potential dropdown - text only */}
+                                <div className="flex items-center gap-1.5">
+                                  <button className="p-1.5 bg-slate-50 text-slate-500 rounded-lg border border-dashed border-slate-300/60 hover:bg-slate-100 transition-colors">
+                                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                      <circle cx="12" cy="12" r="3"/>
+                                      <path d="M12 1v6m0 22v-6M5.64 5.64l4.24 4.24m8.24 8.24l-4.24-4.24M1 12h6m10 0h6M5.64 18.36l4.24-4.24m8.24-8.24l-4.24 4.24"/>
+                                    </svg>
+                                  </button>
+                                  <button className="px-2 py-1 bg-purple-100/70 text-purple-700 rounded-lg text-xs font-medium border border-dashed border-purple-300/60 hover:bg-purple-200/70 transition-colors">
+                                    Share
                                   </button>
                                 </div>
+                              </div>
+                              {/* Date - no background */}
+                              <div className="mt-2 pt-2 border-t border-slate-200/50 flex items-center justify-between">
+                                <span className="text-[10px] text-slate-500">Dec 15</span>
                               </div>
                             </div>
                             
@@ -814,18 +823,26 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                                   <span className="px-2 py-0.5 bg-pink-100/70 text-pink-700 text-xs rounded-lg border border-dashed border-pink-300/50">personal</span>
                                   <span className="px-2 py-0.5 bg-indigo-100/70 text-indigo-700 text-xs rounded-lg border border-dashed border-indigo-300/50">family</span>
                                 </div>
-                                {/* Potential CTAs - right side */}
-                                <div className="flex flex-wrap gap-1.5">
-                                  <button className="px-2.5 py-1 bg-emerald-100/70 text-emerald-700 rounded-lg text-xs font-medium border border-dashed border-emerald-300/60 hover:bg-emerald-200/70 transition-colors flex items-center gap-1">
-                                    <span>✓</span>
-                                    <span>To-Do</span>
-                                    <span className="text-emerald-500 text-xs">→</span>
+                                {/* Potential dropdown - text only */}
+                                <div className="flex items-center gap-1.5">
+                                  <button className="p-1.5 bg-slate-50 text-slate-500 rounded-lg border border-dashed border-slate-300/60 hover:bg-slate-100 transition-colors">
+                                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                      <circle cx="12" cy="12" r="3"/>
+                                      <path d="M12 1v6m0 22v-6M5.64 5.64l4.24 4.24m8.24 8.24l-4.24-4.24M1 12h6m10 0h6M5.64 18.36l4.24-4.24m8.24-8.24l-4.24 4.24"/>
+                                    </svg>
+                                  </button>
+                                  <button className="px-2 py-1 bg-emerald-100/70 text-emerald-700 rounded-lg text-xs font-medium border border-dashed border-emerald-300/60 hover:bg-emerald-200/70 transition-colors">
+                                    Do
                                   </button>
                                 </div>
                               </div>
+                              {/* Date - no background */}
+                              <div className="mt-2 pt-2 border-t border-slate-200/50 flex items-center justify-between">
+                                <span className="text-[10px] text-slate-500">Dec 14</span>
+                              </div>
                             </div>
                             
-                            {/* Thought 4: With Conversation potential */}
+                            {/* Thought 4: Just a thought */}
                             <div className="bg-white rounded-xl border-2 border-dashed border-slate-200/50 p-4 shadow-sm">
                               <p className="text-slate-800 text-xs leading-relaxed mb-3">
                                 Team meetings feel unproductive. Too many voices, no clear decisions.
@@ -835,14 +852,22 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                                 <div className="flex items-center gap-1.5 flex-wrap">
                                   <span className="px-2 py-0.5 bg-slate-100/70 text-slate-600 text-xs rounded-lg border border-dashed border-slate-300/50">work</span>
                                 </div>
-                                {/* Potential CTAs - right side */}
-                                <div className="flex flex-wrap gap-1.5">
-                                  <button className="px-2.5 py-1 bg-orange-100/70 text-orange-700 rounded-lg text-xs font-medium border border-dashed border-orange-300/60 hover:bg-orange-200/70 transition-colors flex items-center gap-1">
-                                    <span>💭</span>
-                                    <span>Conversation</span>
-                                    <span className="text-orange-500 text-xs">→</span>
+                                {/* Potential dropdown - text only */}
+                                <div className="flex items-center gap-1.5">
+                                  <button className="p-1.5 bg-slate-50 text-slate-500 rounded-lg border border-dashed border-slate-300/60 hover:bg-slate-100 transition-colors">
+                                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                      <circle cx="12" cy="12" r="3"/>
+                                      <path d="M12 1v6m0 22v-6M5.64 5.64l4.24 4.24m8.24 8.24l-4.24-4.24M1 12h6m10 0h6M5.64 18.36l4.24-4.24m8.24-8.24l-4.24 4.24"/>
+                                    </svg>
+                                  </button>
+                                  <button className="px-2 py-1 bg-slate-100/70 text-slate-700 rounded-lg text-xs font-medium border border-dashed border-slate-300/60 hover:bg-slate-200/70 transition-colors">
+                                    Just a thought
                                   </button>
                                 </div>
+                              </div>
+                              {/* Date - no background */}
+                              <div className="mt-2 pt-2 border-t border-slate-200/50 flex items-center justify-between">
+                                <span className="text-[10px] text-slate-500">Dec 13</span>
                               </div>
                             </div>
                           </div>
@@ -1005,27 +1030,38 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                             </div>
                           </div>
 
-                          {/* To-Do Item */}
+                          {/* To-Do View - Simplified Design */}
                           <div className="bg-white rounded-xl border-2 border-dashed border-emerald-300/60 p-3 shadow-sm">
-                            <div className="flex items-start gap-2.5">
-                              <div className="w-4 h-4 border-2 border-emerald-400 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <svg className="w-2.5 h-2.5 text-emerald-600 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                </svg>
-                              </div>
-                              <div className="flex-1">
-                                <div className="flex items-center gap-1.5 mb-1.5">
-                                  <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
-                                  <span className="text-xs font-semibold text-slate-800">To-Do</span>
+                            <div className="mb-3 pb-2 border-b border-slate-200">
+                              <div className="flex items-center justify-between mb-2">
+                                <h4 className="text-xs font-semibold text-slate-800">To-Do Items</h4>
+                                <div className="flex items-center gap-1 text-[10px]">
+                                  <button className="px-1.5 py-0.5 bg-teal-100 text-teal-700 rounded text-[10px] font-medium">All</button>
+                                  <button className="px-1.5 py-0.5 text-slate-500 rounded text-[10px]">Active</button>
+                                  <button className="px-1.5 py-0.5 text-slate-500 rounded text-[10px]">Completed</button>
                                 </div>
-                                <p className="text-[10px] text-slate-700 leading-relaxed mb-1.5">
+                              </div>
+                              <div className="flex items-center gap-2 text-[10px] text-slate-500">
+                                <span>3 total</span>
+                                <span>2 active</span>
+                                <span>1 completed</span>
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              {/* To-Do Item 1 */}
+                              <div className="flex items-start gap-2 p-2 hover:bg-slate-50 rounded-lg">
+                                <div className="w-3 h-3 border-2 border-slate-300 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
+                                </div>
+                                <p className="text-[10px] text-slate-700 leading-relaxed flex-1">
                                   Document quality gates for AI-assisted development
                                 </p>
-                                <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
-                                  <span>Due: This week</span>
-                                  <span>•</span>
-                                  <span>Priority: High</span>
-                                </div>
+                              </div>
+                              {/* To-Do Item 2 - Completed */}
+                              <div className="flex items-start gap-2 p-2 hover:bg-slate-50 rounded-lg">
+                                <CheckCircle className="w-3 h-3 text-teal-600 flex-shrink-0 mt-0.5" />
+                                <p className="text-[10px] text-slate-400 leading-relaxed flex-1 line-through">
+                                  Review team's code quality standards
+                                </p>
                               </div>
                             </div>
                           </div>

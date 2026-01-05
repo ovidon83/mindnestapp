@@ -132,6 +132,7 @@ export function dbThoughtToThought(dbThought: any): Thought {
     summary: dbThought.summary,
     isSpark: dbThought.is_spark || false,
     isParked: dbThought.is_parked || false,
+    isPowerful: dbThought.is_powerful || false,
     potential: potential || 'Just a thought',
     bestPotential: bestPotential || 'Just a thought',
     sharePosts,
@@ -370,7 +371,9 @@ export async function updateThought(id: string, updates: Partial<Thought>): Prom
       twitter: updates.sharePosts.twitter,
       instagram: updates.sharePosts.instagram,
       generatedAt: updates.sharePosts.generatedAt?.toISOString(),
-      generatedAt: updates.sharePosts.generatedAt?.toISOString(),
+      firstGeneratedAt: updates.sharePosts.firstGeneratedAt?.toISOString(),
+      draftCount: updates.sharePosts.draftCount,
+      draftsGeneratedAt: updates.sharePosts.draftsGeneratedAt?.map(d => d.toISOString()),
       shared: updates.sharePosts.shared ? {
         linkedin: updates.sharePosts.shared.linkedin || false,
         twitter: updates.sharePosts.shared.twitter || false,
