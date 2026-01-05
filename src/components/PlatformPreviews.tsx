@@ -4,6 +4,7 @@ import { Linkedin, Copy, CheckCircle2 } from 'lucide-react';
 interface PlatformPreviewProps {
   platform: 'linkedin' | 'twitter' | 'instagram';
   content: string;
+  imageUrl?: string; // Optional image URL to display
   onCopy: () => void;
   copied: boolean;
 }
@@ -15,7 +16,7 @@ const formatContent = (content: string): string => {
   return paragraphs.join('\n\n');
 };
 
-export const LinkedInPreview: React.FC<Omit<PlatformPreviewProps, 'platform'>> = ({ content, onCopy, copied }) => {
+export const LinkedInPreview: React.FC<Omit<PlatformPreviewProps, 'platform'>> = ({ content, imageUrl, onCopy, copied }) => {
   const formattedContent = formatContent(content);
   const lines = formattedContent.split('\n');
   
@@ -81,14 +82,24 @@ export const LinkedInPreview: React.FC<Omit<PlatformPreviewProps, 'platform'>> =
         </div>
       </div>
       
-      {/* LinkedIn Embedded Image Placeholder - Smaller & Cleaner */}
+      {/* LinkedIn Embedded Image */}
       <div className="px-4 pb-3">
-        <div className="w-full aspect-[16/9] max-h-48 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center relative">
-          <div className="text-center">
-            <div className="text-xl mb-1 text-slate-400">📷</div>
-            <div className="text-xs text-slate-400">Image/Video placeholder</div>
+        {imageUrl ? (
+          <div className="w-full aspect-[16/9] max-h-48 rounded-lg overflow-hidden relative">
+            <img
+              src={imageUrl}
+              alt="LinkedIn post image"
+              className="w-full h-full object-cover"
+            />
           </div>
-        </div>
+        ) : (
+          <div className="w-full aspect-[16/9] max-h-48 bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center relative">
+            <div className="text-center">
+              <div className="text-xl mb-1 text-slate-400">📷</div>
+              <div className="text-xs text-slate-400">Image/Video placeholder</div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -151,7 +162,7 @@ export const TwitterPreview: React.FC<Omit<PlatformPreviewProps, 'platform'>> = 
   );
 };
 
-export const InstagramPreview: React.FC<Omit<PlatformPreviewProps, 'platform'>> = ({ content, onCopy, copied }) => {
+export const InstagramPreview: React.FC<Omit<PlatformPreviewProps, 'platform'>> = ({ content, imageUrl, onCopy, copied }) => {
   const formattedContent = formatContent(content);
   const lines = formattedContent.split('\n');
   const hashtags: string[] = [];
@@ -190,12 +201,22 @@ export const InstagramPreview: React.FC<Omit<PlatformPreviewProps, 'platform'>> 
         </div>
       </div>
       
-      {/* Instagram Image Placeholder - Smaller */}
-      <div className="w-full aspect-square max-h-48 bg-gradient-to-br from-purple-100 via-pink-100 to-orange-100 flex items-center justify-center relative">
-        <div className="text-center">
-          <div className="text-lg mb-1">📷</div>
-          <div className="text-xs text-slate-500">Image placeholder</div>
-        </div>
+      {/* Instagram Image */}
+      <div className="w-full aspect-square max-h-48 relative">
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt="Instagram post image"
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-purple-100 via-pink-100 to-orange-100 flex items-center justify-center">
+            <div className="text-center">
+              <div className="text-lg mb-1">📷</div>
+              <div className="text-xs text-slate-500">Image placeholder</div>
+            </div>
+          </div>
+        )}
       </div>
       
       {/* Instagram Caption */}
@@ -229,14 +250,14 @@ export const InstagramPreview: React.FC<Omit<PlatformPreviewProps, 'platform'>> 
   );
 };
 
-export const PlatformPreview: React.FC<PlatformPreviewProps> = ({ platform, content, onCopy, copied }) => {
+export const PlatformPreview: React.FC<PlatformPreviewProps> = ({ platform, content, imageUrl, onCopy, copied }) => {
   switch (platform) {
     case 'linkedin':
-      return <LinkedInPreview content={content} onCopy={onCopy} copied={copied} />;
+      return <LinkedInPreview content={content} imageUrl={imageUrl} onCopy={onCopy} copied={copied} />;
     case 'twitter':
       return <TwitterPreview content={content} onCopy={onCopy} copied={copied} />;
     case 'instagram':
-      return <InstagramPreview content={content} onCopy={onCopy} copied={copied} />;
+      return <InstagramPreview content={content} imageUrl={imageUrl} onCopy={onCopy} copied={copied} />;
     default:
       return null;
   }

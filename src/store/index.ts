@@ -36,6 +36,7 @@ interface GenieNotesStore {
   
   // Potential-specific methods
   generateSharePosts: (thoughtId: string, thoughtOverride?: Thought, userFeedback?: string) => Promise<SharePosts>;
+  generatePostImage: (thoughtId: string, platform: 'linkedin' | 'instagram') => Promise<{ imageUrl: string; imagePrompt: string }>;
   updateTodoData: (thoughtId: string, todoData: Partial<TodoData>) => Promise<void>;
   updateInsightData: (thoughtId: string, insightData: Partial<InsightData>) => Promise<void>;
   markAsShared: (thoughtId: string, platform: 'linkedin' | 'twitter' | 'instagram') => Promise<void>;
@@ -318,6 +319,34 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         
         await get().updateThought(thoughtId, { sharePosts });
         return sharePosts;
+      },
+
+      generatePostImage: async (thoughtId: string, platform: 'linkedin' | 'instagram'): Promise<{ imageUrl: string; imagePrompt: string }> => {
+        const thought = get().thoughts.find(t => t.id === thoughtId);
+        if (!thought || !thought.sharePosts) {
+          throw new Error('Thought not found or no post drafts available');
+        }
+
+        const postContent = platform === 'linkedin' 
+          ? thought.sharePosts.linkedin 
+          : thought.sharePosts.instagram;
+
+        if (!postContent) {
+          throw new Error(`No ${platform} post content available. Please generate posts first.`);
+        }
+
+        const { generatePostImage } = await import('../lib/generate-posts');
+        const { imageUrl, imagePrompt } = await generatePostImage(platform, postContent, thought.originalText);
+
+        // Update the thought with the new image
+        const updatedSharePosts = {
+          ...thought.sharePosts,
+          [`${platform}ImageUrl`]: imageUrl,
+          [`${platform}ImagePrompt`]: imagePrompt,
+        };
+
+        await get().updateThought(thoughtId, { sharePosts: updatedSharePosts });
+        return { imageUrl, imagePrompt };
       },
 
       updateTodoData: async (thoughtId: string, todoData: Partial<TodoData>) => {
