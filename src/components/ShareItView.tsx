@@ -38,7 +38,7 @@ const ShareItView: React.FC = () => {
   const [generatingImage, setGeneratingImage] = useState<Record<string, boolean>>({});
   const isNavigatingRef = useRef<boolean>(false);
   const thoughtItemRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const [markAsSharedToast, setMarkAsSharedToast] = useState<{ platform: Platform; visible: boolean; filterSwitched?: boolean } | null>(null);
+  const [markAsSharedToast, setMarkAsSharedToast] = useState<{ platform: Platform; visible: boolean; filterSwitched?: boolean; isUnmarking?: boolean } | null>(null);
 
   // Get user info for preview
   const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'Your Name';
@@ -197,6 +197,9 @@ const ShareItView: React.FC = () => {
       
       // Check if marking as shared will cause the thought to disappear from current filter
       const willDisappearFromFilter = !isCurrentlyShared && filterShared === 'draft';
+      // Check if unmarking will cause the thought to disappear from current filter (Shared tab)
+      const willDisappearFromSharedFilter = isCurrentlyShared && filterShared === 'shared';
+      
       let filterSwitched = false;
       
       if (isCurrentlyShared) {
@@ -208,10 +211,39 @@ const ShareItView: React.FC = () => {
             [platform]: false,
           },
         };
+        
+        // Check if thought will still be shared on any other platform after this update
+        const stillSharedOnOtherPlatform = (platform !== 'linkedin' && updatedSharePosts.shared?.linkedin) ||
+                                           (platform !== 'twitter' && updatedSharePosts.shared?.twitter) ||
+                                           (platform !== 'instagram' && updatedSharePosts.shared?.instagram);
+        
         await updateThought(thoughtId, { sharePosts: updatedSharePosts });
         
+        // If no longer shared on any platform and we're on Shared filter, switch to All
+        if (willDisappearFromSharedFilter && !stillSharedOnOtherPlatform) {
+          setFilterShared('all');
+          filterSwitched = true;
+          
+          // Wait for filter to update, then select first thought in new filter
+          setTimeout(() => {
+            // Get updated thoughts after filter change
+            const currentThoughts = thoughts.filter(t => {
+              const potential = t.potential || t.bestPotential;
+              return potential === 'Share';
+            });
+            if (currentThoughts.length > 0) {
+              setSelectedThoughtId(currentThoughts[0].id);
+            } else {
+              setSelectedThoughtId(null);
+            }
+          }, 150);
+        } else if (willDisappearFromSharedFilter && stillSharedOnOtherPlatform) {
+          // Still shared on other platform, keep it selected
+          setSelectedThoughtId(thoughtId);
+        }
+        
         // Show toast notification
-        setMarkAsSharedToast({ platform, visible: true, filterSwitched: false });
+        setMarkAsSharedToast({ platform, visible: true, filterSwitched, isUnmarking: true });
         setTimeout(() => setMarkAsSharedToast(null), 3000);
       } else {
         // Mark as shared
@@ -227,7 +259,7 @@ const ShareItView: React.FC = () => {
         setSelectedThoughtId(thoughtId);
         
         // Show toast notification
-        setMarkAsSharedToast({ platform, visible: true, filterSwitched });
+        setMarkAsSharedToast({ platform, visible: true, filterSwitched, isUnmarking: false });
         setTimeout(() => setMarkAsSharedToast(null), 3000);
         
         // Scroll the thought into view after a short delay to allow DOM update
@@ -243,7 +275,7 @@ const ShareItView: React.FC = () => {
       }
     } catch (error) {
       console.error('Error toggling shared status:', error);
-      await loadThoughts();
+      // Don't call loadThoughts() here to avoid flicker - optimistic update should handle it
     }
   };
 
@@ -821,22 +853,40 @@ const ShareItView: React.FC = () => {
 
       {/* Mark as Shared Toast Notification */}
       {markAsSharedToast && markAsSharedToast.visible && (
-        <div className="fixed bottom-6 right-6 bg-white rounded-lg border-2 border-dashed border-green-300 shadow-xl p-4 z-[9999] max-w-sm animate-in slide-in-from-bottom-5">
+        <div className="fixed bottom-6 right-6 bg-white rounded-lg border-2 border-dashed shadow-xl p-4 z-[9999] max-w-sm animate-in slide-in-from-bottom-5"
+             style={{ borderColor: markAsSharedToast.isUnmarking ? '#cbd5e1' : '#86efac' }}>
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0 mt-0.5">
-              <CheckCircle2 className="w-5 h-5 text-green-600" />
+              {markAsSharedToast.isUnmarking ? (
+                <CheckCircle2 className="w-5 h-5 text-slate-500" />
+              ) : (
+                <CheckCircle2 className="w-5 h-5 text-green-600" />
+              )}
             </div>
             <div className="flex-1">
               <div className="font-semibold text-slate-900 text-sm mb-1">
-                Marked as shared! ✓
+                {markAsSharedToast.isUnmarking ? 'Marked as draft' : 'Marked as shared! ✓'}
               </div>
               <div className="text-xs text-slate-600">
-                {markAsSharedToast.platform === 'linkedin' 
-                  ? 'LinkedIn post marked as shared'
-                  : markAsSharedToast.platform === 'twitter'
-                  ? 'X (Twitter) post marked as shared'
-                  : 'Instagram post marked as shared'}
-                {markAsSharedToast.filterSwitched && ' • Switched to "All" view to keep it visible'}
+                {markAsSharedToast.isUnmarking ? (
+                  <>
+                    {markAsSharedToast.platform === 'linkedin' 
+                      ? 'LinkedIn post marked as draft'
+                      : markAsSharedToast.platform === 'twitter'
+                      ? 'X (Twitter) post marked as draft'
+                      : 'Instagram post marked as draft'}
+                    {markAsSharedToast.filterSwitched && ' • Switched to "All" view'}
+                  </>
+                ) : (
+                  <>
+                    {markAsSharedToast.platform === 'linkedin' 
+                      ? 'LinkedIn post marked as shared'
+                      : markAsSharedToast.platform === 'twitter'
+                      ? 'X (Twitter) post marked as shared'
+                      : 'Instagram post marked as shared'}
+                    {markAsSharedToast.filterSwitched && ' • Switched to "All" view to keep it visible'}
+                  </>
+                )}
               </div>
             </div>
             <button

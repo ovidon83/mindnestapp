@@ -398,14 +398,8 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         
         try {
           // Use updateThought which handles optimistic updates properly
-          // Don't call loadThoughts() here - the optimistic update should be sufficient
-          // and calling loadThoughts() might cause a race condition
+          // The optimistic update is sufficient - no need to reload and cause flicker
           await get().updateThought(thoughtId, { sharePosts: updatedSharePosts });
-          
-          // Small delay then reload to ensure database has updated
-          setTimeout(async () => {
-            await get().loadThoughts();
-          }, 500);
         } catch (error) {
           console.error('[markAsShared] Error marking as shared:', error);
           // On error, reload to get correct state
