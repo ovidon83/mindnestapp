@@ -38,6 +38,7 @@ const ShareItView: React.FC = () => {
   const [generatingImage, setGeneratingImage] = useState<Record<string, boolean>>({});
   const isNavigatingRef = useRef<boolean>(false);
   const thoughtItemRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [markAsSharedToast, setMarkAsSharedToast] = useState<{ platform: Platform; visible: boolean; filterSwitched?: boolean } | null>(null);
 
   // Get user info for preview
   const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'Your Name';
@@ -194,6 +195,10 @@ const ShareItView: React.FC = () => {
       // Toggle: if already shared, unshare it; otherwise, mark as shared
       const isCurrentlyShared = thought.sharePosts.shared?.[platform];
       
+      // Check if marking as shared will cause the thought to disappear from current filter
+      const willDisappearFromFilter = !isCurrentlyShared && filterShared === 'draft';
+      let filterSwitched = false;
+      
       if (isCurrentlyShared) {
         // Unshare: remove the shared flag for this platform
         const updatedSharePosts = {
@@ -204,9 +209,37 @@ const ShareItView: React.FC = () => {
           },
         };
         await updateThought(thoughtId, { sharePosts: updatedSharePosts });
+        
+        // Show toast notification
+        setMarkAsSharedToast({ platform, visible: true, filterSwitched: false });
+        setTimeout(() => setMarkAsSharedToast(null), 3000);
       } else {
         // Mark as shared
         await markAsShared(thoughtId, platform);
+        
+        // If the thought would disappear from the current filter, switch to "All" filter
+        if (willDisappearFromFilter) {
+          setFilterShared('all');
+          filterSwitched = true;
+        }
+        
+        // Ensure the thought stays selected and visible
+        setSelectedThoughtId(thoughtId);
+        
+        // Show toast notification
+        setMarkAsSharedToast({ platform, visible: true, filterSwitched });
+        setTimeout(() => setMarkAsSharedToast(null), 3000);
+        
+        // Scroll the thought into view after a short delay to allow DOM update
+        setTimeout(() => {
+          const thoughtElement = thoughtItemRefs.current[thoughtId];
+          if (thoughtElement) {
+            thoughtElement.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
+            });
+          }
+        }, 200);
       }
     } catch (error) {
       console.error('Error toggling shared status:', error);
@@ -768,7 +801,7 @@ const ShareItView: React.FC = () => {
                 <button
                   onClick={() => {
                     setShowShareToast(null);
-                    markAsShared(selectedThought.id, showShareToast.platform);
+                    handleMarkAsShared(selectedThought.id, showShareToast.platform);
                   }}
                   className="text-xs text-blue-600 hover:text-blue-700 font-medium"
                 >
@@ -778,6 +811,36 @@ const ShareItView: React.FC = () => {
             </div>
             <button
               onClick={() => setShowShareToast(null)}
+              className="text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Mark as Shared Toast Notification */}
+      {markAsSharedToast && markAsSharedToast.visible && (
+        <div className="fixed bottom-6 right-6 bg-white rounded-lg border-2 border-dashed border-green-300 shadow-xl p-4 z-[9999] max-w-sm animate-in slide-in-from-bottom-5">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 mt-0.5">
+              <CheckCircle2 className="w-5 h-5 text-green-600" />
+            </div>
+            <div className="flex-1">
+              <div className="font-semibold text-slate-900 text-sm mb-1">
+                Marked as shared! ✓
+              </div>
+              <div className="text-xs text-slate-600">
+                {markAsSharedToast.platform === 'linkedin' 
+                  ? 'LinkedIn post marked as shared'
+                  : markAsSharedToast.platform === 'twitter'
+                  ? 'X (Twitter) post marked as shared'
+                  : 'Instagram post marked as shared'}
+                {markAsSharedToast.filterSwitched && ' • Switched to "All" view to keep it visible'}
+              </div>
+            </div>
+            <button
+              onClick={() => setMarkAsSharedToast(null)}
               className="text-slate-400 hover:text-slate-600 transition-colors"
             >
               <X className="w-4 h-4" />
