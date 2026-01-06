@@ -37,6 +37,7 @@ const ShareItView: React.FC = () => {
   const [filterShared, setFilterShared] = useState<'all' | 'draft' | 'shared'>('all');
   const [generatingImage, setGeneratingImage] = useState<Record<string, boolean>>({});
   const isNavigatingRef = useRef<boolean>(false);
+  const thoughtItemRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Get user info for preview
   const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'Your Name';
@@ -279,6 +280,22 @@ const ShareItView: React.FC = () => {
     }
   }, [allShareThoughts, shareThoughts, selectedThoughtId, navigateToThoughtId, clearNavigateToThought, filterShared]);
 
+  // Scroll selected thought into view
+  React.useEffect(() => {
+    if (selectedThoughtId) {
+      const thoughtElement = thoughtItemRefs.current[selectedThoughtId];
+      if (thoughtElement) {
+        // Use setTimeout to ensure the DOM has updated after filter changes
+        setTimeout(() => {
+          thoughtElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          });
+        }, 150);
+      }
+    }
+  }, [selectedThoughtId, shareThoughts]);
+
   // Handle navigation from Thoughts view
   React.useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -436,6 +453,9 @@ const ShareItView: React.FC = () => {
                       return (
                         <div
                           key={thought.id}
+                          ref={(el) => {
+                            thoughtItemRefs.current[thought.id] = el;
+                          }}
                           onClick={() => setSelectedThoughtId(thought.id)}
                           className={`w-full p-2.5 sm:p-3 transition-colors cursor-pointer rounded-lg ${
                             isSelected
