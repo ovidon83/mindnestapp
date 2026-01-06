@@ -241,12 +241,18 @@ const ShareItView: React.FC = () => {
     }
   };
 
-  // Auto-select first thought if none selected
+  // Auto-select thought when navigating from Thoughts view, or first thought if none selected
   React.useEffect(() => {
-    if (navigateToThoughtId && shareThoughts.some(t => t.id === navigateToThoughtId)) {
-      setSelectedThoughtId(navigateToThoughtId);
-      clearNavigateToThought();
+    if (navigateToThoughtId) {
+      // Check if the thought exists in shareThoughts
+      const thoughtExists = shareThoughts.some(t => t.id === navigateToThoughtId);
+      if (thoughtExists) {
+        setSelectedThoughtId(navigateToThoughtId);
+        clearNavigateToThought();
+      }
+      // If thought doesn't exist yet (still loading), wait for it
     } else if (!selectedThoughtId && shareThoughts.length > 0) {
+      // No navigation target, select first thought
       setSelectedThoughtId(shareThoughts[0].id);
     }
   }, [shareThoughts, selectedThoughtId, navigateToThoughtId, clearNavigateToThought]);

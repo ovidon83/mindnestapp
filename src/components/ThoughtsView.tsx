@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useGenieNotesStore } from '../store';
 import { Thought, PotentialType } from '../types';
-import { Sparkles, Search, Calendar, X, ParkingCircle, ChevronDown, CheckCircle2, Circle, Edit2, Save, ArrowRight, RotateCcw, RefreshCw, Target, Briefcase, Lightbulb, Share2 } from 'lucide-react';
+import { Sparkles, Search, Calendar, X, ParkingCircle, ChevronDown, CheckCircle2, Circle, Edit2, Save, ArrowRight, RotateCcw, RefreshCw, Target, Briefcase, Lightbulb } from 'lucide-react';
 import Navigation from './Navigation';
 import { ExploreRecommendation } from '../lib/generate-explore-recommendations';
 import { calculatePowerfulScore } from '../lib/calculate-powerful-score';
@@ -835,18 +835,8 @@ const ThoughtsView: React.FC = () => {
                     </div>
                   )}
 
-                  {/* Share Journey Indicator - Badge at top */}
-                  {currentPotential === 'Share' && !thought.isParked && (
-                    <div className="absolute -top-3 left-4 z-10">
-                      <div className="px-2.5 py-1 rounded-lg border-2 border-dashed border-purple-300 bg-purple-50 text-purple-700 text-xs font-medium flex items-center gap-1.5 shadow-sm">
-                        <Share2 className="w-3 h-3" />
-                        <span>In Share Journey</span>
-                      </div>
-                    </div>
-                  )}
-
                   {/* Thought Text */}
-                  <div className={`flex items-start gap-2 mb-3 flex-1 group relative w-full ${(recommendations.length > 0 && currentPotential === 'Just a thought') || currentPotential === 'Share' ? 'mt-2' : ''}`}>
+                  <div className={`flex items-start gap-2 mb-3 flex-1 group relative w-full ${recommendations.length > 0 && currentPotential === 'Just a thought' ? 'mt-2' : ''}`}>
                     {/* To-Do Completion Icon (if To-Do) - Next to text */}
                     {isTodo && (
                       <button
