@@ -95,8 +95,19 @@ const ShareItView: React.FC = () => {
   }, [allShareThoughts, sortOrder, filterShared, thoughts]);
 
   const selectedThought = useMemo(() => {
-    return shareThoughts.find(t => t.id === selectedThoughtId) || shareThoughts[0] || null;
-  }, [shareThoughts, selectedThoughtId]);
+    // First try to find in filtered shareThoughts
+    const inFiltered = shareThoughts.find(t => t.id === selectedThoughtId);
+    if (inFiltered) return inFiltered;
+    
+    // If not in filtered list, check allShareThoughts (thought might be filtered out)
+    if (selectedThoughtId) {
+      const inAll = allShareThoughts.find(t => t.id === selectedThoughtId);
+      if (inAll) return inAll;
+    }
+    
+    // Fallback to first thought in filtered list
+    return shareThoughts[0] || null;
+  }, [shareThoughts, allShareThoughts, selectedThoughtId]);
 
   // Analytics - always use allShareThoughts (unfiltered)
   const analytics = useMemo(() => {
@@ -244,18 +255,23 @@ const ShareItView: React.FC = () => {
   // Auto-select thought when navigating from Thoughts view, or first thought if none selected
   React.useEffect(() => {
     if (navigateToThoughtId) {
-      // Check if the thought exists in shareThoughts
-      const thoughtExists = shareThoughts.some(t => t.id === navigateToThoughtId);
+      // Check if the thought exists in allShareThoughts (unfiltered) - this ensures we can select it
+      // even if it's filtered out of shareThoughts by the current filter settings
+      const thoughtExists = allShareThoughts.some(t => t.id === navigateToThoughtId);
       if (thoughtExists) {
         setSelectedThoughtId(navigateToThoughtId);
         clearNavigateToThought();
+        // Also ensure the filter is set to 'all' so the thought is visible in the list
+        if (filterShared !== 'all') {
+          setFilterShared('all');
+        }
       }
       // If thought doesn't exist yet (still loading), wait for it
     } else if (!selectedThoughtId && shareThoughts.length > 0) {
       // No navigation target, select first thought
       setSelectedThoughtId(shareThoughts[0].id);
     }
-  }, [shareThoughts, selectedThoughtId, navigateToThoughtId, clearNavigateToThought]);
+  }, [allShareThoughts, shareThoughts, selectedThoughtId, navigateToThoughtId, clearNavigateToThought, filterShared]);
 
   // Handle navigation from Thoughts view
   React.useEffect(() => {
