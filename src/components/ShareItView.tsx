@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useGenieNotesStore } from '../store';
 import { Thought } from '../types';
-import { Share2, Linkedin, Instagram, Loader2, ExternalLink, CheckCircle2, BarChart3, RefreshCw, Copy, X } from 'lucide-react';
+import { Share2, Linkedin, Instagram, Loader2, ExternalLink, CheckCircle2, BarChart3, RefreshCw, Copy, X, ArrowLeft, Brain } from 'lucide-react';
 import Navigation from './Navigation';
 import { PlatformPreview } from './PlatformPreviews';
 import { calculatePowerfulScore } from '../lib/calculate-powerful-score';
@@ -492,7 +492,31 @@ const ShareItView: React.FC = () => {
                         {selectedThought.originalText && (
                           <div className="px-5 sm:px-6 py-4 sm:py-5 bg-gradient-to-br from-amber-50/50 via-orange-50/30 to-purple-50/20 border-b border-orange-100/50 flex-shrink-0">
                             <div className="max-w-4xl mx-auto">
-                              <div className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wide mb-2">Original Thought</div>
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wide">Original Thought</div>
+                                <button
+                                  onClick={() => {
+                                    setCurrentView('thoughts');
+                                    // Try to navigate to the specific thought if possible
+                                    setTimeout(() => {
+                                      const thoughtElement = document.querySelector(`[data-thought-id="${selectedThought.id}"]`);
+                                      if (thoughtElement) {
+                                        thoughtElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                        thoughtElement.classList.add('ring-2', 'ring-purple-400', 'ring-offset-2');
+                                        setTimeout(() => {
+                                          thoughtElement.classList.remove('ring-2', 'ring-purple-400', 'ring-offset-2');
+                                        }, 2000);
+                                      }
+                                    }, 100);
+                                  }}
+                                  className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-slate-600 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors"
+                                  title="View this thought in Thoughts view"
+                                >
+                                  <ArrowLeft className="w-3 h-3" />
+                                  <Brain className="w-3 h-3" />
+                                  <span className="hidden sm:inline">Back to Thoughts</span>
+                                </button>
+                              </div>
                               <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
                                 {selectedThought.originalText}
                               </p>

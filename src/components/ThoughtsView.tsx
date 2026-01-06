@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useGenieNotesStore } from '../store';
 import { Thought, PotentialType } from '../types';
-import { Sparkles, Search, Calendar, X, ParkingCircle, ChevronDown, CheckCircle2, Circle, Edit2, Save, ArrowRight, RotateCcw, RefreshCw, Target, Briefcase, Lightbulb } from 'lucide-react';
+import { Sparkles, Search, Calendar, X, ParkingCircle, ChevronDown, CheckCircle2, Circle, Edit2, Save, ArrowRight, RotateCcw, RefreshCw, Target, Briefcase, Lightbulb, Share2 } from 'lucide-react';
 import Navigation from './Navigation';
 import { ExploreRecommendation } from '../lib/generate-explore-recommendations';
 import { calculatePowerfulScore } from '../lib/calculate-powerful-score';
@@ -580,6 +580,7 @@ const ThoughtsView: React.FC = () => {
                 return (
                   <div
                     key={thought.id}
+                    data-thought-id={thought.id}
                     className="bg-white rounded-xl border-2 border-dashed border-amber-200/50 p-4 shadow-sm relative flex flex-col hover:shadow-md transition-shadow"
                   >
                     {/* Recommendation Pill - On the border line (starting from right) - Max 1 */}
@@ -812,6 +813,7 @@ const ThoughtsView: React.FC = () => {
               return (
                 <div
                   key={thought.id}
+                  data-thought-id={thought.id}
                   className="bg-white rounded-xl border-2 border-dashed border-slate-200/50 p-4 shadow-sm relative flex flex-col hover:shadow-md transition-shadow"
                 >
                   {/* Recommendation Pill - On the border line (starting from right) - Max 1 */}
@@ -833,8 +835,18 @@ const ThoughtsView: React.FC = () => {
                     </div>
                   )}
 
+                  {/* Share Journey Indicator - Badge at top */}
+                  {currentPotential === 'Share' && !thought.isParked && (
+                    <div className="absolute -top-3 left-4 z-10">
+                      <div className="px-2.5 py-1 rounded-lg border-2 border-dashed border-purple-300 bg-purple-50 text-purple-700 text-xs font-medium flex items-center gap-1.5 shadow-sm">
+                        <Share2 className="w-3 h-3" />
+                        <span>In Share Journey</span>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Thought Text */}
-                  <div className={`flex items-start gap-2 mb-3 flex-1 group relative w-full ${recommendations.length > 0 && currentPotential === 'Just a thought' ? 'mt-2' : ''}`}>
+                  <div className={`flex items-start gap-2 mb-3 flex-1 group relative w-full ${(recommendations.length > 0 && currentPotential === 'Just a thought') || currentPotential === 'Share' ? 'mt-2' : ''}`}>
                     {/* To-Do Completion Icon (if To-Do) - Next to text */}
                     {isTodo && (
                       <button
@@ -1061,7 +1073,7 @@ const ThoughtsView: React.FC = () => {
                                 window.history.pushState({ view: targetView, thoughtId: thought.id }, '', `#${targetView}`);
                                 setCurrentView(targetView, thought.id);
                               }}
-                              className={`p-1.5 rounded-lg border border-dashed transition-colors ${
+                              className={`px-2.5 py-1.5 rounded-lg border border-dashed transition-colors flex items-center gap-1.5 ${
                                 currentPotential === 'Share'
                                   ? 'bg-purple-100/70 text-purple-700 border-purple-300/60 hover:bg-purple-200/70'
                                   : 'bg-emerald-100/70 text-emerald-700 border-emerald-300/60 hover:bg-emerald-200/70'
@@ -1069,6 +1081,7 @@ const ThoughtsView: React.FC = () => {
                               title={`Open in ${currentPotential === 'Share' ? 'Share' : 'Do'} view`}
                               type="button"
                             >
+                              <span className="text-xs font-medium">{currentPotential === 'Share' ? 'View in Share' : 'View in Do'}</span>
                               <ArrowRight className="w-3.5 h-3.5" />
                             </button>
                           )}
