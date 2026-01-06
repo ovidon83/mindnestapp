@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { useGenieNotesStore } from '../store';
 import { Thought } from '../types';
-import { Share2, Linkedin, Instagram, Loader2, ExternalLink, CheckCircle2, BarChart3, RefreshCw, Copy, X } from 'lucide-react';
+import { Share2, Linkedin, Instagram, Loader2, ExternalLink, CheckCircle2, BarChart3, RefreshCw, Copy, X, ArrowLeft, Brain } from 'lucide-react';
 import Navigation from './Navigation';
 import { PlatformPreview } from './PlatformPreviews';
 import { calculatePowerfulScore } from '../lib/calculate-powerful-score';
@@ -36,6 +36,8 @@ const ShareItView: React.FC = () => {
   const [showShareToast, setShowShareToast] = useState<{ platform: Platform; visible: boolean } | null>(null);
   const [filterShared, setFilterShared] = useState<'all' | 'draft' | 'shared'>('all');
   const [generatingImage, setGeneratingImage] = useState<Record<string, boolean>>({});
+  const isNavigatingRef = useRef<boolean>(false);
+  const thoughtItemRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Get user info for preview
   const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'Your Name';
@@ -95,8 +97,19 @@ const ShareItView: React.FC = () => {
   }, [allShareThoughts, sortOrder, filterShared, thoughts]);
 
   const selectedThought = useMemo(() => {
-    return shareThoughts.find(t => t.id === selectedThoughtId) || shareThoughts[0] || null;
-  }, [shareThoughts, selectedThoughtId]);
+    // First try to find in filtered shareThoughts
+    const inFiltered = shareThoughts.find(t => t.id === selectedThoughtId);
+    if (inFiltered) return inFiltered;
+    
+    // If not in filtered list, check allShareThoughts (thought might be filtered out)
+    if (selectedThoughtId) {
+      const inAll = allShareThoughts.find(t => t.id === selectedThoughtId);
+      if (inAll) return inAll;
+    }
+    
+    // Fallback to first thought in filtered list
+    return shareThoughts[0] || null;
+  }, [shareThoughts, allShareThoughts, selectedThoughtId]);
 
   // Analytics - always use allShareThoughts (unfiltered)
   const analytics = useMemo(() => {
@@ -241,15 +254,47 @@ const ShareItView: React.FC = () => {
     }
   };
 
-  // Auto-select first thought if none selected
+  // Auto-select thought when navigating from Thoughts view, or first thought if none selected
   React.useEffect(() => {
-    if (navigateToThoughtId && shareThoughts.some(t => t.id === navigateToThoughtId)) {
-      setSelectedThoughtId(navigateToThoughtId);
-      clearNavigateToThought();
-    } else if (!selectedThoughtId && shareThoughts.length > 0) {
+    if (navigateToThoughtId) {
+      // Check if the thought exists in allShareThoughts (unfiltered) - this ensures we can select it
+      // even if it's filtered out of shareThoughts by the current filter settings
+      const thoughtExists = allShareThoughts.some(t => t.id === navigateToThoughtId);
+      if (thoughtExists) {
+        isNavigatingRef.current = true;
+        setSelectedThoughtId(navigateToThoughtId);
+        // Also ensure the filter is set to 'all' so the thought is visible in the list
+        if (filterShared !== 'all') {
+          setFilterShared('all');
+        }
+        // Clear navigation flag after a short delay to allow filter change to settle
+        setTimeout(() => {
+          clearNavigateToThought();
+          isNavigatingRef.current = false;
+        }, 100);
+      }
+      // If thought doesn't exist yet (still loading), wait for it
+    } else if (!selectedThoughtId && shareThoughts.length > 0 && !isNavigatingRef.current) {
+      // No navigation target, select first thought (but not if we're in the middle of navigation)
       setSelectedThoughtId(shareThoughts[0].id);
     }
-  }, [shareThoughts, selectedThoughtId, navigateToThoughtId, clearNavigateToThought]);
+  }, [allShareThoughts, shareThoughts, selectedThoughtId, navigateToThoughtId, clearNavigateToThought, filterShared]);
+
+  // Scroll selected thought into view
+  React.useEffect(() => {
+    if (selectedThoughtId) {
+      const thoughtElement = thoughtItemRefs.current[selectedThoughtId];
+      if (thoughtElement) {
+        // Use setTimeout to ensure the DOM has updated after filter changes
+        setTimeout(() => {
+          thoughtElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          });
+        }, 150);
+      }
+    }
+  }, [selectedThoughtId, shareThoughts]);
 
   // Handle navigation from Thoughts view
   React.useEffect(() => {
@@ -408,6 +453,9 @@ const ShareItView: React.FC = () => {
                       return (
                         <div
                           key={thought.id}
+                          ref={(el) => {
+                            thoughtItemRefs.current[thought.id] = el;
+                          }}
                           onClick={() => setSelectedThoughtId(thought.id)}
                           className={`w-full p-2.5 sm:p-3 transition-colors cursor-pointer rounded-lg ${
                             isSelected
@@ -492,7 +540,31 @@ const ShareItView: React.FC = () => {
                         {selectedThought.originalText && (
                           <div className="px-5 sm:px-6 py-4 sm:py-5 bg-gradient-to-br from-amber-50/50 via-orange-50/30 to-purple-50/20 border-b border-orange-100/50 flex-shrink-0">
                             <div className="max-w-4xl mx-auto">
-                              <div className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wide mb-2">Original Thought</div>
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wide">Original Thought</div>
+                                <button
+                                  onClick={() => {
+                                    setCurrentView('thoughts');
+                                    // Try to navigate to the specific thought if possible
+                                    setTimeout(() => {
+                                      const thoughtElement = document.querySelector(`[data-thought-id="${selectedThought.id}"]`);
+                                      if (thoughtElement) {
+                                        thoughtElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                        thoughtElement.classList.add('ring-2', 'ring-purple-400', 'ring-offset-2');
+                                        setTimeout(() => {
+                                          thoughtElement.classList.remove('ring-2', 'ring-purple-400', 'ring-offset-2');
+                                        }, 2000);
+                                      }
+                                    }, 100);
+                                  }}
+                                  className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-slate-600 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors"
+                                  title="View this thought in Thoughts view"
+                                >
+                                  <ArrowLeft className="w-3 h-3" />
+                                  <Brain className="w-3 h-3" />
+                                  <span className="hidden sm:inline">Back to Thoughts</span>
+                                </button>
+                              </div>
                               <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
                                 {selectedThought.originalText}
                               </p>

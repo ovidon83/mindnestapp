@@ -580,6 +580,7 @@ const ThoughtsView: React.FC = () => {
                 return (
                   <div
                     key={thought.id}
+                    data-thought-id={thought.id}
                     className="bg-white rounded-xl border-2 border-dashed border-amber-200/50 p-4 shadow-sm relative flex flex-col hover:shadow-md transition-shadow"
                   >
                     {/* Recommendation Pill - On the border line (starting from right) - Max 1 */}
@@ -812,6 +813,7 @@ const ThoughtsView: React.FC = () => {
               return (
                 <div
                   key={thought.id}
+                  data-thought-id={thought.id}
                   className="bg-white rounded-xl border-2 border-dashed border-slate-200/50 p-4 shadow-sm relative flex flex-col hover:shadow-md transition-shadow"
                 >
                   {/* Recommendation Pill - On the border line (starting from right) - Max 1 */}
@@ -1061,7 +1063,7 @@ const ThoughtsView: React.FC = () => {
                                 window.history.pushState({ view: targetView, thoughtId: thought.id }, '', `#${targetView}`);
                                 setCurrentView(targetView, thought.id);
                               }}
-                              className={`p-1.5 rounded-lg border border-dashed transition-colors ${
+                              className={`px-2.5 py-1.5 rounded-lg border border-dashed transition-colors flex items-center gap-1.5 ${
                                 currentPotential === 'Share'
                                   ? 'bg-purple-100/70 text-purple-700 border-purple-300/60 hover:bg-purple-200/70'
                                   : 'bg-emerald-100/70 text-emerald-700 border-emerald-300/60 hover:bg-emerald-200/70'
@@ -1069,6 +1071,7 @@ const ThoughtsView: React.FC = () => {
                               title={`Open in ${currentPotential === 'Share' ? 'Share' : 'Do'} view`}
                               type="button"
                             >
+                              <span className="text-xs font-medium">{currentPotential === 'Share' ? 'View in Share' : 'View in Do'}</span>
                               <ArrowRight className="w-3.5 h-3.5" />
                             </button>
                           )}
