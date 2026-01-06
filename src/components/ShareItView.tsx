@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { useGenieNotesStore } from '../store';
 import { Thought } from '../types';
 import { Share2, Linkedin, Instagram, Loader2, ExternalLink, CheckCircle2, BarChart3, RefreshCw, Copy, X, ArrowLeft, Brain } from 'lucide-react';
@@ -36,6 +36,7 @@ const ShareItView: React.FC = () => {
   const [showShareToast, setShowShareToast] = useState<{ platform: Platform; visible: boolean } | null>(null);
   const [filterShared, setFilterShared] = useState<'all' | 'draft' | 'shared'>('all');
   const [generatingImage, setGeneratingImage] = useState<Record<string, boolean>>({});
+  const isNavigatingRef = useRef<boolean>(false);
 
   // Get user info for preview
   const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'Your Name';
@@ -259,16 +260,21 @@ const ShareItView: React.FC = () => {
       // even if it's filtered out of shareThoughts by the current filter settings
       const thoughtExists = allShareThoughts.some(t => t.id === navigateToThoughtId);
       if (thoughtExists) {
+        isNavigatingRef.current = true;
         setSelectedThoughtId(navigateToThoughtId);
-        clearNavigateToThought();
         // Also ensure the filter is set to 'all' so the thought is visible in the list
         if (filterShared !== 'all') {
           setFilterShared('all');
         }
+        // Clear navigation flag after a short delay to allow filter change to settle
+        setTimeout(() => {
+          clearNavigateToThought();
+          isNavigatingRef.current = false;
+        }, 100);
       }
       // If thought doesn't exist yet (still loading), wait for it
-    } else if (!selectedThoughtId && shareThoughts.length > 0) {
-      // No navigation target, select first thought
+    } else if (!selectedThoughtId && shareThoughts.length > 0 && !isNavigatingRef.current) {
+      // No navigation target, select first thought (but not if we're in the middle of navigation)
       setSelectedThoughtId(shareThoughts[0].id);
     }
   }, [allShareThoughts, shareThoughts, selectedThoughtId, navigateToThoughtId, clearNavigateToThought, filterShared]);
