@@ -174,13 +174,18 @@ export function thoughtToDbThought(thought: Thought): any {
     is_parked: thought.isParked || false,
   };
   
-  // New potential system - ensure "Just a thought" is saved as string, not null
-  dbThought.potential = thought.potential === null || thought.potential === undefined 
-    ? 'Just a thought' 
-    : thought.potential;
+  // New potential system - map app values to database values
+  // App uses 'Do', database expects 'To-Do'
+  const mapPotentialToDb = (p: string | null | undefined): string => {
+    if (p === null || p === undefined) return 'Just a thought';
+    if (p === 'Do') return 'To-Do';
+    return p;
+  };
+  
+  dbThought.potential = mapPotentialToDb(thought.potential);
   dbThought.best_potential = thought.bestPotential === null || thought.bestPotential === undefined
-    ? null  // bestPotential can be null
-    : thought.bestPotential;
+    ? null
+    : mapPotentialToDb(thought.bestPotential);
   
   // Potential-specific data
   if (thought.sharePosts) {
