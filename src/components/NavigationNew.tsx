@@ -1,5 +1,5 @@
 import React from 'react';
-import { Brain, Plus, Sparkles, BookOpen, Send } from 'lucide-react';
+import { Brain, Plus, Sparkles, Send, CheckSquare } from 'lucide-react';
 import { AppView } from '../types';
 import UserAvatar from './UserAvatar';
 
@@ -35,7 +35,7 @@ const NavigationNew: React.FC<NavigationProps> = ({
             </span>
           </button>
 
-          {/* Center: Navigation Tabs */}
+          {/* Center: Navigation Tabs - Thoughts | Share | Act */}
           <div className="flex items-center bg-slate-100/80 rounded-full p-1">
             <button
               onClick={() => onViewChange('library')}
@@ -45,8 +45,8 @@ const NavigationNew: React.FC<NavigationProps> = ({
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <BookOpen className="w-4 h-4" />
-              <span className="hidden sm:inline">Library</span>
+              <Brain className="w-4 h-4" />
+              <span className="hidden sm:inline">Thoughts</span>
             </button>
             <button
               onClick={() => onViewChange('studio')}
@@ -57,7 +57,18 @@ const NavigationNew: React.FC<NavigationProps> = ({
               }`}
             >
               <Send className="w-4 h-4" />
-              <span className="hidden sm:inline">Share Studio</span>
+              <span className="hidden sm:inline">Share</span>
+            </button>
+            <button
+              onClick={() => onViewChange('act')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                currentView === 'act' || currentView === 'todo'
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <CheckSquare className="w-4 h-4" />
+              <span className="hidden sm:inline">Act</span>
             </button>
           </div>
 

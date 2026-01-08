@@ -15,14 +15,17 @@ import {
   Edit3,
   Save,
   Image,
-  ChevronRight,
   ChevronDown,
-  MoreHorizontal
+  Filter,
+  TrendingUp
 } from 'lucide-react';
 import NavigationNew from './NavigationNew';
 import { PlatformPreview } from './PlatformPreviews';
+import { calculatePowerfulScore } from '../lib/calculate-powerful-score';
 
 type Platform = 'linkedin' | 'twitter' | 'instagram';
+type QueueFilter = 'all' | 'draft' | 'shared';
+type QueueSort = 'newest' | 'potential';
 
 const ShareStudioView: React.FC = () => {
   const {
@@ -49,20 +52,37 @@ const ShareStudioView: React.FC = () => {
   const [retryFeedback, setRetryFeedback] = useState('');
   const [showRetryInput, setShowRetryInput] = useState(false);
   const [showToast, setShowToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
+  const [queueFilter, setQueueFilter] = useState<QueueFilter>('all');
+  const [queueSort, setQueueSort] = useState<QueueSort>('potential');
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
   const thoughtListRef = useRef<HTMLDivElement>(null);
+  const selectedThoughtRef = useRef<HTMLButtonElement>(null);
 
   // Get thoughts with Share potential
   const shareThoughts = useMemo(() => {
-    return thoughts
-      .filter(t => t.potential === 'Share' && !t.isParked)
-      .sort((a, b) => {
-        // Sort by: has drafts first, then by date
-        const aHasDrafts = !!a.sharePosts;
-        const bHasDrafts = !!b.sharePosts;
-        if (aHasDrafts !== bHasDrafts) return bHasDrafts ? 1 : -1;
+    let filtered = thoughts.filter(t => t.potential === 'Share' && !t.isParked);
+    
+    // Apply filter
+    if (queueFilter === 'draft') {
+      filtered = filtered.filter(t => t.sharePosts && !t.sharePosts.shared?.linkedin && !t.sharePosts.shared?.twitter && !t.sharePosts.shared?.instagram);
+    } else if (queueFilter === 'shared') {
+      filtered = filtered.filter(t => t.sharePosts?.shared?.linkedin || t.sharePosts?.shared?.twitter || t.sharePosts?.shared?.instagram);
+    }
+    
+    // Apply sort
+    if (queueSort === 'potential') {
+      filtered.sort((a, b) => {
+        const scoreA = calculatePowerfulScore(a, thoughts) || 0;
+        const scoreB = calculatePowerfulScore(b, thoughts) || 0;
+        if (Math.abs(scoreA - scoreB) > 10) return scoreB - scoreA;
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
-  }, [thoughts]);
+    } else {
+      filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+    
+    return filtered;
+  }, [thoughts, queueFilter, queueSort]);
 
   const selectedThought = useMemo(() => {
     return shareThoughts.find(t => t.id === selectedThoughtId) || shareThoughts[0] || null;
@@ -71,23 +91,26 @@ const ShareStudioView: React.FC = () => {
   // Auto-select navigated thought or first thought
   useEffect(() => {
     if (navigateToThoughtId) {
-      const thought = shareThoughts.find(t => t.id === navigateToThoughtId);
+      // Find in all share thoughts (not just filtered)
+      const allShareThoughts = thoughts.filter(t => t.potential === 'Share' && !t.isParked);
+      const thought = allShareThoughts.find(t => t.id === navigateToThoughtId);
       if (thought) {
         setSelectedThoughtId(navigateToThoughtId);
+        // Reset filter to 'all' to ensure thought is visible
+        setQueueFilter('all');
         clearNavigateToThought();
       }
     } else if (!selectedThoughtId && shareThoughts.length > 0) {
       setSelectedThoughtId(shareThoughts[0].id);
     }
-  }, [navigateToThoughtId, shareThoughts, selectedThoughtId, clearNavigateToThought]);
+  }, [navigateToThoughtId, shareThoughts, selectedThoughtId, clearNavigateToThought, thoughts]);
 
-  // Scroll selected thought into view
+  // Scroll selected thought into view when it changes
   useEffect(() => {
-    if (selectedThoughtId && thoughtListRef.current) {
-      const element = thoughtListRef.current.querySelector(`[data-thought-id="${selectedThoughtId}"]`);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+    if (selectedThoughtId && selectedThoughtRef.current) {
+      setTimeout(() => {
+        selectedThoughtRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
     }
   }, [selectedThoughtId]);
 
@@ -180,7 +203,6 @@ const ShareStudioView: React.FC = () => {
     const isCurrentlyShared = selectedThought.sharePosts?.shared?.[platform];
     
     if (isCurrentlyShared) {
-      // Unmark as shared
       const updatedSharePosts = {
         ...selectedThought.sharePosts,
         shared: {
@@ -201,36 +223,23 @@ const ShareStudioView: React.FC = () => {
     setTimeout(() => setShowToast(null), 3000);
   };
 
+  // Platform icons
+  const LinkedInIcon = () => <Linkedin className="w-5 h-5" />;
+  const XIcon = () => (
+    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+    </svg>
+  );
+  const InstagramIcon = () => (
+    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+    </svg>
+  );
+
   const platformConfig = {
-    linkedin: { 
-      name: 'LinkedIn', 
-      icon: Linkedin, 
-      color: 'text-blue-600', 
-      bg: 'bg-blue-50',
-      border: 'border-blue-200'
-    },
-    twitter: { 
-      name: 'X (Twitter)', 
-      icon: () => (
-        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-        </svg>
-      ), 
-      color: 'text-slate-800', 
-      bg: 'bg-slate-100',
-      border: 'border-slate-200'
-    },
-    instagram: { 
-      name: 'Instagram', 
-      icon: () => (
-        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-        </svg>
-      ), 
-      color: 'text-pink-600', 
-      bg: 'bg-pink-50',
-      border: 'border-pink-200'
-    },
+    linkedin: { icon: LinkedInIcon, color: 'text-blue-600', bg: 'bg-blue-50', activeBg: 'bg-blue-100', border: 'border-blue-200' },
+    twitter: { icon: XIcon, color: 'text-slate-800', bg: 'bg-slate-50', activeBg: 'bg-slate-100', border: 'border-slate-200' },
+    instagram: { icon: InstagramIcon, color: 'text-pink-600', bg: 'bg-pink-50', activeBg: 'bg-pink-100', border: 'border-pink-200' },
   };
 
   if (loading) {
@@ -254,7 +263,7 @@ const ShareStudioView: React.FC = () => {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        {shareThoughts.length === 0 ? (
+        {shareThoughts.length === 0 && queueFilter === 'all' ? (
           /* Empty State */
           <div className="max-w-md mx-auto text-center py-16">
             <div className="w-20 h-20 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -262,75 +271,142 @@ const ShareStudioView: React.FC = () => {
             </div>
             <h2 className="text-2xl font-bold text-slate-900 mb-3">No thoughts to share yet</h2>
             <p className="text-slate-600 mb-8">
-              Mark thoughts as "Share" in your Library to create social media drafts.
+              Mark thoughts as "Share" in Thoughts view to create social media drafts.
             </p>
             <button
               onClick={() => setCurrentView('library')}
               className="px-6 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl font-medium hover:shadow-lg transition-all"
             >
-              Go to Library
+              Go to Thoughts
             </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Left Sidebar: Thought List */}
-            <div 
-              ref={thoughtListRef}
-              className="lg:col-span-4 xl:col-span-3 bg-white rounded-2xl border border-slate-200/60 overflow-hidden"
-              style={{ maxHeight: 'calc(100vh - 10rem)' }}
-            >
+            {/* Left Sidebar: Share Queue */}
+            <div className="lg:col-span-4 xl:col-span-3 bg-white rounded-2xl border border-slate-200/60 overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100vh - 10rem)' }}>
+              {/* Header */}
               <div className="p-4 border-b border-slate-100">
-                <h2 className="font-semibold text-slate-900">Share Queue</h2>
-                <p className="text-xs text-slate-500 mt-1">{shareThoughts.length} thoughts</p>
-              </div>
-              <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 14rem)' }}>
-                {shareThoughts.map((thought) => {
-                  const isSelected = thought.id === selectedThought?.id;
-                  const hasDrafts = !!thought.sharePosts;
-                  const isSharedAny = thought.sharePosts?.shared?.linkedin || 
-                                      thought.sharePosts?.shared?.twitter || 
-                                      thought.sharePosts?.shared?.instagram;
-
-                  return (
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="font-semibold text-slate-900">Share Queue</h2>
+                  <span className="text-xs text-slate-500">{shareThoughts.length} thoughts</span>
+                </div>
+                
+                {/* Filters */}
+                <div className="flex items-center gap-2">
+                  {/* Status Filter */}
+                  <div className="flex items-center bg-slate-100 rounded-lg p-0.5 flex-1">
                     <button
-                      key={thought.id}
-                      data-thought-id={thought.id}
-                      onClick={() => setSelectedThoughtId(thought.id)}
-                      className={`w-full p-4 text-left transition-all border-l-4 ${
-                        isSelected 
-                          ? 'bg-violet-50 border-l-violet-600' 
-                          : 'border-l-transparent hover:bg-slate-50'
+                      onClick={() => setQueueFilter('all')}
+                      className={`flex-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
+                        queueFilter === 'all' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600'
                       }`}
                     >
-                      <p className={`text-sm leading-relaxed line-clamp-3 ${isSelected ? 'text-slate-900' : 'text-slate-700'}`}>
-                        {thought.originalText}
-                      </p>
-                      <div className="flex items-center gap-2 mt-2">
-                        {hasDrafts && (
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                            isSharedAny 
-                              ? 'bg-green-100 text-green-700' 
-                              : 'bg-blue-100 text-blue-700'
-                          }`}>
-                            {isSharedAny ? 'Shared' : 'Draft'}
-                          </span>
-                        )}
-                        <span className="text-xs text-slate-400">
-                          {new Date(thought.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                        </span>
-                      </div>
+                      All
                     </button>
-                  );
-                })}
+                    <button
+                      onClick={() => setQueueFilter('draft')}
+                      className={`flex-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
+                        queueFilter === 'draft' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600'
+                      }`}
+                    >
+                      Draft
+                    </button>
+                    <button
+                      onClick={() => setQueueFilter('shared')}
+                      className={`flex-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
+                        queueFilter === 'shared' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600'
+                      }`}
+                    >
+                      Shared
+                    </button>
+                  </div>
+                  
+                  {/* Sort */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowFilterMenu(!showFilterMenu)}
+                      className={`p-1.5 rounded-lg transition-colors ${
+                        queueSort === 'potential' ? 'bg-violet-100 text-violet-700' : 'bg-slate-100 text-slate-600'
+                      }`}
+                      title="Sort by"
+                    >
+                      <TrendingUp className="w-4 h-4" />
+                    </button>
+                    {showFilterMenu && (
+                      <div className="absolute right-0 top-full mt-1 w-36 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-20">
+                        <button
+                          onClick={() => { setQueueSort('potential'); setShowFilterMenu(false); }}
+                          className={`w-full px-3 py-1.5 text-left text-xs ${queueSort === 'potential' ? 'bg-violet-50 text-violet-700' : 'text-slate-700 hover:bg-slate-50'}`}
+                        >
+                          By Potential
+                        </button>
+                        <button
+                          onClick={() => { setQueueSort('newest'); setShowFilterMenu(false); }}
+                          className={`w-full px-3 py-1.5 text-left text-xs ${queueSort === 'newest' ? 'bg-violet-50 text-violet-700' : 'text-slate-700 hover:bg-slate-50'}`}
+                        >
+                          Newest First
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Thought List */}
+              <div ref={thoughtListRef} className="flex-1 overflow-y-auto">
+                {shareThoughts.length === 0 ? (
+                  <div className="p-4 text-center text-slate-500 text-sm">
+                    No thoughts match this filter
+                  </div>
+                ) : (
+                  shareThoughts.map((thought) => {
+                    const isSelected = thought.id === selectedThought?.id;
+                    const hasDrafts = !!thought.sharePosts;
+                    const isSharedAny = thought.sharePosts?.shared?.linkedin || 
+                                        thought.sharePosts?.shared?.twitter || 
+                                        thought.sharePosts?.shared?.instagram;
+
+                    return (
+                      <button
+                        key={thought.id}
+                        ref={isSelected ? selectedThoughtRef : null}
+                        onClick={() => setSelectedThoughtId(thought.id)}
+                        className={`w-full p-4 text-left transition-all border-l-4 ${
+                          isSelected 
+                            ? 'bg-violet-50 border-l-violet-600' 
+                            : 'border-l-transparent hover:bg-slate-50'
+                        }`}
+                      >
+                        <p className={`text-sm leading-relaxed line-clamp-3 ${isSelected ? 'text-slate-900' : 'text-slate-700'}`}>
+                          {thought.originalText}
+                        </p>
+                        <div className="flex items-center gap-2 mt-2">
+                          {hasDrafts && (
+                            <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+                              isSharedAny 
+                                ? 'bg-green-100 text-green-700' 
+                                : 'bg-blue-100 text-blue-700'
+                            }`}>
+                              {isSharedAny ? 'Shared' : 'Draft'}
+                            </span>
+                          )}
+                          <span className="text-xs text-slate-400">
+                            {new Date(thought.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })
+                )}
               </div>
             </div>
 
             {/* Right Content: Draft Editor */}
-            <div className="lg:col-span-8 xl:col-span-9 space-y-6">
+            <div className="lg:col-span-8 xl:col-span-9 space-y-4">
               {selectedThought ? (
                 <>
                   {/* Original Thought Card */}
-                  <div className="bg-gradient-to-br from-violet-50 to-indigo-50 rounded-2xl border border-violet-200/60 p-6">
+                  <div className="bg-gradient-to-br from-violet-50 to-indigo-50 rounded-2xl border border-violet-200/60 p-5">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="text-xs font-medium text-violet-600 uppercase tracking-wide mb-2">
@@ -350,16 +426,15 @@ const ShareStudioView: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Generate Drafts CTA or Platform Tabs */}
+                  {/* Generate Drafts CTA or Platform Editor */}
                   {!selectedThought.sharePosts ? (
-                    /* Generate CTA */
                     <div className="bg-white rounded-2xl border border-slate-200/60 p-8 text-center">
                       <div className="w-16 h-16 bg-gradient-to-br from-violet-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
                         <Sparkles className="w-8 h-8 text-violet-600" />
                       </div>
                       <h3 className="text-xl font-semibold text-slate-900 mb-2">Generate Post Drafts</h3>
                       <p className="text-slate-600 mb-6 max-w-md mx-auto">
-                        AI will create optimized drafts for LinkedIn, X, and Instagram based on your thought.
+                        AI will create optimized drafts for LinkedIn, X, and Instagram.
                       </p>
                       <button
                         onClick={handleGenerateDrafts}
@@ -380,228 +455,173 @@ const ShareStudioView: React.FC = () => {
                       </button>
                     </div>
                   ) : (
-                    <>
-                      {/* Platform Tabs */}
-                      <div className="bg-white rounded-2xl border border-slate-200/60 overflow-hidden">
-                        <div className="flex border-b border-slate-200">
-                          {(['linkedin', 'twitter', 'instagram'] as Platform[]).map((platform) => {
-                            const config = platformConfig[platform];
-                            const IconComponent = config.icon;
-                            const isActive = activePlatform === platform;
-                            const isShared = selectedThought.sharePosts?.shared?.[platform];
+                    <div className="bg-white rounded-2xl border border-slate-200/60 overflow-hidden">
+                      {/* Platform Tabs - Icons Only */}
+                      <div className="flex items-center justify-center gap-2 p-3 bg-slate-50/50 border-b border-slate-100">
+                        {(['linkedin', 'twitter', 'instagram'] as Platform[]).map((platform) => {
+                          const config = platformConfig[platform];
+                          const IconComponent = config.icon;
+                          const isActive = activePlatform === platform;
+                          const isShared = selectedThought.sharePosts?.shared?.[platform];
 
-                            return (
+                          return (
+                            <button
+                              key={platform}
+                              onClick={() => setActivePlatform(platform)}
+                              className={`relative p-3 rounded-xl transition-all ${
+                                isActive 
+                                  ? `${config.activeBg} ${config.color} shadow-sm` 
+                                  : `text-slate-400 hover:text-slate-600 hover:bg-slate-100`
+                              }`}
+                            >
+                              <IconComponent />
+                              {isShared && (
+                                <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                                  <CheckCircle2 className="w-3 h-3 text-white" />
+                                </div>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Draft Content */}
+                      <div className="p-6">
+                        {editingPlatform === activePlatform ? (
+                          <div className="space-y-4">
+                            <textarea
+                              value={editingContent}
+                              onChange={(e) => setEditingContent(e.target.value)}
+                              className="w-full p-4 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 text-sm leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+                              rows={8}
+                              autoFocus
+                            />
+                            <div className="flex items-center gap-2">
                               <button
-                                key={platform}
-                                onClick={() => setActivePlatform(platform)}
-                                className={`flex-1 flex items-center justify-center gap-2 px-4 py-4 font-medium transition-all border-b-2 ${
-                                  isActive 
-                                    ? `${config.color} border-current bg-slate-50/50` 
-                                    : 'text-slate-500 border-transparent hover:text-slate-700 hover:bg-slate-50/50'
-                                }`}
+                                onClick={handleEditSave}
+                                className="flex items-center gap-1.5 px-4 py-2 bg-violet-600 text-white rounded-lg text-sm font-medium hover:bg-violet-700 transition-colors"
                               >
-                                <IconComponent className="w-5 h-5" />
-                                <span className="hidden sm:inline">{config.name}</span>
-                                {isShared && (
-                                  <CheckCircle2 className="w-4 h-4 text-green-500" />
-                                )}
+                                <Save className="w-4 h-4" />
+                                Save
                               </button>
-                            );
-                          })}
-                        </div>
+                              <button
+                                onClick={handleEditCancel}
+                                className="px-4 py-2 text-slate-600 hover:text-slate-900 text-sm font-medium transition-colors"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <PlatformPreview
+                            platform={activePlatform}
+                            content={selectedThought.sharePosts?.[activePlatform] || ''}
+                            imageUrl={
+                              (activePlatform === 'linkedin' || activePlatform === 'instagram')
+                                ? selectedThought.sharePosts?.imageUrl
+                                : undefined
+                            }
+                            onCopy={() => handleCopyContent(activePlatform)}
+                            copied={copiedPlatform === activePlatform}
+                          />
+                        )}
+                      </div>
 
-                        {/* Draft Content */}
-                        <div className="p-6">
-                          {editingPlatform === activePlatform ? (
-                            /* Edit Mode */
-                            <div className="space-y-4">
-                              <textarea
-                                value={editingContent}
-                                onChange={(e) => setEditingContent(e.target.value)}
-                                className="w-full p-4 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 text-sm leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
-                                rows={8}
-                                autoFocus
-                              />
+                      {/* Action Bar */}
+                      {editingPlatform !== activePlatform && (
+                        <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+                          <div className="flex items-center gap-2">
+                            {showRetryInput ? (
                               <div className="flex items-center gap-2">
+                                <input
+                                  type="text"
+                                  value={retryFeedback}
+                                  onChange={(e) => setRetryFeedback(e.target.value)}
+                                  placeholder="Feedback (optional)..."
+                                  className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm w-40 focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+                                />
                                 <button
-                                  onClick={handleEditSave}
-                                  className="flex items-center gap-1.5 px-4 py-2 bg-violet-600 text-white rounded-lg text-sm font-medium hover:bg-violet-700 transition-colors"
+                                  onClick={handleGenerateDrafts}
+                                  disabled={generating}
+                                  className="px-3 py-2 bg-violet-600 text-white rounded-lg text-sm font-medium hover:bg-violet-700 transition-colors disabled:opacity-50 flex items-center gap-1.5"
                                 >
-                                  <Save className="w-4 h-4" />
-                                  Save Changes
+                                  {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                                 </button>
                                 <button
-                                  onClick={handleEditCancel}
-                                  className="px-4 py-2 text-slate-600 hover:text-slate-900 text-sm font-medium transition-colors"
+                                  onClick={() => { setShowRetryInput(false); setRetryFeedback(''); }}
+                                  className="p-2 text-slate-400 hover:text-slate-600"
                                 >
-                                  Cancel
+                                  <X className="w-4 h-4" />
                                 </button>
                               </div>
-                            </div>
-                          ) : (
-                            /* View Mode */
-                            <div>
-                              <PlatformPreview
-                                platform={activePlatform}
-                                content={selectedThought.sharePosts?.[activePlatform] || ''}
-                                imageUrl={
-                                  (activePlatform === 'linkedin' || activePlatform === 'instagram')
-                                    ? selectedThought.sharePosts?.imageUrl
-                                    : undefined
-                                }
-                                onCopy={() => handleCopyContent(activePlatform)}
-                                copied={copiedPlatform === activePlatform}
-                              />
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Action Bar */}
-                        {editingPlatform !== activePlatform && (
-                          <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
-                            <div className="flex items-center gap-2">
-                              {/* Regenerate with feedback */}
-                              {showRetryInput ? (
-                                <div className="flex items-center gap-2">
-                                  <input
-                                    type="text"
-                                    value={retryFeedback}
-                                    onChange={(e) => setRetryFeedback(e.target.value)}
-                                    placeholder="Optional: Add feedback..."
-                                    className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm w-48 focus:outline-none focus:ring-2 focus:ring-violet-500/20"
-                                  />
-                                  <button
-                                    onClick={handleGenerateDrafts}
-                                    disabled={generating}
-                                    className="px-3 py-2 bg-violet-600 text-white rounded-lg text-sm font-medium hover:bg-violet-700 transition-colors disabled:opacity-50 flex items-center gap-1.5"
-                                  >
-                                    {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                                    Retry
-                                  </button>
-                                  <button
-                                    onClick={() => { setShowRetryInput(false); setRetryFeedback(''); }}
-                                    className="p-2 text-slate-400 hover:text-slate-600"
-                                  >
-                                    <X className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              ) : (
+                            ) : (
+                              <>
                                 <button
                                   onClick={() => setShowRetryInput(true)}
                                   className="flex items-center gap-1.5 px-3 py-2 text-slate-600 hover:text-slate-900 hover:bg-white rounded-lg text-sm font-medium transition-colors"
                                 >
                                   <RefreshCw className="w-4 h-4" />
-                                  Retry Draft
+                                  Retry
                                 </button>
-                              )}
-
-                              {/* Edit */}
-                              <button
-                                onClick={() => handleEditStart(activePlatform)}
-                                className="flex items-center gap-1.5 px-3 py-2 text-slate-600 hover:text-slate-900 hover:bg-white rounded-lg text-sm font-medium transition-colors"
-                              >
-                                <Edit3 className="w-4 h-4" />
-                                Edit
-                              </button>
-
-                              {/* Generate Image (LinkedIn/Instagram only) */}
-                              {(activePlatform === 'linkedin' || activePlatform === 'instagram') && (
                                 <button
-                                  onClick={handleGenerateImage}
-                                  disabled={generatingImage}
-                                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                    selectedThought.sharePosts?.imageUrl
-                                      ? 'text-green-600 hover:bg-green-50'
-                                      : 'text-slate-600 hover:text-slate-900 hover:bg-white'
-                                  }`}
+                                  onClick={() => handleEditStart(activePlatform)}
+                                  className="flex items-center gap-1.5 px-3 py-2 text-slate-600 hover:text-slate-900 hover:bg-white rounded-lg text-sm font-medium transition-colors"
                                 >
-                                  {generatingImage ? (
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                  ) : (
-                                    <Image className="w-4 h-4" />
-                                  )}
-                                  {selectedThought.sharePosts?.imageUrl ? 'Regenerate Image' : 'Add Image'}
+                                  <Edit3 className="w-4 h-4" />
+                                  Edit
                                 </button>
-                              )}
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                              {/* Copy */}
-                              <button
-                                onClick={() => handleCopyContent(activePlatform)}
-                                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                  copiedPlatform === activePlatform
-                                    ? 'bg-green-100 text-green-700'
-                                    : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
-                                }`}
-                              >
-                                <Copy className="w-4 h-4" />
-                                {copiedPlatform === activePlatform ? 'Copied!' : 'Copy'}
-                              </button>
-
-                              {/* Share */}
-                              <button
-                                onClick={() => handleShare(activePlatform)}
-                                className="flex items-center gap-1.5 px-4 py-2 bg-violet-600 text-white rounded-lg text-sm font-medium hover:bg-violet-700 transition-colors"
-                              >
-                                <ExternalLink className="w-4 h-4" />
-                                Share
-                              </button>
-
-                              {/* Mark as Shared */}
-                              <button
-                                onClick={() => handleMarkAsShared(activePlatform)}
-                                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                  selectedThought.sharePosts?.shared?.[activePlatform]
-                                    ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                                    : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
-                                }`}
-                              >
-                                <CheckCircle2 className="w-4 h-4" />
-                                {selectedThought.sharePosts?.shared?.[activePlatform] ? 'Shared ✓' : 'Mark Shared'}
-                              </button>
-                            </div>
+                                {(activePlatform === 'linkedin' || activePlatform === 'instagram') && (
+                                  <button
+                                    onClick={handleGenerateImage}
+                                    disabled={generatingImage}
+                                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                      selectedThought.sharePosts?.imageUrl
+                                        ? 'text-green-600 hover:bg-green-50'
+                                        : 'text-slate-600 hover:text-slate-900 hover:bg-white'
+                                    }`}
+                                  >
+                                    {generatingImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Image className="w-4 h-4" />}
+                                    {selectedThought.sharePosts?.imageUrl ? 'Image ✓' : 'Image'}
+                                  </button>
+                                )}
+                              </>
+                            )}
                           </div>
-                        )}
-                      </div>
 
-                      {/* Quick Platform Stats */}
-                      <div className="grid grid-cols-3 gap-4">
-                        {(['linkedin', 'twitter', 'instagram'] as Platform[]).map((platform) => {
-                          const config = platformConfig[platform];
-                          const IconComponent = config.icon;
-                          const isShared = selectedThought.sharePosts?.shared?.[platform];
-                          const hasContent = !!selectedThought.sharePosts?.[platform];
-
-                          return (
-                            <div
-                              key={platform}
-                              className={`p-4 rounded-xl border ${
-                                isShared 
-                                  ? 'bg-green-50 border-green-200' 
-                                  : hasContent 
-                                    ? `${config.bg} ${config.border}` 
-                                    : 'bg-slate-50 border-slate-200'
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleCopyContent(activePlatform)}
+                              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                copiedPlatform === activePlatform
+                                  ? 'bg-green-100 text-green-700'
+                                  : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
                               }`}
                             >
-                              <div className="flex items-center gap-2 mb-2">
-                                <IconComponent className={`w-5 h-5 ${isShared ? 'text-green-600' : config.color}`} />
-                                <span className="font-medium text-slate-900">{config.name}</span>
-                              </div>
-                              <div className="text-sm text-slate-600">
-                                {isShared ? (
-                                  <span className="text-green-600 font-medium">✓ Shared</span>
-                                ) : hasContent ? (
-                                  'Draft ready'
-                                ) : (
-                                  'No draft'
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </>
+                              <Copy className="w-4 h-4" />
+                              {copiedPlatform === activePlatform ? 'Copied!' : 'Copy'}
+                            </button>
+                            <button
+                              onClick={() => handleShare(activePlatform)}
+                              className="flex items-center gap-1.5 px-4 py-2 bg-violet-600 text-white rounded-lg text-sm font-medium hover:bg-violet-700 transition-colors"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                              Share
+                            </button>
+                            <button
+                              onClick={() => handleMarkAsShared(activePlatform)}
+                              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                selectedThought.sharePosts?.shared?.[activePlatform]
+                                  ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                  : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+                              }`}
+                            >
+                              <CheckCircle2 className="w-4 h-4" />
+                              {selectedThought.sharePosts?.shared?.[activePlatform] ? '✓ Shared' : 'Mark Shared'}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   )}
                 </>
               ) : (
@@ -614,7 +634,7 @@ const ShareStudioView: React.FC = () => {
         )}
       </div>
 
-      {/* Toast Notification */}
+      {/* Toast */}
       {showToast && (
         <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-5">
           <div className={`px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 ${
@@ -626,6 +646,11 @@ const ShareStudioView: React.FC = () => {
             <span className="font-medium">{showToast.message}</span>
           </div>
         </div>
+      )}
+
+      {/* Click outside handler */}
+      {showFilterMenu && (
+        <div className="fixed inset-0 z-10" onClick={() => setShowFilterMenu(false)} />
       )}
     </div>
   );

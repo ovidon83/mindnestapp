@@ -4,6 +4,7 @@ import { supabase, hasSupabaseCredentials } from './lib/supabase';
 import CaptureView from './components/CaptureView';
 import LibraryView from './components/LibraryView';
 import ShareStudioView from './components/ShareStudioView';
+import ActView from './components/ActView';
 import Auth from './components/Auth';
 
 // Thouty - Your Thought Companion
@@ -18,13 +19,14 @@ const App: React.FC = () => {
   useEffect(() => {
     // Check initial hash on mount
     const initialHash = window.location.hash.slice(1);
-    const validViews = ['capture', 'library', 'studio', 'thoughts', 'home', 'shareit'];
+    const validViews = ['capture', 'library', 'studio', 'act', 'thoughts', 'home', 'shareit', 'todo'];
     if (initialHash && validViews.includes(initialHash)) {
       // Map old views to new views
       const viewMap: Record<string, string> = {
         'thoughts': 'library',
         'home': 'library',
         'shareit': 'studio',
+        'todo': 'act',
       };
       const view = viewMap[initialHash] || initialHash;
       setCurrentView(view as any);
@@ -41,6 +43,7 @@ const App: React.FC = () => {
             'thoughts': 'library',
             'home': 'library',
             'shareit': 'studio',
+            'todo': 'act',
           };
           const view = viewMap[hash] || hash;
           setCurrentView(view as any);
@@ -69,12 +72,13 @@ const App: React.FC = () => {
         loadActions();
         // Check hash first, then default to library
         const hash = window.location.hash.slice(1);
-        const validViews = ['capture', 'library', 'studio', 'thoughts', 'home', 'shareit'];
+        const validViews = ['capture', 'library', 'studio', 'act', 'thoughts', 'home', 'shareit', 'todo'];
         if (hash && validViews.includes(hash)) {
           const viewMap: Record<string, string> = {
             'thoughts': 'library',
             'home': 'library',
             'shareit': 'studio',
+            'todo': 'act',
           };
           const view = viewMap[hash] || hash;
           setCurrentView(view as any);
@@ -177,6 +181,8 @@ const App: React.FC = () => {
             <CaptureView />
           ) : currentView === 'studio' || currentView === 'shareit' ? (
             <ShareStudioView />
+          ) : currentView === 'act' || currentView === 'todo' ? (
+            <ActView />
           ) : (
             <LibraryView />
           )}

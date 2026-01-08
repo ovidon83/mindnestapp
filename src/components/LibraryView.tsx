@@ -16,7 +16,8 @@ import {
   Clock,
   TrendingUp,
   MoreHorizontal,
-  Trash2
+  Trash2,
+  CheckSquare
 } from 'lucide-react';
 import NavigationNew from './NavigationNew';
 import { calculatePowerfulScore } from '../lib/calculate-powerful-score';
@@ -212,10 +213,10 @@ const LibraryView: React.FC = () => {
         onLogout={signOut}
       />
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">Your Thoughts</h1>
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">Thoughts</h1>
           <p className="text-slate-600">
             {stats.total} thoughts • {stats.shareReady} ready to share
           </p>
@@ -328,7 +329,7 @@ const LibraryView: React.FC = () => {
           </div>
         </div>
 
-        {/* Thoughts List */}
+        {/* Thoughts Grid */}
         {filteredThoughts.length === 0 ? (
           <div className="text-center py-16">
             <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -350,7 +351,7 @@ const LibraryView: React.FC = () => {
             )}
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredThoughts.map((thought) => {
               const sharingPotential = getSharingPotential(thought);
               const isEditing = editingId === thought.id;
@@ -358,39 +359,52 @@ const LibraryView: React.FC = () => {
               const isShared = thought.sharePosts?.shared?.linkedin || 
                               thought.sharePosts?.shared?.twitter || 
                               thought.sharePosts?.shared?.instagram;
+              const isTodo = thought.potential === 'Do';
 
               return (
                 <div
                   key={thought.id}
-                  className={`group bg-white rounded-2xl border transition-all duration-200 ${
+                  className={`group bg-white rounded-2xl border-2 border-dashed transition-all duration-200 flex flex-col ${
                     thought.isParked 
                       ? 'border-slate-200/60 opacity-75' 
                       : sharingPotential === 'high'
                         ? 'border-amber-200/60 hover:border-amber-300 hover:shadow-md'
-                        : 'border-slate-200/60 hover:border-slate-300 hover:shadow-md'
+                        : isTodo
+                          ? 'border-emerald-200/60 hover:border-emerald-300 hover:shadow-md'
+                          : 'border-slate-200/60 hover:border-slate-300 hover:shadow-md'
                   }`}
                 >
-                  {/* Sharing Potential Badge */}
+                  {/* Sharing Potential Badge - positioned on border */}
                   {sharingPotential && !thought.isParked && (
-                    <div className="px-5 pt-4 pb-0">
-                      <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+                    <div className="px-4 pt-3 pb-0 -mt-3">
+                      <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${
                         sharingPotential === 'high' 
-                          ? 'bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 border border-amber-200/60' 
+                          ? 'bg-amber-100 text-amber-700' 
                           : sharingPotential === 'medium'
-                            ? 'bg-violet-50 text-violet-700 border border-violet-200/60'
-                            : 'bg-slate-50 text-slate-600 border border-slate-200/60'
+                            ? 'bg-violet-100 text-violet-700'
+                            : 'bg-slate-100 text-slate-600'
                       }`}>
                         <Sparkles className="w-3 h-3" />
-                        {sharingPotential === 'high' ? 'High Sharing Potential' : 
-                         sharingPotential === 'medium' ? 'Good for Sharing' : 'May be worth sharing'}
+                        {sharingPotential === 'high' ? 'High potential' : 
+                         sharingPotential === 'medium' ? 'Good potential' : 'Worth sharing'}
                       </div>
                     </div>
                   )}
 
-                  <div className="p-5">
+                  {/* To-Do Badge */}
+                  {isTodo && !thought.isParked && (
+                    <div className="px-4 pt-3 pb-0 -mt-3">
+                      <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                        <CheckSquare className="w-3 h-3" />
+                        To-Do
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="p-4 flex-1 flex flex-col">
                     {/* Content */}
                     {isEditing ? (
-                      <div className="space-y-3">
+                      <div className="space-y-3 flex-1">
                         <textarea
                           value={editingText}
                           onChange={(e) => setEditingText(e.target.value)}
@@ -415,31 +429,31 @@ const LibraryView: React.FC = () => {
                         </div>
                       </div>
                     ) : (
-                      <p className={`text-slate-800 text-sm leading-relaxed ${thought.isParked ? 'text-slate-500' : ''}`}>
+                      <p className={`text-slate-800 text-sm leading-relaxed line-clamp-4 flex-1 ${thought.isParked ? 'text-slate-500' : ''}`}>
                         {thought.originalText}
                       </p>
                     )}
 
                     {/* Footer */}
-                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
-                      <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
+                      <div className="flex items-center gap-2">
                         <span className="text-xs text-slate-500">
                           {formatDate(thought.createdAt)}
                         </span>
                         {hasSharePosts && (
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                          <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
                             isShared 
                               ? 'bg-green-100 text-green-700' 
                               : 'bg-blue-100 text-blue-700'
                           }`}>
-                            {isShared ? 'Shared' : 'Draft Ready'}
+                            {isShared ? 'Shared' : 'Draft'}
                           </span>
                         )}
                       </div>
 
                       <div className="flex items-center gap-1">
-                        {/* Quick action: Go to Studio (if Share potential) */}
-                        {(thought.potential === 'Share' || sharingPotential) && !thought.isParked && (
+                        {/* Quick action: Go to Share (if Share potential) */}
+                        {(thought.potential === 'Share' || sharingPotential) && !thought.isParked && !isTodo && (
                           <button
                             onClick={() => {
                               if (thought.potential !== 'Share') {
@@ -447,17 +461,28 @@ const LibraryView: React.FC = () => {
                               }
                               handleGoToStudio(thought.id);
                             }}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-100 text-violet-700 rounded-lg text-xs font-medium hover:bg-violet-200 transition-colors"
+                            className="p-1.5 text-violet-600 hover:bg-violet-50 rounded-lg transition-colors"
+                            title={hasSharePosts ? 'Open in Share' : 'Create Drafts'}
                           >
-                            <Send className="w-3.5 h-3.5" />
-                            {hasSharePosts ? 'Open in Studio' : 'Create Drafts'}
+                            <Send className="w-4 h-4" />
+                          </button>
+                        )}
+
+                        {/* Quick action: Go to Act (if To-Do) */}
+                        {isTodo && !thought.isParked && (
+                          <button
+                            onClick={() => setCurrentView('act', thought.id)}
+                            className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                            title="Open in Act"
+                          >
+                            <CheckSquare className="w-4 h-4" />
                           </button>
                         )}
 
                         {/* Edit button */}
                         <button
                           onClick={() => handleEdit(thought)}
-                          className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                          className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
                           title="Edit thought"
                         >
                           <Edit2 className="w-4 h-4" />
@@ -467,7 +492,7 @@ const LibraryView: React.FC = () => {
                         <div className="relative">
                           <button
                             onClick={() => setExpandedMenu(expandedMenu === thought.id ? null : thought.id)}
-                            className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
                           >
                             <MoreHorizontal className="w-4 h-4" />
                           </button>
