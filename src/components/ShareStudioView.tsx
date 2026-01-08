@@ -90,8 +90,8 @@ const ShareStudioView: React.FC = () => {
       // First try to find in filtered list
       const inList = shareThoughts.find(t => t.id === selectedThoughtId);
       if (inList) return inList;
-      // If not in filtered list, find in all thoughts (might be newly added)
-      const inAll = thoughts.find(t => t.id === selectedThoughtId && t.potential === 'Share' && !t.isParked);
+      // If not in filtered list, find in ALL thoughts (even if not yet marked as Share)
+      const inAll = thoughts.find(t => t.id === selectedThoughtId && !t.isParked);
       if (inAll) return inAll;
     }
     return shareThoughts[0] || null;
