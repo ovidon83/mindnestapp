@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useGenieNotesStore } from '../store';
-import { Mic, MicOff, Sparkles, CheckCircle, Upload, Search, Mail, Twitter, Linkedin, Instagram, Brain, Lightbulb, Calendar, X, Bell, Clock, FileText, MessageSquare, ParkingCircle, ChevronDown } from 'lucide-react';
+import { Mic, MicOff, Sparkles, CheckCircle, Upload, Search, Mail, Twitter, Linkedin, Instagram, Brain, Lightbulb, Calendar, X, Bell, Clock, FileText, MessageSquare, ParkingCircle, ChevronDown, ArrowLeft } from 'lucide-react';
 import { saveTrainingData } from '../lib/db';
 import UserAvatar from './UserAvatar';
-import Navigation from './Navigation';
+import NavigationNew from './NavigationNew';
 
 interface CaptureViewProps {
   onOrganizeClick?: (mode?: 'login' | 'signup') => void;
@@ -283,9 +283,9 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
 
     return (
     <div className="min-h-screen bg-white">
-      {/* Navigation - Use Navigation component when logged in, custom nav for landing page */}
+      {/* Navigation - Use NavigationNew component when logged in, custom nav for landing page */}
       {user ? (
-        <Navigation
+        <NavigationNew
           currentView="capture"
           onViewChange={setCurrentView}
           user={user}
@@ -1230,25 +1230,31 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
         </>
       ) : (
         /* Logged in view - clean capture interface */
-        <>
-          <div className="py-12 sm:py-16 bg-gradient-to-br from-slate-50 via-white to-purple-50/20 relative overflow-visible">
-          {/* Floating background orbs - subtle */}
-          <div className="absolute top-10 right-10 w-80 h-80 bg-pink-100/30 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-10 left-10 w-72 h-72 bg-orange-100/30 rounded-full blur-3xl"></div>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-purple-100/20 rounded-full blur-3xl"></div>
+        <div className="min-h-[calc(100vh-4rem)] bg-slate-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-2xl">
+            {/* Back Button */}
+            <button
+              onClick={() => setCurrentView('library')}
+              className="flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-6 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm font-medium">Back to Library</span>
+            </button>
 
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="p-6 sm:p-8 lg:p-10 xl:p-12 bg-white/50 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-lg border border-slate-200/50">
-              <div className="mb-6 sm:mb-8 lg:mb-10 text-center">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-3 sm:mb-4 leading-tight">
-                  <span className="text-slate-900">What's on your </span>
-                  <span className="bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 bg-clip-text text-transparent italic pr-1">mind?</span>
-                </h2>
+            {/* Capture Card */}
+            <div className="bg-white rounded-2xl shadow-lg border border-slate-200/60 overflow-hidden">
+              {/* Header */}
+              <div className="px-8 pt-8 pb-4">
+                <h1 className="text-2xl font-bold text-slate-900 mb-1">
+                  What's on your mind?
+                </h1>
+                <p className="text-slate-500 text-sm">
+                  Capture a thought, idea, or task
+                </p>
               </div>
-              
-              <div className="mb-6 sm:mb-8 relative">
-                {/* Subtle gradient background */}
-                <div className="absolute inset-0 bg-gradient-to-r from-pink-50/50 via-orange-50/50 to-purple-50/50 rounded-xl sm:rounded-2xl"></div>
+
+              {/* Input Area */}
+              <div className="px-8 pb-6">
                 <textarea
                   value={pendingText || transcript || inputText}
                   onChange={(e) => {
@@ -1261,87 +1267,57 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                       setInputText(e.target.value);
                     }
                   }}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
                       e.preventDefault();
                       handleSubmit();
                     }
                   }}
-                  placeholder="Share your thoughts, tasks, ideas..."
-                  className="relative w-full p-4 sm:p-6 text-sm sm:text-base lg:text-lg bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-pink-300/50 resize-none h-32 sm:h-44 lg:h-52 border border-slate-200/60 shadow-sm hover:border-pink-200/80 transition-all"
+                  placeholder="Start typing or use voice input..."
+                  className="w-full p-4 bg-slate-50 rounded-xl text-slate-800 text-base leading-relaxed resize-none h-40 border-0 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:bg-white transition-all placeholder:text-slate-400"
+                  autoFocus
                 />
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 sm:gap-0">
+              {/* Action Bar */}
+              <div className="px-8 py-4 bg-slate-50 border-t border-slate-200/60 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  {/* Voice Input Button */}
+                  {/* Voice Input */}
                   {isSpeechRecognitionAvailable() ? (
                     <button
                       onClick={handleVoiceInput}
-                      className={`p-3 sm:p-3.5 rounded-lg sm:rounded-xl transition-all shadow-md hover:shadow-lg min-h-[44px] min-w-[44px] flex items-center justify-center ${
+                      className={`p-2.5 rounded-lg transition-all ${
                         isRecording 
-                          ? 'bg-red-500 text-white shadow-lg animate-pulse' 
-                          : 'bg-gradient-to-br from-blue-100 to-cyan-100 text-blue-600 hover:from-blue-200 hover:to-cyan-200 hover:scale-105'
+                          ? 'bg-red-500 text-white animate-pulse' 
+                          : 'bg-white text-slate-600 hover:text-violet-600 hover:bg-violet-50 border border-slate-200'
                       }`}
                       title={isRecording ? 'Stop recording' : 'Start voice input'}
-                      type="button"
                     >
-                      {isRecording ? (
-                        <MicOff className="w-5 h-5" />
-                      ) : (
-                        <Mic className="w-5 h-5" />
-                      )}
+                      {isRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
                     </button>
                   ) : (
                     <button
-                      className="p-3 sm:p-3.5 rounded-lg sm:rounded-xl bg-slate-100 text-slate-400 cursor-not-allowed min-h-[44px] min-w-[44px] flex items-center justify-center"
-                      title="Voice input not supported in this browser"
-                      type="button"
+                      className="p-2.5 rounded-lg bg-slate-100 text-slate-400 cursor-not-allowed"
+                      title="Voice input not supported"
                       disabled
                     >
                       <Mic className="w-5 h-5" />
                     </button>
                   )}
-                  
-                  {/* Training Upload Button */}
-                  <div className="relative">
-                    <button
-                      onClick={() => setShowUpload(!showUpload)}
-                      className="p-3 sm:p-3.5 rounded-lg sm:rounded-xl bg-gradient-to-br from-blue-100 to-cyan-100 text-blue-600 hover:from-blue-200 hover:to-cyan-200 transition-all shadow-md hover:shadow-lg hover:scale-105 min-h-[44px] min-w-[44px] flex items-center justify-center"
-                      title="Upload training data"
-                    >
-                      <Upload className="w-5 h-5" />
-                    </button>
-                    
-                    {showUpload && (
-                      <div className="absolute left-0 mt-2 bg-white rounded-lg shadow-lg p-2 z-10 min-w-[140px]">
-                        <button
-                          onClick={handleTextUpload}
-                          className="block w-full text-left px-4 py-2 text-sm hover:bg-slate-50 rounded-lg transition-colors"
-                        >
-                          Upload Text
-                        </button>
-                        <label className="block w-full text-left px-4 py-2 text-sm hover:bg-slate-50 rounded-lg cursor-pointer transition-colors">
-                          Upload File
-                          <input
-                            ref={fileInputRef}
-                            type="file"
-                            className="hidden"
-                            onChange={handleFileUpload}
-                            accept=".txt,.md,.doc,.docx"
-                          />
-                        </label>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Voice Status */}
+
+                  {/* Recording indicator */}
                   {isRecording && (
-                    <div className="flex items-center gap-2 text-red-600 ml-2">
-                      <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
-                      <span className="text-sm font-medium">Recording...</span>
-                    </div>
+                    <span className="flex items-center gap-2 text-red-600 text-sm font-medium">
+                      <span className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></span>
+                      Recording...
+                    </span>
+                  )}
+
+                  {/* Keyboard shortcut hint */}
+                  {!isRecording && (
+                    <span className="text-xs text-slate-400 hidden sm:inline">
+                      ⌘ + Enter to save
+                    </span>
                   )}
                 </div>
 
@@ -1349,20 +1325,20 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
                 <button
                   onClick={handleSubmit}
                   disabled={!hasContent || isProcessing}
-                  className={`w-full sm:w-auto px-6 sm:px-8 lg:px-10 py-3 sm:py-4 rounded-lg sm:rounded-xl font-bold text-sm sm:text-base lg:text-lg flex items-center justify-center gap-2 transition-all shadow-xl hover:shadow-2xl min-h-[44px] ${
+                  className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-medium transition-all ${
                     hasContent && !isProcessing
-                      ? 'bg-gradient-to-r from-pink-500 via-orange-500 to-purple-500 text-white hover:from-pink-600 hover:via-orange-600 hover:to-purple-600 hover:scale-105'
-                      : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                      ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:shadow-lg hover:shadow-violet-200 hover:-translate-y-0.5'
+                      : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                   }`}
                 >
                   {isProcessing ? (
                     <>
-                      <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Capturing...</span>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Saving...</span>
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <Sparkles className="w-4 h-4" />
                       <span>Capture</span>
                     </>
                   )}
@@ -1372,25 +1348,20 @@ const CaptureView: React.FC<CaptureViewProps> = ({ onOrganizeClick }) => {
 
             {/* Error Message */}
             {error && (
-              <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <div className="text-sm text-red-700">{error}</div>
+              <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+                <p className="text-sm text-red-700">{error}</p>
               </div>
             )}
 
             {/* Success Message */}
             {showSuccess && (
-              <div className="mt-6 p-4 bg-purple-50 border border-purple-200 rounded-lg text-center">
-                <div className="flex items-center justify-center gap-2 text-purple-700">
-                  <CheckCircle className="w-5 h-5" />
-                  <span className="font-medium">
-                    Thought captured and saved!
-                  </span>
-                </div>
+              <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <p className="text-sm text-green-700 font-medium">Thought captured!</p>
               </div>
             )}
           </div>
         </div>
-        </>
       )}
 
     </div>

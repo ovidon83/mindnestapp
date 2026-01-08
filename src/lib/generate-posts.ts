@@ -12,11 +12,102 @@ interface PostDrafts {
   instagram: string;
 }
 
+// Research-backed best practices for viral social media posts
+const PLATFORM_GUIDELINES = `
+=== LINKEDIN BEST PRACTICES (Research-Backed) ===
+
+STRUCTURE (The "Hook-Story-Insight" Framework):
+1. HOOK (First 2 lines - CRITICAL, this is what shows before "see more"):
+   - Start with a bold statement, surprising fact, or contrarian take
+   - Use pattern interrupts: "I was wrong about...", "Nobody talks about...", "The real reason..."
+   - Create curiosity gap - make them NEED to click "see more"
+   - Avoid starting with "I" - start with the insight
+
+2. STORY/CONTEXT (The meat - 3-5 short paragraphs):
+   - Share a specific personal experience or observation
+   - Use concrete details, numbers, timeframes
+   - Show vulnerability - failures teach more than successes
+   - Build tension or reveal a transformation
+   - Each paragraph: 2-3 sentences MAX
+
+3. INSIGHT/LESSON (The payoff):
+   - Distill the key learning into actionable wisdom
+   - Make it transferable to the reader's situation
+   - Use "You" language to connect directly
+
+4. CTA (Engagement driver):
+   - End with a question that invites comments
+   - Or a bold restatement of the main point
+   - Never beg for engagement ("like if you agree")
+
+FORMAT RULES:
+- 1,200-1,900 characters optimal (shows fully in feed)
+- Single sentences as paragraphs for emphasis
+- Use "↓" or line breaks to create visual rhythm
+- 3-5 relevant hashtags at the END (not inline)
+- No emojis in professional content (or very sparingly)
+
+VIRAL TRIGGERS:
+- Contrarian takes on common beliefs
+- Personal failures/lessons learned
+- Behind-the-scenes insights
+- Data or specific numbers
+- "Here's what I learned" frameworks
+
+=== TWITTER/X BEST PRACTICES ===
+
+STRUCTURE:
+- Lead with the punchline, not the setup
+- Every word must earn its place
+- Create "screenshot-worthy" moments
+- Hot takes > lukewarm observations
+
+FORMAT RULES:
+- Under 280 characters for single tweets
+- Use line breaks for rhythm
+- 1-2 emojis max (if any)
+- No hashtags (they reduce engagement on X)
+- End with a twist or reframe
+
+VIRAL TRIGGERS:
+- Counterintuitive insights
+- Relatable observations
+- Strong opinions stated simply
+- "Unpopular opinion:" format
+- Specific > generic always
+
+=== INSTAGRAM BEST PRACTICES ===
+
+STRUCTURE:
+1. HOOK (First line - shows in preview):
+   - Emotional or intriguing opening
+   - Personal and relatable
+   - "The moment I realized..." "What nobody tells you about..."
+
+2. STORY (Body - 150-300 words):
+   - More personal/emotional than LinkedIn
+   - Conversational, like talking to a friend
+   - Share the messy middle, not just the polished result
+   - Be vulnerable and authentic
+
+3. CTA + HASHTAGS:
+   - Invite engagement naturally
+   - 5-10 relevant hashtags (mix of popular and niche)
+   - Hashtags on separate line at end
+
+FORMAT RULES:
+- Line breaks between paragraphs (crucial for readability)
+- Can use emojis to add personality
+- 150-300 words optimal
+- More casual/conversational than LinkedIn
+`;
+
 export async function generatePostDrafts(
   thought: Thought,
   userProfile?: UserProfile | null,
   previousThoughts?: Thought[],
-  userFeedback?: string
+  userFeedback?: string,
+  currentDrafts?: { linkedin?: string; twitter?: string; instagram?: string }
 ): Promise<PostDrafts> {
   if (!OPENAI_API_KEY) {
     return {
@@ -30,7 +121,8 @@ export async function generatePostDrafts(
     // Build context about user
     let userContext = '';
     if (userProfile) {
-      userContext = `User Profile:
+      userContext = `
+USER PROFILE (Write in their voice):
 - Name: ${userProfile.name || 'Not specified'}
 - Role: ${userProfile.role || 'Not specified'}
 - Industry: ${userProfile.industry || 'Not specified'}
@@ -39,19 +131,85 @@ export async function generatePostDrafts(
 - Goals: ${userProfile.goals?.join(', ') || 'None'}
 - Communication Style: ${userProfile.communicationStyle || 'Not specified'}
 - Preferred Tone: ${userProfile.preferredTone || 'Not specified'}
-- Priorities: ${userProfile.priorities || 'Not specified'}
-- Additional Context: ${userProfile.context || 'None'}
 `;
     }
 
-    // Build context from previous thoughts (last 10)
+    // Build context from previous thoughts
     let thoughtsContext = '';
     if (previousThoughts && previousThoughts.length > 0) {
-      thoughtsContext = `Previous thoughts (to understand user's voice and interests):\n${previousThoughts
-        .slice(0, 10)
-        .map((t, i) => `${i + 1}. ${t.originalText}`)
-        .join('\n')}\n`;
+      thoughtsContext = `
+USER'S VOICE (Match this style and perspective):
+${previousThoughts.slice(0, 5).map((t, i) => `${i + 1}. "${t.originalText}"`).join('\n')}
+`;
     }
+
+    // Build retry context
+    let retryContext = '';
+    if (currentDrafts && (currentDrafts.linkedin || currentDrafts.twitter || currentDrafts.instagram)) {
+      retryContext = `
+=== CURRENT DRAFTS (User may have edited - preserve their direction) ===
+LinkedIn: ${currentDrafts.linkedin || 'None'}
+Twitter: ${currentDrafts.twitter || 'None'}  
+Instagram: ${currentDrafts.instagram || 'None'}
+
+IMPORTANT: If the user edited these drafts, incorporate their changes and style preferences. Build upon what they've written.
+`;
+    }
+
+    let feedbackContext = '';
+    if (userFeedback) {
+      feedbackContext = `
+=== USER FEEDBACK (PRIORITY - Apply this) ===
+"${userFeedback}"
+
+Apply this feedback to improve ALL drafts. This is what the user wants changed.
+`;
+    }
+
+    const systemPrompt = `You are an elite social media ghostwriter who has written viral posts for thought leaders. Your posts get millions of views because you understand the psychology of shareability.
+
+${PLATFORM_GUIDELINES}
+
+${userContext}
+${thoughtsContext}
+
+=== YOUR TASK ===
+Transform the user's raw thought into 3 platform-optimized posts that will perform exceptionally well.
+
+CRITICAL RULES:
+1. NEVER write generic motivational content
+2. ALWAYS use specific details, numbers, or examples
+3. The hook MUST create curiosity or challenge assumptions
+4. Show, don't tell - use stories over statements
+5. Write like a human, not a brand
+6. Each post should feel native to its platform
+7. LinkedIn: Professional storytelling (1,200-1,900 chars)
+8. Twitter: Punchy insight (under 280 chars)
+9. Instagram: Personal, relatable story (150-300 words)
+
+FORMAT YOUR RESPONSE AS JSON:
+{
+  "linkedin": "Full post with \\n\\n between paragraphs",
+  "twitter": "Single punchy tweet under 280 chars",
+  "instagram": "Personal story with \\n\\n between paragraphs"
+}
+
+Use \\n\\n for paragraph breaks. This is CRITICAL for readability.`;
+
+    const userPrompt = `RAW THOUGHT TO TRANSFORM:
+"${thought.originalText}"
+
+Summary: ${thought.summary || 'None'}
+Tags: ${thought.tags?.join(', ') || 'None'}
+
+${retryContext}
+${feedbackContext}
+
+Generate 3 viral-worthy posts. Remember:
+- LinkedIn hook must work in 2 lines (before "see more")
+- Twitter must be under 280 characters
+- Instagram should feel personal and relatable
+- Use \\n\\n for paragraph breaks in LinkedIn and Instagram`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -62,57 +220,11 @@ export async function generatePostDrafts(
       body: JSON.stringify({
         model: 'gpt-4',
         messages: [
-          {
-            role: 'system',
-            content: `You are an expert social media content creator. Generate viral, authentic posts based on the user's raw thought.
-
-${userContext ? `User Context:\n${userContext}\n` : ''}
-${thoughtsContext ? `User's Previous Thoughts:\n${thoughtsContext}\n` : ''}
-
-CRITICAL POST STRUCTURE (follow this exactly):
-1. **Sharp/Honest/Real Hook** - First 1-2 lines that grab attention, challenge assumptions, or state a bold truth
-2. **Real Insight (Earned, Not Generic)** - The core insight from the thought, backed by experience or observation. Must be specific, not generic wisdom.
-3. **Human Takeaway That Invites Recognition, Not Reaction** - A conclusion that makes readers think "yes, I've felt that" or "that's exactly right" - something that creates connection, not debate.
-
-FORMATTING REQUIREMENTS (CRITICAL - MUST FOLLOW):
-- Use line breaks (\\n) to separate paragraphs - NEVER write as one continuous block of text
-- Each section (Hook, Insight, Takeaway) should be separated by a blank line (\\n\\n)
-- Keep paragraphs short (2-4 sentences max per paragraph)
-- Use line breaks for readability - break up long thoughts into digestible chunks
-- Hashtags should be on their own line at the end, separated by a blank line
-
-QUALITY REQUIREMENTS:
-- Be sharp, honest, and real - no fluff or corporate speak
-- Use specific examples, not vague statements
-- Write in the user's authentic voice (match their communication style)
-- Make it shareable - people should want to save or share this
-- Add value beyond the original thought - expand, deepen, or reframe it
-
-PLATFORM SPECIFICS:
-- LinkedIn: 200-400 words. Professional but human. MUST use line breaks between paragraphs (\\n\\n). Each paragraph should be 2-4 sentences. Include relevant hashtags (2-3 max) on a separate line at the end.
-- Twitter/X: Under 280 characters. Punchy, conversational. Can use 1-2 emojis. Make every word count. Use line breaks if needed for readability.
-- Instagram: 100-200 words. Authentic, personal, visually descriptive. Can be more casual and emotional. MUST use line breaks between paragraphs (\\n\\n). Each paragraph should be 2-4 sentences. Include 3-5 relevant hashtags on a separate line at the end.
-
-IMPORTANT: Format your response with proper line breaks. Use \\n\\n to separate paragraphs. Do NOT write as one continuous block of text.
-
-Return ONLY a JSON object with this exact structure:
-{
-  "linkedin": "Post content with proper line breaks (\\n\\n) between paragraphs",
-  "twitter": "Post content (under 280 chars) with line breaks if needed",
-  "instagram": "Post content with proper line breaks (\\n\\n) between paragraphs"
-}
-
-Example format for LinkedIn/Instagram:
-"First paragraph with hook.\\n\\nSecond paragraph with insight.\\n\\nThird paragraph with takeaway.\\n\\n#hashtag1 #hashtag2"
-`,
-          },
-          {
-            role: 'user',
-            content: `Raw Thought: "${thought.originalText}"\n\nSummary: ${thought.summary}\n\nTags: ${thought.tags.join(', ')}${userFeedback ? `\n\nUser Feedback: ${userFeedback}` : ''}`,
-          },
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
         ],
-        temperature: 0.8,
-        max_tokens: 2000,
+        temperature: 0.85,
+        max_tokens: 3000,
       }),
     });
 
@@ -127,9 +239,7 @@ Example format for LinkedIn/Instagram:
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         try {
-          // Parse JSON - handle newlines properly
-          const jsonStr = jsonMatch[0];
-          const parsed = JSON.parse(jsonStr);
+          const parsed = JSON.parse(jsonMatch[0]);
           return {
             linkedin: parsed.linkedin || 'Failed to generate LinkedIn post.',
             twitter: parsed.twitter || 'Failed to generate Twitter post.',
@@ -137,10 +247,10 @@ Example format for LinkedIn/Instagram:
           };
         } catch (parseError) {
           console.error('JSON parse error:', parseError);
-          // Try to extract posts manually from the content
-          const linkedinMatch = content.match(/linkedin["\s:]+"([^"]+)"/i) || content.match(/LinkedIn[:\s]+([^\n]+)/i);
-          const twitterMatch = content.match(/twitter["\s:]+"([^"]+)"/i) || content.match(/Twitter[:\s]+([^\n]+)/i);
-          const instagramMatch = content.match(/instagram["\s:]+"([^"]+)"/i) || content.match(/Instagram[:\s]+([^\n]+)/i);
+          // Try to extract posts manually
+          const linkedinMatch = content.match(/linkedin["\s:]+"([^"]+)"/i);
+          const twitterMatch = content.match(/twitter["\s:]+"([^"]+)"/i);
+          const instagramMatch = content.match(/instagram["\s:]+"([^"]+)"/i);
           
           return {
             linkedin: linkedinMatch ? linkedinMatch[1] : 'Failed to generate LinkedIn post.',
@@ -163,7 +273,6 @@ Example format for LinkedIn/Instagram:
 }
 
 // Generate a shared image prompt that works well for both LinkedIn and Instagram
-// The image should be a great fit for the draft copy content
 export async function generateSharedImagePrompt(
   linkedinContent: string,
   instagramContent: string,
@@ -181,35 +290,35 @@ export async function generateSharedImagePrompt(
         'Authorization': `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4',
         messages: [
           {
             role: 'system',
-            content: `Generate a DALL-E 3 image prompt that perfectly complements the post content. The image will be used for both LinkedIn and Instagram, so it should be:
-- Visually striking and shareable
-- Professional enough for LinkedIn, authentic enough for Instagram
-- Directly relevant to the post's core message and main themes
-- A perfect visual representation of the key ideas in the content
-- Avoid text overlays (DALL-E doesn't render text well)
-- Focus on concepts, metaphors, or visual representations that capture the essence of the post
-- Descriptive, vivid, and engaging
-- Maximum 4000 characters
+            content: `You are a visual storytelling expert. Create a DALL-E 3 prompt for an image that will make people stop scrolling.
 
-Analyze the post content carefully to understand:
-- The main message or insight
-- The emotional tone
-- Key concepts or themes
-- Visual metaphors that would enhance understanding
+The image should:
+- Capture the EMOTION and ESSENCE of the post (not literal illustration)
+- Be visually striking with strong composition
+- Work for both LinkedIn (professional) and Instagram (personal)
+- Use metaphor, symbolism, or abstract representation
+- NO text overlays (DALL-E renders text poorly)
+- Be shareable and memorable
 
-Return ONLY the image prompt text, no JSON, no explanations.`
+Style guidelines:
+- Cinematic lighting and composition
+- Rich, cohesive color palette
+- Professional photography or artistic illustration style
+- Evocative and thought-provoking
+
+Return ONLY the prompt text (max 400 chars), no explanations.`
           },
           {
             role: 'user',
-            content: `LinkedIn Post Content:\n${linkedinContent}\n\nInstagram Post Content:\n${instagramContent}\n\nOriginal Thought: ${thoughtText}\n\nGenerate a perfect image prompt that captures the essence of these posts and will work great for both LinkedIn and Instagram:`
+            content: `Post essence:\nLinkedIn: ${linkedinContent.slice(0, 500)}\nInstagram: ${instagramContent.slice(0, 500)}\n\nCreate an image prompt that captures the emotional core of this message:`
           }
         ],
-        temperature: 0.7,
-        max_tokens: 250,
+        temperature: 0.8,
+        max_tokens: 200,
       }),
     });
 
@@ -224,7 +333,6 @@ Return ONLY the image prompt text, no JSON, no explanations.`
       throw new Error('Failed to generate image prompt');
     }
 
-    // Validate the prompt
     const validation = validateDallePrompt(prompt);
     if (!validation.valid) {
       throw new Error(`Invalid prompt: ${validation.error}`);
@@ -247,10 +355,7 @@ export async function generatePostImage(
     throw new Error('AI image generation requires API key configuration.');
   }
 
-  // Generate the image prompt that works for both platforms
   const imagePrompt = await generateSharedImagePrompt(linkedinContent, instagramContent, thoughtText);
-
-  // Generate the image using DALL-E 3
   const imageUrl = await generateInstagramImage(imagePrompt);
 
   return {
