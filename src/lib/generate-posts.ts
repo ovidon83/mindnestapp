@@ -16,7 +16,8 @@ export async function generatePostDrafts(
   thought: Thought,
   userProfile?: UserProfile | null,
   previousThoughts?: Thought[],
-  userFeedback?: string
+  userFeedback?: string,
+  currentDrafts?: { linkedin?: string; twitter?: string; instagram?: string }
 ): Promise<PostDrafts> {
   if (!OPENAI_API_KEY) {
     return {
@@ -108,7 +109,7 @@ Example format for LinkedIn/Instagram:
           },
           {
             role: 'user',
-            content: `Raw Thought: "${thought.originalText}"\n\nSummary: ${thought.summary}\n\nTags: ${thought.tags.join(', ')}${userFeedback ? `\n\nUser Feedback: ${userFeedback}` : ''}`,
+            content: `Raw Thought: "${thought.originalText}"\n\nSummary: ${thought.summary}\n\nTags: ${thought.tags.join(', ')}${currentDrafts ? `\n\nCurrent Drafts (user may have edited these - use them as direction):\n- LinkedIn: ${currentDrafts.linkedin || 'None'}\n- Twitter: ${currentDrafts.twitter || 'None'}\n- Instagram: ${currentDrafts.instagram || 'None'}` : ''}${userFeedback ? `\n\nUser Feedback for improvement: ${userFeedback}` : ''}`,
           },
         ],
         temperature: 0.8,

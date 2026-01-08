@@ -298,7 +298,15 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
         
         const userProfile = await fetchUserProfile().catch(() => null);
         const otherThoughts = get().thoughts.filter(t => t.id !== thoughtId).slice(0, 10);
-        const drafts = await generatePostDrafts(thought, userProfile || undefined, otherThoughts, userFeedback);
+        
+        // Pass current drafts if retrying (user may have edited them)
+        const currentDrafts = thought.sharePosts ? {
+          linkedin: thought.sharePosts.linkedin,
+          twitter: thought.sharePosts.twitter,
+          instagram: thought.sharePosts.instagram,
+        } : undefined;
+        
+        const drafts = await generatePostDrafts(thought, userProfile || undefined, otherThoughts, userFeedback, currentDrafts);
         
         const now = new Date();
         const existingSharePosts = thought.sharePosts;
@@ -445,7 +453,8 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
       },
 
       setCurrentView: (view: AppView, thoughtId?: string) => {
-        set({ 
+        console.log('[Store] setCurrentView called:', view, 'thoughtId:', thoughtId);
+        set({
           currentView: view,
           navigateToThoughtId: thoughtId || null,
         });

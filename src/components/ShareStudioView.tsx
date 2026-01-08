@@ -100,15 +100,20 @@ const ShareStudioView: React.FC = () => {
   // Handle navigation from other views
   useEffect(() => {
     if (navigateToThoughtId) {
-      setSelectedThoughtId(navigateToThoughtId);
+      console.log('[ShareStudio] Navigation triggered for:', navigateToThoughtId);
+      const targetId = navigateToThoughtId;
+      setSelectedThoughtId(targetId);
       setQueueFilter('all');
       clearNavigateToThought();
       
       // Scroll after a delay to allow for DOM update and potential change
       setTimeout(() => {
-        const el = document.querySelector(`[data-thought-id="${navigateToThoughtId}"]`);
-        el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 300);
+        const el = document.querySelector(`[data-thought-id="${targetId}"]`);
+        console.log('[ShareStudio] Scrolling to element:', el);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 500);
     }
   }, [navigateToThoughtId, clearNavigateToThought]);
 
@@ -538,20 +543,21 @@ const ShareStudioView: React.FC = () => {
                         <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
                           <div className="flex items-center gap-2">
                             {showRetryInput ? (
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="text"
+                              <div className="flex-1 flex items-start gap-2">
+                                <textarea
                                   value={retryFeedback}
                                   onChange={(e) => setRetryFeedback(e.target.value)}
-                                  placeholder="Feedback (optional)..."
-                                  className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm w-40 focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+                                  placeholder="What would you like to change? (e.g., 'make it more casual', 'add a hook', 'shorter')..."
+                                  className="flex-1 min-w-[300px] px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-violet-500/20"
+                                  rows={2}
                                 />
                                 <button
                                   onClick={handleGenerateDrafts}
                                   disabled={generating}
-                                  className="px-3 py-2 bg-violet-600 text-white rounded-lg text-sm font-medium hover:bg-violet-700 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                                  className="px-4 py-2 bg-violet-600 text-white rounded-lg text-sm font-medium hover:bg-violet-700 transition-colors disabled:opacity-50 flex items-center gap-1.5"
                                 >
                                   {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                                  Regenerate
                                 </button>
                                 <button
                                   onClick={() => { setShowRetryInput(false); setRetryFeedback(''); }}

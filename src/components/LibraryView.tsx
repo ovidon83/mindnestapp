@@ -67,7 +67,7 @@ const LibraryView: React.FC = () => {
     if (thought.bestPotential === 'Do') {
       return { type: 'todo', label: 'Could be to-do', color: 'amber' };
     }
-    return { type: 'idea', label: 'Idea', color: 'slate' };
+    return { type: 'idea', label: 'Thought', color: 'slate' };
   };
 
   // Filter and sort thoughts
@@ -111,10 +111,13 @@ const LibraryView: React.FC = () => {
   };
 
   const handleShare = async (thoughtId: string) => {
+    console.log('[Library] handleShare called with:', thoughtId);
     const thought = thoughts.find(t => t.id === thoughtId);
     if (thought && thought.potential !== 'Share') {
+      console.log('[Library] Setting potential to Share');
       await setPotential(thoughtId, 'Share');
     }
+    console.log('[Library] Navigating to studio with thoughtId:', thoughtId);
     setCurrentView('studio', thoughtId);
   };
 
@@ -123,6 +126,10 @@ const LibraryView: React.FC = () => {
     if (thought && thought.potential !== 'Do') {
       await setPotential(thoughtId, 'Do');
     }
+    // Don't navigate - just mark it as to-do
+  };
+
+  const handleOpenInAct = (thoughtId: string) => {
     setCurrentView('act', thoughtId);
   };
 
@@ -325,7 +332,7 @@ const LibraryView: React.FC = () => {
                               {hasAction ? (
                                 // Already assigned - show "Open" CTA
                                 <button
-                                  onClick={() => thought.potential === 'Share' ? handleShare(thought.id) : handleMakeTodo(thought.id)}
+                                  onClick={() => thought.potential === 'Share' ? handleShare(thought.id) : handleOpenInAct(thought.id)}
                                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                                     thought.potential === 'Share'
                                       ? 'bg-violet-600 text-white hover:bg-violet-700'
@@ -348,7 +355,7 @@ const LibraryView: React.FC = () => {
                                   <button
                                     onClick={() => handleMakeTodo(thought.id)}
                                     className="p-1.5 text-amber-600 hover:bg-amber-100 rounded-lg transition-colors"
-                                    title="To-do"
+                                    title="Mark as To-do"
                                   >
                                     <ListTodo className="w-4 h-4" />
                                   </button>
