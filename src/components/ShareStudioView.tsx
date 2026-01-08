@@ -97,13 +97,18 @@ const ShareStudioView: React.FC = () => {
     return shareThoughts[0] || null;
   }, [shareThoughts, selectedThoughtId, thoughts]);
 
-  // Handle navigation from other views - select the thought immediately
+  // Handle navigation from other views
   useEffect(() => {
     if (navigateToThoughtId) {
-      // Select immediately - don't wait for potential to update
       setSelectedThoughtId(navigateToThoughtId);
-      setQueueFilter('all'); // Reset filter to show all
+      setQueueFilter('all');
       clearNavigateToThought();
+      
+      // Scroll after a delay to allow for DOM update and potential change
+      setTimeout(() => {
+        const el = document.querySelector(`[data-thought-id="${navigateToThoughtId}"]`);
+        el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
     }
   }, [navigateToThoughtId, clearNavigateToThought]);
 
@@ -113,17 +118,6 @@ const ShareStudioView: React.FC = () => {
       setSelectedThoughtId(shareThoughts[0].id);
     }
   }, [selectedThoughtId, shareThoughts]);
-
-  // Scroll selected thought into view
-  useEffect(() => {
-    if (selectedThoughtId && selectedThoughtRef.current) {
-      // Use a timeout to ensure DOM is updated
-      const timer = setTimeout(() => {
-        selectedThoughtRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [selectedThoughtId]);
 
   const handleGenerateDrafts = async () => {
     if (!selectedThought || generating) return;
@@ -380,6 +374,7 @@ const ShareStudioView: React.FC = () => {
                     return (
                       <button
                         key={thought.id}
+                        data-thought-id={thought.id}
                         ref={isSelected ? selectedThoughtRef : null}
                         onClick={() => setSelectedThoughtId(thought.id)}
                         className={`w-full p-4 text-left transition-all border-l-4 ${

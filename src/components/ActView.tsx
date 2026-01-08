@@ -42,20 +42,18 @@ const ActView: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState('');
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
-  const highlightedThoughtRef = useRef<HTMLDivElement>(null);
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
 
   // Get to-do thoughts
   const todoThoughts = useMemo(() => {
     let filtered = thoughts.filter(t => t.potential === 'Do' && !t.isParked);
     
-    // Apply filter
     if (filter === 'active') {
       filtered = filtered.filter(t => !t.todoData?.completed);
     } else if (filter === 'completed') {
       filtered = filtered.filter(t => t.todoData?.completed);
     }
     
-    // Apply sort
     if (sortBy === 'oldest') {
       filtered.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
     } else {
@@ -73,19 +71,23 @@ const ActView: React.FC = () => {
     return { total: all.length, active, completed };
   }, [thoughts]);
 
-  // Handle navigation to specific thought
+  // Handle navigation from other views
   useEffect(() => {
     if (navigateToThoughtId) {
-      const thought = thoughts.find(t => t.id === navigateToThoughtId && t.potential === 'Do');
-      if (thought) {
-        clearNavigateToThought();
-        // Scroll to the thought after render
-        setTimeout(() => {
-          highlightedThoughtRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 100);
-      }
+      setHighlightedId(navigateToThoughtId);
+      setFilter('all'); // Reset filter to show the thought
+      clearNavigateToThought();
+      
+      // Scroll after delay to allow for DOM update
+      setTimeout(() => {
+        const el = document.querySelector(`[data-thought-id="${navigateToThoughtId}"]`);
+        el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
+      
+      // Clear highlight after a few seconds
+      setTimeout(() => setHighlightedId(null), 3000);
     }
-  }, [navigateToThoughtId, thoughts, clearNavigateToThought]);
+  }, [navigateToThoughtId, clearNavigateToThought]);
 
   const handleToggleComplete = async (thoughtId: string) => {
     const thought = thoughts.find(t => t.id === thoughtId);
@@ -240,15 +242,15 @@ const ActView: React.FC = () => {
             {todoThoughts.map((thought) => {
               const isCompleted = thought.todoData?.completed;
               const isEditing = editingId === thought.id;
-              const isHighlighted = navigateToThoughtId === thought.id;
+              const isHighlighted = highlightedId === thought.id;
 
               return (
                 <div
                   key={thought.id}
-                  ref={isHighlighted ? highlightedThoughtRef : null}
+                  data-thought-id={thought.id}
                   className={`group bg-white rounded-xl border-2 border-dashed transition-all duration-200 ${
-                    isCompleted 
-                      ? 'border-slate-200/60 bg-slate-50/50' 
+                    isCompleted
+                      ? 'border-slate-200/60 bg-slate-50/50'
                       : 'border-emerald-200/60 hover:border-emerald-300 hover:shadow-sm'
                   } ${isHighlighted ? 'ring-2 ring-emerald-400 ring-offset-2' : ''}`}
                 >
