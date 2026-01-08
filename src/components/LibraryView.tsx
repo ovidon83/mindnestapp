@@ -160,6 +160,16 @@ const LibraryView: React.FC = () => {
     setExpandedMenu(null);
   };
 
+  const handleGoToShareAndSelect = async (thoughtId: string) => {
+    const thought = thoughts.find(t => t.id === thoughtId);
+    // If not already marked as Share, mark it first and wait
+    if (thought && thought.potential !== 'Share') {
+      await setPotential(thoughtId, 'Share');
+    }
+    // Now navigate
+    setCurrentView('studio', thoughtId);
+  };
+
   const handleArchive = async (thoughtId: string) => {
     await parkThought(thoughtId);
     setExpandedMenu(null);
@@ -455,12 +465,7 @@ const LibraryView: React.FC = () => {
                         {/* Quick action: Go to Share (if Share potential) */}
                         {(thought.potential === 'Share' || sharingPotential) && !thought.isParked && !isTodo && (
                           <button
-                            onClick={() => {
-                              if (thought.potential !== 'Share') {
-                                handleMarkForSharing(thought.id);
-                              }
-                              handleGoToStudio(thought.id);
-                            }}
+                            onClick={() => handleGoToShareAndSelect(thought.id)}
                             className="p-1.5 text-violet-600 hover:bg-violet-50 rounded-lg transition-colors"
                             title={hasSharePosts ? 'Open in Share' : 'Create Drafts'}
                           >
