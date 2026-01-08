@@ -2,14 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useGenieNotesStore } from './store';
 import { supabase, hasSupabaseCredentials } from './lib/supabase';
 import CaptureView from './components/CaptureView';
-import ThoughtsView from './components/ThoughtsView';
-import ShareItView from './components/ShareItView';
-import ToDoView from './components/ToDoView';
-import ParkView from './components/ParkView';
-import ExploreView from './components/ExploreView';
-import InsightsView from './components/InsightsView';
-import MindReview from './components/MindReview';
-import ProfileView from './components/ProfileView';
+import LibraryView from './components/LibraryView';
+import ShareStudioView from './components/ShareStudioView';
 import Auth from './components/Auth';
 
 // Thouty - Your Thought Companion
@@ -24,9 +18,15 @@ const App: React.FC = () => {
   useEffect(() => {
     // Check initial hash on mount
     const initialHash = window.location.hash.slice(1);
-    if (initialHash && ['capture', 'thoughts', 'home', 'shareit', 'todo', 'park', 'explore', 'insights', 'profile'].includes(initialHash)) {
-      // Map 'explore' to 'insights' for backward compatibility
-      const view = initialHash === 'explore' ? 'insights' : initialHash;
+    const validViews = ['capture', 'library', 'studio', 'thoughts', 'home', 'shareit'];
+    if (initialHash && validViews.includes(initialHash)) {
+      // Map old views to new views
+      const viewMap: Record<string, string> = {
+        'thoughts': 'library',
+        'home': 'library',
+        'shareit': 'studio',
+      };
+      const view = viewMap[initialHash] || initialHash;
       setCurrentView(view as any);
     }
 
@@ -34,15 +34,19 @@ const App: React.FC = () => {
       if (event.state && event.state.view) {
         setCurrentView(event.state.view, event.state.thoughtId);
       } else {
-        // Fallback: check hash or default to home
+        // Fallback: check hash or default to library
         const hash = window.location.hash.slice(1);
-        if (hash && ['capture', 'thoughts', 'home', 'shareit', 'todo', 'park', 'explore', 'insights', 'profile'].includes(hash)) {
-          // Map 'explore' to 'insights' for backward compatibility
-          const view = hash === 'explore' ? 'insights' : hash;
+        if (hash && validViews.includes(hash)) {
+          const viewMap: Record<string, string> = {
+            'thoughts': 'library',
+            'home': 'library',
+            'shareit': 'studio',
+          };
+          const view = viewMap[hash] || hash;
           setCurrentView(view as any);
         } else {
-          // Default to thoughts view if no hash or invalid hash
-          setCurrentView('thoughts');
+          // Default to library view if no hash or invalid hash
+          setCurrentView('library');
         }
       }
     };
@@ -63,15 +67,20 @@ const App: React.FC = () => {
       if (session?.user) {
         loadThoughts();
         loadActions();
-        // Check hash first, then default to thoughts
+        // Check hash first, then default to library
         const hash = window.location.hash.slice(1);
-        if (hash && ['capture', 'thoughts', 'home', 'shareit', 'todo', 'park', 'explore', 'insights', 'profile'].includes(hash)) {
-          // Map 'explore' to 'insights' for backward compatibility
-          const view = hash === 'explore' ? 'insights' : hash;
+        const validViews = ['capture', 'library', 'studio', 'thoughts', 'home', 'shareit'];
+        if (hash && validViews.includes(hash)) {
+          const viewMap: Record<string, string> = {
+            'thoughts': 'library',
+            'home': 'library',
+            'shareit': 'studio',
+          };
+          const view = viewMap[hash] || hash;
           setCurrentView(view as any);
         } else {
-          // Set default view to Thoughts when logged in
-          setCurrentView('thoughts');
+          // Set default view to Library when logged in
+          setCurrentView('library');
         }
       }
       setInitializing(false);
@@ -162,26 +171,14 @@ const App: React.FC = () => {
           }} 
         />
       ) : (
-        // Authenticated: Show normal app views
+        // Authenticated: Show new streamlined app views
         <>
           {currentView === 'capture' ? (
             <CaptureView />
-          ) : currentView === 'home' || currentView === 'thoughts' ? (
-            <ThoughtsView />
-          ) : currentView === 'shareit' ? (
-            <ShareItView />
-          ) : currentView === 'todo' ? (
-            <ToDoView />
-          ) : currentView === 'park' ? (
-            <ParkView />
-          ) : currentView === 'explore' || currentView === 'insights' ? (
-            <InsightsView />
-          ) : currentView === 'review' ? (
-            <MindReview />
-          ) : currentView === 'profile' ? (
-            <ProfileView />
+          ) : currentView === 'studio' || currentView === 'shareit' ? (
+            <ShareStudioView />
           ) : (
-            <ThoughtsView />
+            <LibraryView />
           )}
         </>
       )}

@@ -62,7 +62,7 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
     (set, get) => ({
       thoughts: [],
       actions: [],
-      currentView: 'thoughts', // Default to thoughts view
+      currentView: 'library', // Default to library view
       user: null,
       loading: false,
       pendingText: null,
@@ -135,8 +135,8 @@ export const useGenieNotesStore = create<GenieNotesStore>()(
           // Reload thoughts
           await get().loadThoughts();
           
-          // Navigate to thoughts view after saving
-          get().setCurrentView('thoughts');
+          // Navigate to library view after saving
+          get().setCurrentView('library');
         } catch (error) {
           console.error('Error processing and saving thought:', error);
           throw error;

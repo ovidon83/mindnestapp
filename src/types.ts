@@ -1,4 +1,4 @@
-export type AppView = 'capture' | 'thoughts' | 'home' | 'shareit' | 'todo' | 'park' | 'explore' | 'insights' | 'profile' | 'review';
+export type AppView = 'capture' | 'thoughts' | 'home' | 'shareit' | 'todo' | 'park' | 'explore' | 'insights' | 'profile' | 'review' | 'library' | 'studio';
 
 // Legacy type for backward compatibility
 export type EntryType = 'todo' | 'insight' | 'journal';
