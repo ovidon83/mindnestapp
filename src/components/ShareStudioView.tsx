@@ -84,69 +84,46 @@ const ShareStudioView: React.FC = () => {
     return filtered;
   }, [thoughts, queueFilter, queueSort]);
 
+  // Get the selected thought - find by ID or fall back to first in list
   const selectedThought = useMemo(() => {
-    return shareThoughts.find(t => t.id === selectedThoughtId) || shareThoughts[0] || null;
-  }, [shareThoughts, selectedThoughtId]);
+    if (selectedThoughtId) {
+      // First try to find in filtered list
+      const inList = shareThoughts.find(t => t.id === selectedThoughtId);
+      if (inList) return inList;
+      // If not in filtered list, find in all thoughts (might be newly added)
+      const inAll = thoughts.find(t => t.id === selectedThoughtId && t.potential === 'Share' && !t.isParked);
+      if (inAll) return inAll;
+    }
+    return shareThoughts[0] || null;
+  }, [shareThoughts, selectedThoughtId, thoughts]);
 
-  // Auto-select navigated thought or first thought
+  // Handle navigation from other views - select the thought immediately
   useEffect(() => {
     if (navigateToThoughtId) {
-      // Find in all share thoughts (not just filtered)
-      const allShareThoughts = thoughts.filter(t => t.potential === 'Share' && !t.isParked);
-      const thought = allShareThoughts.find(t => t.id === navigateToThoughtId);
-      
-      if (thought) {
-        // Found the thought - select it
-        setSelectedThoughtId(navigateToThoughtId);
-        // Reset filter to 'all' to ensure thought is visible
-        setQueueFilter('all');
-        clearNavigateToThought();
-      } else {
-        // Thought not found yet (might still be updating) - check if it exists at all
-        const anyThought = thoughts.find(t => t.id === navigateToThoughtId);
-        if (anyThought) {
-          // Thought exists but not marked as Share yet - wait for it
-          // The effect will re-run when thoughts updates
-          console.log('[ShareStudio] Waiting for thought to be marked as Share:', navigateToThoughtId);
-        } else {
-          // Thought doesn't exist - clear navigation
-          clearNavigateToThought();
-        }
-      }
-    } else if (!selectedThoughtId && shareThoughts.length > 0) {
+      // Select immediately - don't wait for potential to update
+      setSelectedThoughtId(navigateToThoughtId);
+      setQueueFilter('all'); // Reset filter to show all
+      clearNavigateToThought();
+    }
+  }, [navigateToThoughtId, clearNavigateToThought]);
+
+  // Auto-select first thought if none selected
+  useEffect(() => {
+    if (!selectedThoughtId && shareThoughts.length > 0) {
       setSelectedThoughtId(shareThoughts[0].id);
     }
-  }, [navigateToThoughtId, shareThoughts, selectedThoughtId, clearNavigateToThought, thoughts]);
+  }, [selectedThoughtId, shareThoughts]);
 
-  // Keep selected thought ID in sync if it's no longer valid
+  // Scroll selected thought into view
   useEffect(() => {
-    if (selectedThoughtId && shareThoughts.length > 0) {
-      const stillExists = shareThoughts.some(t => t.id === selectedThoughtId);
-      if (!stillExists) {
-        // Selected thought no longer in list (filtered out or removed)
-        // Don't auto-change selection unless navigating
-        if (!navigateToThoughtId) {
-          // Keep the selection but it won't show in the list
-        }
-      }
-    }
-  }, [selectedThoughtId, shareThoughts, navigateToThoughtId]);
-
-  // Scroll selected thought into view when it changes
-  useEffect(() => {
-    if (selectedThoughtId) {
-      // Wait for DOM to update, then scroll
-      const scrollToSelected = () => {
-        if (selectedThoughtRef.current) {
-          selectedThoughtRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      };
-      // Try immediately and after a short delay (for render)
-      scrollToSelected();
-      const timer = setTimeout(scrollToSelected, 150);
+    if (selectedThoughtId && selectedThoughtRef.current) {
+      // Use a timeout to ensure DOM is updated
+      const timer = setTimeout(() => {
+        selectedThoughtRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
       return () => clearTimeout(timer);
     }
-  }, [selectedThoughtId, shareThoughts]); // Also depend on shareThoughts in case list updates
+  }, [selectedThoughtId]);
 
   const handleGenerateDrafts = async () => {
     if (!selectedThought || generating) return;
